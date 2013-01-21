@@ -9,3 +9,7 @@ This project aims to create an open source implementation of SEPA Financial Mess
 * Bank-to-Customer Statement. ISO standard "BankToCustomerStatementV02", XML schema "camt.053.001.02"
 * Bank-to-Customer Debit/Credit Notification. ISO standard "BankToCustomerDebitCreditNotificationV02", XML schma "camt.054.001.02"
 * Update README
+
+## License
+
+Released under the [MIT License](http://opensource.org/licenses/MIT).
