@@ -8,10 +8,15 @@ require 'nokogiri'
 
 	def fill_xml
 	#parses to xml TODO: from objects or attributes, through REST API?
+  #NOTES:
+  #Starts with using a predefined prefilled xml in the first iteration
+  #what kinds of messages incoming in the final iteration?
 	end
 
 	def read_xml
-	#parses from xml to json messages
+  #NOTES:
+	#parses reply from xml to json messages
+  #requirements for final implementation?
 	end
 
   def canonicalization(xml_file)
@@ -34,7 +39,7 @@ class Inspector
 require 'nokogiri'
 	@counter = 1
 	def check_xml_against_schema(xml_file, schema_file)
-	#checks validity, required fields etc
+	#checks validity, required fields, parameters within given constraints etc
 
 		xsd = Nokogiri::XML::Schema(File.read(schema_file))
   	doc = Nokogiri::XML(File.read(xml_file))
@@ -55,11 +60,12 @@ require 'openssl'
 	#prepared signature to be used with anything
 	#defined private key (type)
 	#defined public key (type)
-	#public key of the party that is sending material
+	#public key of the party that is receiving sent material
 
-	def encrypt
+	def encrypt_content
 		#TODO: check certicate type
-		#password is to secure local keyfile
+		#password is to secure local keyfile with encryption
+    #ALSO: to encrypt local xml files? perhaps separate method is better
 
 		#NOTES:
 		#key2 = OpenSSL::PKey::RSA.new File.read 'private_key.pem'
@@ -78,7 +84,7 @@ require 'openssl'
 
 	end
 
-	def decrypt
+	def decrypt_content
 		
 		#NOTES: opposite key to decrypt
 		#secret_document = key.public_decrypt public_encrypted
@@ -87,6 +93,27 @@ require 'openssl'
 	end
 
 	def add_signature
+    #NOTES:
+    #<ds:Signature Id="Signature-12345678" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+    #<ds:SignedInfo>
+    #<ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+    #<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+    #<ds:Reference URI="#id-4453123">
+    #<ds:Transforms>
+    #<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+    #</ds:Transforms>
+    #<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    #<ds:DigestValue>zYeQGz0jnyy3tI5gruq+IlGyzQo=</ds:DigestValue>
+    #</ds:Reference>
+    #</ds:SignedInfo>
+    #<ds:SignatureValue>m5fuzJnVOQGNsu4s2kfaI+UTReUSz9pMxH...=</ds:SignatureValue>
+    #<ds:KeyInfo Id="KeyId-98765432"><wsse:SecurityTokenReference wsu:Id="STRId-33454994"
+    #xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+    #<wsse:Reference URI="#CertId-9502902" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-
+    #200401-wss-x509-token-profile-1.0#X509v3"/>
+    #</wsse:SecurityTokenReference>
+    #</ds:KeyInfo>
+    #</ds:Signature>
 		cert = OpenSSL::X509::Certificate.new(File.read("DEFINE LOCATION.pem"))
 
 		cert.issuer = name
@@ -96,12 +123,13 @@ require 'openssl'
 	end
 
 	def confirm_signature
-		#not sure if required, can extend add_signature if needed
+		#TODO: confirm outside sender
+    #could also be implemented in decrypt_content   
 	end
 
 	def compare
 		#not sure if required, can extend encrypt if needed
-		#comparing hash?
+		#comparing hash? from incoming or outgoing?
 	end
 
 end
