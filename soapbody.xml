@@ -1,0 +1,13 @@
+<soapenv:Body wsu:Id="id-23633426" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+        <cor:getUserInfoin>
+            <mod:RequestHeader>
+                <mod:SenderId>1</mod:SenderId>
+                <mod:RequestId>2</mod:RequestId>
+                <mod:Timestamp>2010-06-23T14:00:08Z</mod:Timestamp>
+                <mod:Language>FI</mod:Language>
+                <mod:UserAgent>Petri</mod:UserAgent>
+                <mod:ReceiverId>3</mod:ReceiverId>
+            </mod:RequestHeader>
+            <mod:ApplicationRequest></mod:ApplicationRequest>
+        </cor:getUserInfoin>
+    </soapenv:Body>
