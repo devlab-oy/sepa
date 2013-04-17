@@ -2,14 +2,23 @@ require 'savon'
 require 'nokogiri'
 require 'openssl'
 
-def send_soap
-    client = Savon.client(wsdl: "BankCorporateFileService_20080616.xml", pretty_print_xml: true, ssl_version: :SSLv2, ssl_cert_file: "ssl_key.pem")
-
-    f = File.open("SOAPrequest_GetUserInfo.xml")
-    doc = Nokogiri::XML(f)
+def get_user_info
+    f = File.open("xml_templates/get_user_info_soap_request.xml")
+    soap_request = Nokogiri::XML(f)
     f.close
 
-    response = client.call(:get_user_info, xml: doc.to_s)
+    f = File.open("xml_templates/get_user_info_application_request.xml")
+    application_request = Nokogiri::XML(f)
+    f.close
+
+    # Change the customer id of the application request to Nordea's testing ID
+    customer_id = application_request.at_css "CustomerId"
+    customer_id.content = "11111111"
+    puts application_request
+
+    client = Savon.client(wsdl: "wsdl/wsdl_nordea.xml", pretty_print_xml: true, ssl_version: :SSLv2, ssl_cert_file: "keys/ssl_key.pem")
+
+    response = client.call(:get_user_info, xml: soap_request.to_xml)
 end
 
-send_soap
+get_user_info

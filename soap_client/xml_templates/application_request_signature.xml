@@ -1,0 +1,20 @@
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>f81w5hBj8AibRksJC2HhmXqniVg=</DigestValue></Reference></SignedInfo><SignatureValue>Arg0E34sGicwjLHtU8vg6TRJrY9oY0mPUQAoHWQ5hhyr7lVI/18GJY4M8qsmOKW0ALn34zXXuxd/
+1n/nRCnV7AUSPWeO63g4MC7IcFhwZcpnU/00H4D2KYp3vxQNi/fU1Sb8VzeZ9h5j+RO7VOlTXjnY
+XRcXh6fJz6/ImkKTy68=</SignatureValue><KeyInfo><X509Data><X509Certificate>MIID+jCCAuKgAwIBAgIEAMdxxDANBgkqhkiG9w0BAQUFADBsMQswCQYDVQQGEwJTRTEeMBwGA1UE
+ChMVTm9yZGVhIEJhbmsgQUIgKHB1YmwpMScwJQYDVQQDEx5Ob3JkZWEgcm9sZS1jZXJ0aWZpY2F0
+ZXMgQ0EgMDExFDASBgNVBAUTCzUxNjQwNi0wMTIwMB4XDTA5MDYxMTEyNTAxOVoXDTExMDYxMTEy
+NTAxOVowcjELMAkGA1UEBhMCU0UxIDAeBgNVBAMMF05vcmRlYSBEZW1vIENlcnRpZmljYXRlMRQw
+EgYDVQQEDAtDZXJ0aWZpY2F0ZTEUMBIGA1UEKgwLTm9yZGVhIERlbW8xFTATBgNVBAUTDDAwOTU1
+NzI0Mzc3MjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAqgeTV4WF+9oJOS6IlXXzCYsldfDm
+Uos6kC7uN87hgUpb8t/EO0fo3Hd7KP4t1YNHN5pvn0VEN7g/KBlvvGH+/SGXVWlXlLIiSe/yM9aN
+vEyrUJZNWUsziephmRTga9nZuecISyZpsfbOXBQGBN2wuiC+2hRcXiR09L5kvqBby78CAwEAAaOC
+ASAwggEcMAkGA1UdEwQCMAAwEQYDVR0OBAoECEeHQepe3tByMBMGA1UdIAQMMAowCAYGKoVwRwED
+MBMGA1UdIwQMMAqACEIFjfLBeTpRMDcGCCsGAQUFBwEBBCswKTAnBggrBgEFBQcwAYYbaHR0cDov
+L29jc3Aubm9yZGVhLnNlL1JDQTAxMA4GA1UdDwEB/wQEAwIFoDCBiAYDVR0fBIGAMH4wfKB6oHiG
+dmxkYXA6Ly9sZGFwLm5iLnNlL2NuPU5vcmRlYSUyMHJvbGUtY2VydGlmaWNhdGVzJTIwQ0ElMjAw
+MSxvPU5vcmRlYSUyMEJhbmslMjBBQiUyMChwdWJsKSxjPVNFP2NlcnRpZmljYXRlcmV2b2NhdGlv
+bmxpc3QwDQYJKoZIhvcNAQEFBQADggEBAJohxU6YvEyBrWdZAs2Xkh/cnemc67O9UbGh/KSH4MVf
+7cwy1BOk8UMBmqmivVa2Ojyj9/P6+hztd47Yb4L+owMMNpdiLeZiPgk9nZ0aPCSxVGWxZk+KarUY
+/NtF+sFqR6+zWZC4ZxyUWWpkwbpZv0l7t1haAXMXeY5ra34kl11tKKygeej+5EqNz5gW7Je+AqT0
+xYzxl/78e0rviPcfWnsE2K5YIRCdAIGfklH70YKOcgzVNxdR230w+KRO+U9xArR9tjAsC+BahuIE
+umz8i4JH3lo3Z3Ii/zDRDjtzu3h8Pl8MYYv0YmOmdYht0BIxiHaTCeMgr34+fxBPkZp8OKo=</X509Certificate><X509IssuerSerial><X509IssuerName>2.5.4.5=#130b3531363430362d30313230,CN=Nordea role-certificates CA 01,O=Nordea Bank AB (publ),C=SE</X509IssuerName><X509SerialNumber>13070788</X509SerialNumber></X509IssuerSerial></X509Data></KeyInfo></Signature>
