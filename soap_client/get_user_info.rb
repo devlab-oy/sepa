@@ -10,14 +10,14 @@ def load_soap_request
   f = File.open("xml_templates/get_user_info_soap_request.xml")
   soap_request = Nokogiri::XML(f)
   f.close
-  return soap_request
+  soap_request
 end
 
 def load_application_request_signature
   f = File.open("xml_templates/application_request_signature.xml")
   application_request_signature = Nokogiri::XML(f)
   f.close
-  return application_request_signature
+  application_request_signature
 end
 
 def process_application_request
@@ -36,7 +36,7 @@ def process_application_request
 
   #Canonicalize the application request
   canon_application_request = application_request.canonicalize
-  return canon_application_request
+  canon_application_request
 end
 
 def sign_application_request(application_request, application_request_signature, private_key, cert)
@@ -67,11 +67,28 @@ def sign_application_request(application_request, application_request_signature,
   #Base64 code the whole application request
   application_request_base64 = Base64.encode64(application_request_xml)
 
-  return application_request_base64
+  application_request_base64
 end
+
+def process_soap_request(soap_request, application_request_base64)
+  #Add the base64 coded application request to the soap envelope after removing whitespaces
+  soap_request_application_request = soap_request.xpath("//mod:ApplicationRequest", 'mod' => 'http://model.bxd.fi').first
+  soap_request_application_request.content = application_request_base64.gsub(/\s+/, "")
+
+  #Add the testing sender id
+  soap_request_sender_id = soap_request.xpath("//mod:SenderId", 'mod' => 'http://model.bxd.fi').first
+  soap_request_sender_id.content = "11111111"
+
+  #Add timestamp
+  soap_request_timestamp = soap_request.xpath("//mod:Timestamp", 'mod' => 'http://model.bxd.fi').first
+  soap_request_timestamp.content = Time.now
+  puts soap_request
+
+end
+
 def send_soap(soap_request)
   client = Savon.client(wsdl: "wsdl/wsdl_nordea.xml", pretty_print_xml: true, ssl_version: :SSLv2, ssl_cert_file: "keys/ssl_key.pem")
   response = client.call(:get_user_info, xml: soap_request.to_xml)
 end
 
-sign_application_request(process_application_request, load_application_request_signature, private_key, cert)
+process_soap_request(load_soap_request, sign_application_request(process_application_request, load_application_request_signature, private_key, cert))
