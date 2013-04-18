@@ -2,6 +2,7 @@ require 'savon'
 require 'nokogiri'
 require 'openssl'
 require 'base64'
+require 'gibberish'
 
 private_key = OpenSSL::PKey::RSA.new File.read 'keys/private.pem'
 cert = OpenSSL::X509::Certificate.new File.read 'keys/cert.pem'
@@ -48,7 +49,11 @@ end
 
 def sign_application_request(application_request, application_request_signature, private_key, cert)
   #Take digest from application request and set it to the signature
-  digest = OpenSSL::Digest.new('sha1', application_request)
+  ### For some reason OpenSSL returns binary hashes so using Gibberish for hashing ###
+  #digest = OpenSSL::Digest.new('sha1', application_request)
+  #signature_digest = application_request_signature.at_css "DigestValue"
+  #signature_digest.content = digest
+  digest = Gibberish::SHA1(application_request)
   signature_digest = application_request_signature.at_css "DigestValue"
   signature_digest.content = digest
 
@@ -59,7 +64,7 @@ def sign_application_request(application_request, application_request_signature,
 
   #Add the base64 coded signature to the signature element
   signature_signature = application_request_signature.at_css "SignatureValue"
-  signature_signature.content = signature_base64
+  signature_signature.content = signature_base64.gsub(/\s+/, "")
 
   #Format the certificate and add the it to the certificate element
   cert_formatted = cert.to_s.split('-----BEGIN CERTIFICATE-----')[1].split('-----END CERTIFICATE-----')[0].gsub(/\s+/, "")
@@ -99,7 +104,11 @@ end
 
 def sign_soap_request(soap_request, soap_request_header, private_key, cert)
   #Take digest from soap request and put it to the signature
-  digest = OpenSSL::Digest.new('sha1', soap_request)
+  ### For some reason OpenSSL returns binary hashes so using Gibberish for hashing ###
+  #digest = OpenSSL::Digest.new('sha1', soap_request)
+  #signature_digest = soap_request_header.xpath("//ds:DigestValue", 'ds' => 'http://www.w3.org/2000/09/xmldsig#').first
+  #signature_digest.content = digest
+  digest = Gibberish::SHA1(soap_request)
   signature_digest = soap_request_header.xpath("//ds:DigestValue", 'ds' => 'http://www.w3.org/2000/09/xmldsig#').first
   signature_digest.content = digest
 
@@ -110,7 +119,7 @@ def sign_soap_request(soap_request, soap_request_header, private_key, cert)
 
   #Add the base64 coded signature to the signature element
   signature_signature = soap_request_header.xpath("//ds:SignatureValue", 'ds' => 'http://www.w3.org/2000/09/xmldsig#').first
-  signature_signature.content = signature_base64
+  signature_signature.content = signature_base64.gsub(/\s+/, "")
 
   #Format the certificate and add the it to the certificate element
   cert_formatted = cert.to_s.split('-----BEGIN CERTIFICATE-----')[1].split('-----END CERTIFICATE-----')[0].gsub(/\s+/, "")
@@ -130,6 +139,6 @@ processed_soap_request = process_soap_request(load_soap_request, signed_applicat
 
 signed_soap_request = sign_soap_request(processed_soap_request, load_soap_request_header, private_key, cert)
 
-client = Savon.client(wsdl: "wsdl/wsdl_nordea.xml", pretty_print_xml: true, ssl_version: :SSLv2, ssl_cert_file: "keys/ssl_key.pem")
+client = Savon.client(wsdl: "wsdl/wsdl_nordea.xml", pretty_print_xml: true)
 
 response = client.call(:get_user_info, xml: signed_soap_request.to_xml)
