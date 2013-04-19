@@ -2,7 +2,6 @@ require 'savon'
 require 'nokogiri'
 require 'openssl'
 require 'base64'
-require 'gibberish'
 
 private_key = OpenSSL::PKey::RSA.new File.read 'keys/private.pem'
 cert = OpenSSL::X509::Certificate.new File.read 'keys/cert.pem'
@@ -48,12 +47,10 @@ def process_application_request
 end
 
 def sign_application_request(application_request, application_request_signature, private_key, cert)
-  #Take digest from application request and set it to the signature
-  ### For some reason OpenSSL returns binary hashes so using Gibberish for hashing ###
-  #digest = OpenSSL::Digest.new('sha1', application_request)
-  #signature_digest = application_request_signature.at_css "DigestValue"
-  #signature_digest.content = digest
-  digest = Gibberish::SHA1(application_request)
+  #Take digest from application request, base64 code it and set it to the signature
+  sha1 = OpenSSL::Digest::SHA1.new
+  digestbin = sha1.digest(application_request)
+  digest = Base64.encode64(digestbin)
   signature_digest = application_request_signature.at_css "DigestValue"
   signature_digest.content = digest
 
@@ -103,12 +100,12 @@ def process_soap_request(soap_request, application_request_base64)
 end
 
 def sign_soap_request(soap_request, soap_request_header, private_key, cert)
-  #Take digest from soap request and put it to the signature
-  ### For some reason OpenSSL returns binary hashes so using Gibberish for hashing ###
-  #digest = OpenSSL::Digest.new('sha1', soap_request)
-  #signature_digest = soap_request_header.xpath("//ds:DigestValue", 'ds' => 'http://www.w3.org/2000/09/xmldsig#').first
-  #signature_digest.content = digest
-  digest = Gibberish::SHA1(soap_request)
+  #Take digest from soap request, base64 code it and put it to the signature
+  soap_request_xml  = Nokogiri::XML(soap_request)
+  soap_request_body = soap_request_xml.xpath("//soapenv:Body", 'soapenv' => 'http://schemas.xmlsoap.org/soap/envelope/').first
+  sha1 = OpenSSL::Digest::SHA1.new
+  digestbin = sha1.digest(soap_request_body)
+  digest = Base64.encode64(digestbin)
   signature_digest = soap_request_header.xpath("//ds:DigestValue", 'ds' => 'http://www.w3.org/2000/09/xmldsig#').first
   signature_digest.content = digest
 
