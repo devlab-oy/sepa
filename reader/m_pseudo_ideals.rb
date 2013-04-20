@@ -121,6 +121,7 @@ def decrypt_content
   end
   
   def add_signature
+  #xmlsec1 gem
   #NOTES:
   #<ds:Signature Id="Signature-12345678" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
   #<ds:SignedInfo>

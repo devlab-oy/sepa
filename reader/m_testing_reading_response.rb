@@ -8,6 +8,6 @@ reader.each do
     stuff = reader.name
     puts "\n" + stuff + ": " unless stuff == "#text"
     puts "\n" + reader.value unless reader.value == nil
-    puts "\n" + reader.attribute_nodes
+    #puts "\n" + reader.attribute_nodes
   end
 end
