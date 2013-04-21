@@ -5,6 +5,7 @@ require 'base64'
 
 private_key = OpenSSL::PKey::RSA.new File.read 'keys/private.pem'
 cert = OpenSSL::X509::Certificate.new File.read 'keys/cert.pem'
+ssl_cert = OpenSSL::X509::Certificate.new File.read 'keys/ssl_key.cer'
 
 def load_soap_request
   f = File.open("xml_templates/get_user_info_soap_request.xml")
@@ -39,7 +40,11 @@ def process_application_request
 
   #Set the timestamp
   timestamp = application_request.at_css "Timestamp"
-  timestamp.content = Time.now
+  timestamp.content = Time.now.to_time.iso8601
+
+  #Set the software id
+  softwareid = application_request.at_css "SoftwareId"
+  softwareid.content = "Sepa Transfer Library version 0.1"
 
   #Canonicalize the application request
   canon_application_request = application_request.canonicalize
@@ -52,7 +57,7 @@ def sign_application_request(application_request, application_request_signature,
   digestbin = sha1.digest(application_request)
   digest = Base64.encode64(digestbin)
   signature_digest = application_request_signature.at_css "DigestValue"
-  signature_digest.content = digest
+  signature_digest.content = digest.gsub(/\s+/, "")
 
   #Sign the digest with private key and base64 code it
   digest_sign = OpenSSL::Digest::SHA1.new
@@ -91,9 +96,21 @@ def process_soap_request(soap_request, application_request_base64)
   soap_request_sender_id = soap_request.xpath("//mod:SenderId", 'mod' => 'http://model.bxd.fi').first
   soap_request_sender_id.content = "11111111"
 
+  #Add request id
+  soap_request_request_id = soap_request.xpath("//mod:RequestId", 'mod' => 'http://model.bxd.fi').first
+  soap_request_request_id.content = "2378764423723"
+
   #Add timestamp
   soap_request_timestamp = soap_request.xpath("//mod:Timestamp", 'mod' => 'http://model.bxd.fi').first
-  soap_request_timestamp.content = Time.now
+  soap_request_timestamp.content = Time.now.iso8601
+
+  #Add useragent
+  soap_request_useragent = soap_request.xpath("//mod:UserAgent", 'mod' => 'http://model.bxd.fi').first
+  soap_request_useragent.content = "Sepa Transfer Library version 0.1"
+
+  #Add receiver id
+  soap_request_receiverid = soap_request.xpath("//mod:ReceiverId", 'mod' => 'http://model.bxd.fi').first
+  soap_request_receiverid.content = "11111111A1"
 
   #Canonicalize the request
   soap_request.canonicalize
@@ -107,7 +124,7 @@ def sign_soap_request(soap_request, soap_request_header, private_key, cert)
   digestbin = sha1.digest(soap_request_body)
   digest = Base64.encode64(digestbin)
   signature_digest = soap_request_header.xpath("//ds:DigestValue", 'ds' => 'http://www.w3.org/2000/09/xmldsig#').first
-  signature_digest.content = digest
+  signature_digest.content = digest.gsub(/\s+/, "")
 
   #Sign the digest with private key and base64 code it
   digest_sign = OpenSSL::Digest::SHA1.new
@@ -136,6 +153,6 @@ processed_soap_request = process_soap_request(load_soap_request, signed_applicat
 
 signed_soap_request = sign_soap_request(processed_soap_request, load_soap_request_header, private_key, cert)
 
-client = Savon.client(wsdl: "wsdl/wsdl_nordea.xml", pretty_print_xml: true)
+client = Savon.client(wsdl: "wsdl/wsdl_nordea.xml", pretty_print_xml: true, ssl_version: :SSLv3, ssl_cert_file: "keys/ssl_key.cer")
 
 response = client.call(:get_user_info, xml: signed_soap_request.to_xml)
