@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+    <soapenv:Body xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+        <cor:getUserInfoin xmlns:cor="http://bxd.fi/CorporateFileService">
+            <mod:RequestHeader xmlns:mod="http://model.bxd.fi">
+                <mod:SenderId></mod:SenderId>
+                <mod:RequestId></mod:RequestId>
+                <mod:Timestamp></mod:Timestamp>
+                <mod:Language></mod:Language>
+                <mod:UserAgent></mod:UserAgent>
+                <mod:ReceiverId></mod:ReceiverId>
+            </mod:RequestHeader>
+            <mod:ApplicationRequest xmlns:mod="http://model.bxd.fi"></mod:ApplicationRequest>
+        </cor:getUserInfoin>
+    </soapenv:Body>
+</soapenv:Envelope>

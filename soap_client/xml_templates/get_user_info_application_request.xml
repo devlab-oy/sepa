@@ -1,7 +1,0 @@
-<ApplicationRequest xmlns="http://bxd.fi/xmldata/">
-    <CustomerId>679155330</CustomerId>
-    <Command>GetUserInfo</Command>
-    <Timestamp>2010-09-10T11:19:14.772+03:00</Timestamp>
-    <Environment>PRODUCTION</Environment>
-    <SoftwareId>Petri</SoftwareId>
-</ApplicationRequest>

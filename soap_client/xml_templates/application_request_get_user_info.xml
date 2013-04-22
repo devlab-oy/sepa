@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApplicationRequest xmlns="http://bxd.fi/xmldata/">
+    <CustomerId></CustomerId>
+    <Command></Command>
+    <Timestamp></Timestamp>
+    <Environment></Environment>
+    <SoftwareId></SoftwareId>
+</ApplicationRequest>

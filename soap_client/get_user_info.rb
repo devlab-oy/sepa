@@ -8,7 +8,7 @@ cert = OpenSSL::X509::Certificate.new File.read 'keys/cert.pem'
 ssl_cert = OpenSSL::X509::Certificate.new File.read 'keys/ssl_key.cer'
 
 def load_soap_request
-  f = File.open("xml_templates/get_user_info_soap_request.xml")
+  f = File.open("xml_templates/soap_envelope_get_user_info.xml")
   soap_request = Nokogiri::XML(f)
   f.close
   soap_request
@@ -28,9 +28,19 @@ def load_soap_request_header
   soap_request_header
 end
 
-def process_application_request
+def load_application_request_schema
+  xsd = Nokogiri::XML::Schema(File.read("xml_templates/application_request_schema.xsd"))
+  xsd
+end
+
+def load_soap_envelope_schema
+  xsd = Nokogiri::XML::Schema(File.read("xml_templates/soap_envelope_schema.xsd"))
+  xsd
+end
+
+def process_application_request(xsd)
   #Load the application request from template
-  f = File.open("xml_templates/get_user_info_application_request.xml")
+  f = File.open("xml_templates/application_request_get_user_info.xml")
   application_request = Nokogiri::XML(f)
   f.close
 
@@ -38,13 +48,26 @@ def process_application_request
   customer_id = application_request.at_css "CustomerId"
   customer_id.content = "11111111"
 
+  # Set the command
+  command = application_request.at_css "Command"
+  command.content = "GetUserInfo"
+
   #Set the timestamp
   timestamp = application_request.at_css "Timestamp"
   timestamp.content = Time.now.to_time.iso8601
 
+  # Set the environment
+  environment = application_request.at_css "Environment"
+  environment.content = "PRODUCTION"
+
   #Set the software id
   softwareid = application_request.at_css "SoftwareId"
   softwareid.content = "Sepa Transfer Library version 0.1"
+
+  #Validate the application request
+  if xsd.valid?(application_request)
+    puts "Application request passed validation"
+  end
 
   #Canonicalize the application request
   canon_application_request = application_request.canonicalize
@@ -75,11 +98,11 @@ def sign_application_request(application_request, application_request_signature,
 
   #Convert application request to XML and add the signature element to it
   application_request_xml  = Nokogiri::XML(application_request)
-  software_id = application_request_xml.at_css "SoftwareId"
-  software_id.add_next_sibling(application_request_signature.root)
+  application_request_xml.root.add_child(application_request_signature.root)
 
   #Canonicalize the whole application request
   application_request_canon = application_request_xml.canonicalize
+  puts application_request_canon
 
   #Base64 code the whole application request
   application_request_base64 = Base64.encode64(application_request_canon)
@@ -104,6 +127,10 @@ def process_soap_request(soap_request, application_request_base64)
   soap_request_timestamp = soap_request.xpath("//mod:Timestamp", 'mod' => 'http://model.bxd.fi').first
   soap_request_timestamp.content = Time.now.iso8601
 
+  # Add language
+  soap_request_language = soap_request.xpath("//mod:Language", 'mod' => 'http://model.bxd.fi').first
+  soap_request_language.content = "FI"
+
   #Add useragent
   soap_request_useragent = soap_request.xpath("//mod:UserAgent", 'mod' => 'http://model.bxd.fi').first
   soap_request_useragent.content = "Sepa Transfer Library version 0.1"
@@ -116,7 +143,7 @@ def process_soap_request(soap_request, application_request_base64)
   soap_request.canonicalize
 end
 
-def sign_soap_request(soap_request, soap_request_header, private_key, cert)
+def sign_soap_request(soap_request, soap_request_header, private_key, cert, xsd)
   #Take digest from soap request, base64 code it and put it to the signature
   soap_request_xml  = Nokogiri::XML(soap_request)
   soap_request_body = soap_request_xml.xpath("//soapenv:Body", 'soapenv' => 'http://schemas.xmlsoap.org/soap/envelope/').first
@@ -142,17 +169,27 @@ def sign_soap_request(soap_request, soap_request_header, private_key, cert)
 
   #Merge the body and header of the soap envelope
   soap_request_xml  = Nokogiri::XML(soap_request)
-  soap_header = soap_request_header.xpath("//soapenv:Header", 'soapenv' => 'http://schemas.xmlsoap.org/soap/envelope/').first
-  soap_header.add_next_sibling(soap_request_xml.xpath("//soapenv:Body", 'soapenv' => 'http://schemas.xmlsoap.org/soap/envelope/').first)
+  soap_request_header.root.add_child(soap_request_xml.xpath("//soapenv:Body", 'soapenv' => 'http://schemas.xmlsoap.org/soap/envelope/').first)
+
+  #Validate the whole soap
+  if xsd.valid?(soap_request_header)
+    puts "Soap envelope passed validation"
+  end
+
+  # Add missing namespaces
+  body = soap_request_header.xpath("//soapenv:Body", 'soapenv' => 'http://schemas.xmlsoap.org/soap/envelope/').first
+  body.add_namespace 'wsu', 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
+  body.set_attribute('wsu:Id', 'id-23633426')
+
   soap_request_header
 end
 
-signed_application_request = sign_application_request(process_application_request, load_application_request_signature, private_key, cert)
+signed_application_request = sign_application_request(process_application_request(load_application_request_schema), load_application_request_signature, private_key, cert)
 
 processed_soap_request = process_soap_request(load_soap_request, signed_application_request)
 
-signed_soap_request = sign_soap_request(processed_soap_request, load_soap_request_header, private_key, cert)
+signed_soap_request = sign_soap_request(processed_soap_request, load_soap_request_header, private_key, cert, load_soap_envelope_schema)
 
-client = Savon.client(wsdl: "wsdl/wsdl_nordea.xml", pretty_print_xml: true, ssl_version: :SSLv3, ssl_cert_file: "keys/ssl_key.cer")
+#client = Savon.client(wsdl: "wsdl/wsdl_nordea.xml", pretty_print_xml: true, ssl_version: :SSLv3, ssl_cert_file: "keys/ssl_key.cer")
 
-response = client.call(:get_user_info, xml: signed_soap_request.to_xml)
+#response = client.call(:get_user_info, xml: signed_soap_request.to_xml)
