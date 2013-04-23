@@ -102,7 +102,6 @@ def sign_application_request(application_request, application_request_signature,
 
   #Canonicalize the whole application request
   application_request_canon = application_request_xml.canonicalize
-  puts application_request_canon
 
   #Base64 code the whole application request
   application_request_base64 = Base64.encode64(application_request_canon)
@@ -190,6 +189,6 @@ processed_soap_request = process_soap_request(load_soap_request, signed_applicat
 
 signed_soap_request = sign_soap_request(processed_soap_request, load_soap_request_header, private_key, cert, load_soap_envelope_schema)
 
-#client = Savon.client(wsdl: "wsdl/wsdl_nordea.xml", pretty_print_xml: true, ssl_version: :SSLv3, ssl_cert_file: "keys/ssl_key.cer")
+client = Savon.client(wsdl: "wsdl/wsdl_nordea.xml", pretty_print_xml: true, ssl_version: :SSLv3, ssl_cert_file: "keys/ssl_key.cer")
 
-#response = client.call(:get_user_info, xml: signed_soap_request.to_xml)
+response = client.call(:get_user_info, xml: signed_soap_request.to_xml)

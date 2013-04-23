@@ -5,8 +5,7 @@
         <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
         <Reference URI=""> 
             <Transforms>
-                <Transform
-                    Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+                <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
             </Transforms>
             <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
             <DigestValue></DigestValue>
