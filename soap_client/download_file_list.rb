@@ -148,13 +148,6 @@ def sign_soap_request(soap_request, soap_request_header, private_key, cert)
   signature_digest = soap_request_header.xpath("//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
   signature_digest.content = digest.gsub(/\s+/, "")
 
-  # Add timestamps
-  created = soap_request_header.xpath("//wsu:Created", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
-  created.content = Time.now.iso8601
-  expires = soap_request_header.xpath("//wsu:Expires", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
-  expire_time = Time.now + 7200
-  expires.content = expire_time.iso8601
-
   #Sign the digest with private key and base64 code it
   digest_sign = OpenSSL::Digest::SHA1.new
   signature = private_key.sign(digest_sign, digest.to_s)

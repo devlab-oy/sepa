@@ -2,39 +2,28 @@
 <env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"> 
     <env:Header> 
         <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" env:mustUnderstand="1"> 
-            <wsse:BinarySecurityToken wsu:Id="" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-tokenprofile-1.0#X509v3" EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wsssoap-message-security-1.0#Base64Binary"></wsse:BinarySecurityToken> 
+            <wsse:BinarySecurityToken wsu:Id="827364832764" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-tokenprofile-1.0#X509v3" EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wsssoap-message-security-1.0#Base64Binary"></wsse:BinarySecurityToken> 
             <dsig:Signature xmlns:dsig="http://www.w3.org/2000/09/xmldsig#"> 
                 <dsig:SignedInfo> 
                     <dsig:CanonicalizationMethod
                         Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/> 
                     <dsig:SignatureMethod
                         Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/> 
-                    <dsig:Reference URI=""> 
+                    <dsig:Reference URI="#51923548723"> 
                         <dsig:Transforms> 
-                            <dsig:Transform
-                                Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"> 
-                                <exc14n:InclusiveNamespaces
-                                    xmlns:exc14n="http://www.w3.org/2001/10/xml-exc-c14n#" PrefixList=""/> 
-                            </dsig:Transform> 
+                            <dsig:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"></dsig:Transform> 
                         </dsig:Transforms> 
-                        <dsig:DigestMethod
-                            Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/> 
-
+                        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
                         <dsig:DigestValue></dsig:DigestValue> 
                     </dsig:Reference> 
                 </dsig:SignedInfo> 
-
                 <dsig:SignatureValue></dsig:SignatureValue> 
                 <dsig:KeyInfo> 
                     <wsse:SecurityTokenReference xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"> 
-                        <wsse:Reference URI="" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"/> 
+                        <wsse:Reference URI="#827364832764" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"/> 
                     </wsse:SecurityTokenReference> 
                 </dsig:KeyInfo> 
             </dsig:Signature> 
-            <wsu:Timestamp xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"> 
-                <wsu:Created></wsu:Created> 
-                <wsu:Expires></wsu:Expires> 
-            </wsu:Timestamp> 
         </wsse:Security> 
     </env:Header> 
 </env:Envelope>
