@@ -1,13 +1,13 @@
-class Filedescriptor
+  class Filedescriptor
   
   attr_accessor :fileReference, :targetId, :serviceId, :serviceIdOwnerName, :fileType, :fileTimestamp, :status
 
-	@fileReference
-	@tSargetId
-	@serviceId
-	@serviceIdOwnerName
-	@fileType
-	@fileTimestamp
+  @fileReference
+  @tSargetId
+  @serviceId
+  @serviceIdOwnerName
+  @fileType
+  @fileTimestamp
   @status
 
 end
