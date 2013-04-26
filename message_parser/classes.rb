@@ -1,4 +1,4 @@
-  class Filedescriptor
+class Filedescriptor
   
   attr_accessor :fileReference, :targetId, :serviceId, :serviceIdOwnerName, :fileType, :fileTimestamp, :status
 
