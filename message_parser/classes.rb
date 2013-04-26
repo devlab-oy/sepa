@@ -1,4 +1,4 @@
-  class Filedescriptor
+class Filedescriptor
   
   attr_accessor :fileReference, :targetId, :serviceId, :serviceIdOwnerName, :fileType, :fileTimestamp, :status
 
@@ -56,7 +56,7 @@ class Applicationresponse
   require 'openssl'
   require 'base64'
   
-  attr_accessor :timestamp, :responseCode, :encrypted, :compressed, :customerId, :responseText
+  attr_accessor :timestamp, :responseCode, :encrypted, :compressed, :customerId, :responseText, 
   #TODO needs crosschecking from other responses to complete attributes
   @fileDescriptors = []
   @signature
@@ -67,6 +67,17 @@ class Applicationresponse
   @compressed
   @customerId
   @userFiletypes = []
+  @content
+
+  #tempname
+  def get_tiliote_content
+
+  end
+
+  #tempname
+  def get_viiteaineisto_content
+
+  end
 
   #add incoming descriptor to array
   def add_descriptor(Filedescriptor)
@@ -78,8 +89,24 @@ class Applicationresponse
     @userFiletypes<<Userfiletype
   end
 
+  #returns the full array of descriptors
+  def list_new_descriptors
+    #TODO only the ones which include keyword NEW
+    #@fileDescriptors
+  end
+
+  def list_all_descriptors
+    @fileDescriptors
+  end
+
+  #returns the full array of userfiletypes
+  def list_userfiletypes
+    @userFiletypes
+  end
+  
   #returns a specific descriptor
   def select_descriptor(fileRef)
+    #TODO change to .select
     @fileDescriptors.each do |fd|
       if fd.fileReference == fileRef
         #break out when found
