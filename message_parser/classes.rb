@@ -106,7 +106,7 @@ class Applicationresponse
   
   #returns a specific descriptor
   def select_descriptor(fileRef)
-    #TODO change to .select
+    #TODO change to .select structure
     @fileDescriptors.each do |fd|
       if fd.fileReference == fileRef
         #break out when found
