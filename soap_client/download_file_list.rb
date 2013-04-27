@@ -89,7 +89,7 @@ def sign_application_request(application_request, application_request_signature,
 
   #Add the base64 coded signature to the signature element
   signature_signature = application_request_signature.at_css "SignatureValue"
-  signature_signature.content = signature_base64.gsub(/\s+/, "")
+  signature_signature.content = signature_base64
 
   #Format the certificate and add the it to the certificate element
   cert_formatted = cert.to_s.split('-----BEGIN CERTIFICATE-----')[1].split('-----END CERTIFICATE-----')[0].gsub(/\s+/, "")
@@ -140,10 +140,8 @@ end
 
 def sign_soap_request(soap_request, soap_request_header, private_key, cert)
   #Take digest from soap request, base64 code it and put it to the signature
-  soap_request_xml = Nokogiri::XML(soap_request)
-  soap_request_body = soap_request_xml.xpath("//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/').first
   sha1 = OpenSSL::Digest::SHA1.new
-  digestbin = sha1.digest(soap_request_body)
+  digestbin = sha1.digest(soap_request)
   digest = Base64.encode64(digestbin)
   signature_digest = soap_request_header.xpath("//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
   signature_digest.content = digest.gsub(/\s+/, "")
@@ -155,7 +153,7 @@ def sign_soap_request(soap_request, soap_request_header, private_key, cert)
 
   #Add the base64 coded signature to the signature element
   signature_signature = soap_request_header.xpath("//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-  signature_signature.content = signature_base64.gsub(/\s+/, "")
+  signature_signature.content = signature_base64
 
   #Format the certificate and add the it to the certificate element
   cert_formatted = cert.to_s.split('-----BEGIN CERTIFICATE-----')[1].split('-----END CERTIFICATE-----')[0].gsub(/\s+/, "")
