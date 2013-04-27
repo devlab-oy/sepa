@@ -69,14 +69,13 @@ def process_application_request
   filetype = application_request.at_css "FileType"
   filetype.content = "HTMKTO"
 
-  #Canonicalize the application request
-  canon_application_request = application_request.canonicalize
+  application_request
 end
 
 def sign_application_request(application_request, application_request_signature, private_key, cert)
   #Take digest from application request, base64 code it and set it to the signature
   sha1 = OpenSSL::Digest::SHA1.new
-  digestbin = sha1.digest(application_request)
+  digestbin = sha1.digest(application_request.canonicalize)
   digest = Base64.encode64(digestbin)
   signature_digest = application_request_signature.xpath("//ds:DigestValue", 'ds' => 'http://www.w3.org/2000/09/xmldsig#').first
   signature_digest.content = digest.gsub(/\s+/, "")
@@ -97,14 +96,11 @@ def sign_application_request(application_request, application_request_signature,
   signature_certificate = application_request_signature.xpath("//ds:X509Certificate", 'ds' => 'http://www.w3.org/2000/09/xmldsig#').first
   signature_certificate.content = cert_formatted
 
-  #Convert application request to XML and add the signature element to it
-  application_request_xml  = Nokogiri::XML(application_request)
-  application_request_xml.root.add_child(application_request_signature.root)
-
-  puts application_request_xml
+  # Add the signature
+  application_request.root.add_child(application_request_signature.root)
 
   #Base64 code the whole application request
-  application_request_base64 = Base64.encode64(application_request_xml)
+  Base64.encode64(application_request)
 end
 
 def process_soap_request(soap_request, application_request_base64)
@@ -118,7 +114,7 @@ def process_soap_request(soap_request, application_request_base64)
 
   #Add request id
   soap_request_request_id = soap_request.xpath("//bxd:RequestId", 'bxd' => 'http://model.bxd.fi').first
-  soap_request_request_id.content = "2378764423723"
+  soap_request_request_id.content = "298374982374982374"
 
   #Add timestamp
   soap_request_timestamp = soap_request.xpath("//bxd:Timestamp", 'bxd' => 'http://model.bxd.fi').first
@@ -140,6 +136,20 @@ def process_soap_request(soap_request, application_request_base64)
 end
 
 def sign_soap_request(soap_request, soap_request_header, private_key, cert)
+  # #Add header timestamps
+  # created = soap_request_header.xpath("//wsu:Created", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
+  # created.content = Time.now.iso8601
+  # expires = soap_request_header.xpath("//wsu:Expires", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
+  # expires.content = (Time.now + 3600).iso8601
+
+  # # Take digest from header timestamps
+  # timestamp = soap_request_header.xpath("//wsu:Timestamp", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
+  # sha1 = OpenSSL::Digest::SHA1.new
+  # digestbin = sha1.digest(timestamp.canonicalize)
+  # digest = Base64.encode64(digestbin)
+  # timestamp_digest = soap_request_header.xpath("//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
+  # timestamp_digest.content = digest.gsub(/\s+/, "")
+
   #Take digest from soap request body, base64 code it and put it to the signature
   body = soap_request.xpath("//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/').first
   canonbody = body.canonicalize
@@ -176,6 +186,6 @@ soap_request = process_soap_request(load_soap_request, signed_application_reques
 
 signed_soap_request = sign_soap_request(soap_request, load_soap_request_header, private_key, cert)
 
-#client = Savon.client(wsdl: "wsdl/wsdl_nordea.xml", pretty_print_xml: true)
+client = Savon.client(wsdl: "wsdl/wsdl_nordea.xml", pretty_print_xml: true)
 
-#response = client.call(:download_file_list, xml: signed_soap_request.to_xml)
+response = client.call(:download_file_list, xml: signed_soap_request.to_xml)
