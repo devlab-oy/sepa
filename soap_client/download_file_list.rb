@@ -84,7 +84,7 @@ def sign_application_request(application_request, application_request_signature,
 
   #Sign the digest with private key and base64 code it
   digest_sign = OpenSSL::Digest::SHA1.new
-  signature = private_key.sign(digest_sign, digest.to_s)
+  signature = private_key.sign(digest_sign, digest.gsub(/\s+/, ""))
   signature_base64 = Base64.encode64(signature)
 
   #Add the base64 coded signature to the signature element
@@ -134,21 +134,22 @@ def process_soap_request(soap_request, application_request_base64)
   soap_request_receiverid = soap_request.xpath("//bxd:ReceiverId", 'bxd' => 'http://model.bxd.fi').first
   soap_request_receiverid.content = "11111111A1"
 
-  #Canonicalize the request
-  soap_request.canonicalize
+  soap_request
 end
 
 def sign_soap_request(soap_request, soap_request_header, private_key, cert)
-  #Take digest from soap request, base64 code it and put it to the signature
+  #Take digest from soap request body, base64 code it and put it to the signature
+  body = soap_request.xpath("//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/').first
+  canonbody = body.canonicalize
   sha1 = OpenSSL::Digest::SHA1.new
-  digestbin = sha1.digest(soap_request)
+  digestbin = sha1.digest(canonbody)
   digest = Base64.encode64(digestbin)
   signature_digest = soap_request_header.xpath("//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
   signature_digest.content = digest.gsub(/\s+/, "")
 
   #Sign the digest with private key and base64 code it
   digest_sign = OpenSSL::Digest::SHA1.new
-  signature = private_key.sign(digest_sign, digest.to_s)
+  signature = private_key.sign(digest_sign, digest.gsub(/\s+/, ""))
   signature_base64 = Base64.encode64(signature)
 
   #Add the base64 coded signature to the signature element
@@ -160,14 +161,7 @@ def sign_soap_request(soap_request, soap_request_header, private_key, cert)
   signature_certificate = soap_request_header.xpath("//wsse:BinarySecurityToken", 'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd').first
   signature_certificate.content = cert_formatted
 
-  #Merge the body and header of the soap envelope
-  soap_request_xml  = Nokogiri::XML(soap_request)
-  soap_request_header.root.add_child(soap_request_xml.xpath("//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/').first)
-
-  # Add missing namespaces
-  body = soap_request_header.xpath("//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/').first
-  body.add_namespace 'wsu', 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
-  body.set_attribute('wsu:Id', 'id-23633426')
+  soap_request_header.root.add_child(soap_request.xpath("//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/').first)
 
   soap_request_header
 end

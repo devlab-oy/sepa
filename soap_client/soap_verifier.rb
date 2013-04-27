@@ -12,9 +12,10 @@ end
 def calculate_body_digest(xml_file)
   body = xml_file.xpath("//soapenv:Body", 'soapenv' => 'http://schemas.xmlsoap.org/soap/envelope/').first
   bodycanon = body.canonicalize
+  puts bodycanon
   sha1 = OpenSSL::Digest::SHA1.new
   digestbin = sha1.digest(bodycanon)
   Base64.encode64(digestbin)
 end
 
-puts calculate_body_digest(load('xml_templates/example_responses/soap_response.xml'))
+calculate_body_digest(load('xml_templates/example_responses/soap_response.xml'))
