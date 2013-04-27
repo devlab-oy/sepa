@@ -71,7 +71,6 @@ def process_application_request
 
   #Canonicalize the application request
   canon_application_request = application_request.canonicalize
-  canon_application_request
 end
 
 def sign_application_request(application_request, application_request_signature, private_key, cert)
@@ -84,7 +83,7 @@ def sign_application_request(application_request, application_request_signature,
 
   #Sign the digest with private key and base64 code it
   digest_sign = OpenSSL::Digest::SHA1.new
-  signature = private_key.sign(digest_sign, digest.gsub(/\s+/, ""))
+  signature = private_key.sign(digest_sign, application_request)
   signature_base64 = Base64.encode64(signature)
 
   #Add the base64 coded signature to the signature element
@@ -102,7 +101,6 @@ def sign_application_request(application_request, application_request_signature,
 
   #Base64 code the whole application request
   application_request_base64 = Base64.encode64(application_request_xml)
-  application_request_base64
 end
 
 def process_soap_request(soap_request, application_request_base64)
@@ -147,9 +145,11 @@ def sign_soap_request(soap_request, soap_request_header, private_key, cert)
   signature_digest = soap_request_header.xpath("//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
   signature_digest.content = digest.gsub(/\s+/, "")
 
-  #Sign the digest with private key and base64 code it
+  #Sign SignedInfo element with private key and add it to the correct field
+  signed_info = soap_request_header.xpath("//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
+  canon_signed_info = signed_info.canonicalize
   digest_sign = OpenSSL::Digest::SHA1.new
-  signature = private_key.sign(digest_sign, digest.gsub(/\s+/, ""))
+  signature = private_key.sign(digest_sign, canon_signed_info)
   signature_base64 = Base64.encode64(signature)
 
   #Add the base64 coded signature to the signature element
