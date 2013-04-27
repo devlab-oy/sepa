@@ -67,7 +67,7 @@ def process_application_request
 
   # Set the file type
   filetype = application_request.at_css "FileType"
-  filetype.content = "NDCORPAYS"
+  filetype.content = "HTMKTO"
 
   #Canonicalize the application request
   canon_application_request = application_request.canonicalize
@@ -78,26 +78,30 @@ def sign_application_request(application_request, application_request_signature,
   sha1 = OpenSSL::Digest::SHA1.new
   digestbin = sha1.digest(application_request)
   digest = Base64.encode64(digestbin)
-  signature_digest = application_request_signature.at_css "DigestValue"
+  signature_digest = application_request_signature.xpath("//ds:DigestValue", 'ds' => 'http://www.w3.org/2000/09/xmldsig#').first
   signature_digest.content = digest.gsub(/\s+/, "")
 
-  #Sign the digest with private key and base64 code it
+  # Sign Signed info element
+  signed_info = application_request_signature.xpath("//ds:SignedInfo", 'ds' => 'http://www.w3.org/2000/09/xmldsig#').first
+  signed_info_canon = signed_info.canonicalize
   digest_sign = OpenSSL::Digest::SHA1.new
-  signature = private_key.sign(digest_sign, application_request)
+  signature = private_key.sign(digest_sign, signed_info_canon)
   signature_base64 = Base64.encode64(signature)
 
   #Add the base64 coded signature to the signature element
-  signature_signature = application_request_signature.at_css "SignatureValue"
+  signature_signature = application_request_signature.xpath("//ds:SignatureValue", 'ds' => 'http://www.w3.org/2000/09/xmldsig#').first
   signature_signature.content = signature_base64
 
   #Format the certificate and add the it to the certificate element
   cert_formatted = cert.to_s.split('-----BEGIN CERTIFICATE-----')[1].split('-----END CERTIFICATE-----')[0].gsub(/\s+/, "")
-  signature_certificate = application_request_signature.at_css "X509Certificate"
+  signature_certificate = application_request_signature.xpath("//ds:X509Certificate", 'ds' => 'http://www.w3.org/2000/09/xmldsig#').first
   signature_certificate.content = cert_formatted
 
   #Convert application request to XML and add the signature element to it
   application_request_xml  = Nokogiri::XML(application_request)
   application_request_xml.root.add_child(application_request_signature.root)
+
+  puts application_request_xml
 
   #Base64 code the whole application request
   application_request_base64 = Base64.encode64(application_request_xml)
@@ -172,5 +176,6 @@ soap_request = process_soap_request(load_soap_request, signed_application_reques
 
 signed_soap_request = sign_soap_request(soap_request, load_soap_request_header, private_key, cert)
 
-client = Savon.client(wsdl: "wsdl/wsdl_nordea.xml", pretty_print_xml: true)
-response = client.call(:download_file_list, xml: signed_soap_request.to_xml)
+#client = Savon.client(wsdl: "wsdl/wsdl_nordea.xml", pretty_print_xml: true)
+
+#response = client.call(:download_file_list, xml: signed_soap_request.to_xml)
