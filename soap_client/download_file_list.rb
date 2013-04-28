@@ -47,7 +47,7 @@ def process_application_request
 
   # Set status
   status = application_request.at_css "Status"
-  status.content = "ALL"
+  status.content = "NEW"
 
   # Set the environment
   environment = application_request.at_css "Environment"
@@ -55,7 +55,7 @@ def process_application_request
 
   # Set the target id
   targetid = application_request.at_css "TargetId"
-  targetid.content = "111111111"
+  targetid.content = "11111111A1"
 
   # Set compression
   compression = application_request.at_css "Compression"
@@ -89,7 +89,7 @@ def sign_application_request(application_request, application_request_signature,
 
   #Add the base64 coded signature to the signature element
   signature_signature = application_request_signature.xpath("//ds:SignatureValue", 'ds' => 'http://www.w3.org/2000/09/xmldsig#').first
-  signature_signature.content = signature_base64
+  signature_signature.content = signature_base64.gsub(/\s+/, "")
 
   #Format the certificate and add the it to the certificate element
   cert_formatted = cert.to_s.split('-----BEGIN CERTIFICATE-----')[1].split('-----END CERTIFICATE-----')[0].gsub(/\s+/, "")
@@ -186,6 +186,6 @@ soap_request = process_soap_request(load_soap_request, signed_application_reques
 
 signed_soap_request = sign_soap_request(soap_request, load_soap_request_header, private_key, cert)
 
-client = Savon.client(wsdl: "wsdl/wsdl_nordea.xml", pretty_print_xml: true)
+#client = Savon.client(wsdl: "wsdl/wsdl_nordea.xml", pretty_print_xml: true)
 
-response = client.call(:download_file_list, xml: signed_soap_request.to_xml)
+#response = client.call(:download_file_list, xml: signed_soap_request.to_xml)
