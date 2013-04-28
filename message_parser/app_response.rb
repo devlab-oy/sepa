@@ -57,12 +57,12 @@ class Applicationresponse
         transaction_content[:messageid] = node.at_css("NtryDtls/Btch/MsgId").content unless node.at_css("NtryDtls/Btch/MsgId") == nil
         transaction_content[:paymentinfoid] = node.at_css("NtryDtls/Btch/PmtInfId").content unless node.at_css("NtryDtls/Btch/PmtInfId") == nil
         # Payment details, exchange rate, booked amounts (note: rate exists in two places)
-        transaction_content[:incomingvalue] = node.at_css("NtryDtls/TxDtls/InstdAmt/Amt").content unless node.at_css("NtryDtls/TxDtls/InstdAmt/Amt") == nil
-        transaction_content[:incomingcurrency] = node.at_css("NtryDtls/TxDtls/InstdAmt/Amt")["Ccy"] unless node.at_css("NtryDtls/TxDtls/InstdAmt/Amt") == nil
-        transaction_content[:bookedvalue] = node.at_css("NtryDtls/TxDtls/TxAmt/Amt").content unless node.at_css("NtryDtls/TxDtls/TxAmt/Amt") == nil
-        transaction_content[:bookedcurrency] = node.at_css("NtryDtls/TxDtls/TxAmt/Amt")["Ccy"] unless node.at_css("NtryDtls/TxDtls/TxAmt/Amt") == nil
-        transaction_content[:exchangerate] = node.at_css("NtryDtls/TxDtls/TxAmt/CcyXchg/XchgRate").content unless node.at_css("NtryDtls/TxDtls/TxAmt/CcyXchg/XchgRate") == nil
-        transaction_content[:contractid] = node.at_css("NtryDtls/TxDtls/TxAmt/CcyXchg/CtrctId").content unless node.at_css("NtryDtls/TxDtls/TxAmt/CcyXchg/CtrctId") == nil
+        transaction_content[:incomingvalue] = node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt") == nil
+        transaction_content[:incomingcurrency] = node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt")["Ccy"] unless node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt") == nil
+        transaction_content[:bookedvalue] = node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/Amt").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/Amt") == nil
+        transaction_content[:bookedcurrency] = node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/Amt")["Ccy"] unless node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/Amt") == nil
+        transaction_content[:exchangerate] = node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/XchgRate").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/XchgRate") == nil
+        transaction_content[:contractid] = node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/CtrctId").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/CtrctId") == nil
         #transaction_content[] = node.at_css("").content
         #transaction_content[] = node.at_css("").content
         #transaction_content[] = node.at_css("").content
