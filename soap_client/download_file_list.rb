@@ -82,7 +82,7 @@ def sign_application_request(application_request, application_request_signature,
 
   # Sign Signed info element
   signed_info = application_request_signature.xpath("//ds:SignedInfo", 'ds' => 'http://www.w3.org/2000/09/xmldsig#').first
-  signed_info_canon = signed_info.canonicalize
+  signed_info_canon = signed_info.canonicalize(mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,with_comments=false)
   digest_sign = OpenSSL::Digest::SHA1.new
   signature = private_key.sign(digest_sign, signed_info_canon)
   signature_base64 = Base64.encode64(signature)
@@ -145,26 +145,26 @@ def sign_soap_request(soap_request, soap_request_header, private_key, cert)
   # Take digest from header timestamps
   timestamp = soap_request_header.xpath("//wsu:Timestamp", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
   sha1 = OpenSSL::Digest::SHA1.new
-  digestbin = sha1.digest(timestamp.to_s)
+  digestbin = sha1.digest(timestamp.canonicalize(mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,with_comments=false))
   digest = Base64.encode64(digestbin)
-  timestamp_digest = soap_request_header.xpath("//dsig:Reference[@URI='#pfx5385c234-0755-71d1-bddd-c520d468b92b']/dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
+  timestamp_digest = soap_request_header.xpath("//dsig:Reference[@URI='#dsfg8sdg87dsf678g6dsg6ds7fg']/dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
   timestamp_digest.content = digest.gsub(/\s+/, "")
 
   #Take digest from soap request body, base64 code it and put it to the signature
   body = soap_request.xpath("//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/').first
-  canonbody = body.canonicalize
+  canonbody = body.canonicalize(mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,with_comments=false)
   sha1 = OpenSSL::Digest::SHA1.new
   digestbin = sha1.digest(canonbody)
   digest = Base64.encode64(digestbin)
-  signature_digest = soap_request_header.xpath("//dsig:Reference[@URI='#id-23633426']/dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
+  signature_digest = soap_request_header.xpath("//dsig:Reference[@URI='#sdf6sa7d86f87s6df786sd87f6s8fsda']/dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
   signature_digest.content = digest.gsub(/\s+/, "")
 
   #Sign SignedInfo element with private key and add it to the correct field
   signed_info = soap_request_header.xpath("//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-  canon_signed_info = signed_info.canonicalize
+  canon_signed_info = signed_info.canonicalize(mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,with_comments=false)
   digest_sign = OpenSSL::Digest::SHA1.new
   signature = private_key.sign(digest_sign, canon_signed_info)
-  signature_base64 = Base64.encode64(signature)
+  signature_base64 = Base64.encode64(signature).gsub(/\s+/, "")
 
   #Add the base64 coded signature to the signature element
   signature_signature = soap_request_header.xpath("//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
@@ -186,6 +186,6 @@ soap_request = process_soap_request(load_soap_request, signed_application_reques
 
 signed_soap_request = sign_soap_request(soap_request, load_soap_request_header, private_key, cert)
 
-#client = Savon.client(wsdl: "wsdl/wsdl_nordea.xml", pretty_print_xml: true)
+client = Savon.client(wsdl: "wsdl/wsdl_nordea.xml", pretty_print_xml: true)
 
-#response = client.call(:download_file_list, xml: signed_soap_request.to_xml)
+response = client.call(:download_file_list, xml: signed_soap_request.to_xml)

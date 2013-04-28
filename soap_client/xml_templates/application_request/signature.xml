@@ -1,19 +1,19 @@
-<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-    <ds:SignedInfo>
-        <ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"/>
-        <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
-        <ds:Reference URI="">
-            <ds:Transforms>
-                <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
-            </ds:Transforms>
-            <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
-            <ds:DigestValue></ds:DigestValue>
-        </ds:Reference>
-    </ds:SignedInfo>
-    <ds:SignatureValue></ds:SignatureValue>
-    <ds:KeyInfo>
-        <ds:X509Data>
-            <ds:X509Certificate></ds:X509Certificate>
-        </ds:X509Data>
-    </ds:KeyInfo>
-</ds:Signature>
+<dsig:Signature xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">
+    <dsig:SignedInfo>
+        <dsig:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"/>
+        <dsig:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+        <dsig:Reference URI="">
+            <dsig:Transforms>
+                <dsig:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+            </dsig:Transforms>
+            <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+            <dsig:DigestValue></dsig:DigestValue>
+        </dsig:Reference>
+    </dsig:SignedInfo>
+    <dsig:SignatureValue></dsig:SignatureValue>
+    <dsig:KeyInfo>
+        <dsig:X509Data>
+            <dsig:X509Certificate></dsig:X509Certificate>
+        </dsig:X509Data>
+    </dsig:KeyInfo>
+</dsig:Signature>
