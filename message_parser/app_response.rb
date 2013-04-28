@@ -4,12 +4,12 @@ class Applicationresponse
   require 'openssl'
   require 'base64'
   
-  attr_accessor :timestamp, :responseCode, :encrypted, :compressed, :customerId, :responseText
+  attr_accessor :timestamp, :responseCode, :encrypted, :compressed, :customerId, :responseText, :fileDescriptors, :userFiletypes
   #TODO needs crosschecking from other responses to complete attributes
   #for inner use
-  signature,timestamp,responseCode,responseText,encrypted,compressed,customerId,content = ''
-  fileDescriptors = []
-  userFiletypes = []
+  #signature,timestamp,responseCode,responseText,encrypted,compressed,customerId,content = ''
+  #fileDescriptors = Array.new
+  #userFiletypes = []
 
   #get_tiliote_content, get_viiteaineisto_content for pupesoft minreq.
   #tempname
@@ -92,7 +92,7 @@ class Applicationresponse
 
   #tempname
   def get_viiteaineisto_content
-
+    #TODO, almost similar to get_tiliote_content
   end
 
   #add incoming descriptor to array
@@ -147,7 +147,7 @@ class Applicationresponse
   encrypted = xml.at_css("Encrypted").content
   compressed = xml.at_css("Compressed").content
   #mandatory for nordea responses
-  content = Base64.decode64(xml.at_css("Content").content)
+  content = Base64.decode64(xml.at_css("Content").content) unless xml.at_css("Content") == nil 
 
   #DEBUG OUTPUT
   #puts customerId
@@ -159,11 +159,79 @@ class Applicationresponse
   #puts content
 
   #TODO: loop it
-  fdesc = Filedescriptor.new
-  ftypes = Filetypeservice.new
-  #TODO: loop it
-  uftype = Userfiletype.new
+  #farray = Array.new
+  #FILEDESCRIPTORS
+  # Initialize array
+  self.fileDescriptors = Array.new
+  
+  xml.xpath("//FileDescriptors/FileDescriptor").each do |desc|
+    fdesc = Filedescriptor.new
+    #puts "HELLO --------------------------------------- CAT"
+    #fileReference,targetId,serviceId,serviceIdOwnerName,fileType,fileTimestamp,status
+    fdesc.fileReference = desc.at_css("FileReference").content
+    fdesc.targetId = desc.at_css("TargetId").content
+    fdesc.serviceId = desc.at_css("ServiceId").content
+    fdesc.serviceIdOwnerName = desc.at_css("ServiceIdOwnerName").content
+    fdesc.fileType = desc.at_css("FileType").content
+    fdesc.fileTimestamp = desc.at_css("FileTimestamp").content
+    fdesc.status = desc.at_css("Status").content
+    #farray<<fdesc
+    self.add_descriptor(fdesc)
+    #DEBUG
+    #puts fdesc.fileReference
+    #puts fdesc.targetId
+    #puts fdesc.serviceId
+    #puts fdesc.serviceIdOwnerName
+    #puts fdesc.fileType
+    #puts fdesc.fileTimestamp
+    #puts fdesc.status
+    #END DEBUG
+  end
+  #puts farray.count
+  
+  puts "HI ------------------------"
+  puts self.list_all_descriptors.count
+  puts "BYE-------------------------"
 
+
+  #FILETYPESERVICES
+  # Initialize array
+  self.userFiletypes = Array.new
+
+  xml.xpath("//UserFileTypes/UserFileType").each do |ftype|
+    uftype = Userfiletype.new
+    puts "I was at userfiletypes"
+    uftype.targetId = ftype.at_css("TargetId").content
+    uftype.fileType = ftype.at_css("FileType").content
+    uftype.fileTypeName = ftype.at_css("FileTypeName").content
+    uftype.country = ftype.at_css("Country").content
+    uftype.direction = ftype.at_css("Direction").content
+    uftype.filetypeServices = Array.new
+    
+    puts uftype.targetId
+    puts uftype.fileType
+    puts uftype.fileTypeName
+    puts uftype.country
+    puts uftype.direction
+
+    ftype.xpath("./FileTypeServices/FileTypeService").each do |ftypes|
+      puts "I was at filetypeservice WOHOO"
+      newservice = Filetypeservice.new
+      newservice.serviceId = ftypes.at_css("ServiceId").content unless ftypes.at_css("ServiceId") == nil
+      newservice.serviceIdOwnerName = ftypes.at_css("ServiceIdOwnerName").content unless ftypes.at_css("ServiceIdOwnerName") == nil
+      newservice.serviceIdType = ftypes.at_css("ServiceType").content unless ftypes.at_css("ServiceType") == nil
+      newservice.serviceIdText = ftypes.at_css("ServiceIdText").content unless ftypes.at_css("ServiceIdText") == nil
+
+      uftype.add_filetypeservice(newservice)
+      #puts "KISUUUUUU -----------------------"
+      #puts uftype.get_filetypeservices.count
+      #puts "KISUUUUUU -----------------------"
+    end
+    self.add_userfiletype(uftype)
+  end
+  puts "AAARRRRRRR ---------------"
+  puts self.userFiletypes[0].get_filetypeservices.inspect
+  puts "NO MORE PIRATES -------------"
   #optional for debugging
   #sig = Signature.new
   #sig.digestValue = xml.at_css("DigestValue").content
@@ -180,5 +248,9 @@ load 'filedescriptor.rb'
 load 'filetypeservice.rb'
 load 'userfiletype.rb'
 lepa = Applicationresponse.new
-lepa.create_classes_from_response("xml_examples/applicationresponsedownloadfile.xml")
+# Comment 2 out of 3 to debug with different responses
+#lepa.create_classes_from_response("xml_examples/applicationresponsedownloadfile.xml")
+#lepa.create_classes_from_response("xml_examples/ApplicationResponse_DownloadFileList.xml")
+lepa.create_classes_from_response("xml_examples/ApplicationResponse_GetUserInfo.xml")
+# To test content passing
 lepa.get_tiliote_content
