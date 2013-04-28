@@ -13,13 +13,6 @@ def load_soap_request
   soap_request
 end
 
-def load_application_request_signature
-  f = File.open("xml_templates/application_request/signature.xml")
-  application_request_signature = Nokogiri::XML(f)
-  f.close
-  application_request_signature
-end
-
 def load_soap_request_header
   f = File.open("xml_templates/soap/header.xml")
   soap_request_header = Nokogiri::XML(f)
@@ -72,35 +65,39 @@ def process_application_request
   application_request
 end
 
-def sign_application_request(application_request, application_request_signature, private_key, cert)
+def sign_application_request(application_request, private_key, cert)
+  #Remove signature element from application request for hashing
+  signature = application_request.xpath("//dsig:Signature", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
+  signature.remove
+
   #Take digest from application request, base64 code it and set it to the signature
   sha1 = OpenSSL::Digest::SHA1.new
-  digestbin = sha1.digest(application_request.canonicalize)
+  digestbin = sha1.digest(application_request.canonicalize(mode=Nokogiri::XML::XML_C14N_1_0,inclusive_namespaces=nil,with_comments=false))
   digest = Base64.encode64(digestbin)
-  signature_digest = application_request_signature.xpath("//ds:DigestValue", 'ds' => 'http://www.w3.org/2000/09/xmldsig#').first
+  signature_digest = signature.xpath(".//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
   signature_digest.content = digest.gsub(/\s+/, "")
 
   # Sign Signed info element
-  signed_info = application_request_signature.xpath("//ds:SignedInfo", 'ds' => 'http://www.w3.org/2000/09/xmldsig#').first
-  signed_info_canon = signed_info.canonicalize(mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,with_comments=false)
+  signed_info = signature.xpath(".//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
+  signed_info_canon = signed_info.to_s.strip
   digest_sign = OpenSSL::Digest::SHA1.new
-  signature = private_key.sign(digest_sign, signed_info_canon)
-  signature_base64 = Base64.encode64(signature)
+  signed_info_signature = private_key.sign(digest_sign, signed_info_canon)
+  signature_base64 = Base64.encode64(signed_info_signature)
 
   #Add the base64 coded signature to the signature element
-  signature_signature = application_request_signature.xpath("//ds:SignatureValue", 'ds' => 'http://www.w3.org/2000/09/xmldsig#').first
+  signature_signature = signature.xpath(".//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
   signature_signature.content = signature_base64.gsub(/\s+/, "")
 
   #Format the certificate and add the it to the certificate element
   cert_formatted = cert.to_s.split('-----BEGIN CERTIFICATE-----')[1].split('-----END CERTIFICATE-----')[0].gsub(/\s+/, "")
-  signature_certificate = application_request_signature.xpath("//ds:X509Certificate", 'ds' => 'http://www.w3.org/2000/09/xmldsig#').first
+  signature_certificate = signature.xpath(".//dsig:X509Certificate", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
   signature_certificate.content = cert_formatted
 
   # Add the signature
-  application_request.root.add_child(application_request_signature.root)
+  application_request.root.add_child(signature)
 
   #Base64 code the whole application request
-  Base64.encode64(application_request)
+  Base64.encode64(application_request.to_xml)
 end
 
 def process_soap_request(soap_request, application_request_base64)
@@ -180,7 +177,7 @@ def sign_soap_request(soap_request, soap_request_header, private_key, cert)
   soap_request_header
 end
 
-signed_application_request = sign_application_request(process_application_request, load_application_request_signature, private_key, cert)
+signed_application_request = sign_application_request(process_application_request, private_key, cert)
 
 soap_request = process_soap_request(load_soap_request, signed_application_request)
 
