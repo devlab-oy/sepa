@@ -136,19 +136,19 @@ def process_soap_request(soap_request, application_request_base64)
 end
 
 def sign_soap_request(soap_request, soap_request_header, private_key, cert)
-  # #Add header timestamps
-  # created = soap_request_header.xpath("//wsu:Created", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
-  # created.content = Time.now.iso8601
-  # expires = soap_request_header.xpath("//wsu:Expires", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
-  # expires.content = (Time.now + 3600).iso8601
+  #Add header timestamps
+  created = soap_request_header.xpath("//wsu:Created", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
+  created.content = Time.now.iso8601
+  expires = soap_request_header.xpath("//wsu:Expires", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
+  expires.content = (Time.now + 3600).iso8601
 
-  # # Take digest from header timestamps
-  # timestamp = soap_request_header.xpath("//wsu:Timestamp", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
-  # sha1 = OpenSSL::Digest::SHA1.new
-  # digestbin = sha1.digest(timestamp.canonicalize)
-  # digest = Base64.encode64(digestbin)
-  # timestamp_digest = soap_request_header.xpath("//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-  # timestamp_digest.content = digest.gsub(/\s+/, "")
+  # Take digest from header timestamps
+  timestamp = soap_request_header.xpath("//wsu:Timestamp", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
+  sha1 = OpenSSL::Digest::SHA1.new
+  digestbin = sha1.digest(timestamp.to_s)
+  digest = Base64.encode64(digestbin)
+  timestamp_digest = soap_request_header.xpath("//dsig:Reference[@URI='#pfx5385c234-0755-71d1-bddd-c520d468b92b']/dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
+  timestamp_digest.content = digest.gsub(/\s+/, "")
 
   #Take digest from soap request body, base64 code it and put it to the signature
   body = soap_request.xpath("//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/').first
@@ -156,7 +156,7 @@ def sign_soap_request(soap_request, soap_request_header, private_key, cert)
   sha1 = OpenSSL::Digest::SHA1.new
   digestbin = sha1.digest(canonbody)
   digest = Base64.encode64(digestbin)
-  signature_digest = soap_request_header.xpath("//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
+  signature_digest = soap_request_header.xpath("//dsig:Reference[@URI='#id-23633426']/dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
   signature_digest.content = digest.gsub(/\s+/, "")
 
   #Sign SignedInfo element with private key and add it to the correct field

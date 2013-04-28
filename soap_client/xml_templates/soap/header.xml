@@ -6,6 +6,13 @@
 				<dsig:SignedInfo>
 					<dsig:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
 					<dsig:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+					<dsig:Reference URI="#pfx5385c234-0755-71d1-bddd-c520d468b92b">
+						<dsig:Transforms>
+							<dsig:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+						</dsig:Transforms>
+						<dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+						<dsig:DigestValue></dsig:DigestValue>
+					</dsig:Reference>
 					<dsig:Reference URI="#id-23633426">
 						<dsig:Transforms>
 							<dsig:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
@@ -21,17 +28,10 @@
 					</wsse:SecurityTokenReference>
 				</dsig:KeyInfo>
 			</dsig:Signature>
-			<!-- <dsig:Reference URI="#pfx5385c234-0755-71d1-bddd-c520d468b92b">
-						<dsig:Transforms>
-							<dsig:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
-						</dsig:Transforms>
-						<dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
-						<dsig:DigestValue></dsig:DigestValue>
-					</dsig:Reference> -->
-			<!-- <wsu:Timestamp xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="pfx5385c234-0755-71d1-bddd-c520d468b92b">
+			<wsu:Timestamp xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="pfx5385c234-0755-71d1-bddd-c520d468b92b">
 				<wsu:Created></wsu:Created>
 				<wsu:Expires></wsu:Expires>
-			</wsu:Timestamp> -->
+			</wsu:Timestamp>
 		</wsse:Security>
 	</env:Header>
 </env:Envelope>
