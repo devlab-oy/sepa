@@ -62,41 +62,21 @@ def process_application_request
   filetype = application_request.at_css "FileType"
   filetype.content = "HTMKTO"
 
-  application_request
-end
+  # Save file for xmlsec
+  File.open('xml_templates/application_request/download_file_list_processed.xml', 'w') { |file| file.write(application_request) }
 
-def sign_application_request(application_request, private_key, cert)
-  #Remove signature element from application request for hashing
-  signature = application_request.xpath("//dsig:Signature", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
-  signature.remove
+  # Use xmlsec for signing
+  system('xmlsec1 --sign --output xml_templates/application_request/download_file_list_signed.xml --pkcs12 keys/nordea.p12 --pwd WSNDEA1234 xml_templates/application_request/download_file_list_processed.xml')
 
-  #Take digest from application request, base64 code it and set it to the signature
-  sha1 = OpenSSL::Digest::SHA1.new
-  digestbin = sha1.digest(application_request.canonicalize(mode=Nokogiri::XML::XML_C14N_1_0,inclusive_namespaces=nil,with_comments=false))
-  digest = Base64.encode64(digestbin)
-  signature_digest = signature.xpath(".//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-  signature_digest.content = digest.gsub(/\s+/, "")
+  # Load the file again
+  f = File.open("xml_templates/application_request/download_file_list_signed.xml")
+  application_request = Nokogiri::XML(f)
+  f.close
 
-  # Sign Signed info element
-  signed_info = signature.xpath(".//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-  signed_info_canon = signed_info.to_s.strip
-  digest_sign = OpenSSL::Digest::SHA1.new
-  signed_info_signature = private_key.sign(digest_sign, signed_info_canon)
-  signature_base64 = Base64.encode64(signed_info_signature)
+  # Remove second certificate
+  second_cert = application_request.xpath("//dsig:X509Certificate[1]", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
+  second_cert.remove
 
-  #Add the base64 coded signature to the signature element
-  signature_signature = signature.xpath(".//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-  signature_signature.content = signature_base64.gsub(/\s+/, "")
-
-  #Format the certificate and add the it to the certificate element
-  cert_formatted = cert.to_s.split('-----BEGIN CERTIFICATE-----')[1].split('-----END CERTIFICATE-----')[0].gsub(/\s+/, "")
-  signature_certificate = signature.xpath(".//dsig:X509Certificate", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-  signature_certificate.content = cert_formatted
-
-  # Add the signature
-  application_request.root.add_child(signature)
-
-  #Base64 code the whole application request
   Base64.encode64(application_request.to_xml)
 end
 
@@ -177,7 +157,7 @@ def sign_soap_request(soap_request, soap_request_header, private_key, cert)
   soap_request_header
 end
 
-signed_application_request = sign_application_request(process_application_request, private_key, cert)
+signed_application_request = process_application_request
 
 soap_request = process_soap_request(load_soap_request, signed_application_request)
 
