@@ -53,6 +53,7 @@ class Applicationresponse
         transaction_content = {}
         transaction_content[:amount] = node.at_css("Amt").content
         transaction_content[:currency] = node.at_css("Amt")["Ccy"]
+        transaction_content[:creditdebitindicator] = node.at_css("CdtDbtInd").content
         transaction_content[:messageid] = node.at_css("NtryDtls/Btch/MsgId").content unless node.at_css("NtryDtls/Btch/MsgId") == nil
         transaction_content[:paymentinfoid] = node.at_css("NtryDtls/Btch/PmtInfId").content unless node.at_css("NtryDtls/Btch/PmtInfId") == nil
         #transaction_content[] = node.at_css("").content
