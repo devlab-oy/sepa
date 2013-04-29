@@ -27,7 +27,7 @@ class ApplicationRequest
 
   def load
     case @command
-    when 'download_file_list'
+    when :download_file_list
       path = 'xml_templates/application_request/download_file_list.xml'
     else
       puts 'Could not load application request template because command was unrecognised.'
@@ -45,7 +45,7 @@ class ApplicationRequest
     ar = load
 
     case @command
-    when 'download_file_list'
+    when :download_file_list
       # Change the customer id of the application request to Nordea's testing ID
       customer_id = ar.at_css "CustomerId"
       customer_id.content = @customer_id

@@ -5,13 +5,13 @@ require 'time'
 require_relative 'application_request'
 
 class SoapRequest
-  def initialize(params, ar)
+  def initialize(params)
     @private_key = OpenSSL::PKey::RSA.new File.read params[:private_key]
     @cert = OpenSSL::X509::Certificate.new File.read params[:cert]
     @command = params[:command]
-    @ar = ar
     @customer_id = params[:customer_id]
     @target_id = params[:target_id]
+    @ar = ApplicationRequest.new(params)
   end
 
   def to_xml
@@ -22,7 +22,7 @@ class SoapRequest
 
   def load_body
     case @command
-    when 'download_file_list'
+    when :download_file_list
       path = 'xml_templates/soap/download_file_list.xml'
     else
       puts 'Could not load soap request template because command was unrecognised.'
@@ -48,7 +48,7 @@ class SoapRequest
     soap = load_body
     #Add the base64 coded application request to the soap envelope after removing whitespaces
     ar_node = soap.xpath("//bxd:ApplicationRequest", 'bxd' => 'http://model.bxd.fi').first
-    ar_node.content = @ar
+    ar_node.content = @ar.get_as_base64
   
     #Add the testing sender id
     sender_id_node = soap.xpath("//bxd:SenderId", 'bxd' => 'http://model.bxd.fi').first

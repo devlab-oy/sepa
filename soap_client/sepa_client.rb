@@ -1,14 +1,14 @@
 require 'savon'
 require_relative 'soap_request'
-require_relative 'application_request'
 
 class SepaClient
-  def initialize(wsdl, soap)
-    @client = Savon.client(wsdl: wsdl, pretty_print_xml: true)
-    @soap = soap
+  def initialize(params)
+    @client = Savon.client(wsdl: params[:wsdl], pretty_print_xml: true)
+    @soap = SoapRequest.new(params)
+    @command = params[:command]
   end
 
   def send
-    @client.call(:download_file_list, xml: @soap.to_xml)
+    @client.call(@command, xml: @soap.to_xml)
   end
 end
