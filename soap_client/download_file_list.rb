@@ -36,7 +36,7 @@ def process_application_request
 
   #Set the timestamp
   timestamp = application_request.at_css "Timestamp"
-  timestamp.content = Time.now.to_time.iso8601
+  timestamp.content = Time.now.iso8601
 
   # Set status
   status = application_request.at_css "Status"
@@ -70,31 +70,33 @@ def sign_application_request(application_request, private_key, cert)
   signature = application_request.xpath("//dsig:Signature", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
   signature.remove
 
-  #Take digest from application request, base64 code it and set it to the signature
+  #Take digest from application request
   sha1 = OpenSSL::Digest::SHA1.new
   digestbin = sha1.digest(application_request.canonicalize(mode=Nokogiri::XML::XML_C14N_1_0,inclusive_namespaces=nil,with_comments=false))
   digest = Base64.encode64(digestbin)
-  signature_digest = signature.xpath(".//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
+
+  # Add the signature
+  application_request.root.add_child(signature)
+
+  # Insert digest to correct place
+  signature_digest = application_request.xpath(".//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
   signature_digest.content = digest.gsub(/\s+/, "")
 
   # Sign Signed info element
-  signed_info = signature.xpath(".//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-  signed_info_canon = signed_info.to_s.strip
+  signed_info = application_request.xpath(".//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
+  signed_info_canon = signed_info.canonicalize(mode=Nokogiri::XML::XML_C14N_1_0,inclusive_namespaces=nil,with_comments=false)
   digest_sign = OpenSSL::Digest::SHA1.new
   signed_info_signature = private_key.sign(digest_sign, signed_info_canon)
   signature_base64 = Base64.encode64(signed_info_signature)
 
   #Add the base64 coded signature to the signature element
-  signature_signature = signature.xpath(".//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
+  signature_signature = application_request.xpath(".//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
   signature_signature.content = signature_base64.gsub(/\s+/, "")
 
   #Format the certificate and add the it to the certificate element
   cert_formatted = cert.to_s.split('-----BEGIN CERTIFICATE-----')[1].split('-----END CERTIFICATE-----')[0].gsub(/\s+/, "")
-  signature_certificate = signature.xpath(".//dsig:X509Certificate", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
+  signature_certificate = application_request.xpath(".//dsig:X509Certificate", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
   signature_certificate.content = cert_formatted
-
-  # Add the signature
-  application_request.root.add_child(signature)
 
   #Base64 code the whole application request
   Base64.encode64(application_request.to_xml)
