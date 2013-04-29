@@ -20,7 +20,7 @@ class ApplicationRequest
   end
 
   def get_as_xml
-    ar = sign
+    sign
   end
 
   private
