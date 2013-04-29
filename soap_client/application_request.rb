@@ -13,6 +13,7 @@ class ApplicationRequest
     @target_id = params[:target_id]
     @file_type = params[:file_type]
     @content = params[:content]
+    @file_reference = params[:file_reference]
   end
 
   def get_as_base64
@@ -34,6 +35,8 @@ class ApplicationRequest
       path = 'xml_templates/application_request/get_user_info.xml'
     when :upload_file
       path = 'xml_templates/application_request/upload_file.xml'
+    when :download_file
+      path = 'xml_templates/application_request/download_file.xml'
     else
       puts 'Could not load application request template because command was unrecognised.'
       return nil
@@ -100,6 +103,22 @@ class ApplicationRequest
 
       content = ar.at_css "Content"
       content.content = Base64.encode64(@content)
+    when :download_file
+      command = ar.at_css "Command"
+      command.content = "DownloadFile"
+
+      # Set status
+      status = ar.at_css "Status"
+      status.content = @status
+
+      targetid = ar.at_css "TargetId"
+      targetid.content = @target_id
+
+      filetype = ar.at_css "FileType"
+      filetype.content = @file_type
+
+      file_reference = ar.at_css "FileReference"
+      file_reference.content = @file_reference
     else
       puts 'Could not process application request because command was unrecognised.'
       return nil

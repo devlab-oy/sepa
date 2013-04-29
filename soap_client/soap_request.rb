@@ -28,6 +28,8 @@ class SoapRequest
       path = 'xml_templates/soap/get_user_info.xml'
     when :upload_file
       path = 'xml_templates/soap/upload_file.xml'
+    when :download_file
+      path = 'xml_templates/soap/download_file.xml'
     else
       puts 'Could not load soap request template because command was unrecognised.'
       return nil
