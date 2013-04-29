@@ -3,7 +3,7 @@ require_relative 'sepa_client'
 params = {
   private_key: 'keys/nordea.key', # Path for your own private key
   cert: 'keys/nordea.crt',        # Path to your certificate
-  command: :download_file,   # Command must be one of: :download_file_list, :upload_file, :download_file or :get_user_info. Currently only :download_file_list works but I'm quite hopeful that I will get the others working too.
+  command: :get_user_info,   # Command must be one of: :download_file_list, :upload_file, :download_file or :get_user_info. Currently only :download_file_list works but I'm quite hopeful that I will get the others working too.
   customer_id: '11111111',        # Unique customer ID
   status: 'NEW',                  # For filtering stuff. Must be either NEW, DOWNLOADED or ALL
   target_id: '11111111A1',        # Some specification of the folder which to access in the bank. I have no idea how this works however.
