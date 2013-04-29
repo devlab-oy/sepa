@@ -24,6 +24,8 @@ class SoapRequest
     case @command
     when :download_file_list
       path = 'xml_templates/soap/download_file_list.xml'
+    when :get_user_info
+      path = 'xml_templates/soap/get_user_info.xml'
     else
       puts 'Could not load soap request template because command was unrecognised.'
       return nil

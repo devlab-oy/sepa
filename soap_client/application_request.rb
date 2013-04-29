@@ -29,6 +29,8 @@ class ApplicationRequest
     case @command
     when :download_file_list
       path = 'xml_templates/application_request/download_file_list.xml'
+    when :get_user_info
+      path = 'xml_templates/application_request/get_user_info.xml'
     else
       puts 'Could not load application request template because command was unrecognised.'
       return nil
@@ -44,43 +46,45 @@ class ApplicationRequest
   def process
     ar = load
 
+    #First the content that is common to all commands#
+    ##################################################
+
+    # Change the customer id of the application request to Nordea's testing ID
+    customer_id = ar.at_css "CustomerId"
+    customer_id.content = @customer_id
+
+    #Set the timestamp
+    timestamp = ar.at_css "Timestamp"
+    timestamp.content = Time.now.iso8601
+
+    # Set the environment
+    environment = ar.at_css "Environment"
+    environment.content = "PRODUCTION"
+
+    #Set the software id
+    softwareid = ar.at_css "SoftwareId"
+    softwareid.content = "Sepa Transfer Library version 0.1"
+
     case @command
     when :download_file_list
-      # Change the customer id of the application request to Nordea's testing ID
-      customer_id = ar.at_css "CustomerId"
-      customer_id.content = @customer_id
-    
       # Set the command
       command = ar.at_css "Command"
       command.content = "DownloadFileList"
-    
-      #Set the timestamp
-      timestamp = ar.at_css "Timestamp"
-      timestamp.content = Time.now.iso8601
-      
+
       # Set status
       status = ar.at_css "Status"
       status.content = @status
-      
-      # Set the environment
-      environment = ar.at_css "Environment"
-      environment.content = "PRODUCTION"
-      
+
       # Set the target id
       targetid = ar.at_css "TargetId"
       targetid.content = @target_id
-      
-      # Set compression
-      compression = ar.at_css "Compression"
-      compression.content = "false"
-      
-      #Set the software id
-      softwareid = ar.at_css "SoftwareId"
-      softwareid.content = "Sepa Transfer Library version 0.1"
-      
+
       # Set the file type
       filetype = ar.at_css "FileType"
       filetype.content = @file_type
+    when :get_user_info
+      command = ar.at_css "Command"
+      command.content = "GetUserInfo"
     else
       puts 'Could not process application request because command was unrecognised.'
       return nil

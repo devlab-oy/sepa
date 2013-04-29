@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-    <soapenv:Body xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-        <cor:getUserInfoin xmlns:cor="http://bxd.fi/CorporateFileService">
-            <mod:RequestHeader xmlns:mod="http://model.bxd.fi">
-                <mod:SenderId></mod:SenderId>
-                <mod:RequestId></mod:RequestId>
-                <mod:Timestamp></mod:Timestamp>
-                <mod:Language></mod:Language>
-                <mod:UserAgent></mod:UserAgent>
-                <mod:ReceiverId></mod:ReceiverId>
-            </mod:RequestHeader>
-            <mod:ApplicationRequest xmlns:mod="http://model.bxd.fi"></mod:ApplicationRequest>
-        </cor:getUserInfoin>
-    </soapenv:Body>
-</soapenv:Envelope>
+<?xml version="1.0" encoding="UTF-8"?> 
+<env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"> 
+    <env:Body xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:cor="http://bxd.fi/CorporateFileService" xmlns:bxd="http://model.bxd.fi" wsu:Id="sdf6sa7d86f87s6df786sd87f6s8fsda"> 
+        <cor:getUserInfoin xmlns:cor="http://bxd.fi/CorporateFileService"> 
+            <bxd:RequestHeader xmlns:bxd="http://model.bxd.fi"> 
+                <bxd:SenderId></bxd:SenderId>
+                <bxd:RequestId></bxd:RequestId> 
+                <bxd:Timestamp></bxd:Timestamp> 
+                <bxd:Language></bxd:Language> 
+                <bxd:UserAgent></bxd:UserAgent> 
+                <bxd:ReceiverId></bxd:ReceiverId> 
+            </bxd:RequestHeader> 
+            <bxd:ApplicationRequest xmlns:bxd="http://model.bxd.fi"></bxd:ApplicationRequest> 
+        </cor:getUserInfoin> 
+    </env:Body> 
+</env:Envelope>
