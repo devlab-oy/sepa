@@ -34,7 +34,7 @@ class Applicationresponse
       tiliote_content[:todate] = content.at_css("ToDtTm").content
       # Y-tunnus
       tiliote_content[:organizationid] = content.at_css("Acct/Ownr/Id/OrgId/Othr/Id").content
-      # Parent account of the curent account
+      # Parent account of the current account
       tiliote_content[:relatedaccount] = content.at_css("RltdAcct/Id/IBAN").content
       tiliote_content[:relatedaccountcurrencycode] = content.at_css("RltdAcct/Ccy").content
       # Account entries
@@ -43,13 +43,12 @@ class Applicationresponse
       tiliote_content[:totaldeposits] = content.at_css("TxsSummry/TtlCdtNtries/NbOfNtries").content
       tiliote_content[:withdrawalssum] = content.at_css("TxsSummry/TtlDbtNtries/Sum").content
       tiliote_content[:depositssum] = content.at_css("TxsSummry/TtlCdtNtries/Sum").content
-      #TODO
-      #Looping of transactions
+      
+      # For each transaction in the content
       transactions = []
       #content.xpath("//Document/BkToCstmrStmt/Ntfctn/Ntry") for 054
       content.xpath("//Document/BkToCstmrStmt/Stmt/Ntry").each do |node| 
-        #puts node.to_s
-        #if node.at_css("Amt").content != nil
+        
         transaction_content = {}
         transaction_content[:amount] = node.at_css("Amt").content
         transaction_content[:currency] = node.at_css("Amt")["Ccy"]
@@ -63,20 +62,16 @@ class Applicationresponse
         transaction_content[:bookedcurrency] = node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/Amt")["Ccy"] unless node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/Amt") == nil
         transaction_content[:exchangerate] = node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/XchgRate").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/XchgRate") == nil
         transaction_content[:contractid] = node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/CtrctId").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/CtrctId") == nil
-        #transaction_content[] = node.at_css("").content
-        #transaction_content[] = node.at_css("").content
-        #transaction_content[] = node.at_css("").content
-        #puts node.content
+        #DEBUG MESSAGES
         puts "***********"
         puts transaction_content[:amount]
         puts transaction_content[:currency]
         puts transaction_content[:exchangerate]
         puts "***********"
+        #END DEBUG
         transactions<<transaction_content
-      #end
+      
       end
-
-
 
       #DEBUG
       puts "-----------"
@@ -95,50 +90,67 @@ class Applicationresponse
       puts tiliote_content[:relatedaccount]
       puts tiliote_content[:relatedaccountcurrencycode]
       #END DEBUG
+   
     else
-      puts "But its empty."
+      puts "Content is empty."
     end
   end
 
   #tempname
   def get_viiteaineisto_content
-    #TODO, almost similar to get_tiliote_content
+    #DEBUG CONTENT
+    content = Nokogiri::XML(File.open("xml_examples/content_053.xml"))
+    content.remove_namespaces!
+    #END of DEBUG CONTENT
+    unless content = ""
+    
+      viiteaineisto_content = {}
+
+    else
+      puts "Content is empty."  
+    end
+
   end
 
-  #add incoming descriptor to array
+  # Add incoming descriptor to array
   def add_descriptor(fdesc)
+  
     fileDescriptors<<fdesc
+  
   end
 
-  #add incoming userfiletype to array
+  # Add incoming userfiletype to the array
   def add_userfiletype(ufiletype)
+
     userFiletypes<<ufiletype
+  
   end
 
-  #returns the full array of descriptors
+  # Returns an array of file descriptors
   def list_new_descriptors
-    #TODO only the ones which include keyword NEW
-    #@fileDescriptors
+    # Lists NEW files only
+    fileDescriptors.select { |fd| fd.status == "NEW" }
+  
   end
 
   def list_all_descriptors
+  
     fileDescriptors
+  
   end
 
   #returns the full array of userfiletypes
   def list_userfiletypes
+
     userFiletypes
+  
   end
   
   #returns a specific descriptor
   def select_descriptor(fileRef)
-    #TODO change to .select structure
-    fileDescriptors.each do |fd|
-      if fd.fileReference == fileRef
-        #break out when found
-        return fd
-      end
-    end
+    
+    fileDescriptors.select { |fd| fd.fileReference == fileRef }
+    
   end
 
   #reads response from bank and fills attribute values
@@ -225,7 +237,9 @@ class Applicationresponse
     puts uftype.direction
 
     ftype.xpath("./FileTypeServices/FileTypeService").each do |ftypes|
-      puts "I was at filetypeservice WOHOO"
+      #DEBUG
+      #puts "I was at filetypeservice WOHOO"
+      #END DEBUG
       newservice = Filetypeservice.new
       newservice.serviceId = ftypes.at_css("ServiceId").content unless ftypes.at_css("ServiceId") == nil
       newservice.serviceIdOwnerName = ftypes.at_css("ServiceIdOwnerName").content unless ftypes.at_css("ServiceIdOwnerName") == nil
@@ -233,15 +247,19 @@ class Applicationresponse
       newservice.serviceIdText = ftypes.at_css("ServiceIdText").content unless ftypes.at_css("ServiceIdText") == nil
 
       uftype.add_filetypeservice(newservice)
-      #puts "KISUUUUUU -----------------------"
+      #DEBUG
+      #puts "FTYPES -----------------------"
       #puts uftype.get_filetypeservices.count
-      #puts "KISUUUUUU -----------------------"
+      #puts "FTYPES -----------------------"
+      #END DEBUG
     end
     self.add_userfiletype(uftype)
   end
-  puts "AAARRRRRRR ---------------"
+  #DEBUG
+  puts "Inspect the first object ---------------"
   puts self.userFiletypes[0].get_filetypeservices.inspect
-  puts "NO MORE PIRATES -------------"
+  puts "Inspect the first object ---------------"
+  #END DEBUG
   #optional for debugging
   #sig = Signature.new
   #sig.digestValue = xml.at_css("DigestValue").content
