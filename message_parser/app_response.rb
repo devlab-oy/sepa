@@ -102,7 +102,7 @@ class Applicationresponse
     content = Nokogiri::XML(File.open("xml_examples/content_053.xml"))
     content.remove_namespaces!
     #END of DEBUG CONTENT
-    unless content = ""
+    unless content == ""
     
       viiteaineisto_content = {}
 
