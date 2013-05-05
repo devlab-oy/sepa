@@ -14,6 +14,7 @@ class Applicationresponse
   ##get_tiliote_content, get_viiteaineisto_content for pupesoft minreq.
   ##tempname
   # Reads values from content field, ideally returns a hash
+  # Bank to customer statement
   def get_tiliote_content
     #DEBUG CONTENT
     content = Nokogiri::XML(File.open("xml_examples/content_053.xml"))
@@ -27,7 +28,140 @@ class Applicationresponse
 
       # To contain all needed values
       tiliote_content = {}
-
+      
+      # Full fields of 053 account statement
+      # Group header
+      #content.at_css("Document/BkToCstmrStmt/GrpHdr/MsgId")
+      #content.at_css("Document/BkToCstmrStmt/GrpHdr/CreDtTm")
+      # Statement
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Id")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/ElctrncSeqNb")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/LglSeqNb")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/CreDtTm")
+      # Booking date
+      #content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/FrDtTm")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/ToDtTm")
+      # Account
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Id/IBAN")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Tp/Cd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ccy")
+      # Owner
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/Nm")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/PstlAdr/StrNm")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/PstlAdldgNb")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/PstlAdr/PstCd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/PstlAdr/TwnNm")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/PstlAdr/Ctry")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/Id/OrgId/Othr/Id")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/Id/OrgId/Othr/SchmeNm/Cd")
+      # BIC
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Svcr/FinInstnId/BIC")
+      # Related account, not used with single account statement
+      #content.at_css("Document/BkToCstmrStmt/Stmt/RltdAcct/Id/IBAN")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/RltdAcct/Ccy")
+      # Interest
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Intrst/Tp/Cd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Intrst/Rate/Tp/Othr")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Intrst/Rate/VldtyRg")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Intrst/Rate/VldtyRg/Amt/FrToAmt/FrAmt/BdryAmt")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Intrst/Rate/VldtyRg/Amt/FrToAmt/FrAmt/Incl")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Intrst/Rate/VldtyRg/Amt/FrToAmt/ToAmt/BdryAmt")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Intrst/Rate/VldtyRg/Amt/FrToAmt/ToAmt/Incl")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Intrst/Rate/VldtyRg/CdtDbtInd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Intrst/Rate/VldtyRg/Ccy")
+      # Balance, multiple occurrances
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Bal/Tp/CdOrPrtry/Cd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Bal/CdtLine/Incl")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Bal/CdtLine/Amt")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Bal/CdtLine/Amt")["Ccy"]
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Bal/Amt")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Bal/Amt")["Ccy"]
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Bal/CdDbtInd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Bal/Dt/Dt")
+      # Transaction summary
+      #content.at_css("Document/BkToCstmrStmt/Stmt/TxsSummry/TtlNtries/NbOfNtries")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/TxsSummry/TtlCdtNtries/NbOfNtries")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/TxsSummry/TtlCdtNtries/Sum")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/TxsSummry/TtlDbtNtries/NbOfNtries")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/TxsSummry/TtlDbtNtries/Sum")
+      # Transaction entry, multiple occurrances
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryRef")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/Amt")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/Amt")["Ccy"]
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/CdDbtInd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/Sts")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/BookgDt/Dt")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/ValDt/Dt")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/AcctSvcrRef")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/BkTxCd/Domn/Cd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/BkTxCd/Domn/Fmly/Cd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/BkTxCd/Domn/Fmly/SubFmlyCd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/BkTxCd/Prtry/Cd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/BkTxCd/Prtry/Issr")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/Btch/MsgId")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/Btch/PmtInfId")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/Btch/NbOfTxs")
+      # Element can have multiple occurrences
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/Refs/AcctSvcrRef")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/Refs/InstrId")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/Refs/TxId")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/Refs/EndToEndId")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt")["Ccy"]
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/Amt")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/Amt")["Ccy"]
+      ## Currency exchange
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/SrcCcy")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/TrgtCcy")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/UnitCcy")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/XchgRate")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/CtrctId")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/QtnDt")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/Amt")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/Amt")["Ccy"]
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/SrcCcy")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/TrgtCcy")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/UnitCcy")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/XchgRate")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/CtrcId")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/QtnDt")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/BkTxCd/Domn/Cd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/BkTxCd/Domn/Fmly/Cd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/BkTxCd/Domn/Fmly/SubFmlyCd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/BkTxCd/Prtry/Cd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/BkTxCd/Prtry/Issr")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/Chrgs/Amt")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/Chrgs/Amt")["Ccy"]
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/Chrgs/Tp/Cd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/Purp/Cd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Nm")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/PstlAdr/Ctry")
+      # Multiple elements on address line, at least 2
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/PstlAdr/AdrLine")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/CtryOfRes")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Nm")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Id/OrgId/Othr/Id")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Id/OrgId/Othr/Id/SchmeNm/Cd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/UltmtDbtr/Nm")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/UltmtDbtr/Id/OrgId/Othr/Id")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/UltmtDbtr/Id/OrgId/Othr/SchmeNm")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/Othr/Id")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/Othr/SchmeNm/Cd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Tp/Prtry")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdQties/Qty/Unit")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdAgts/DbtrAgt/FinInstId")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Tp/CdOrPrtry/Cd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Tp/Issr")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Ref")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocInf/Nb")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocAmt/RmtdAmt")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocAmt/RmtdAmt")["Ccy"]
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Strd/Invcee/Id/OrgId/Othr/Id")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Ustrd")
+      #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdDts/AccptncDtTm")
+      # END full fields of 053 account statement
+      
       # Current account info
       tiliote_content[:account] = content.at_css("Acct/Id/IBAN").content
       tiliote_content[:ownername] = content.at_css("Acct/Ownr/Nm").content

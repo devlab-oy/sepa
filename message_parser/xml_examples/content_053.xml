@@ -941,7 +941,7 @@ camt.053.001.02.xsd">
 								<Amt Ccy="EUR">100.00</Amt>
 							</TxAmt>
 						</AmtDtls>
-						<BkTxCd>
+	                    <BkTxCd>
 							<Domn>
 								<Cd>PMNT</Cd>
 								<Fmly>
