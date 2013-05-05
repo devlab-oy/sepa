@@ -133,36 +133,37 @@ class ApplicationRequest
     ar
   end
 
+  # Sign the whole application request using enveloped signature
   def sign
     ar = process
 
     #Remove signature element from application request for hashing
     signature = ar.xpath("//dsig:Signature", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
     signature.remove
-  
+
     #Take digest from application request
     sha1 = OpenSSL::Digest::SHA1.new
     digestbin = sha1.digest(ar.canonicalize(mode=Nokogiri::XML::XML_C14N_1_0,inclusive_namespaces=nil,with_comments=false))
     digest = Base64.encode64(digestbin)
-  
+
     # Add the signature
     ar.root.add_child(signature)
-  
+
     # Insert digest to correct place
     ar_digest = ar.xpath(".//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
     ar_digest.content = digest.gsub(/\s+/, "")
-  
+
     # Sign Signed info element
     signed_info = ar.xpath(".//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
     signed_info_canon = signed_info.canonicalize(mode=Nokogiri::XML::XML_C14N_1_0,inclusive_namespaces=nil,with_comments=false)
     digest_sign = OpenSSL::Digest::SHA1.new
     signed_info_signature = @private_key.sign(digest_sign, signed_info_canon)
     signature_base64 = Base64.encode64(signed_info_signature)
-  
+
     #Add the base64 coded signature to the signature element
     signature_node = ar.xpath(".//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
     signature_node.content = signature_base64.gsub(/\s+/, "")
-  
+
     #Format the certificate and add the it to the certificate element
     cert_formatted = @cert.to_s.split('-----BEGIN CERTIFICATE-----')[1].split('-----END CERTIFICATE-----')[0].gsub(/\s+/, "")
     cert_node = ar.xpath(".//dsig:X509Certificate", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
