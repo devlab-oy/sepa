@@ -16,6 +16,7 @@ class ApplicationRequest
     @file_reference = params[:file_reference]
   end
 
+  # Returns the application request in base64 encoded format
   def get_as_base64
     ar = sign
     Base64.encode64(ar.to_xml)
@@ -28,6 +29,7 @@ class ApplicationRequest
   private
 
   def load
+    # Selecting which application request template to load
     case @command
     when :download_file_list
       path = 'xml_templates/application_request/download_file_list.xml'
@@ -55,7 +57,7 @@ class ApplicationRequest
     #First the content that is common to all commands#
     ##################################################
 
-    # Change the customer id of the application request to Nordea's testing ID
+    # Set the customer id of the application request
     customer_id = ar.at_css "CustomerId"
     customer_id.content = @customer_id
 
@@ -67,7 +69,7 @@ class ApplicationRequest
     environment = ar.at_css "Environment"
     environment.content = "PRODUCTION"
 
-    #Set the software id
+    # Set the software id
     softwareid = ar.at_css "SoftwareId"
     softwareid.content = "Sepa Transfer Library version 0.1"
 
@@ -77,7 +79,7 @@ class ApplicationRequest
       command = ar.at_css "Command"
       command.content = "DownloadFileList"
 
-      # Set status
+      # Set the status
       status = ar.at_css "Status"
       status.content = @status
 
@@ -98,9 +100,11 @@ class ApplicationRequest
       targetid = ar.at_css "TargetId"
       targetid.content = @target_id
 
+      # Set the file type of the file to be uploaded
       filetype = ar.at_css "FileType"
       filetype.content = @file_type
 
+      # Set the content (paylod) of the application request and base64 encode it
       content = ar.at_css "Content"
       content.content = Base64.encode64(@content)
     when :download_file
@@ -114,9 +118,11 @@ class ApplicationRequest
       targetid = ar.at_css "TargetId"
       targetid.content = @target_id
 
+      # Set the filetype of the file to be downloaded
       filetype = ar.at_css "FileType"
       filetype.content = @file_type
 
+      # Reference number of the file to be downloaded
       file_reference = ar.at_css "FileReference"
       file_reference.content = @file_reference
     else
