@@ -4,7 +4,7 @@ require_relative 'soap_request'
 class SepaClient
   def initialize(params)
     # Initialize savon client with params
-    @client = Savon.client(wsdl: params[:wsdl], pretty_print_xml: true)
+    @client = Savon.client(wsdl: params[:wsdl], pretty_print_xml: true, log_level: :error)
     @soap = SoapRequest.new(params)
     @command = params[:command]
   end
