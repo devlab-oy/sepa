@@ -1,11 +1,10 @@
 class Applicationresponse
-# This class is able to handle GetUserInfo, DownloadFileList, DownloadFile responses
+# This class is able to handle GetUserInfo, DownloadFileList, DownloadFile responses and pass content
   require 'nokogiri'
   require 'openssl'
   require 'base64'
   
   attr_accessor :timestamp, :responseCode, :encrypted, :compressed, :customerId, :responseText, :fileDescriptors, :userFiletypes
-  #TODO needs crosschecking from other responses to complete attributes
   #for inner use
   #signature,timestamp,responseCode,responseText,encrypted,compressed,customerId,content = ''
   #fileDescriptors = Array.new
@@ -15,6 +14,7 @@ class Applicationresponse
   ##tempname
   # Reads values from content field, ideally returns a hash
   # Bank to customer statement
+  #TODO change to take the xml as param for release version
   def get_tiliote_content
     #DEBUG CONTENT
     content = Nokogiri::XML(File.open("xml_examples/content_053.xml"))
@@ -30,21 +30,26 @@ class Applicationresponse
       tiliote_content = {}
       
       # Full fields of 053 account statement
+
       # Group header
       #content.at_css("Document/BkToCstmrStmt/GrpHdr/MsgId")
       #content.at_css("Document/BkToCstmrStmt/GrpHdr/CreDtTm")
+      
       # Statement
       #content.at_css("Document/BkToCstmrStmt/Stmt/Id")
       #content.at_css("Document/BkToCstmrStmt/Stmt/ElctrncSeqNb")
       #content.at_css("Document/BkToCstmrStmt/Stmt/LglSeqNb")
       #content.at_css("Document/BkToCstmrStmt/Stmt/CreDtTm")
+      
       # Booking date
       #content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/FrDtTm")
       #content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/ToDtTm")
+      
       # Account
       #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Id/IBAN")
       #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Tp/Cd")
       #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ccy")
+      
       # Owner
       #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/Nm")
       #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/PstlAdr/StrNm")
@@ -54,11 +59,14 @@ class Applicationresponse
       #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/PstlAdr/Ctry")
       #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/Id/OrgId/Othr/Id")
       #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/Id/OrgId/Othr/SchmeNm/Cd")
+      
       # BIC
       #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Svcr/FinInstnId/BIC")
+      
       # Related account, not used with single account statement
       #content.at_css("Document/BkToCstmrStmt/Stmt/RltdAcct/Id/IBAN")
       #content.at_css("Document/BkToCstmrStmt/Stmt/RltdAcct/Ccy")
+      
       # Interest
       #content.at_css("Document/BkToCstmrStmt/Stmt/Intrst/Tp/Cd")
       #content.at_css("Document/BkToCstmrStmt/Stmt/Intrst/Rate/Tp/Othr")
@@ -69,6 +77,7 @@ class Applicationresponse
       #content.at_css("Document/BkToCstmrStmt/Stmt/Intrst/Rate/VldtyRg/Amt/FrToAmt/ToAmt/Incl")
       #content.at_css("Document/BkToCstmrStmt/Stmt/Intrst/Rate/VldtyRg/CdtDbtInd")
       #content.at_css("Document/BkToCstmrStmt/Stmt/Intrst/Rate/VldtyRg/Ccy")
+      
       # Balance, multiple occurrances
       #content.at_css("Document/BkToCstmrStmt/Stmt/Bal/Tp/CdOrPrtry/Cd")
       #content.at_css("Document/BkToCstmrStmt/Stmt/Bal/CdtLine/Incl")
@@ -78,12 +87,14 @@ class Applicationresponse
       #content.at_css("Document/BkToCstmrStmt/Stmt/Bal/Amt")["Ccy"]
       #content.at_css("Document/BkToCstmrStmt/Stmt/Bal/CdDbtInd")
       #content.at_css("Document/BkToCstmrStmt/Stmt/Bal/Dt/Dt")
+      
       # Transaction summary
       #content.at_css("Document/BkToCstmrStmt/Stmt/TxsSummry/TtlNtries/NbOfNtries")
       #content.at_css("Document/BkToCstmrStmt/Stmt/TxsSummry/TtlCdtNtries/NbOfNtries")
       #content.at_css("Document/BkToCstmrStmt/Stmt/TxsSummry/TtlCdtNtries/Sum")
       #content.at_css("Document/BkToCstmrStmt/Stmt/TxsSummry/TtlDbtNtries/NbOfNtries")
       #content.at_css("Document/BkToCstmrStmt/Stmt/TxsSummry/TtlDbtNtries/Sum")
+      
       # Transaction entry, multiple occurrances
       #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryRef")
       #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/Amt")
@@ -101,7 +112,7 @@ class Applicationresponse
       #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/Btch/MsgId")
       #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/Btch/PmtInfId")
       #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/Btch/NbOfTxs")
-      # Element can have multiple occurrences
+      ## Element can have multiple occurrences
       #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/Refs/AcctSvcrRef")
       #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/Refs/InstrId")
       #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/Refs/TxId")
@@ -110,7 +121,7 @@ class Applicationresponse
       #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt")["Ccy"]
       #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/Amt")
       #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/Amt")["Ccy"]
-      ## Currency exchange
+      # Currency exchange
       #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/SrcCcy")
       #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/TrgtCcy")
       #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/UnitCcy")
@@ -162,6 +173,22 @@ class Applicationresponse
       #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdDts/AccptncDtTm")
       # END full fields of 053 account statement
       
+      #TODO Identifioi ainakin seuraavat
+      ##Arkistointitunnus
+      ##Saajan tilinumero
+      ##Maksupaiva
+      ##Arvopaiva
+      ##Saaja/Maksaja
+      ##Viesti
+      ##Maara(arvo)
+      ##Tapahtumalaji (702, 705)
+      ##Oma sisainen viite
+      ##Maksajan viite
+      ##IBAN tilinumero
+      ##BIC koodi
+      ##Maksajan tunniste
+      ##SEPA arkistointitunnus
+
       # Current account info
       tiliote_content[:account] = content.at_css("Acct/Id/IBAN").content
       tiliote_content[:ownername] = content.at_css("Acct/Ownr/Nm").content
@@ -243,25 +270,30 @@ class Applicationresponse
     end
   end
 
-  ##tempname
+  ##tempname, really debitcreditnotification
   # Reads values from content field, ideally returns a hash
+  #TODO change to take the xml as param for release version
   def get_viiteaineisto_content
     #DEBUG CONTENT
-    content = Nokogiri::XML(File.open("xml_examples/content_053.xml"))
+    content = Nokogiri::XML(File.open("xml_examples/content_054.xml"))
     content.remove_namespaces!
     #END of DEBUG CONTENT
     unless content == ""
     
       viiteaineisto_content = {}
 
-      #054 path, not fully checked if all are needed
+      #054 DebitCreditNotification paths, not fully checked if all are needed, quickly checked that all required ones are included
 
+      # Group header
       #Document/BkToCstmrDbtCdtNtfcnt/GrpHdr/MsgId
       #Document/BkToCstmrDbtCdtNtfcnt/GrpHdr/CreDtTm
 
+      # Message receipt
       #Document/BkToCstmrDbtCdtNtfcnt/GrpHdr/MsgMsgRcpt/Id/OrgId/Othr/Id
       #Document/BkToCstmrDbtCdtNtfcnt/GrpHdr/MsgMsgRcpt/Id/OrgId/Othr/SchmeNm/Cd
       #Document/BkToCstmrDbtCdtNtfcnt/GrpHdr/AddtlInf
+      
+      # Notification info, accounts, transaction summary
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Id
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/ElctrncSeqNb
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/CreDtTm
@@ -277,7 +309,8 @@ class Applicationresponse
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/TxsSummry/TtlNtries/Sum
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/TxsSummry/TtlNtries/TtlNetNtryAmt
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/TxsSummry/TtlNtries/CdDbtInd
-      # Entries
+      
+      # Notification entries
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryRef
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/Amt
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/Amt["Ccy"]
@@ -292,16 +325,15 @@ class Applicationresponse
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/BkTxCd/Prtry/Cd
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/BkTxCd/Prtry/Issr
       
-
+      # Notification entry details
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/MsgId
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/PmtInfId
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/NbOfTxs
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/TtlAmt
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/TtlAmt["Ccy"]
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/CdtDbtInd
-      # Element can have multiple occurrences So far not at row 163 054.xml
+      ## Element can have multiple occurrences
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Refs/AcctSvcrRef
-      # So far not these--at row 163 in 054.xml
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Refs/InstrId
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Refs/TxId
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Refs/EndToEndId
@@ -309,7 +341,7 @@ class Applicationresponse
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt["Ccy"]
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/Amt
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/Amt["Ccy"]
-      ## Currency exchange
+      ## Currency exchange, currencies, exchange rates
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/SrcCcy
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/TrgtCcy
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/UnitCcy
@@ -335,7 +367,7 @@ class Applicationresponse
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Purp/Cd
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Nm
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/PstlAdr/Ctry
-      # Multiple elements on address line, at least 2
+      ## Multiple elements on address line, at least 2
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/PstlAdr/AdrLine
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/CtryOfRes
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Nm
@@ -360,11 +392,7 @@ class Applicationresponse
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Ustrd
       #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdDts/AccptncDtTm
 
-      #Document/BkToCstmrDbtCdtNtfcnt/
-      #Document/BkToCstmrDbtCdtNtfcnt/
-
-
-
+      #TODO Listaa tarkeimmat kentat mita valintaan otetaan mukaan
 
     else
       puts "Content is empty."  
