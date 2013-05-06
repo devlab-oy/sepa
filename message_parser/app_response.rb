@@ -254,6 +254,118 @@ class Applicationresponse
     
       viiteaineisto_content = {}
 
+      #054 path, not fully checked if all are needed
+
+      #Document/BkToCstmrDbtCdtNtfcnt/GrpHdr/MsgId
+      #Document/BkToCstmrDbtCdtNtfcnt/GrpHdr/CreDtTm
+
+      #Document/BkToCstmrDbtCdtNtfcnt/GrpHdr/MsgMsgRcpt/Id/OrgId/Othr/Id
+      #Document/BkToCstmrDbtCdtNtfcnt/GrpHdr/MsgMsgRcpt/Id/OrgId/Othr/SchmeNm/Cd
+      #Document/BkToCstmrDbtCdtNtfcnt/GrpHdr/AddtlInf
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Id
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/ElctrncSeqNb
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/CreDtTm
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Acct/Id/IBAN
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Acct/Tp/Cd
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Acct/Ccy
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Acct/Nm
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Acct/Ownr/Nm
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Acct/Ownr/Id/OrgId/Othr/Id
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Acct/Ownr/Id/OrgId/Othr/SchmeNm/Cd
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Acct/Svcr/FinInstnId/BIC
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/TxsSummry/TtlNtries/NbOfNtries
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/TxsSummry/TtlNtries/Sum
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/TxsSummry/TtlNtries/TtlNetNtryAmt
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/TxsSummry/TtlNtries/CdDbtInd
+      # Entries
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryRef
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/Amt
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/Amt["Ccy"]
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/CdDbtInd
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/Sts
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/BookgDt/Dt
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/ValDt/Dt
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/AcctSvcrRef
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/BkTxCd/Domn/Cd
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/BkTxCd/Domn/Fmly/Cd
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/BkTxCd/Domn/Fmly/SubFmlyCd
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/BkTxCd/Prtry/Cd
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/BkTxCd/Prtry/Issr
+      
+
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/MsgId
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/PmtInfId
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/NbOfTxs
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/TtlAmt
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/TtlAmt["Ccy"]
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/CdtDbtInd
+      # Element can have multiple occurrences So far not at row 163 054.xml
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Refs/AcctSvcrRef
+      # So far not these--at row 163 in 054.xml
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Refs/InstrId
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Refs/TxId
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Refs/EndToEndId
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt["Ccy"]
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/Amt
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/Amt["Ccy"]
+      ## Currency exchange
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/SrcCcy
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/TrgtCcy
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/UnitCcy
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/XchgRate
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/CtrctId
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/QtnDt
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/Amt
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/Amt["Ccy"]
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/SrcCcy
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/TrgtCcy
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/UnitCcy
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/XchgRate
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/CtrcId
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/QtnDt
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/BkTxCd/Domn/Cd
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/BkTxCd/Domn/Fmly/Cd
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/BkTxCd/Domn/Fmly/SubFmlyCd
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/BkTxCd/Prtry/Cd
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/BkTxCd/Prtry/Issr
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Chrgs/Amt
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Chrgs/Amt["Ccy"]
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Chrgs/Tp/Cd
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Purp/Cd
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Nm
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/PstlAdr/Ctry
+      # Multiple elements on address line, at least 2
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/PstlAdr/AdrLine
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/CtryOfRes
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Nm
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Id/OrgId/Othr/Id
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Id/OrgId/Othr/Id/SchmeNm/Cd
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/UltmtDbtr/Nm
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/UltmtDbtr/Id/OrgId/Othr/Id
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/UltmtDbtr/Id/OrgId/Othr/SchmeNm
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/Othr/Id
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/Othr/SchmeNm/Cd
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Tp/Prtry
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdQties/Qty/Unit
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdAgts/DbtrAgt/FinInstId
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Tp/CdOrPrtry/Cd
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Tp/Issr
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Ref
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocInf/Nb
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocAmt/RmtdAmt
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocAmt/RmtdAmt["Ccy"]
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/Invcee/Id/OrgId/Othr/Id
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Ustrd
+      #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdDts/AccptncDtTm
+
+      #Document/BkToCstmrDbtCdtNtfcnt/
+      #Document/BkToCstmrDbtCdtNtfcnt/
+
+
+
+
     else
       puts "Content is empty."  
     end
