@@ -25,13 +25,13 @@ module Sepa
             # Selecting which soap request template to load
             case @command
             when :download_file_list
-                path = 'xml_templates/soap/download_file_list.xml'
+                path = File.expand_path('../xml_templates/soap/download_file_list.xml', __FILE__)
             when :get_user_info
-                path = 'xml_templates/soap/get_user_info.xml'
+                path = File.expand_path('../xml_templates/soap/get_user_info.xml', __FILE__)
             when :upload_file
-                path = 'xml_templates/soap/upload_file.xml'
+                path = File.expand_path('xml_templates/soap/upload_file.xml', __FILE__)
             when :download_file
-                path = 'xml_templates/soap/download_file.xml'
+                path = File.expand_path('../xml_templates/soap/download_file.xml', __FILE__)
             else
                 puts 'Could not load soap request template because command was unrecognised.'
                 return nil
@@ -46,7 +46,7 @@ module Sepa
 
         # Loading the soap header
         def load_header
-            f = File.open('xml_templates/soap/header.xml')
+            f = File.open(File.expand_path('../xml_templates/soap/header.xml', __FILE__))
             header = Nokogiri::XML(f)
             f.close
 

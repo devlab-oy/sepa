@@ -1,6 +1,6 @@
 # This app can be used to test the functionality of the sepa client
 
-require_relative 'sepa'
+require 'sepa'
 
 # payload = File.open("SOLOLMP.DAT").read
 payload = "kissa"

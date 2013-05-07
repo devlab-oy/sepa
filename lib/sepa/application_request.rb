@@ -33,13 +33,13 @@ module Sepa
       # Selecting which application request template to load
       case @command
       when :download_file_list
-        path = 'xml_templates/application_request/download_file_list.xml'
+        path = File.expand_path('../xml_templates/application_request/download_file_list.xml', __FILE__)
       when :get_user_info
-        path = 'xml_templates/application_request/get_user_info.xml'
+        path = File.expand_path('../xml_templates/application_request/get_user_info.xml', __FILE__)
       when :upload_file
-        path = 'xml_templates/application_request/upload_file.xml'
+        path = File.expand_path('../xml_templates/application_request/upload_file.xml', __FILE__)
       when :download_file
-        path = 'xml_templates/application_request/download_file.xml'
+        path = File.expand_path('../xml_templates/application_request/download_file.xml', __FILE__)
       else
         puts 'Could not load application request template because command was unrecognised.'
         return nil

@@ -1,5 +1,6 @@
 require "sepa/version"
 require "sepa/soap_request"
+require "savon"
 
 module Sepa
   class SepaClient
