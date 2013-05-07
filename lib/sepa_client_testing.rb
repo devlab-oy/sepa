@@ -1,6 +1,6 @@
 # This app can be used to test the functionality of the sepa client
 
-require_relative 'sepa_client'
+require_relative 'sepa'
 
 # payload = File.open("SOLOLMP.DAT").read
 payload = "kissa"
@@ -13,13 +13,13 @@ params = {
   status: 'NEW',                                      # For filtering stuff. Must be either NEW, DOWNLOADED or ALL
   target_id: '11111111A1',                            # Some specification of the folder which to access in the bank. I have no idea how this works however.
   file_type: 'TITO',                                  # File types to upload or download:
-                                                      # - LMP300 = Laskujen maksupalvelu (lähtevä)
-                                                      # - LUM2 = Valuuttamaksut (lähtevä)
-                                                      # - KTL = Saapuvat viitemaksut (saapuva)
-                                                      # - TITO = Konekielinen tiliote (saapuva)
-                                                      # - NDCORPAYS = Yrityksen maksut XML (lähtevä)
-                                                      # - NDCAMT53L = Konekielinen XML-tiliote (saapuva)
-                                                      # - NDCAMT54L = Saapuvat XML viitemaksu (saapuva)
+  # - LMP300 = Laskujen maksupalvelu (lähtevä)
+  # - LUM2 = Valuuttamaksut (lähtevä)
+  # - KTL = Saapuvat viitemaksut (saapuva)
+  # - TITO = Konekielinen tiliote (saapuva)
+  # - NDCORPAYS = Yrityksen maksut XML (lähtevä)
+  # - NDCAMT53L = Konekielinen XML-tiliote (saapuva)
+  # - NDCAMT54L = Saapuvat XML viitemaksu (saapuva)
   wsdl: 'wsdl/wsdl_nordea.xml',                       # The WSDL file used by nordea. Is identical between banks except for the address.
   content: payload,                                   # The actual payload to send.
   file_reference: "11111111A12006030329501800000014"  # File reference for :download_file command
