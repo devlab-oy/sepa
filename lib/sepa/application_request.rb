@@ -25,7 +25,7 @@ module Sepa
     end
 
     def get_as_xml
-      sign
+      sign.to_xml
     end
 
     private
@@ -106,7 +106,7 @@ module Sepa
         filetype = ar.at_css "FileType"
         filetype.content = @file_type
 
-        # Set the content (paylod) of the application request and base64 encode it
+        # Set the content (paylod) of the application request after base64 encoding it
         content = ar.at_css "Content"
         content.content = Base64.encode64(@content)
       when :download_file

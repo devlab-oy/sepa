@@ -14,6 +14,7 @@ module Sepa
       @customer_id = params[:customer_id]
       @target_id = params[:target_id]
       @ar = ApplicationRequest.new(params)
+      @language = params[:language]
     end
 
     def to_xml
@@ -56,7 +57,7 @@ module Sepa
 
     def process
       soap = load_body
-      #Add the base64 coded application request to the soap envelope after removing whitespaces
+      #Add the base64 coded application request to the soap envelope
       ar_node = soap.xpath("//bxd:ApplicationRequest", 'bxd' => 'http://model.bxd.fi').first
       ar_node.content = @ar.get_as_base64
 
@@ -64,7 +65,7 @@ module Sepa
       sender_id_node = soap.xpath("//bxd:SenderId", 'bxd' => 'http://model.bxd.fi').first
       sender_id_node.content = @customer_id
 
-      # Set the request id
+      # Set the request id, a random 35 digit hex number
       request_id_node = soap.xpath("//bxd:RequestId", 'bxd' => 'http://model.bxd.fi').first
       request_id_node.content = SecureRandom.hex(35)
 
@@ -74,7 +75,7 @@ module Sepa
 
       # Add language
       language_node = soap.xpath("//bxd:Language", 'bxd' => 'http://model.bxd.fi').first
-      language_node.content = "FI"
+      language_node.content = @language
 
       # Add useragent
       useragent_node = soap.xpath("//bxd:UserAgent", 'bxd' => 'http://model.bxd.fi').first

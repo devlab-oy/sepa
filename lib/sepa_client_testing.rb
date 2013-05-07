@@ -14,6 +14,7 @@ params = {
   status: 'NEW',                                      # For filtering stuff. Must be either NEW, DOWNLOADED or ALL
   target_id: '11111111A1',                            # Some specification of the folder which to access in the bank. I have no idea how this works however.
   file_type: 'TITO',                                  # File types to upload or download:
+  language: 'FI',                                     # Language must be either FI, EN or SV
   # - LMP300 = Laskujen maksupalvelu (lähtevä)
   # - LUM2 = Valuuttamaksut (lähtevä)
   # - KTL = Saapuvat viitemaksut (saapuva)
