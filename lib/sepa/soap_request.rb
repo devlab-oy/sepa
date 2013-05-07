@@ -29,7 +29,7 @@ module Sepa
             when :get_user_info
                 path = File.expand_path('../xml_templates/soap/get_user_info.xml', __FILE__)
             when :upload_file
-                path = File.expand_path('xml_templates/soap/upload_file.xml', __FILE__)
+                path = File.expand_path('../xml_templates/soap/upload_file.xml', __FILE__)
             when :download_file
                 path = File.expand_path('../xml_templates/soap/download_file.xml', __FILE__)
             else

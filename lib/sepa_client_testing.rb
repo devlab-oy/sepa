@@ -8,7 +8,7 @@ payload = "kissa"
 params = {
   private_key: 'sepa/nordea_testing/keys/nordea.key',                     # Path for your own private key
   cert: 'sepa/nordea_testing/keys/nordea.crt',                            # Path to your certificate
-  command: :download_file,                            # Command :download_file_list, :upload_file, :download_file or :get_user_info
+  command: :get_user_info,                            # Command :download_file_list, :upload_file, :download_file or :get_user_info
   customer_id: '11111111',                            # Unique customer ID
   status: 'NEW',                                      # For filtering stuff. Must be either NEW, DOWNLOADED or ALL
   target_id: '11111111A1',                            # Some specification of the folder which to access in the bank. I have no idea how this works however.
