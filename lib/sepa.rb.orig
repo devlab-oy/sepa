@@ -1,4 +1,10 @@
 require "sepa/version"
+<<<<<<< HEAD
+require "sepa/transfer"
+
+module Sepa
+  # Your code goes here...
+=======
 require "sepa/soap_request"
 
 module Sepa
@@ -15,4 +21,5 @@ module Sepa
       @client.call(@command, xml: @soap.to_xml)
     end
   end
+>>>>>>> proto
 end

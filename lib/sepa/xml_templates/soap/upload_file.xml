@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"> 
+    <env:Body xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:cor="http://bxd.fi/CorporateFileService" xmlns:bxd="http://model.bxd.fi" wsu:Id="sdf6sa7d86f87s6df786sd87f6s8fsda"> 
+        <cor:uploadFilein xmlns:cor="http://bxd.fi/CorporateFileService"> 
+            <bxd:RequestHeader xmlns:bxd="http://model.bxd.fi"> 
+                <bxd:SenderId></bxd:SenderId>
+                <bxd:RequestId></bxd:RequestId> 
+                <bxd:Timestamp></bxd:Timestamp> 
+                <bxd:Language></bxd:Language> 
+                <bxd:UserAgent></bxd:UserAgent> 
+                <bxd:ReceiverId></bxd:ReceiverId> 
+            </bxd:RequestHeader> 
+            <bxd:ApplicationRequest xmlns:bxd="http://model.bxd.fi"></bxd:ApplicationRequest> 
+        </cor:uploadFilein> 
+    </env:Body> 
+</env:Envelope>
