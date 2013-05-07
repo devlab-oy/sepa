@@ -10,6 +10,7 @@ module Sepa
       @cert = OpenSSL::X509::Certificate.new File.read params[:cert]
       @command = params[:command]
       @customer_id = params[:customer_id]
+      @environment = params[:environment]
       @status = params[:status]
       @target_id = params[:target_id]
       @file_type = params[:file_type]
@@ -68,7 +69,7 @@ module Sepa
 
       # Set the environment
       environment = ar.at_css "Environment"
-      environment.content = "PRODUCTION"
+      environment.content = @environment
 
       # Set the software id
       softwareid = ar.at_css "SoftwareId"
