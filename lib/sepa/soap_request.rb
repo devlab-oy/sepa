@@ -78,7 +78,7 @@ module Sepa
 
       # Add useragent
       useragent_node = soap.xpath("//bxd:UserAgent", 'bxd' => 'http://model.bxd.fi').first
-      useragent_node.content = "Sepa Transfer Library version 0.1"
+      useragent_node.content = "Sepa Transfer Library version " + VERSION
 
       # Add receiver id
       receiverid_node = soap.xpath("//bxd:ReceiverId", 'bxd' => 'http://model.bxd.fi').first

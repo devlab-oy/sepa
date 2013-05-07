@@ -73,7 +73,7 @@ module Sepa
 
       # Set the software id
       softwareid = ar.at_css "SoftwareId"
-      softwareid.content = "Sepa Transfer Library version 0.1"
+      softwareid.content = "Sepa Transfer Library version " + VERSION
 
       case @command
       when :download_file_list
