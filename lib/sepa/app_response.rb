@@ -6,24 +6,13 @@ module Sepa
     require 'base64'
 
     attr_accessor :timestamp, :responseCode, :encrypted, :compressed, :customerId, :responseText, :fileDescriptors, :userFiletypes
-    #for inner use
-    #signature,timestamp,responseCode,responseText,encrypted,compressed,customerId,content = ''
-    #fileDescriptors = Array.new
-    #userFiletypes = []
-
-    ##get_tiliote_content, get_viiteaineisto_content for pupesoft minreq.
-    ##tempname
+    
     # Reads values from content field, ideally returns a hash
     # Bank to customer statement
-    #TODO change to take the xml as param for release version
-    def get_tiliote_content
-      #DEBUG CONTENT
-      content = Nokogiri::XML(File.open("xml_examples/content_053.xml"))
+    def get_acctstmt_content(accountstatement)
+
+      content = Nokogiri::XML(File.open(accountstatement))
       content.remove_namespaces!
-      #END DEBUG
-      #key attributes for tiliote --->
-      #payment id, account, payer_name, reference, sum, currency_code,
-      #exchange_rate, entry_date, payment_date
 
       unless content == ""
 
@@ -271,14 +260,13 @@ module Sepa
       end
     end
 
-    ##tempname, really debitcreditnotification
+    
     # Reads values from content field, ideally returns a hash
-    #TODO change to take the xml as param for release version
-    def get_viiteaineisto_content
-      #DEBUG CONTENT
-      content = Nokogiri::XML(File.open("xml_examples/content_054.xml"))
+    def get_debitcreditnotification_content(debitcreditnotification)
+
+      content = Nokogiri::XML(File.open(debitcreditnotification))
       content.remove_namespaces!
-      #END of DEBUG CONTENT
+
       unless content == ""
 
         viiteaineisto_content = {}
@@ -432,7 +420,7 @@ module Sepa
     end
 
     # Reads response xml from bank and fills attribute values
-    def create_classes_from_response(file)
+    def animate_response(file)
       # Open the xml file
       xml = Nokogiri::XML(File.open(file))
 
@@ -440,12 +428,12 @@ module Sepa
       xml.remove_namespaces!
       # Class attributes timestamp,responseCode,responseText,encrypted,compressed,customerId,content
       # theoretically unused attributes. Might serve some use internally.
-      customerId = xml.at_css("CustomerId").content
-      timestamp = xml.at_css("Timestamp").content
-      responseCode = xml.at_css("ResponseCode").content
-      responseText = xml.at_css("ResponseText").content
-      encrypted = xml.at_css("Encrypted").content
-      compressed = xml.at_css("Compressed").content
+      customerId = xml.at_css("CustomerId").content unless xml.at_css("CustomerId") == nil
+      timestamp = xml.at_css("Timestamp").content unless xml.at_css("Timestamp") == nil
+      responseCode = xml.at_css("ResponseCode").content unless xml.at_css("ResponseCode") == nil
+      responseText = xml.at_css("ResponseText").content unless xml.at_css("ResponseText") == nil
+      encrypted = xml.at_css("Encrypted").content unless xml.at_css("Encrypted").content == nil
+      compressed = xml.at_css("Compressed").content unless xml.at_css("Compressed") == nil
       # Mandatory for nordea responses
       # Decode the content portion automatically so that it can be read
       content = Base64.decode64(xml.at_css("Content").content) unless xml.at_css("Content") == nil
@@ -467,7 +455,7 @@ module Sepa
       # Iterate all descriptors
       xml.xpath("//FileDescriptors/FileDescriptor").each do |desc|
         # Initialize
-        fdesc = Filedescriptor.new
+        fdesc = Sepa::Filedescriptor.new
 
         # Assigning class attributes
         fdesc.fileReference = desc.at_css("FileReference").content
@@ -504,7 +492,7 @@ module Sepa
 
       # Iterate all userfiletypes
       xml.xpath("//UserFileTypes/UserFileType").each do |ftype|
-        uftype = Userfiletype.new
+        uftype = Sepa::Userfiletype.new
         puts "I was at userfiletypes"
 
         # Assign class attributes
@@ -531,7 +519,7 @@ module Sepa
           #puts "I was at filetypeservice WOHOO"
           #END DEBUG
 
-          newservice = Filetypeservice.new
+          newservice = Sepa::Filetypeservice.new
           newservice.serviceId = ftypes.at_css("ServiceId").content unless ftypes.at_css("ServiceId") == nil
           newservice.serviceIdOwnerName = ftypes.at_css("ServiceIdOwnerName").content unless ftypes.at_css("ServiceIdOwnerName") == nil
           newservice.serviceIdType = ftypes.at_css("ServiceType").content unless ftypes.at_css("ServiceType") == nil
@@ -570,15 +558,16 @@ module Sepa
   end
 end
 # #DEBUG
-# load 'signature.rb'
-# load 'filedescriptor.rb'
-# load 'filetypeservice.rb'
-# load 'userfiletype.rb'
-# lepa = Applicationresponse.new
-# # Comment 2 out of 3 to debug reader with different types of responses
-# #lepa.create_classes_from_response("xml_examples/applicationresponsedownloadfile.xml")
-# #lepa.create_classes_from_response("xml_examples/ApplicationResponse_DownloadFileList.xml")
-# lepa.create_classes_from_response("xml_examples/ApplicationResponse_GetUserInfo.xml")
-# # To test content attribute passing
-# lepa.get_tiliote_content
+#load 'signature.rb'
+#load 'filedescriptor.rb'
+#load 'filetypeservice.rb'
+#load 'userfiletype.rb'
+#lepa = Sepa::Applicationresponse.new
+# #Comment 2 out of 3 to debug reader with different types of responses
+#lepa.animate_response("nordea_testing/response/download_filelist_response.xml")
+#lepa.animate_response("nordea_testing/response/download_filelist_response.xml")
+#lepa.animate_response("nordea_testing/response/get_user_info_response.xml")
+# To test content attribute passing
+#lepa.get_acctstmt_content("nordea_testing/response/content_053.xml")
+#lepa.get_debitcreditnotification_content("nordea_testing/response/content_054.xml")
 # #END DEBUG
