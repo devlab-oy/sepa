@@ -72,3 +72,13 @@ when :download_file
 else
   puts "Unknown command"
 end
+
+# Testing functionality of the parser side
+process = Sepa::Applicationresponse.new
+# Comment in 1 out of 3 to debug reader with different types of responses
+# NOTE: These might not work YET
+#process.animate_response("sepa/nordea_testing/response/download_filelist_response.xml")
+#process.animate_response("sepa/nordea_testing/response/download_file_response.xml")
+#process.animate_response("sepa/nordea_testing/response/get_user_info_response.xml")
+# To test content attribute passing
+puts process.get_acctstmt_content("sepa/nordea_testing/response/content_053.xml")
