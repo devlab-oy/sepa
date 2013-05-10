@@ -103,6 +103,7 @@ end
 #   puts "Unknown command"
 # end
 
+
 # Testing functionality of the parser side
 process = Sepa::Applicationresponse.new
 # Comment in 1 out of 3 to debug reader with different types of responses
