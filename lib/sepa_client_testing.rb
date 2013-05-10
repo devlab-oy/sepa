@@ -28,47 +28,50 @@ params = {
 }
 
 sepa_client = Sepa::SepaClient.new(params) # You just create the client with the parameters described above.
-response = sepa_client.send                # And use the send method to send the soap request and pray that you get a proper response.
 
-# Get response body
-body = response.body
+ar = sepa_client.get_ar_as_base64
+puts ar
+# response = sepa_client.send                # And use the send method to send the soap request and pray that you get a proper response.
 
-# Get application response
-command = params[:command]
-symbol = (command.to_s + "out").to_sym
-ar = body[symbol][:application_response]
+# # Get response body
+# body = response.body
 
-# Base64 decode
-content = Base64.decode64(ar)
+# # Get application response
+# command = params[:command]
+# symbol = (command.to_s + "out").to_sym
+# ar = body[symbol][:application_response]
 
-# Read the content
-xml = Nokogiri::XML(content)
+# # Base64 decode
+# content = Base64.decode64(ar)
 
-# Remove namespaces for easier parsing
-xml.remove_namespaces!
+# # Read the content
+# xml = Nokogiri::XML(content)
 
-# Some ugly test outputs
-case command
-when :download_file_list
-  puts "Files"
-  xml.search("FileDescriptor").each do |i|
-    puts i.at('FileReference').content
-  end
-when :get_user_info
-  puts "User info"
-  xml.search("FileTypeService").each do |i|
-    puts i.at('ServiceId').content
-  end
-when :upload_file
-  code = xml.at('ResponseCode').content
-  text = xml.at('ResponseText').content
-  puts "Code: #{code}"
-  puts "Text: #{text}"
-when :download_file
-  data = xml.at('Content').content
-  file = Base64.decode64(data)
-  puts "File"
-  puts file
-else
-  puts "Unknown command"
-end
+# # Remove namespaces for easier parsing
+# xml.remove_namespaces!
+
+# # Some ugly test outputs
+# case command
+# when :download_file_list
+#   puts "Files"
+#   xml.search("FileDescriptor").each do |i|
+#     puts i.at('FileReference').content
+#   end
+# when :get_user_info
+#   puts "User info"
+#   xml.search("FileTypeService").each do |i|
+#     puts i.at('ServiceId').content
+#   end
+# when :upload_file
+#   code = xml.at('ResponseCode').content
+#   text = xml.at('ResponseText').content
+#   puts "Code: #{code}"
+#   puts "Text: #{text}"
+# when :download_file
+#   data = xml.at('Content').content
+#   file = Base64.decode64(data)
+#   puts "File"
+#   puts file
+# else
+#   puts "Unknown command"
+# end
