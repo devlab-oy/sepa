@@ -47,32 +47,31 @@ puts ar
 # # Read the content
 # xml = Nokogiri::XML(content)
 
-<<<<<<< HEAD
 # Some ugly test outputs
-case command
-when :download_file_list
-  puts "Files"
-  xml.search("FileDescriptor").each do |i|
-    puts i.at('FileReference').content
-  end
-when :get_user_info
-  puts "User info"
-  xml.search("FileTypeService").each do |i|
-    puts i.at('ServiceId').content
-  end
-when :upload_file
-  code = xml.at('ResponseCode').content
-  text = xml.at('ResponseText').content
-  puts "Code: #{code}"
-  puts "Text: #{text}"
-when :download_file
-  data = xml.at('Content').content
-  file = get_ar_as_base64.decode64(data)
-  puts "File"
-  puts file
-else
-  puts "Unknown command"
-end
+# case command
+# when :download_file_list
+#   puts "Files"
+#   xml.search("FileDescriptor").each do |i|
+#     puts i.at('FileReference').content
+#   end
+# when :get_user_info
+#   puts "User info"
+#   xml.search("FileTypeService").each do |i|
+#     puts i.at('ServiceId').content
+#   end
+# when :upload_file
+#   code = xml.at('ResponseCode').content
+#   text = xml.at('ResponseText').content
+#   puts "Code: #{code}"
+#   puts "Text: #{text}"
+# when :download_file
+#   data = xml.at('Content').content
+#   file = get_ar_as_base64.decode64(data)
+#   puts "File"
+#   puts file
+# else
+#   puts "Unknown command"
+# end
 
 # # Remove namespaces for easier parsing
 # xml.remove_namespaces!
@@ -105,11 +104,11 @@ end
 
 
 # Testing functionality of the parser side
-process = Sepa::Applicationresponse.new
+# process = Sepa::Applicationresponse.new
 # Comment in 1 out of 3 to debug reader with different types of responses
 # NOTE: These might not work YET
-#process.animate_response("sepa/nordea_testing/response/download_filelist_response.xml")
-#process.animate_response("sepa/nordea_testing/response/download_file_response.xml")
-#process.animate_response("sepa/nordea_testing/response/get_user_info_response.xml")
+# process.animate_response("sepa/nordea_testing/response/download_filelist_response.xml")
+# process.animate_response("sepa/nordea_testing/response/download_file_response.xml")
+# process.animate_response("sepa/nordea_testing/response/get_user_info_response.xml")
 # To test content attribute passing
-puts process.get_acctstmt_content("sepa/nordea_testing/response/content_053.xml")
+# puts process.get_acctstmt_content("sepa/nordea_testing/response/content_053.xml")
