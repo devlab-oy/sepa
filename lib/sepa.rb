@@ -2,6 +2,7 @@ require "sepa/version"
 require "sepa/soap_request"
 require "savon"
 require "base64"
+require "nokogiri"
 
 module Sepa
   class SepaClient
@@ -23,10 +24,18 @@ module Sepa
       response[command_out][:application_response]
     end
 
-    def get_ar_as_xml
-      response = send.body
-      command_out = (@command.to_s + "out").to_sym
-      Base64.decode64(response[command_out][:application_response])
+    def get_ar_as_string
+      Base64.decode64(get_ar_as_base64)
+    end
+
+    def get_content_as_base64
+      ar = Nokogiri::XML(get_ar_as_string)
+      ar.remove_namespaces!
+      (ar.at_css "Content").content
+    end
+
+    def get_content_as_string
+      Base64.decode64(get_content_as_base64)
     end
   end
 end
