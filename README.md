@@ -27,6 +27,11 @@ Or install it yourself as:
 ## Usage
 
 TODO: Write usage instructions here
+Parsing data from bank response xml
+* Hardcode wanted specs into app_response.rb methods get_account_statement_content/get_debit_credit_notification_content
+* Create new instance of ApplicationResponse
+* method get_account_statement_content takes a bank statement file (xml) as a parameter and returns selected info in a hash
+* method get_debit_credit_notification_content takes a debit credit notification file as a parameter and returns selected info in a hash
 
 ## Contributing
 
