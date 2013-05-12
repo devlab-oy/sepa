@@ -27,6 +27,6 @@ params = {
   file_reference: "11111111A12006030329501800000014"  # File reference for :download_file command
 }
 
-sepa_client = Sepa::SepaClient.new(params)            # You just create the client with the parameters described above.
+sepa_client = Sepa::Client.new(params)            # You just create the client with the parameters described above.
 
 puts sepa_client.get_content_as_string
