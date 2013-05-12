@@ -1,16 +1,23 @@
+require_relative 'filedescriptor'
+require_relative 'filetypeservice'
+require_relative 'signature'
+require_relative 'userfiletype'
 module Sepa
-  class Applicationresponse
+  class ApplicationResponse
     # This class is able to handle GetUserInfo, DownloadFileList, DownloadFile responses and pass content
-    #DEBUG
-    require 'nokogiri'
-    require 'openssl'
-    require 'base64'
-    #END DEBUG
     attr_accessor :timestamp, :responseCode, :encrypted, :compressed, :customerId, :responseText, :fileDescriptors, :userFiletypes
     
-    # Reads values from content field (xml file), ideally returns a hash
+    def initialize
+    end
+    #DEBUG
+    #require 'nokogiri'
+    #require 'openssl'
+    #require 'base64'
+    #END DEBUG
+    
+    # Reads values from content field (xml file), returns a hash
     # Bank to customer statement
-    def get_acctstmt_content(file)
+    def get_account_statement_content(file)
 
       content = Nokogiri::XML(File.open(file))
       content.remove_namespaces!
@@ -18,7 +25,7 @@ module Sepa
       unless content == ""
 
         # To contain all needed values
-        tiliote_content = {}
+        statement_content = {}
 
         # Full fields of 053 account statement
 
@@ -101,10 +108,10 @@ module Sepa
         #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/BkTxCd/Domn/Fmly/SubFmlyCd")
         #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/BkTxCd/Prtry/Cd")
         #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/BkTxCd/Prtry/Issr")
+        # Transaction entry details
         #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/Btch/MsgId")
         #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/Btch/PmtInfId")
-        #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/Btch/NbOfTxs")
-        ## Element can have multiple occurrences
+        #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/Btch/NbOfTxs")        
         #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/Refs/AcctSvcrRef")
         #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/Refs/InstrId")
         #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/Refs/TxId")
@@ -139,7 +146,6 @@ module Sepa
         #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/Purp/Cd")
         #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Nm")
         #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/PstlAdr/Ctry")
-        # Multiple elements on address line, at least 2
         #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/PstlAdr/AdrLine")
         #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/CtryOfRes")
         #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Nm")
@@ -164,32 +170,23 @@ module Sepa
         #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Strd/Invcee/Id/OrgId/Othr/Id")
         #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Ustrd")
         #content.at_css("Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdDts/AccptncDtTm")
+        
         # END full fields of 053 account statement
 
         # Selected fields
 
-        # Group header
-        #content.at_css("Document/BkToCstmrStmt/GrpHdr/MsgId")
-        #content.at_css("Document/BkToCstmrStmt/GrpHdr/CreDtTm")
-
-        # Statement
-        #content.at_css("Document/BkToCstmrStmt/Stmt/Id")
-        #content.at_css("Document/BkToCstmrStmt/Stmt/ElctrncSeqNb")
-        #content.at_css("Document/BkToCstmrStmt/Stmt/LglSeqNb")
-        #content.at_css("Document/BkToCstmrStmt/Stmt/CreDtTm")
-
+        ##CASE Devlab selected fields
         # Booking date
-        tiliote_content[:bookingdatefrom] = content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/FrDtTm").content unless content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/FrDtTm") == nil
-        tiliote_content[:bookingdateto] = content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/ToDtTm").content unless content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/ToDtTm") == nil
+        statement_content[:bookingdatefrom] = content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/FrDtTm").content unless content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/FrDtTm") == nil
+        statement_content[:bookingdateto] = content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/ToDtTm").content unless content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/ToDtTm") == nil
 
         # Account
-        tiliote_content[:owneracctiban] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Id/IBAN").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Id/IBAN") == nil
-        #tiliote_content[:] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Tp/Cd")
-        tiliote_content[:owneracctccy] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ccy").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ccy") == nil
-        tiliote_content[:owneraccttype] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Nm").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Nm") == nil
+        statement_content[:owneracctiban] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Id/IBAN").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Id/IBAN") == nil
+        statement_content[:owneracctccy] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ccy").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ccy") == nil
+        statement_content[:owneraccttype] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Nm").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Nm") == nil
 
         # Owner
-        tiliote_content[:acctownername] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/Nm").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/Nm") == nil
+        statement_content[:acctownername] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/Nm").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/Nm") == nil
         #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/PstlAdr/StrNm")
         #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/PstlAdldgNb")
         #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/PstlAdr/PstCd")
@@ -199,40 +196,17 @@ module Sepa
         #content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/Id/OrgId/Othr/SchmeNm/Cd")
 
         # BIC
-        tiliote_content[:owneracctbic] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Svcr/FinInstnId/BIC").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Svcr/FinInstnId/BIC").content == nil
+        statement_content[:owneracctbic] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Svcr/FinInstnId/BIC").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Svcr/FinInstnId/BIC").content == nil
 
-        # Current account info
-        #tiliote_content[:ownername] = content.at_css("Acct/Ownr/Nm").content
-        #tiliote_content[:account] = content.at_css("Acct/Id/IBAN").content
-        #tiliote_content[:accounttype] = content.at_css("Tp/Cd").content
-        #tiliote_content[:accountcurrencycode] = content.at_css("Acct/Ccy").content
-        #tiliote_content[:statementid] = content.at_css("ElctrncSeqNb").content
-        #tiliote_content[:fromdate] = content.at_css("FrDtTm").content
-        #tiliote_content[:todate] = content.at_css("ToDtTm").content
-
-        # Organization id(Y-tunnus)
-        #tiliote_content[:organizationid] = content.at_css("Acct/Ownr/Id/OrgId/Othr/Id").content
-
-        # Parent account of the current account
-        #tiliote_content[:relatedaccount] = content.at_css("RltdAcct/Id/IBAN").content
-        #tiliote_content[:relatedaccountcurrencycode] = content.at_css("RltdAcct/Ccy").content
-
-        # Account entries
-        #tiliote_content[:totalentries] = content.at_css("TxsSummry/TtlNtries/NbOfNtries").content
-        #tiliote_content[:totalwithdrawals] = content.at_css("TxsSummry/TtlDbtNtries/NbOfNtries").content
-        #tiliote_content[:totaldeposits] = content.at_css("TxsSummry/TtlCdtNtries/NbOfNtries").content
-        #tiliote_content[:withdrawalssum] = content.at_css("TxsSummry/TtlDbtNtries/Sum").content
-        #tiliote_content[:depositssum] = content.at_css("TxsSummry/TtlCdtNtries/Sum").content
-
-        puts tiliote_content
         # To contain each transaction listed in the content
         transactions = []
 
         content.xpath("//Document/BkToCstmrStmt/Stmt/Ntry").each do |node|
-          #puts node
-          # To contain needed values of a single transaction
+          
+          # To contain the values of a single transaction
           transaction_content = {}
 
+          ##CASE Devlab selected fields
           ##Arkistointitunnus
           transaction_content[:acctsvcrref] = node.at_css("NtryDtls/TxDtls/Refs/AcctSvcrRef").content unless node.at_css("NtryDtls/TxDtls/Refs/AcctSvcrRef") == nil
           ##Saajan tilinumero
@@ -261,7 +235,7 @@ module Sepa
           transaction_content[:internalid] = node.at_css("NtryDtls/Btch/PmtInfId").content unless node.at_css("NtryDtls/Btch/PmtInfId") == nil
           ##Maksajan viite
           transaction_content[:instrid] = node.at_css("NtryDtls/TxDtls/Refs/InstrId").content unless node.at_css("NtryDtls/TxDtls/Refs/InstrId") == nil
-          ##IBAN tilinumero - saajan tilinumero?
+          ##IBAN tilinumero == saajan tilinumero?
           #transaction_content[:crdtiban] = node.at_css("NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/IBAN").content
           ##BIC koodi (saaja)
           transaction_content[:crdtbin] = node.at_css("NtryDtls/TxDtls/RltdAgts/DbtrAgt/FinInstId").content unless node.at_css("NtryDtls/TxDtls/RltdAgts/DbtrAgt/FinInstId") == nil
@@ -269,71 +243,34 @@ module Sepa
           transaction_content[:crdtid] = node.at_css("NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/Othr/Id").content unless node.at_css("NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/Othr/Id") == nil
           ##SEPA arkistointitunnus
           transaction_content[:sepabookingid] = node.at_css("AcctSvcrRef").content unless node.at_css("AcctSvcrRef") == nil
-          #transaction_content[:amount] = node.at_css("Amt").content
-          #transaction_content[:currency] = node.at_css("Amt")["Ccy"]
-          #transaction_content[:creditdebitindicator] = node.at_css("CdtDbtInd").content
-          #transaction_content[:messageid] = node.at_css("NtryDtls/Btch/MsgId").content unless node.at_css("NtryDtls/Btch/MsgId") == nil
-          #transaction_content[:paymentinfoid] = node.at_css("NtryDtls/Btch/PmtInfId").content unless node.at_css("NtryDtls/Btch/PmtInfId") == nil
-
-          # Payment details, exchange rate, booked amounts (note: rate exists in two places)
-          #transaction_content[:incomingvalue] = node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt") == nil
-          #transaction_content[:incomingcurrency] = node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt")["Ccy"] unless node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt") == nil
-          #transaction_content[:bookedvalue] = node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/Amt").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/Amt") == nil
-          #transaction_content[:bookedcurrency] = node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/Amt")["Ccy"] unless node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/Amt") == nil
-          #transaction_content[:exchangerate] = node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/XchgRate").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/XchgRate") == nil
-          #transaction_content[:contractid] = node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/CtrctId").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/CtrctId") == nil
-
-          #DEBUG MESSAGES
-          #puts "***********"
-          #puts transaction_content[:amount]
-          #puts transaction_content[:currency]
-          #puts transaction_content[:exchangerate]
-          #puts "***********"
-          #END DEBUG
 
           # Push to array
           transactions<<transaction_content
 
         end
 
-        tiliote_content[:transactions] = transactions
-        #DEBUG
-        #puts "-----------"
-        #puts transactions.inspect
-        #puts "-----------"
-        #puts tiliote_content[:account]
-        #puts tiliote_content[:accounttype]
-        #puts tiliote_content[:statementid]
-        #puts tiliote_content[:fromdate]
-        #puts tiliote_content[:todate]
-        #puts tiliote_content[:ownername]
-
-        #puts tiliote_content[:accountcurrencycode]
-        #puts tiliote_content[:organizationid]
-
-        #puts tiliote_content[:relatedaccount]
-        #puts tiliote_content[:relatedaccountcurrencycode]
-        #END DEBUG
+        statement_content[:transactions] = transactions
 
         # Returns hash
-        tiliote_content
+        statement_content
       else
+        # No other kind of error handling implemented yet
         puts "Content is empty."
       end
     end
 
     
-    # Reads values from content field (xml file), ideally returns a hash
-    def get_debitcreditnotification_content(file)
+    # Reads values from content field (xml file), returns a hash
+    def get_debit_credit_notification_content(file)
 
       content = Nokogiri::XML(File.open(file))
       content.remove_namespaces!
 
       unless content == ""
 
-        viiteaineisto_content = {}
+        notification_content = {}
 
-        #054 DebitCreditNotification paths, not fully checked if all are needed, quickly checked that all required ones are included
+        #054 DebitCreditNotification paths, not fully checked if all are needed or that all required ones are included
 
         # Group header
         #Document/BkToCstmrDbtCdtNtfcnt/GrpHdr/MsgId
@@ -383,7 +320,6 @@ module Sepa
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/TtlAmt
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/TtlAmt["Ccy"]
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/CdtDbtInd
-        ## Element can have multiple occurrences
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Refs/AcctSvcrRef
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Refs/InstrId
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Refs/TxId
@@ -392,7 +328,8 @@ module Sepa
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt["Ccy"]
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/Amt
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/Amt["Ccy"]
-        ## Currency exchange, currencies, exchange rates
+        
+        # Currency exchange, currencies, exchange rates
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/SrcCcy
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/TrgtCcy
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/UnitCcy
@@ -418,7 +355,6 @@ module Sepa
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Purp/Cd
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Nm
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/PstlAdr/Ctry
-        ## Multiple elements on address line, at least 2
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/PstlAdr/AdrLine
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/CtryOfRes
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Nm
@@ -443,8 +379,19 @@ module Sepa
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Ustrd
         #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdDts/AccptncDtTm
 
-        #TODO Listaa tarkeimmat kentat mita valintaan otetaan mukaan
+        ##CASE Devlab selected fields
+        #Viitesiirtokentat
+        # payment id
+        # account
+        # payer name
+        # reference
+        # sum
+        # currency code
+        # exchange rate
+        # entry date
+        # payment date
 
+        notification_content
       else
         puts "Content is empty."
       end
@@ -463,7 +410,7 @@ module Sepa
 
     # Returns an array of file descriptors
     def list_new_descriptors
-      # Lists NEW (not already downloaded) files only
+      # Lists NEW (not already downloaded) files only (as filedescriptor objects)
       fileDescriptors.select { |fd| fd.status == "NEW" }
     end
 
@@ -499,7 +446,7 @@ module Sepa
       # Mandatory for nordea responses
       # Decode the content portion automatically so that it can be read
       content = Base64.decode64(xml.at_css("Content").content) unless xml.at_css("Content") == nil
-
+      puts content unless content == ""
       #DEBUG OUTPUT
       #puts customerId
       #puts timestamp
@@ -601,9 +548,9 @@ module Sepa
       end
 
       #DEBUG
-      puts "Inspect the first object ---------------"
-      puts self.userFiletypes[0].get_filetypeservices.inspect
-      puts "Inspect the first object ---------------"
+      puts "Inspect the first object ---------------" unless self.userFiletypes.count < 1
+      puts self.userFiletypes[0].get_filetypeservices.inspect unless self.userFiletypes.count < 1
+      puts "Inspect the first object ---------------" unless self.userFiletypes.count < 1
       #END DEBUG
 
       #Optional for debugging signature attribute values
