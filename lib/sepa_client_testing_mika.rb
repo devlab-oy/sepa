@@ -111,6 +111,6 @@ process = Sepa::ApplicationResponse.new
 # #puts process.list_new_descriptors
 # process.animate_response("sepa/nordea_testing/response/download_file_response.xml")
 # process.animate_response("sepa/nordea_testing/response/get_user_info_response.xml")
-# To test content attribute passing
+# Comment out to test content attribute passing
 # puts process.get_account_statement_content("sepa/nordea_testing/response/content_053.xml")
 # puts process.get_debit_credit_notification_content("sepa/nordea_testing/response/content_054.xml")

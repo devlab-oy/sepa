@@ -9,12 +9,7 @@ module Sepa
     
     def initialize
     end
-    #DEBUG
-    #require 'nokogiri'
-    #require 'openssl'
-    #require 'base64'
-    #END DEBUG
-    
+
     # Reads values from content field (xml file), returns a hash
     # Bank to customer statement
     def get_account_statement_content(file)
@@ -270,127 +265,199 @@ module Sepa
 
         notification_content = {}
 
-        #054 DebitCreditNotification paths, not fully checked if all are needed or that all required ones are included
+        # 054 DebitCreditNotification fields, not fully checked if all are needed or that all required ones are included
 
         # Group header
-        #Document/BkToCstmrDbtCdtNtfcnt/GrpHdr/MsgId
-        #Document/BkToCstmrDbtCdtNtfcnt/GrpHdr/CreDtTm
+        #Document/BkToCstmrDbtCdtNtfctn/GrpHdr/MsgId
+        #Document/BkToCstmrDbtCdtNtfctn/GrpHdr/CreDtTm
 
         # Message receipt
-        #Document/BkToCstmrDbtCdtNtfcnt/GrpHdr/MsgMsgRcpt/Id/OrgId/Othr/Id
-        #Document/BkToCstmrDbtCdtNtfcnt/GrpHdr/MsgMsgRcpt/Id/OrgId/Othr/SchmeNm/Cd
-        #Document/BkToCstmrDbtCdtNtfcnt/GrpHdr/AddtlInf
+        #Document/BkToCstmrDbtCdtNtfctn/GrpHdr/MsgMsgRcpt/Id/OrgId/Othr/Id
+        #Document/BkToCstmrDbtCdtNtfctn/GrpHdr/MsgMsgRcpt/Id/OrgId/Othr/SchmeNm/Cd
+        #Document/BkToCstmrDbtCdtNtfctn/GrpHdr/AddtlInf
 
         # Notification info, accounts, transaction summary
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Id
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/ElctrncSeqNb
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/CreDtTm
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Acct/Id/IBAN
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Acct/Tp/Cd
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Acct/Ccy
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Acct/Nm
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Acct/Ownr/Nm
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Acct/Ownr/Id/OrgId/Othr/Id
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Acct/Ownr/Id/OrgId/Othr/SchmeNm/Cd
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Acct/Svcr/FinInstnId/BIC
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/TxsSummry/TtlNtries/NbOfNtries
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/TxsSummry/TtlNtries/Sum
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/TxsSummry/TtlNtries/TtlNetNtryAmt
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/TxsSummry/TtlNtries/CdDbtInd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Id
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/ElctrncSeqNb
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/CreDtTm
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Id/IBAN
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Tp/Cd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Ccy
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Nm
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Ownr/Nm
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Ownr/Id/OrgId/Othr/Id
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Ownr/Id/OrgId/Othr/SchmeNm/Cd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Svcr/FinInstnId/BIC
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/TxsSummry/TtlNtries/NbOfNtries
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/TxsSummry/TtlNtries/Sum
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/TxsSummry/TtlNtries/TtlNetNtryAmt
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/TxsSummry/TtlNtries/CdDbtInd
 
         # Notification entries
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryRef
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/Amt
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/Amt["Ccy"]
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/CdDbtInd
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/Sts
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/BookgDt/Dt
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/ValDt/Dt
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/AcctSvcrRef
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/BkTxCd/Domn/Cd
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/BkTxCd/Domn/Fmly/Cd
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/BkTxCd/Domn/Fmly/SubFmlyCd
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/BkTxCd/Prtry/Cd
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/BkTxCd/Prtry/Issr
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryRef
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/Amt
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/Amt["Ccy"]
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/CdDbtInd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/Sts
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/BookgDt/Dt
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/ValDt/Dt
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/AcctSvcrRef
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/BkTxCd/Domn/Cd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/BkTxCd/Domn/Fmly/Cd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/BkTxCd/Domn/Fmly/SubFmlyCd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/BkTxCd/Prtry/Cd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/BkTxCd/Prtry/Issr
 
         # Notification entry details
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/MsgId
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/PmtInfId
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/NbOfTxs
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/TtlAmt
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/TtlAmt["Ccy"]
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/Btch/CdtDbtInd
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Refs/AcctSvcrRef
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Refs/InstrId
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Refs/TxId
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Refs/EndToEndId
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt["Ccy"]
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/Amt
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/Amt["Ccy"]
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/Btch/MsgId
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/Btch/PmtInfId
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/Btch/NbOfTxs
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/Btch/TtlAmt
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/Btch/TtlAmt["Ccy"]
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/Btch/CdtDbtInd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/Refs/AcctSvcrRef
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/Refs/InstrId
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/Refs/TxId
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/Refs/EndToEndId
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt["Ccy"]
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/CcyXchg/SrcCcy
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/CcyXchg/TrgtCcy
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/CcyXchg/UnitCcy
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/CcyXchg/XchgRate
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/CcyXchg/QtnDt
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/Amt
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/Amt["Ccy"]
         
         # Currency exchange, currencies, exchange rates
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/SrcCcy
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/TrgtCcy
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/UnitCcy
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/XchgRate
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/CtrctId
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/QtnDt
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/Amt
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/Amt["Ccy"]
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/SrcCcy
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/TrgtCcy
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/UnitCcy
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/XchgRate
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/CtrcId
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/QtnDt
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/BkTxCd/Domn/Cd
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/BkTxCd/Domn/Fmly/Cd
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/BkTxCd/Domn/Fmly/SubFmlyCd
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/BkTxCd/Prtry/Cd
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/BkTxCd/Prtry/Issr
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Chrgs/Amt
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Chrgs/Amt["Ccy"]
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Chrgs/Tp/Cd
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/Purp/Cd
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Nm
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/PstlAdr/Ctry
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/PstlAdr/AdrLine
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/CtryOfRes
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Nm
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Id/OrgId/Othr/Id
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Id/OrgId/Othr/Id/SchmeNm/Cd
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/UltmtDbtr/Nm
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/UltmtDbtr/Id/OrgId/Othr/Id
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/UltmtDbtr/Id/OrgId/Othr/SchmeNm
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/Othr/Id
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/Othr/SchmeNm/Cd
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Tp/Prtry
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdQties/Qty/Unit
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdAgts/DbtrAgt/FinInstId
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Tp/CdOrPrtry/Cd
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Tp/Issr
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Ref
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocInf/Nb
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocAmt/RmtdAmt
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocAmt/RmtdAmt["Ccy"]
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/Invcee/Id/OrgId/Othr/Id
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Ustrd
-        #Document/BkToCstmrDbtCdtNtfcnt/Ntfctn/Ntry/NtryDtls/TxDtls/RltdDts/AccptncDtTm
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/SrcCcy
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/TrgtCcy
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/UnitCcy
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/XchgRate
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/CtrctId
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/QtnDt
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/Amt
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/Amt["Ccy"]
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/SrcCcy
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/TrgtCcy
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/UnitCcy
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/XchgRate
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/CtrcId
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/QtnDt
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/BkTxCd/Domn/Cd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/BkTxCd/Domn/Fmly/Cd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/BkTxCd/Domn/Fmly/SubFmlyCd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/BkTxCd/Prtry/Cd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/BkTxCd/Prtry/Issr
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/Chrgs/Amt
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/Chrgs/Amt["Ccy"]
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/Chrgs/Tp/Cd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/Purp/Cd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Nm
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/PstlAdr/Ctry
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/PstlAdr/AdrLine
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/CtryOfRes
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Nm
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Id/OrgId/Othr/Id
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Id/OrgId/Othr/Id/SchmeNm/Cd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/UltmtDbtr/Nm
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/UltmtDbtr/Id/OrgId/Othr/Id
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/UltmtDbtr/Id/OrgId/Othr/SchmeNm
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/Othr/Id
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/Othr/SchmeNm/Cd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Tp/Prtry
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RltdQties/Qty/Unit
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RltdAgts/DbtrAgt/FinInstId
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Tp/CdOrPrtry/Cd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Tp/Issr
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Ref
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocInf/Nb
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocAmt/RmtdAmt
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocAmt/RmtdAmt["Ccy"]
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/Invcee/Id/OrgId/Othr/Id
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Ustrd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RltdDts/AccptncDtTm
 
-        ##CASE Devlab selected fields
-        #Viitesiirtokentat
-        # payment id
-        # account
+        # END of 054 fields
+
+        ##CASE Devlab suggested/selected fields
+
+        ##Suggested fields
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Id
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/ElctrncSeqNb
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/CreDtTm
+
+        # account iban
+        notification_content[:account_iban] = content.at_css("Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Id/IBAN").content unless content.at_css("Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Id/IBAN") == nil
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Tp/Cd
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Ccy
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Nm
+        
         # payer name
-        # reference
-        # sum
-        # currency code
-        # exchange rate
-        # entry date
-        # payment date
+        notification_content[:account_owner] = content.at_css("Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Ownr/Nm").content unless content.at_css("Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Ownr/Nm") == nil
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Ownr/Id/OrgId/Othr/Id
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Ownr/Id/OrgId/Othr/SchmeNm/Cd
+        # bic
+        notification_content[:account_bic] = content.at_css("Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Svcr/FinInstnId/BIC").content unless content.at_css("Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Svcr/FinInstnId/BIC") == nil
+    
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/TxsSummry/TtlNtries/NbOfNtries
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/TxsSummry/TtlNtries/Sum
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/TxsSummry/TtlNtries/TtlNetNtryAmt
+        #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/TxsSummry/TtlNtries/CdDbtInd
 
+        #Viitesiirtokentat
+        # payment id -- what is dis?
+
+        # Notification entries
+        notification_entries = []
+        
+        content.xpath("//Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry").each do |node|
+
+          entry_content = {}
+
+          # reference
+          entry_content[:entry_reference] = node.at_css("NtryRef").content unless node.at_css("NtryRef") == nil 
+          # sum
+          entry_content[:entry_sum] = node.at_css("Amt").content unless node.at_css("Amt") == nil
+          # currency code
+          entry_content[:entry_currency] = node.at_css("Amt")["Ccy"] unless node.at_css("Amt") == nil
+          #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/CdDbtInd
+          #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/Sts
+          # entry date
+          entry_content[:entry_booking_date] = node.at_css("BookgDt/Dt").content unless node.at_css("BookgDt/Dt") == nil
+          # payment date
+          entry_content[:entry_value_date] = node.at_css("ValDt/Dt").content unless node.at_css("ValDt/Dt") == nil
+          #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/AcctSvcrRef
+          #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/BkTxCd/Domn/Cd
+          #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/BkTxCd/Domn/Fmly/Cd
+          #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/BkTxCd/Domn/Fmly/SubFmlyCd
+          #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/BkTxCd/Prtry/Cd
+          #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/BkTxCd/Prtry/Issr
+          #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Ref
+          # exchange rate
+          entry_content[:gross_outgoing_value] = node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt") == nil
+          entry_content[:gross_outgoing_currency] = node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt")["Ccy"] unless node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt") == nil
+          #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/CcyXchg/SrcCcy
+          #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/CcyXchg/TrgtCcy
+          #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/CcyXchg/UnitCcy
+          entry_content[:currency_exchange_rate] = node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/CcyXchg/XchgRate").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/CcyXchg/XchgRate") == nil
+          #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/CcyXchg/QtnDt
+          # value after exchange
+          entry_content[:value_post_exchange] = node.at_css("NtryDtls/TxDtls/AmtDtls/TxAmt/Amt").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/TxAmt/Amt") == nil
+          entry_content[:currency_post_exchange] = node.at_css("NtryDtls/TxDtls/AmtDtls/TxAmt/Amt")["Ccy"] unless node.at_css("NtryDtls/TxDtls/AmtDtls/TxAmt/Amt") == nil
+
+          # Alternatively, exchange rate
+          #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/CcyXchg/XchgRate
+          #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/CntrValAmt/CcyXchg/XchgRate
+
+          # Add single notification entry to array
+          notification_entries<<entry_content
+        end
+        # Add array to hash
+        notification_content[:notification_entries] = notification_entries
+
+        # Returns hash
         notification_content
       else
         puts "Content is empty."
