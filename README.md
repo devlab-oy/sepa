@@ -28,11 +28,11 @@ Or install it yourself as:
 
 ### Communicating with the bank
 
-* Require the gem:
+1. Require the gem:
 
         require 'sepa'
 
-* Define the hash that will be passed to the gem when initializing it:
+2. Define the hash that will be passed to the gem when initializing it:
 
         params = {
           private_key: 'path/to/private/key',
@@ -49,31 +49,75 @@ Or install it yourself as:
           file_reference: "11111111A12006030329501800000014"
         }
 
-* Initialize a new instance of the client and pass the params hash
+3. Initialize a new instance of the client and pass the params hash
 
         sepa_client = Sepa::SepaClient.new(params)
 
-* There are five methods that can be called after initializing the client:
+4. There are five methods that can be called after initializing the client:
 
-    * Returns the whole soap response as a hash:
-
+  * Returns the whole soap response as a hash:
+  
             sepa_client.call
-
-    * Returns the application request in base64 coded format:
-
+  
+  * Returns the application request in base64 coded format:
+  
             sepa_client.get_ar_as_base64
-
-    * Returns the application request as a string:
-
+  
+  * Returns the application request as a string:
+  
             sepa_client.get_ar_as_string
-
-    * Returns the content field of the application request in base64 coded format:
-    
+  
+  * Returns the content field of the application request in base64 coded format:
+  
             sepa_client.get_content_as_base64
-
-    * Returns the content field of the application request as a string:
-
+  
+  * Returns the content field of the application request as a string:
+  
             sepa_client.get_content_as_string
+
+***
+
+### Parameter breakdown
+
+* private_key: The path to your private key file. Sepa client currently only supports unencrypted keys, but support for encypted keys will come shortly.
+
+* cert: The path to your certificate file.
+
+* command: Either :download_file_list, :upload_file, :download_file or :get_user_info, depending on what you want to do.
+
+* customer_id: Your personal id with the bank.
+
+* environment: Must be either PRODUCTION or TEST
+
+* status: For filtering stuff. Must be either NEW, DOWNLOADED or ALL
+
+* target_id: Some specification of the folder which to access in the bank.
+
+* language: Language must be either FI, EN or SV
+
+* file_type: File types to upload or download:
+
+  * LMP300 = Laskujen maksupalvelu (lähtevä)
+  
+  * LUM2 = Valuuttamaksut (lähtevä)
+  
+  * KTL = Saapuvat viitemaksut (saapuva)
+  
+  * TITO = Konekielinen tiliote (saapuva)
+  
+  * NDCORPAYS = Yrityksen maksut XML (lähtevä)
+  
+  * NDCAMT53L = Konekielinen XML-tiliote (saapuva)
+  
+  * NDCAMT54L = Saapuvat XML viitemaksu (saapuva)
+
+  * wsdl: Path to the WSDL file. Is identical at least between finnish banks except for the address.
+
+  * content: The actual payload to send. The creation of this file may be supported by the client at some point.
+
+  * file_reference: File reference for :download_file command
+
+***
 
 ### Parsing data from bank response xml
 Parsing based on specifications by Federation of Finnish Financial Services provided xml examples account statement [XML account statement](http://www.fkl.fi/teemasivut/sepa/tekninen_dokumentaatio/Dokumentit/FI_camt_053_sample.xml.xml) and debit credit notification [XML debit credit notification](http://www.fkl.fi/teemasivut/sepa/tekninen_dokumentaatio/Dokumentit/FI_camt_054_sample.xml.xml) and ISO20022 transaction reporting guide [ISO20022 Transaction reporting guide](http://www.fkl.fi/en/themes/sepa/sepa_documents/Dokumentit/ISO20022_Payment_Guide.pdf)
