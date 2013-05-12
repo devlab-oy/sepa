@@ -26,7 +26,55 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### Communicating with the bank
+
+* Require the gem:
+
+        require 'sepa'
+
+* Define the hash that will be passed to the gem when initializing it:
+
+        params = {
+          private_key: 'path/to/private/key',
+          cert: 'path/to/cert',
+          command: :command_as_symbol,
+          customer_id: '11111111',
+          environment: 'PRODUCTION',
+          status: 'NEW',
+          target_id: '11111111A1',
+          language: 'FI',
+          file_type: 'TITO',
+          wsdl: 'path/to/wsdl(or url)',
+          content: payload,
+          file_reference: "11111111A12006030329501800000014"
+        }
+
+* Initialize a new instance of the client and pass the params hash
+
+        sepa_client = Sepa::SepaClient.new(params)
+
+* There are five methods that can be called after initializing the client:
+
+    * Returns the whole soap response as a hash:
+
+            sepa_client.call
+
+    * Returns the application request in base64 coded format:
+
+            sepa_client.get_ar_as_base64
+
+    * Returns the application request as a string:
+
+            sepa_client.get_ar_as_string
+
+    * Returns the content field of the application request in base64 coded format:
+    
+            sepa_client.get_content_as_base64
+
+    * Returns the content field of the application request as a string:
+
+            sepa_client.get_content_as_string
+
 ### Parsing data from bank response xml
 Parsing based on specifications by Federation of Finnish Financial Services provided xml examples account statement [XML account statement](http://www.fkl.fi/teemasivut/sepa/tekninen_dokumentaatio/Dokumentit/FI_camt_053_sample.xml.xml) and debit credit notification [XML debit credit notification](http://www.fkl.fi/teemasivut/sepa/tekninen_dokumentaatio/Dokumentit/FI_camt_054_sample.xml.xml) and ISO20022 transaction reporting guide [ISO20022 Transaction reporting guide](http://www.fkl.fi/en/themes/sepa/sepa_documents/Dokumentit/ISO20022_Payment_Guide.pdf)
 * Hardcode wanted specs into app_response.rb methods get_account_statement_content/get_debit_credit_notification_content
