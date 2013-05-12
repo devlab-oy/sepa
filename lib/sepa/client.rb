@@ -1,4 +1,4 @@
-require "soap_request"
+require_relative "soap_request"
 require "savon"
 require "base64"
 require "nokogiri"

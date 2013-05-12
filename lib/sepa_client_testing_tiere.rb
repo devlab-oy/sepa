@@ -8,7 +8,7 @@ payload = "kissa"
 params = {
   private_key: 'sepa/nordea_testing/keys/nordea.key', # Path for your own private key
   cert: 'sepa/nordea_testing/keys/nordea.crt',        # Path to your certificate
-  command: :download_file,                            # Command :download_file_list, :upload_file, :download_file or :get_user_info
+  command: :download_file_list,                            # Command :download_file_list, :upload_file, :download_file or :get_user_info
   customer_id: '11111111',                            # Unique customer ID
   environment: 'PRODUCTION',                          # Set the environment to be either PRODUCTION or TEST
   status: 'NEW',                                      # For filtering stuff. Must be either NEW, DOWNLOADED or ALL
@@ -29,4 +29,4 @@ params = {
 
 sepa_client = Sepa::Client.new(params)            # You just create the client with the parameters described above.
 
-puts sepa_client.get_content_as_string
+puts sepa_client.get_ar_as_string
