@@ -3,6 +3,7 @@ require "sepa/soap_request"
 require "savon"
 require "base64"
 require "nokogiri"
+require "sepa/app_response"
 
 module Sepa
   class SepaClient
