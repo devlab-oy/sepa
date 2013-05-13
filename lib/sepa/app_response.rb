@@ -435,15 +435,16 @@ module Sepa
           #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/BkTxCd/Prtry/Cd
           #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/BkTxCd/Prtry/Issr
           #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Ref
-          # exchange rate
+          # value / currency before exchange
           entry_content[:gross_outgoing_value] = node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt") == nil
           entry_content[:gross_outgoing_currency] = node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt")["Ccy"] unless node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt") == nil
           #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/CcyXchg/SrcCcy
-          #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/CcyXchg/TrgtCcy
-          #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/CcyXchg/UnitCcy
+          #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt
+          #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt
+          # exchange rate
           entry_content[:currency_exchange_rate] = node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/CcyXchg/XchgRate").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/CcyXchg/XchgRate") == nil
           #Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/CcyXchg/QtnDt
-          # value after exchange
+          # value / currency after exchange
           entry_content[:value_post_exchange] = node.at_css("NtryDtls/TxDtls/AmtDtls/TxAmt/Amt").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/TxAmt/Amt") == nil
           entry_content[:currency_post_exchange] = node.at_css("NtryDtls/TxDtls/AmtDtls/TxAmt/Amt")["Ccy"] unless node.at_css("NtryDtls/TxDtls/AmtDtls/TxAmt/Amt") == nil
 
