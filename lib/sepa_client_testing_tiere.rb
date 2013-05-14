@@ -53,8 +53,4 @@ params = {
 # You just create the client with the parameters described above.
 sepa_client = Sepa::Client.new(params)
 
-# Using the methods to get the application response as a string
-puts sepa_client.get_ar_as_string
-
-
-#
+puts sepa_client.send
