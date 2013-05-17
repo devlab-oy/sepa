@@ -51,7 +51,7 @@ Or install it yourself as:
 
 3. Initialize a new instance of the client and pass the params hash
 
-        sepa_client = Sepa::SepaClient.new(params)
+        sepa_client = Sepa::Client.new(params)
 
 4. There are five methods that can be called after initializing the client:
 
