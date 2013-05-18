@@ -10,10 +10,10 @@ params = {
   private_key: 'sepa/nordea_testing/keys/nordea.key',
 
   # Path to your certificate
-  # cert: 'sepa/nordea_testing/keys/nordea.crt',
+  cert: 'sepa/nordea_testing/keys/nordea.crt',
 
   # Command :download_file_list, :upload_file, :download_file or :get_user_info
-  command: :get_user_info,
+  command: :get_user_infof,
 
   # Unique customer ID
   customer_id: '11111111',

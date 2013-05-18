@@ -43,6 +43,11 @@ module Sepa
         raise ArgumentError, "You didn't provide a private key in the params hash."
       elsif params[:cert].nil?
         raise ArgumentError, "You didn't provide a certificate in the params hash."
+      elsif !([:get_user_info, :download_file_list, :download_file, :upload_file]
+        .include?(params[:command]))
+        raise ArgumentError, %(Your didn't provide a proper command.
+        Accepted values are :get_user_info, download_file_list, download_file or
+        :upload_file)
       end
     end
   end
