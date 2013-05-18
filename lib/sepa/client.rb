@@ -47,7 +47,9 @@ module Sepa
         .include?(params[:command]))
         raise ArgumentError, %(Your didn't provide a proper command.
         Accepted values are :get_user_info, download_file_list, download_file or
-        :upload_file)
+        :upload_file.)
+      elsif params[:customer_id].nil?
+        raise ArgumentError, "You didn't provide a customer id."
       end
     end
   end

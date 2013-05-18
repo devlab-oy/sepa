@@ -13,10 +13,10 @@ params = {
   cert: 'sepa/nordea_testing/keys/nordea.crt',
 
   # Command :download_file_list, :upload_file, :download_file or :get_user_info
-  command: :get_user_infof,
+  command: :get_user_info,
 
   # Unique customer ID
-  customer_id: '11111111',
+  # customer_id: '11111111',
 
   # Set the environment to be either PRODUCTION or TEST
   environment: 'PRODUCTION',
