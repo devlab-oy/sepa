@@ -6,6 +6,7 @@ require "nokogiri"
 module Sepa
   class Client
     def initialize(params)
+      check_required_params(params)
       # Initialize savon client with params
       @client = Savon.client(wsdl: params[:wsdl], pretty_print_xml: true)
       @soap = SoapRequest.new(params)
@@ -35,6 +36,14 @@ module Sepa
 
     def get_content_as_string
       Base64.decode64(get_content_as_base64)
+    end
+
+    def check_required_params(params)
+      if params[:private_key].nil?
+        raise ArgumentError, "You didn't provide a private key in the params hash."
+      elsif params[:cert].nil?
+        raise ArgumentError, "You didn't provide a certificate in the params hash."
+      end
     end
   end
 end
