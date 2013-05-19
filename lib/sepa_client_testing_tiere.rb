@@ -16,7 +16,7 @@ params = {
   command: :get_user_info,
 
   # Unique customer ID
-  # customer_id: '11111111',
+  customer_id: '11111111',
 
   # Set the environment to be either PRODUCTION or TEST
   environment: 'PRODUCTION',

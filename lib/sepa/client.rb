@@ -38,6 +38,7 @@ module Sepa
       Base64.decode64(get_content_as_base64)
     end
 
+    # Check that the parameters that are needed for all the commands are provided
     def check_required_params(params)
       if params[:private_key].nil?
         raise ArgumentError, "You didn't provide a private key in the params hash."
@@ -50,6 +51,11 @@ module Sepa
         :upload_file.)
       elsif params[:customer_id].nil?
         raise ArgumentError, "You didn't provide a customer id."
+      elsif !(["PRODUCTION", "TEST"].include?(params[:environment]))
+        raise ArgumentError, %(You didn't provide a proper environment.
+          Accepted environments are PRODUCTION or TEST.)
+      elsif params[:wsdl].nil?
+        raise ArgumentError, "You didn't provide a WSDL file in the params hash."
       end
     end
   end
