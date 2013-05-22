@@ -30,14 +30,14 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
     commands.each do |command|
       @params[:command] = command
       ar = Sepa::ApplicationRequest.new(@params)
-      assert ar.load(@params[:command]).respond_to?(:canonicalize)
+      assert ar.load_template(@params[:command]).respond_to?(:canonicalize)
     end
   end
 
   def test_load_should_raise_arg_err_when_bad_command
     ar = Sepa::ApplicationRequest.new(@params)
     assert_raises ArgumentError do
-      ar.load(:wrongcommand)
+      ar.load_template(:wrongcommand)
     end
   end
 end

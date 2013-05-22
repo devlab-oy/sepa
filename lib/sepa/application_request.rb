@@ -24,7 +24,7 @@ module Sepa
     end
 
     # Loads the application request template according to the command
-    def load(command)
+    def load_template(command)
       template_dir = File.expand_path('../xml_templates/application_request', __FILE__)
 
       case command
@@ -50,7 +50,7 @@ module Sepa
     end
 
     def process
-      ar = load(@command)
+      ar = load_template(@command)
 
       #First the content that is common to all commands#
       ##################################################
