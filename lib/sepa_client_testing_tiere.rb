@@ -13,7 +13,7 @@ params = {
   cert: 'sepa/nordea_testing/keys/nordea.crt',
 
   # Command :download_file_list, :upload_file, :download_file or :get_user_info
-  command: :download_file,
+  command: :get_user_info,
 
   # Unique customer ID
   customer_id: '11111111',
