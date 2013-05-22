@@ -23,8 +23,6 @@ module Sepa
       sign.to_xml
     end
 
-    private
-
     # Loads the application request template according to the command
     def load(command)
       template_dir = File.expand_path('../xml_templates/application_request', __FILE__)

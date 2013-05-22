@@ -14,8 +14,6 @@ module Sepa
       sign.to_xml
     end
 
-    private
-
     def load_body
       # Selecting which soap request template to load
       case @command
