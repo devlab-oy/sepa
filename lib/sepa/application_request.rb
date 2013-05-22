@@ -1,8 +1,3 @@
-require 'nokogiri'
-require 'openssl'
-require 'base64'
-require 'time'
-
 module Sepa
   class ApplicationRequest
     def initialize(params)
@@ -30,31 +25,34 @@ module Sepa
 
     private
 
-    def load
-      # Selecting which application request template to load
-      case @command
+    # Loads the application request template according to the command
+    def load(command)
+      template_dir = File.expand_path('../xml_templates/application_request', __FILE__)
+
+      case command
       when :download_file_list
-        path = File.expand_path('../xml_templates/application_request/download_file_list.xml', __FILE__)
+        path = "#{template_dir}/download_file_list.xml"
       when :get_user_info
-        path = File.expand_path('../xml_templates/application_request/get_user_info.xml', __FILE__)
+        path = "#{template_dir}/get_user_info.xml"
       when :upload_file
-        path = File.expand_path('../xml_templates/application_request/upload_file.xml', __FILE__)
+        path = "#{template_dir}/upload_file.xml"
       when :download_file
-        path = File.expand_path('../xml_templates/application_request/download_file.xml', __FILE__)
+        path = "#{template_dir}/download_file.xml"
       else
-        puts 'Could not load application request template because command was unrecognised.'
-        return nil
+        raise ArgumentError, 'Could not load application request template because command was
+        unrecognised.'
       end
 
-      f = File.open(path)
-      ar = Nokogiri::XML(f)
-      f.close
-
-      ar
+      begin
+        Nokogiri::XML(File.open(path))
+      rescue Errno::ENOENT => e
+        raise e, "Could not load application request template for some reason. This might indicate
+        a problem with you gem installation."
+      end
     end
 
     def process
-      ar = load
+      ar = load(@command)
 
       #First the content that is common to all commands#
       ##################################################

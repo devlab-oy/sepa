@@ -1,8 +1,3 @@
-require_relative "soap_request"
-require "savon"
-require "base64"
-require "nokogiri"
-
 module Sepa
   class Client
     def initialize(params)

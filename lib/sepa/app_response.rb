@@ -1,7 +1,3 @@
-require 'sepa/filedescriptor'
-require 'sepa/filetypeservice'
-require 'sepa/signature'
-require 'sepa/userfiletype'
 module Sepa
   class ApplicationResponse
     # This class is able to handle GetUserInfo, DownloadFileList, DownloadFile responses and pass content

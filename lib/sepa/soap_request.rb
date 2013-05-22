@@ -1,10 +1,3 @@
-require 'nokogiri'
-require 'openssl'
-require 'base64'
-require 'time'
-require 'securerandom'
-require_relative 'application_request'
-
 module Sepa
   class SoapRequest
     def initialize(params)
