@@ -129,16 +129,18 @@ module Sepa
       @ar.xpath("//dsig:Signature", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').remove
     end
 
+    #Take digest from application request
+    def take_digest
+      sha1 = OpenSSL::Digest::SHA1.new
+      Base64.encode64(sha1.digest(@ar.canonicalize))
+    end
+
     # Sign the whole application request using enveloped signature
     def sign
       set_nodes_contents
       signature = @ar.xpath("//dsig:Signature", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
       remove_signature
-
-      #Take digest from application request
-      sha1 = OpenSSL::Digest::SHA1.new
-      digestbin = sha1.digest(@ar.canonicalize(mode=Nokogiri::XML::XML_C14N_1_0,inclusive_namespaces=nil,with_comments=false))
-      digest = Base64.encode64(digestbin)
+      digest = take_digest
 
       # Add the signature
       @ar.root.add_child(signature)
