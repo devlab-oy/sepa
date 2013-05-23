@@ -13,7 +13,6 @@ module Sepa
       @file_reference = params[:file_reference]
     end
 
-    # Returns the application request in base64 encoded format
     def get_as_base64
       load_template(@command)
       set_nodes_contents
