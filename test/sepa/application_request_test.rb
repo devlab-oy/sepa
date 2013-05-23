@@ -19,6 +19,10 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
       content: Base64.encode64("haisuli"),
       file_reference: "11111111A12006030329501800000014"
     }
+
+    @ar = Sepa::ApplicationRequest.new(@params)
+
+    @doc = Nokogiri::XML(Base64.decode64(@ar.get_as_base64))
   end
 
   def test_xml_templates_are_unmodified
@@ -47,64 +51,12 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
     Sepa::ApplicationRequest.new(@params)
   end
 
-  # def test_load_should_return_XML_doc_with_proper_command
-  #   commands = [:get_user_info, :download_file, :download_file_list, :upload_file]
+  def test_should_have_customer_id_set
+    assert_equal @doc.at_css("CustomerId").content, '11111111'
+  end
 
-  #   commands.each do |command|
-  #     @params[:command] = command
-  #     ar = Sepa::ApplicationRequest.new(@params)
-  #     assert ar.load_template(@params[:command]).respond_to?(:canonicalize)
-  #   end
-  # end
-
-  # def test_should_return_right_template_with_get_user_info
-  #   template = File.read("#{@xml_templates_path}/get_user_info.xml")
-  #   sha1 = OpenSSL::Digest::SHA1.new
-  #   template_digest = sha1.digest(Nokogiri::XML(template))
-  #   @params[:command] = :get_user_info
-  #   ar = Sepa::ApplicationRequest.new(@params)
-  #   sha1.reset
-  #   loaded_digest = sha1.digest(ar.load_template(@params[:command]))
-  #   assert_equal template_digest, loaded_digest
-  # end
-
-  # def test_should_return_right_template_with_download_file_list
-  #   template = File.read("#{@xml_templates_path}/download_file_list.xml")
-  #   sha1 = OpenSSL::Digest::SHA1.new
-  #   template_digest = sha1.digest(Nokogiri::XML(template))
-  #   @params[:command] = :download_file_list
-  #   ar = Sepa::ApplicationRequest.new(@params)
-  #   sha1.reset
-  #   loaded_digest = sha1.digest(ar.load_template(@params[:command]))
-  #   assert_equal template_digest, loaded_digest
-  # end
-
-  # def test_should_return_right_template_download_file
-  #   template = File.read("#{@xml_templates_path}/download_file.xml")
-  #   sha1 = OpenSSL::Digest::SHA1.new
-  #   template_digest = sha1.digest(Nokogiri::XML(template))
-  #   @params[:command] = :download_file
-  #   ar = Sepa::ApplicationRequest.new(@params)
-  #   sha1.reset
-  #   loaded_digest = sha1.digest(ar.load_template(@params[:command]))
-  #   assert_equal template_digest, loaded_digest
-  # end
-
-  # def test_should_return_right_template_with_upload_file
-  #   template = File.read("#{@xml_templates_path}/upload_file.xml")
-  #   sha1 = OpenSSL::Digest::SHA1.new
-  #   template_digest = sha1.digest(Nokogiri::XML(template))
-  #   @params[:command] = :upload_file
-  #   ar = Sepa::ApplicationRequest.new(@params)
-  #   sha1.reset
-  #   loaded_digest = sha1.digest(ar.load_template(@params[:command]))
-  #   assert_equal template_digest, loaded_digest
-  # end
-
-  # def test_load_should_raise_arg_err_when_bad_command
-  #   ar = Sepa::ApplicationRequest.new(@params)
-  #   assert_raises ArgumentError do
-  #     ar.load_template(:wrongcommand)
-  #   end
-  # end
+  def test_should_have_timestamp_set
+    timestamp = Time.strptime(@doc.at_css("Timestamp").content, '%Y-%m-%dT%H:%M:%S%z')
+    assert timestamp <= Time.now && timestamp > (Time.now - 60), "Timestamp was not set correctly"
+  end
 end

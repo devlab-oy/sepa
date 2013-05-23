@@ -17,14 +17,8 @@ module Sepa
       load_template(@command)
       set_nodes_contents
       process_signature
+      puts @ar
       Base64.encode64(@ar.to_xml)
-    end
-
-    def get_as_xml
-      load_template(@command)
-      set_nodes_contents
-      process_signature
-      @ar.to_xml
     end
 
     private
@@ -182,8 +176,7 @@ module Sepa
       add_digest(@ar, digest)
       signature = calculate_signature(
       @ar.xpath(".//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first,
-      @private_key
-      )
+      @private_key)
       add_signature(@ar, signature)
       add_certificate(@ar, @cert)
     end
