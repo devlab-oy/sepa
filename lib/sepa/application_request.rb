@@ -15,12 +15,17 @@ module Sepa
 
     # Returns the application request in base64 encoded format
     def get_as_base64
-      ar = sign
-      Base64.encode64(ar.to_xml)
+      load_template(@command)
+      set_nodes_contents
+      process_signature
+      Base64.encode64(@ar.to_xml)
     end
 
     def get_as_xml
-      sign.to_xml
+      load_template(@command)
+      set_nodes_contents
+      process_signature
+      @ar.to_xml
     end
 
     # Loads the application request template according to the command
@@ -100,7 +105,6 @@ module Sepa
     end
 
     def set_nodes_contents
-      load_template(@command)
       set_customer_id(@customer_id)
       set_timestamp
       set_environment
@@ -124,48 +128,64 @@ module Sepa
       end
     end
 
-    #Remove signature element from application request for hashing
-    def remove_signature
-      @ar.xpath("//dsig:Signature", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').remove
+    def remove_signature(doc)
+      doc.xpath(
+      "//dsig:Signature", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+      ).remove
     end
 
-    #Take digest from application request
-    def take_digest
+    def add_signature_node(doc, signature)
+      doc.root.add_child(signature)
+    end
+
+    def take_digest(doc)
       sha1 = OpenSSL::Digest::SHA1.new
-      Base64.encode64(sha1.digest(@ar.canonicalize))
+      Base64.encode64(sha1.digest(doc.canonicalize))
+    end
+
+    def add_digest(doc, digest)
+      doc.xpath(
+      ".//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+      ).first
+      .content = digest.gsub(/\s+/, "")
+    end
+
+    def sign(node, private_key)
+      digest = OpenSSL::Digest::SHA1.new
+      signature = private_key.sign(digest, node.canonicalize)
+      Base64.encode64(signature).gsub(/\s+/, "")
+    end
+
+    def add_signature(doc, signature)
+      signature_node = doc
+      .xpath(".//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
+      .first
+      signature_node.content = signature
+    end
+
+    def add_certificate(doc, cert)
+      doc
+      .xpath(".//dsig:X509Certificate", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
+      .first
+      .content = cert
+      .to_s
+      .split('-----BEGIN CERTIFICATE-----')[1]
+      .split('-----END CERTIFICATE-----')[0]
+      .gsub(/\s+/, "")
     end
 
     # Sign the whole application request using enveloped signature
-    def sign
-      set_nodes_contents
-      signature = @ar.xpath("//dsig:Signature", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
-      remove_signature
-      digest = take_digest
-
-      # Add the signature
-      @ar.root.add_child(signature)
-
-      # Insert digest to correct place
-      ar_digest = @ar.xpath(".//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-      ar_digest.content = digest.gsub(/\s+/, "")
-
-      # Sign Signed info element
-      signed_info = @ar.xpath(".//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-      signed_info_canon = signed_info.canonicalize(mode=Nokogiri::XML::XML_C14N_1_0,inclusive_namespaces=nil,with_comments=false)
-      digest_sign = OpenSSL::Digest::SHA1.new
-      signed_info_signature = @private_key.sign(digest_sign, signed_info_canon)
-      signature_base64 = Base64.encode64(signed_info_signature)
-
-      #Add the base64 coded signature to the signature element
-      signature_node = @ar.xpath(".//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-      signature_node.content = signature_base64.gsub(/\s+/, "")
-
-      #Format the certificate and add the it to the certificate element
-      cert_formatted = @cert.to_s.split('-----BEGIN CERTIFICATE-----')[1].split('-----END CERTIFICATE-----')[0].gsub(/\s+/, "")
-      cert_node = @ar.xpath(".//dsig:X509Certificate", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-      cert_node.content = cert_formatted
-
-      @ar
+    def process_signature
+      signature = remove_signature(@ar)
+      digest = take_digest(@ar)
+      add_signature_node(@ar, signature)
+      add_digest(@ar, digest)
+      signature = sign(
+      @ar.xpath(".//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first,
+      @private_key
+      )
+      add_signature(@ar, signature)
+      add_certificate(@ar, @cert)
     end
   end
 end
