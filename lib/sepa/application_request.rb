@@ -124,12 +124,16 @@ module Sepa
       end
     end
 
+    #Remove signature element from application request for hashing
+    def remove_signature
+      @ar.xpath("//dsig:Signature", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').remove
+    end
+
     # Sign the whole application request using enveloped signature
     def sign
       set_nodes_contents
-      #Remove signature element from application request for hashing
       signature = @ar.xpath("//dsig:Signature", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
-      signature.remove
+      remove_signature
 
       #Take digest from application request
       sha1 = OpenSSL::Digest::SHA1.new
