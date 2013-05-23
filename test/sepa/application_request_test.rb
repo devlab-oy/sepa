@@ -3,7 +3,8 @@ require_relative '../test_helper'
 class TestApplicationRequest < MiniTest::Unit::TestCase
   def setup
     keys_path = File.expand_path('../nordea_test_keys', __FILE__)
-    @xml_templates_path = File.expand_path('../../../lib/sepa/xml_templates/application_request', __FILE__)
+    @xml_templates_path = File.expand_path('../../../lib/sepa/xml_templates/application_request',
+      __FILE__)
 
     @params = {
       private_key: "#{keys_path}/nordea.key",
@@ -52,11 +53,43 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
   end
 
   def test_should_have_customer_id_set
-    assert_equal @doc.at_css("CustomerId").content, '11111111'
+    assert_equal @doc.at_css("CustomerId").content, @params[:customer_id]
   end
 
   def test_should_have_timestamp_set
     timestamp = Time.strptime(@doc.at_css("Timestamp").content, '%Y-%m-%dT%H:%M:%S%z')
     assert timestamp <= Time.now && timestamp > (Time.now - 60), "Timestamp was not set correctly"
+  end
+
+  def test_should_have_command_set_when_get_user_info
+    @params[:command] = :get_user_info
+    ar = Sepa::ApplicationRequest.new(@params)
+    doc = Nokogiri::XML(Base64.decode64(ar.get_as_base64))
+
+    assert_equal doc.at_css("Command").content, "GetUserInfo"
+  end
+
+  def test_should_have_command_set_when_download_file_list
+    @params[:command] = :download_file_list
+    ar = Sepa::ApplicationRequest.new(@params)
+    doc = Nokogiri::XML(Base64.decode64(ar.get_as_base64))
+
+    assert_equal doc.at_css("Command").content, "DownloadFileList"
+  end
+
+  def test_should_have_command_set_when_download_file
+    @params[:command] = :download_file
+    ar = Sepa::ApplicationRequest.new(@params)
+    doc = Nokogiri::XML(Base64.decode64(ar.get_as_base64))
+
+    assert_equal doc.at_css("Command").content, "DownloadFile"
+  end
+
+  def test_should_have_command_set_when_upload_file
+    @params[:command] = :upload_file
+    ar = Sepa::ApplicationRequest.new(@params)
+    doc = Nokogiri::XML(Base64.decode64(ar.get_as_base64))
+
+    assert_equal doc.at_css("Command").content, "UploadFile"
   end
 end
