@@ -27,6 +27,8 @@ module Sepa
       @ar.to_xml
     end
 
+    private
+
     # Loads the application request template according to the command
     def load_template(command)
       template_dir = File.expand_path('../xml_templates/application_request', __FILE__)
@@ -127,7 +129,7 @@ module Sepa
       end
     end
 
-    def remove_signature(doc)
+    def remove_signature_node(doc)
       doc.xpath(
       "//dsig:Signature", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
       ).remove
@@ -149,7 +151,7 @@ module Sepa
       .content = digest.gsub(/\s+/, "")
     end
 
-    def sign(node, private_key)
+    def calculate_signature(node, private_key)
       digest = OpenSSL::Digest::SHA1.new
       signature = private_key.sign(digest, node.canonicalize)
       Base64.encode64(signature).gsub(/\s+/, "")
@@ -173,13 +175,12 @@ module Sepa
       .gsub(/\s+/, "")
     end
 
-    # Sign the whole application request using enveloped signature
     def process_signature
-      signature = remove_signature(@ar)
+      signature_node = remove_signature_node(@ar)
       digest = take_digest(@ar)
-      add_signature_node(@ar, signature)
+      add_signature_node(@ar, signature_node)
       add_digest(@ar, digest)
-      signature = sign(
+      signature = calculate_signature(
       @ar.xpath(".//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first,
       @private_key
       )
