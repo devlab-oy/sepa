@@ -23,3 +23,6 @@ doc/
 
 # osx-crap
 .DS_Store
+
+#Coverage
+coverage
