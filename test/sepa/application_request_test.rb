@@ -158,4 +158,8 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
   def test_should_not_have_file_ref_when_upload_file
     assert !@doc_up.at_css("FileReference")
   end
+
+  def test_should_have_content_when_upload_file
+    assert_equal @doc_up.at_css("Content").content, Base64.encode64(@params[:content])
+  end
 end

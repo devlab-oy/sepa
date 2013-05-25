@@ -17,7 +17,6 @@ module Sepa
       load_template(@command)
       set_nodes_contents
       process_signature
-      puts @ar
       Base64.encode64(@ar.to_xml)
     end
 
