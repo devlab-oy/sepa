@@ -174,4 +174,12 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
   def test_should_not_have_content_when_get_user_info
     assert !@doc_get.at_css("Content")
   end
+
+  def test_should_raise_argument_error_with_invalid_command
+    assert_raises(ArgumentError) do
+      @params[:command] = :wrong_kind_of_command
+      ar = Sepa::ApplicationRequest.new(@params)
+      doc = ar.get_as_base64
+    end
+  end
 end
