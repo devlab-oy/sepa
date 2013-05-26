@@ -40,12 +40,7 @@ module Sepa
         unrecognised.'
       end
 
-      begin
-        @ar = Nokogiri::XML(File.open(path))
-      rescue Errno::ENOENT => e
-        raise e, "Could not load application request template for some reason. This might indicate
-        a problem with you gem installation."
-      end
+      @ar = Nokogiri::XML(File.open(path))
     end
 
     def set_node(node, value)
