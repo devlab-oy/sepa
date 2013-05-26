@@ -21,7 +21,6 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
       file_reference: "11111111A12006030329501800000014"
     }
 
-    @ar = Sepa::ApplicationRequest.new(@params)
     @ar_file = Sepa::ApplicationRequest.new(@params)
     @params[:command] = :get_user_info
     @ar_get = Sepa::ApplicationRequest.new(@params)
@@ -30,7 +29,6 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
     @params[:command] = :upload_file
     @ar_up = Sepa::ApplicationRequest.new(@params)
 
-    @doc = Nokogiri::XML(Base64.decode64(@ar.get_as_base64))
     @doc_file = Nokogiri::XML(Base64.decode64(@ar_file.get_as_base64))
     @doc_get = Nokogiri::XML(Base64.decode64(@ar_get.get_as_base64))
     @doc_list = Nokogiri::XML(Base64.decode64(@ar_list.get_as_base64))
@@ -60,16 +58,28 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
   end
 
   def test_ar_should_initialize_with_proper_params
-    Sepa::ApplicationRequest.new(@params)
+    assert Sepa::ApplicationRequest.new(@params)
   end
 
-  def test_should_have_customer_id_set
-    assert_equal @doc.at_css("CustomerId").content, @params[:customer_id]
+  def test_should_have_customer_id_set_in_with_all_commands
+    assert_equal @doc_file.at_css("CustomerId").content, @params[:customer_id]
+    assert_equal @doc_get.at_css("CustomerId").content, @params[:customer_id]
+    assert_equal @doc_list.at_css("CustomerId").content, @params[:customer_id]
+    assert_equal @doc_up.at_css("CustomerId").content, @params[:customer_id]
   end
 
-  def test_should_have_timestamp_set
-    timestamp = Time.strptime(@doc.at_css("Timestamp").content, '%Y-%m-%dT%H:%M:%S%z')
-    assert timestamp <= Time.now && timestamp > (Time.now - 60),
+  def test_should_have_timestamp_set_properly_with_all_commands
+    timestamp_file = Time.strptime(@doc_file.at_css("Timestamp").content, '%Y-%m-%dT%H:%M:%S%z')
+    timestamp_get = Time.strptime(@doc_get.at_css("Timestamp").content, '%Y-%m-%dT%H:%M:%S%z')
+    timestamp_list = Time.strptime(@doc_list.at_css("Timestamp").content, '%Y-%m-%dT%H:%M:%S%z')
+    timestamp_up = Time.strptime(@doc_up.at_css("Timestamp").content, '%Y-%m-%dT%H:%M:%S%z')
+    assert timestamp_file <= Time.now && timestamp_file > (Time.now - 60),
+    "Timestamp was not set correctly"
+    assert timestamp_get <= Time.now && timestamp_get > (Time.now - 60),
+    "Timestamp was not set correctly"
+    assert timestamp_list <= Time.now && timestamp_list > (Time.now - 60),
+    "Timestamp was not set correctly"
+    assert timestamp_up <= Time.now && timestamp_up > (Time.now - 60),
     "Timestamp was not set correctly"
   end
 
@@ -90,12 +100,21 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
     assert_equal @doc_up.at_css("Command").content, "UploadFile"
   end
 
-  def test_should_have_environment_set
-    assert_equal @doc.at_css("Environment").content, @params[:environment]
+  def test_should_have_environment_set_with_all_commands
+    assert_equal @doc_file.at_css("Environment").content, @params[:environment]
+    assert_equal @doc_get.at_css("Environment").content, @params[:environment]
+    assert_equal @doc_list.at_css("Environment").content, @params[:environment]
+    assert_equal @doc_up.at_css("Environment").content, @params[:environment]
   end
 
-  def test_should_have_software_id_set
-    assert_equal @doc.at_css("SoftwareId").content,
+  def test_should_have_software_id_set_with_all_commands
+    assert_equal @doc_file.at_css("SoftwareId").content,
+    "Sepa Transfer Library version " + Sepa::VERSION
+    assert_equal @doc_get.at_css("SoftwareId").content,
+    "Sepa Transfer Library version " + Sepa::VERSION
+    assert_equal @doc_list.at_css("SoftwareId").content,
+    "Sepa Transfer Library version " + Sepa::VERSION
+    assert_equal @doc_up.at_css("SoftwareId").content,
     "Sepa Transfer Library version " + Sepa::VERSION
   end
 
