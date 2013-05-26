@@ -48,77 +48,32 @@ module Sepa
       end
     end
 
-    def set_customer_id(customer_id)
-      customer_id = @ar.at_css "CustomerId"
-      customer_id.content = @customer_id
+    def set_node(node, value)
+      @ar.at_css(node).content = value
     end
 
-    def set_timestamp
-      timestamp = @ar.at_css "Timestamp"
-      timestamp.content = Time.now.iso8601
-    end
-
-    def set_environment
-      environment = @ar.at_css "Environment"
-      environment.content = @environment
-    end
-
-    def set_software_id
-      softwareid = @ar.at_css "SoftwareId"
-      softwareid.content = "Sepa Transfer Library version " + VERSION
-    end
-
-    def set_command(command)
-      command_node = @ar.at_css "Command"
-      command_node.content = command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join
-    end
-
-    def set_status(status)
-      status_node = @ar.at_css "Status"
-      status_node.content = status
-    end
-
-    def set_target_id(target_id)
-      target_id_node = @ar.at_css "TargetId"
-      target_id_node.content = target_id
-    end
-
-    def set_file_type(file_type)
-      file_type_node = @ar.at_css "FileType"
-      file_type_node.content = file_type
-    end
-
-    def set_content(content)
-      content_node = @ar.at_css "Content"
-      content_node.content = Base64.encode64(content)
-    end
-
-    def set_file_reference(file_reference)
-      file_reference_node = @ar.at_css "FileReference"
-      file_reference_node.content = file_reference
-    end
-
+    # Set the nodes' contents according to the command
     def set_nodes_contents
-      set_customer_id(@customer_id)
-      set_timestamp
-      set_environment
-      set_software_id
-      set_command(@command)
+      set_node("CustomerId", @customer_id)
+      set_node("Timestamp", Time.now.iso8601)
+      set_node("Environment", @environment)
+      set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
+      set_node("Command", @command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join)
 
       case @command
       when :download_file_list
-        set_status(@status)
-        set_target_id(@target_id)
-        set_file_type(@file_type)
+        set_node("Status", @status)
+        set_node("TargetId", @target_id)
+        set_node("FileType", @file_type)
       when :download_file
-        set_status(@status)
-        set_target_id(@target_id)
-        set_file_type(@file_type)
-        set_file_reference(@file_reference)
+        set_node("Status", @status)
+        set_node("TargetId", @target_id)
+        set_node("FileType", @file_type)
+        set_node("FileReference", @file_reference)
       when :upload_file
-        set_content(@content)
-        set_file_type(@file_type)
-        set_target_id(@target_id)
+        set_node("Content", Base64.encode64(@content))
+        set_node("FileType", @file_type)
+        set_node("TargetId", @target_id)
       end
     end
 
