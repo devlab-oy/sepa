@@ -4,7 +4,7 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
   def setup
     keys_path = File.expand_path('../nordea_test_keys', __FILE__)
     @xml_templates_path = File.expand_path('../../../lib/sepa/xml_templates/application_request',
-      __FILE__)
+    __FILE__)
 
     @params = {
       private_key: "#{keys_path}/nordea.key",
@@ -200,5 +200,23 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
       ar = Sepa::ApplicationRequest.new(@params)
       doc = ar.get_as_base64
     end
+  end
+
+  def test_digest_is_correct
+    calculated_digest = @doc_file.xpath(
+    ".//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+    ).first.content
+
+    # Remove signature for calculating digest
+    @doc_file.xpath(
+    "//dsig:Signature", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+    ).remove
+
+    # Calculate digest
+    sha1 = OpenSSL::Digest::SHA1.new
+    actual_digest = Base64.encode64(sha1.digest(@doc_file.canonicalize))
+
+    # And then make sure the two are equal
+    assert_equal calculated_digest.strip, actual_digest.strip
   end
 end
