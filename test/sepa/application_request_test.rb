@@ -61,6 +61,14 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
     assert Sepa::ApplicationRequest.new(@params)
   end
 
+  def test_should_get_key_error_if_private_key_missing
+    @params.delete(:private_key)
+
+    assert_raises(KeyError) do
+      Sepa::ApplicationRequest.new(@params)
+    end
+  end
+
   def test_should_have_customer_id_set_in_with_all_commands
     assert_equal @doc_file.at_css("CustomerId").content, @params[:customer_id]
     assert_equal @doc_get.at_css("CustomerId").content, @params[:customer_id]
