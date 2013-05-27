@@ -238,4 +238,19 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
     # And then of course assert the two are equal
     assert_equal calculated_signature, actual_signature
   end
+
+  def test_certificate_is_added_correctly
+    cert = OpenSSL::X509::Certificate.new File.read @params.fetch(:cert)
+
+    added_cert = @doc_file
+    .xpath(".//dsig:X509Certificate", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
+    .first.content
+
+    actual_cert = cert.to_s
+    .split('-----BEGIN CERTIFICATE-----')[1]
+    .split('-----END CERTIFICATE-----')[0]
+    .gsub(/\s+/, "")
+
+    assert_equal added_cert, actual_cert
+  end
 end
