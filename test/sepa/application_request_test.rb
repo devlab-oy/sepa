@@ -202,7 +202,7 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
     end
   end
 
-  def test_digest_is_correct
+  def test_digest_is_calculatd_correctly
     calculated_digest = @doc_file.xpath(
     ".//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
     ).first.content
@@ -218,5 +218,24 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
 
     # And then make sure the two are equal
     assert_equal calculated_digest.strip, actual_digest.strip
+  end
+
+  def test_signature_is_constructed_correctly
+    private_key = OpenSSL::PKey::RSA.new File.read @params.fetch(:private_key)
+    signed_info_node = @doc_file.xpath(
+    ".//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
+
+    # The value of the signature node in the constructed ar
+    calculated_signature = @doc_file.xpath(
+    ".//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
+    .first.content
+
+    # Calculate the actual signature
+    sha1 = OpenSSL::Digest::SHA1.new
+    actual_signature = Base64.encode64(private_key.sign(sha1, signed_info_node.canonicalize))
+    .gsub(/\s+/, "")
+
+    # And then of course assert the two are equal
+    assert_equal calculated_signature, actual_signature
   end
 end
