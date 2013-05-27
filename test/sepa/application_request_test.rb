@@ -35,6 +35,8 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
     @doc_up = Nokogiri::XML(Base64.decode64(@ar_up.get_as_base64))
   end
 
+  # Just to make sure that the xml templates are unmodified because the application logic is
+  # designed for exactly these templates
   def test_xml_templates_are_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
 
