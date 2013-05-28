@@ -295,4 +295,11 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
 
     assert_equal added_cert, actual_cert
   end
+
+  def test_should_validate_against_schema
+    Dir.chdir(File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)) do
+      xsd = Nokogiri::XML::Schema(IO.read('application_request.xsd'))
+      assert xsd.valid?(@doc_file)
+    end
+  end
 end
