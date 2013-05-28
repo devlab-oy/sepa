@@ -4,7 +4,5 @@ module Sepa
     # functionality to confirm sender from crendentials
     attr_accessor :digestValue, :signatureValue, :X509Certificate, :X509IssuerName
     
-    def initialize
-    end
   end
 end

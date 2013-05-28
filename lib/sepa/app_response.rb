@@ -3,13 +3,10 @@ require 'sepa/filetypeservice'
 require 'sepa/signature'
 require 'sepa/userfiletype'
 module Sepa
+  # This class is able to handle GetUserInfo, DownloadFileList, DownloadFile responses and pass content
   class ApplicationResponse
-    # This class is able to handle GetUserInfo, DownloadFileList, DownloadFile responses and pass content
     attr_accessor :timestamp, :responseCode, :encrypted, :compressed, :customerId, :responseText, :fileDescriptors, :userFiletypes
     
-    def initialize
-    end
-
     # Reads values from content field (xml file), returns a hash
     # Bank to customer statement
     def get_account_statement_content(file)
@@ -146,18 +143,22 @@ module Sepa
           txdtls_all = Array.new
           node.xpath("//NtryDtls/TxDtls").each do |nodejr|
           txdtls_content = Hash.new
-            # value / currency before exchange
+
+            # TODO add check to transaction number
+            # value before exchange
             txdtls_content[:gross_outgoing_value] = nodejr.at_css("AmtDtls/InstdAmt/Amt").content unless nodejr.at_css("AmtDtls/InstdAmt/Amt") == nil
+            # currency before exchange
             txdtls_content[:gross_outgoing_currency] = nodejr.at_css("AmtDtls/InstdAmt/Amt")["Ccy"] unless nodejr.at_css("AmtDtls/InstdAmt/Amt") == nil
 
             # exchange rate
             txdtls_content[:currency_exchange_rate] = nodejr.at_css("AmtDtls/InstdAmt/CcyXchg/XchgRate").content unless nodejr.at_css("AmtDtls/InstdAmt/CcyXchg/XchgRate") == nil
 
-            # value / currency after exchange
+            # value after exchange
             txdtls_content[:value_post_exchange] = nodejr.at_css("AmtDtls/TxAmt/Amt").content unless nodejr.at_css("AmtDtls/TxAmt/Amt") == nil
+            # currency after exchange
             txdtls_content[:currency_post_exchange] = nodejr.at_css("AmtDtls/TxAmt/Amt")["Ccy"] unless nodejr.at_css("AmtDtls/TxAmt/Amt") == nil
 
-          txdtls_all<<txdtls_content unless txdtls_content[:gross_outgoing_currency] ==  txdtls_content[:currency_post_exchange]
+          txdtls_all<<txdtls_content unless txdtls_content[:gross_outgoing_currency] == txdtls_content[:currency_post_exchange]
           end
           entry_content[:txdtls] = txdtls_all            
           # Add single notification entry to array

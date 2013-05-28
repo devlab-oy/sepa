@@ -33,14 +33,8 @@ module Sepa
     def load
       # Selecting which application request template to load
       case @command
-      when :download_file_list
-        path = File.expand_path('../xml_templates/application_request/download_file_list.xml', __FILE__)
-      when :get_user_info
-        path = File.expand_path('../xml_templates/application_request/get_user_info.xml', __FILE__)
-      when :upload_file
-        path = File.expand_path('../xml_templates/application_request/upload_file.xml', __FILE__)
-      when :download_file
-        path = File.expand_path('../xml_templates/application_request/download_file.xml', __FILE__)
+      when :renew_certificate
+        path = File.expand_path('../xml_templates/application_request/renew_certificate.xml', __FILE__)        
       else
         puts 'Could not load application request template because command was unrecognised.'
         return nil
@@ -76,6 +70,19 @@ module Sepa
       softwareid.content = "Sepa Transfer Library version " + VERSION
 
       case @command
+      when :renew_certificate
+        # Set the command
+        command = ar.at_css "Command"
+        command.content = "GetCertificate"
+
+        # Set the service
+        service = ar.at_css "Service"
+        service.content = "service"
+
+        # Set the content (paylod) of the renew certificate request after base64 encoding it
+        content = ar.at_css "Content"
+        content.content = Base64.encode64(@content)
+
       when :download_file_list
         # Set the command
         command = ar.at_css "Command"
