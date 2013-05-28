@@ -6,8 +6,10 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
     @xml_templates_path = File.expand_path('../../../lib/sepa/xml_templates/application_request',
     __FILE__)
 
+    private_key = File.read("#{keys_path}/nordea.key")
+
     @params = {
-      private_key: "#{keys_path}/nordea.key",
+      private_key: private_key,
       cert: "#{keys_path}/nordea.crt",
       command: :download_file,
       customer_id: '11111111',
@@ -263,7 +265,7 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
   end
 
   def test_signature_is_constructed_correctly
-    private_key = OpenSSL::PKey::RSA.new File.read @params.fetch(:private_key)
+    private_key = OpenSSL::PKey::RSA.new(@params.fetch(:private_key))
     signed_info_node = @doc_file.xpath(
     ".//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
 
