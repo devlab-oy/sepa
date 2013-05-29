@@ -235,11 +235,11 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
   end
 
   def test_should_not_have_status_set_when_get_user_info
-    assert !@doc_get.at_css("Status")
+    refute @doc_get.at_css("Status")
   end
 
   def test_should_not_have_status_set_when_upload_file
-    assert !@doc_up.at_css("Status")
+    refute @doc_up.at_css("Status")
   end
 
   def test_should_have_target_id_set_when_download_file_list
@@ -251,7 +251,7 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
   end
 
   def test_should_not_have_target_id_set_when_get_user_info
-    assert !@doc_get.at_css("TargetId")
+    refute @doc_get.at_css("TargetId")
   end
 
   def test_should_have_file_type_set_when_download_file_list
@@ -267,7 +267,7 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
   end
 
   def test_should_not_have_file_type_set_when_get_user_info
-    assert !@doc_get.at_css("FileType")
+    refute @doc_get.at_css("FileType")
   end
 
   def test_should_have_file_reference_set_when_download_file
@@ -276,15 +276,15 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
   end
 
   def test_should_not_have_file_ref_when_download_file_list
-    assert !@doc_list.at_css("FileReference")
+    refute @doc_list.at_css("FileReference")
   end
 
   def test_should_not_have_file_ref_when_get_user_info
-    assert !@doc_get.at_css("FileReference")
+    refute @doc_get.at_css("FileReference")
   end
 
   def test_should_not_have_file_ref_when_upload_file
-    assert !@doc_up.at_css("FileReference")
+    refute @doc_up.at_css("FileReference")
   end
 
   def test_should_have_content_when_upload_file
@@ -293,15 +293,15 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
   end
 
   def test_should_not_have_content_when_download_file_list
-    assert !@doc_list.at_css("Content")
+    refute @doc_list.at_css("Content")
   end
 
   def test_should_not_have_content_when_download_file
-    assert !@doc_file.at_css("Content")
+    refute @doc_file.at_css("Content")
   end
 
   def test_should_not_have_content_when_get_user_info
-    assert !@doc_get.at_css("Content")
+    refute @doc_get.at_css("Content")
   end
 
   def test_should_raise_argument_error_with_invalid_command
