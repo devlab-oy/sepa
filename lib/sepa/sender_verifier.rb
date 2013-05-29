@@ -1,5 +1,3 @@
-require 'nokogiri'
-
 module Sepa
   class SenderVerifier
     def initialize(soap_response)
