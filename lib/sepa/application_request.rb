@@ -1,8 +1,8 @@
 module Sepa
   class ApplicationRequest
     def initialize(params)
-      @private_key = OpenSSL::PKey::RSA.new(params.fetch(:private_key))
-      @cert = OpenSSL::X509::Certificate.new File.read params.fetch(:cert)
+      @private_key = params.fetch(:private_key)
+      @cert = params.fetch(:cert)
       @command = params.fetch(:command)
       @customer_id = params.fetch(:customer_id)
       @environment = params.fetch(:environment)
