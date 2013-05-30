@@ -1,10 +1,10 @@
 module Sepa
   class SoapRequest
     def initialize(params)
-      @private_key = OpenSSL::PKey::RSA.new File.read params[:private_key]
-      @cert = OpenSSL::X509::Certificate.new File.read params[:cert]
-      @command = params[:command]
-      @customer_id = params[:customer_id]
+      @private_key = OpenSSL::PKey::RSA.new File.read params.fetch(:private_key)
+      @cert = OpenSSL::X509::Certificate.new File.read params.fetch(:cert)
+      @command = params.fetch(:command)
+      @customer_id = params.fetch(:customer_id)
       @target_id = params[:target_id]
       @ar = ApplicationRequest.new(params)
       @language = params[:language]
