@@ -1,13 +1,13 @@
 module Sepa
   class SoapRequest
     def initialize(params)
-      @private_key = OpenSSL::PKey::RSA.new File.read params[:private_key]
-      @cert = OpenSSL::X509::Certificate.new File.read params[:cert]
-      @command = params[:command]
-      @customer_id = params[:customer_id]
-      @target_id = params[:target_id]
+      @private_key = params.fetch(:private_key)
+      @cert = params.fetch(:cert)
+      @command = params.fetch(:command)
+      @customer_id = params.fetch(:customer_id)
+      @target_id = params.fetch(:target_id)
       @ar = ApplicationRequest.new(params)
-      @language = params[:language]
+      @language = params.fetch(:language)
     end
 
     def to_xml
@@ -56,9 +56,9 @@ module Sepa
       sender_id_node = soap.xpath("//bxd:SenderId", 'bxd' => 'http://model.bxd.fi').first
       sender_id_node.content = @customer_id
 
-      # Set the request id, a random 35 digit hex number
+      # Set the request id, a random 34 digit hex number
       request_id_node = soap.xpath("//bxd:RequestId", 'bxd' => 'http://model.bxd.fi').first
-      request_id_node.content = SecureRandom.hex(35)
+      request_id_node.content = SecureRandom.hex(17)
 
       # Add timestamp
       timestamp_node = soap.xpath("//bxd:Timestamp", 'bxd' => 'http://model.bxd.fi').first
