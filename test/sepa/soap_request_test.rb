@@ -3,9 +3,13 @@ require File.expand_path('../../test_helper.rb', __FILE__)
 class SoapRequestTest < MiniTest::Unit::TestCase
   def setup
     keys_path = File.expand_path('../nordea_test_keys', __FILE__)
+
+    private_key = OpenSSL::PKey::RSA.new(File.read("#{keys_path}/nordea.key"))
+    cert = OpenSSL::X509::Certificate.new(File.read("#{keys_path}/nordea.crt"))
+
     @params = {
-      private_key: "#{keys_path}/nordea.key",
-      cert: "#{keys_path}/nordea.crt",
+      private_key: private_key,
+      cert: cert,
       command: :get_user_info,
       customer_id: '11111111',
       environment: 'PRODUCTION',
@@ -17,7 +21,10 @@ class SoapRequestTest < MiniTest::Unit::TestCase
       content: Base64.encode64("Kurppa"),
       file_reference: "11111111A12006030329501800000014"
     }
+
     @soap_request = Sepa::SoapRequest.new(@params)
+
+    @doc = Nokogiri::XML(@soap_request.to_xml)
   end
 
   def test_should_initialize_with_proper_params
@@ -50,5 +57,10 @@ class SoapRequestTest < MiniTest::Unit::TestCase
     assert_raises(KeyError) do
       Sepa::SoapRequest.new(@params)
     end
+  end
+
+  def test_customer_id_is_properly_inserted
+    assert_equal @params[:customer_id],
+    @doc.xpath("//bxd:SenderId", 'bxd' => 'http://model.bxd.fi').first.content
   end
 end
