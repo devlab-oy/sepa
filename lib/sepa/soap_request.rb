@@ -56,9 +56,9 @@ module Sepa
       sender_id_node = soap.xpath("//bxd:SenderId", 'bxd' => 'http://model.bxd.fi').first
       sender_id_node.content = @customer_id
 
-      # Set the request id, a random 35 digit hex number
+      # Set the request id, a random 34 digit hex number
       request_id_node = soap.xpath("//bxd:RequestId", 'bxd' => 'http://model.bxd.fi').first
-      request_id_node.content = SecureRandom.hex(35)
+      request_id_node.content = SecureRandom.hex(17)
 
       # Add timestamp
       timestamp_node = soap.xpath("//bxd:Timestamp", 'bxd' => 'http://model.bxd.fi').first

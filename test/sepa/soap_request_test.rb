@@ -59,8 +59,19 @@ class SoapRequestTest < MiniTest::Unit::TestCase
     end
   end
 
-  def test_customer_id_is_properly_inserted
+  def test_sender_id_is_properly_set
     assert_equal @params[:customer_id],
     @doc.xpath("//bxd:SenderId", 'bxd' => 'http://model.bxd.fi').first.content
+  end
+
+  # Just testing that the content of the node is an actual hex number and that
+  # the length is 30 characters because 35 is the max that can be set
+  # according to the schema and Securerandom can generate only some int times 2
+  def test_request_id_is_properly_set
+    request_id_node =
+    @doc.xpath("//bxd:RequestId", 'bxd' => 'http://model.bxd.fi').first
+
+    assert request_id_node.content =~ /^[0-9A-F]+$/i
+    assert_equal request_id_node.content.length, 34
   end
 end
