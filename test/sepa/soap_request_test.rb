@@ -3,7 +3,7 @@ require File.expand_path('../../test_helper.rb', __FILE__)
 class SoapRequestTest < MiniTest::Unit::TestCase
   def setup
     @xml_templates_path = File.expand_path(
-    '../../../lib/sepa/xml_templates/soap', __FILE__)
+      '../../../lib/sepa/xml_templates/soap', __FILE__)
 
     keys_path = File.expand_path('../nordea_test_keys', __FILE__)
 
@@ -33,11 +33,9 @@ class SoapRequestTest < MiniTest::Unit::TestCase
   def test_get_user_info_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
 
-    template = File.read(
-    "#{@xml_templates_path}/get_user_info.xml")
+    template = File.read("#{@xml_templates_path}/get_user_info.xml")
 
-    digest = Base64.encode64(
-    sha1.digest(template)).strip
+    digest = Base64.encode64(sha1.digest(template)).strip
 
     assert_equal digest, "D+jatiDWHRCKro5E14cfzwPKcBE="
   end
@@ -45,11 +43,9 @@ class SoapRequestTest < MiniTest::Unit::TestCase
   def test_download_file_list_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
 
-    template = File.read(
-    "#{@xml_templates_path}/download_file_list.xml")
+    template = File.read("#{@xml_templates_path}/download_file_list.xml")
 
-    digest = Base64.encode64(
-    sha1.digest(template)).strip
+    digest = Base64.encode64(sha1.digest(template)).strip
 
     assert_equal digest, "Xulym3UQiwUXMyaOu8RCCvJIjeY="
   end
@@ -57,11 +53,9 @@ class SoapRequestTest < MiniTest::Unit::TestCase
   def test_download_file_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
 
-    template = File.read(
-    "#{@xml_templates_path}/download_file.xml")
+    template = File.read("#{@xml_templates_path}/download_file.xml")
 
-    digest = Base64.encode64(
-    sha1.digest(template)).strip
+    digest = Base64.encode64(sha1.digest(template)).strip
 
     assert_equal digest, "eKy22p3HkrBcOCsyhd2zhVz0uTA="
   end
@@ -69,11 +63,9 @@ class SoapRequestTest < MiniTest::Unit::TestCase
   def test_upload_file_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
 
-    template = File.read(
-    "#{@xml_templates_path}/upload_file.xml")
+    template = File.read("#{@xml_templates_path}/upload_file.xml")
 
-    digest = Base64.encode64(
-    sha1.digest(template)).strip
+    digest = Base64.encode64(sha1.digest(template)).strip
 
     assert_equal digest, "DDeIBq4WY7N0Hql4hK+xOeBkP18="
   end
@@ -81,11 +73,9 @@ class SoapRequestTest < MiniTest::Unit::TestCase
   def test_header_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
 
-    template = File.read(
-    "#{@xml_templates_path}/header.xml")
+    template = File.read("#{@xml_templates_path}/header.xml")
 
-    digest = Base64.encode64(
-    sha1.digest(template)).strip
+    digest = Base64.encode64(sha1.digest(template)).strip
 
     assert_equal digest, "Y8Apuq67Pdk7dNXfp3QKEFI63MI="
   end
@@ -131,16 +121,16 @@ class SoapRequestTest < MiniTest::Unit::TestCase
   # the length is 30 characters because 35 is the max that can be set
   # according to the schema and Securerandom can generate only some int times 2
   def test_request_id_is_properly_set
-    request_id_node =
-    @doc.xpath("//bxd:RequestId", 'bxd' => 'http://model.bxd.fi').first
+    request_id_node = @doc.xpath("//bxd:RequestId", 'bxd' =>
+      'http://model.bxd.fi').first
 
     assert request_id_node.content =~ /^[0-9A-F]+$/i
     assert_equal request_id_node.content.length, 34
   end
 
   def test_timestamp_is_set_correctly
-    timestamp_node =
-    @doc.xpath("//bxd:Timestamp", 'bxd' => 'http://model.bxd.fi').first
+    timestamp_node = @doc.xpath("//bxd:Timestamp", 'bxd' =>
+      'http://model.bxd.fi').first
 
     timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
 
@@ -148,15 +138,15 @@ class SoapRequestTest < MiniTest::Unit::TestCase
   end
 
   def test_language_is_set_correctly
-    language_node =
-    @doc.xpath("//bxd:Language", 'bxd' => 'http://model.bxd.fi').first
+    language_node = @doc.xpath("//bxd:Language", 'bxd' =>
+      'http://model.bxd.fi').first
 
     assert_equal language_node.content, @params[:language]
   end
 
   def test_user_agent_is_set_correctly
-    user_agent_node =
-    @doc.xpath("//bxd:UserAgent", 'bxd' => 'http://model.bxd.fi').first
+    user_agent_node = @doc.xpath("//bxd:UserAgent", 'bxd' =>
+      'http://model.bxd.fi').first
 
     assert_equal user_agent_node.content,
     "Sepa Transfer Library version " + Sepa::VERSION
@@ -164,8 +154,8 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
   # I'm quite sure that receiver id and target is are the same
   def test_receiver_is_is_set_correctly
-    receiver_id_node =
-    @doc.xpath("//bxd:ReceiverId", 'bxd' => 'http://model.bxd.fi').first
+    receiver_id_node = @doc.xpath("//bxd:ReceiverId", 'bxd' =>
+      'http://model.bxd.fi').first
 
     assert_equal receiver_id_node.content, @params[:target_id]
   end
@@ -173,8 +163,8 @@ class SoapRequestTest < MiniTest::Unit::TestCase
   # Just test that the content of application request is a base64 encoded xml
   # document and that it's customer is matches the one provided in the params
   def test_application_request_should_be_inserted_properly
-    ar_node =
-    @doc.xpath("//bxd:ApplicationRequest", 'bxd' => 'http://model.bxd.fi').first
+    ar_node = @doc.xpath("//bxd:ApplicationRequest", 'bxd' =>
+      'http://model.bxd.fi').first
 
     ar_doc = Nokogiri::XML(Base64.decode64(ar_node.content))
 
@@ -184,9 +174,9 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
   def test_cert_is_added_correctly
     added_cert =
-    @doc.xpath("//wsse:BinarySecurityToken", 'wsse' => 'http://docs.oasis-' +
-    'open.org/wss/2004/01/oasis-200401-wss-wssecurity-' +
-    'secext-1.0.xsd').first.content
+      @doc.xpath("//wsse:BinarySecurityToken", 'wsse' => 'http://docs.oasis-' +
+      'open.org/wss/2004/01/oasis-200401-wss-wssecurity-' +
+      'secext-1.0.xsd').first.content
 
     actual_cert = @params.fetch(:cert).to_s
     actual_cert = actual_cert.split('-----BEGIN CERTIFICATE-----')[1]
@@ -201,15 +191,15 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
     # Digest which is calculated from the body and added to the header
     added_digest = @doc.xpath("//dsig:Reference[@URI='#sdf6sa7d86f87s6df786" +
-    "sd87f6s8fsda']/dsig:DigestValue", 'dsig' => 'http://www.w3.org' +
-    '/2000/09/xmldsig#').first.content
+      "sd87f6s8fsda']/dsig:DigestValue", 'dsig' => 'http://www.w3.org' +
+      '/2000/09/xmldsig#').first.content
 
     body_node = @doc.xpath("//env:Body", 'env' =>
-    'http://schemas.xmlsoap.org/soap/envelope/').first
+      'http://schemas.xmlsoap.org/soap/envelope/').first
 
     body_node = body_node.canonicalize(
-    mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
-    with_comments=false)
+      mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
+      with_comments=false)
 
     actual_digest = Base64.encode64(sha1.digest(body_node)).strip
 
@@ -218,8 +208,8 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
   def test_header_created_timestamp_is_added_correctly
     timestamp_node = @doc.xpath("//wsu:Created", 'wsu' =>
-    'http://docs.oasis-open.org/wss/2004/01/oasis-200401-' +
-    'wss-wssecurity-utility-1.0.xsd').first
+      'http://docs.oasis-open.org/wss/2004/01/oasis-200401-' +
+      'wss-wssecurity-utility-1.0.xsd').first
 
     timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
 
@@ -228,8 +218,8 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
   def test_header_expires_timestamp_is_added_correctly
     timestamp_node = @doc.xpath("//wsu:Expires", 'wsu' =>
-    'http://docs.oasis-open.org/wss/2004/01/oasis-200401-' +
-    'wss-wssecurity-utility-1.0.xsd').first
+      'http://docs.oasis-open.org/wss/2004/01/oasis-200401-' +
+      'wss-wssecurity-utility-1.0.xsd').first
 
     timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
 
@@ -241,19 +231,39 @@ class SoapRequestTest < MiniTest::Unit::TestCase
     sha1 = OpenSSL::Digest::SHA1.new
 
     added_digest = @doc.xpath("//dsig:Reference[@URI='#dsfg8sdg87ds" +
-    "f678g6dsg6ds7fg']/dsig:DigestValue", 'dsig' =>
-    'http://www.w3.org/2000/09/xmldsig#').first.content
+      "f678g6dsg6ds7fg']/dsig:DigestValue", 'dsig' =>
+      'http://www.w3.org/2000/09/xmldsig#').first.content
 
     timestamp_node = @doc.xpath("//wsu:Timestamp", 'wsu' =>
-    'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-' +
-    'utility-1.0.xsd').first
+      'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-' +
+      'utility-1.0.xsd').first
 
     timestamp_node = timestamp_node.canonicalize(
-    mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
-    with_comments=false)
+      mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
+      with_comments=false)
 
     actual_digest = Base64.encode64(sha1.digest(timestamp_node)).strip
 
     assert_equal actual_digest, added_digest
+  end
+
+  def test_signature_is_calculated_correctly
+    sha1 = OpenSSL::Digest::SHA1.new
+    private_key = @params.fetch(:private_key)
+
+    added_signature = @doc.xpath("//dsig:SignatureValue", 'dsig' =>
+      'http://www.w3.org/2000/09/xmldsig#').first.content
+
+    signed_info_node = @doc.xpath("//dsig:SignedInfo", 'dsig' =>
+      'http://www.w3.org/2000/09/xmldsig#').first
+
+    signed_info_node = signed_info_node.canonicalize(
+      mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
+      with_comments=false)
+
+    actual_signature = Base64.encode64(
+      private_key.sign(sha1, signed_info_node)).gsub(/\s+/, "")
+
+    assert_equal actual_signature, added_signature
   end
 end
