@@ -2,6 +2,8 @@ require File.expand_path('../../test_helper.rb', __FILE__)
 
 class SoapRequestTest < MiniTest::Unit::TestCase
   def setup
+    @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)
+
     @xml_templates_path = File.expand_path(
       '../../../lib/sepa/xml_templates/soap', __FILE__)
 
@@ -265,5 +267,25 @@ class SoapRequestTest < MiniTest::Unit::TestCase
       private_key.sign(sha1, signed_info_node)).gsub(/\s+/, "")
 
     assert_equal actual_signature, added_signature
+  end
+
+  def test_should_validate_against_schema
+    Dir.chdir(@schemas_path) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(@doc)
+    end
+  end
+
+  def test_schema_validation_should_fail_with_wrong_must_understand_value
+    security_node = @doc.xpath('//wsse:Security', 'wsse' =>
+      'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-' +
+      'wssecurity-secext-1.0.xsd').first
+
+    security_node['env:mustUnderstand'] = '3'
+
+    Dir.chdir(@schemas_path) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      refute xsd.valid?(@doc)
+    end
   end
 end
