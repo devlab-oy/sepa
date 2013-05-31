@@ -217,8 +217,9 @@ class SoapRequestTest < MiniTest::Unit::TestCase
   end
 
   def test_header_created_timestamp_is_added_correctly
-    timestamp_node = @doc.xpath("//wsu:Created", 'wsu' => 'http://docs.oasis-open' +
-    '.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
+    timestamp_node = @doc.xpath("//wsu:Created", 'wsu' =>
+    'http://docs.oasis-open.org/wss/2004/01/oasis-200401-' +
+    'wss-wssecurity-utility-1.0.xsd').first
 
     timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
 
@@ -226,12 +227,33 @@ class SoapRequestTest < MiniTest::Unit::TestCase
   end
 
   def test_header_expires_timestamp_is_added_correctly
-    timestamp_node = @doc.xpath("//wsu:Expires", 'wsu' => 'http://docs.oasis-open' +
-    '.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
+    timestamp_node = @doc.xpath("//wsu:Expires", 'wsu' =>
+    'http://docs.oasis-open.org/wss/2004/01/oasis-200401-' +
+    'wss-wssecurity-utility-1.0.xsd').first
 
     timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
 
     assert timestamp <= (Time.now + 3600) &&
     timestamp > ((Time.now + 3600) - 60)
+  end
+
+  def test_header_timestamps_digest_is_calculated_correctly
+    sha1 = OpenSSL::Digest::SHA1.new
+
+    added_digest = @doc.xpath("//dsig:Reference[@URI='#dsfg8sdg87ds" +
+    "f678g6dsg6ds7fg']/dsig:DigestValue", 'dsig' =>
+    'http://www.w3.org/2000/09/xmldsig#').first.content
+
+    timestamp_node = @doc.xpath("//wsu:Timestamp", 'wsu' =>
+    'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-' +
+    'utility-1.0.xsd').first
+
+    timestamp_node = timestamp_node.canonicalize(
+    mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
+    with_comments=false)
+
+    actual_digest = Base64.encode64(sha1.digest(timestamp_node)).strip
+
+    assert_equal actual_digest, added_digest
   end
 end
