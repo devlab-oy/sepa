@@ -121,6 +121,13 @@ class SoapRequestTest < MiniTest::Unit::TestCase
     end
   end
 
+  def test_should_get_error_if_language_missing
+    @params.delete(:language)
+    assert_raises(KeyError) do
+      Sepa::SoapRequest.new(@params)
+    end
+  end
+
   def test_sender_id_is_properly_set
     assert_equal @params[:customer_id],
     @doc.xpath("//bxd:SenderId", 'bxd' => 'http://model.bxd.fi').first.content

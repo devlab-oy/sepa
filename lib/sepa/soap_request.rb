@@ -7,7 +7,7 @@ module Sepa
       @customer_id = params.fetch(:customer_id)
       @target_id = params.fetch(:target_id)
       @ar = ApplicationRequest.new(params)
-      @language = params[:language]
+      @language = params.fetch(:language)
     end
 
     def to_xml
