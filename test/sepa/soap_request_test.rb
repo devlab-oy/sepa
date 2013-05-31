@@ -132,4 +132,24 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
     assert_equal added_cert, actual_cert
   end
+
+  def test_body_digest_is_calculated_correctly
+    sha1 = OpenSSL::Digest::SHA1.new
+
+    # Digest which is calculated from the body and added to the header
+    added_digest = @doc.xpath("//dsig:Reference[@URI='#sdf6sa7d86f87s6df786" +
+    "sd87f6s8fsda']/dsig:DigestValue", 'dsig' => 'http://www.w3.org' +
+    '/2000/09/xmldsig#').first.content
+
+    body_node = @doc.xpath("//env:Body", 'env' =>
+    'http://schemas.xmlsoap.org/soap/envelope/').first
+
+    body_node = body_node.canonicalize(
+    mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
+    with_comments=false)
+
+    actual_digest = Base64.encode64(sha1.digest(body_node)).strip
+
+    assert_equal actual_digest, added_digest
+  end
 end
