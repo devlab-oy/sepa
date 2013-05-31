@@ -74,4 +74,13 @@ class SoapRequestTest < MiniTest::Unit::TestCase
     assert request_id_node.content =~ /^[0-9A-F]+$/i
     assert_equal request_id_node.content.length, 34
   end
+
+  def test_timestamp_is_set_correctly
+    timestamp_node =
+    @doc.xpath("//bxd:Timestamp", 'bxd' => 'http://model.bxd.fi').first
+
+    timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
+
+    assert timestamp <= Time.now && timestamp > (Time.now - 60)
+  end
 end
