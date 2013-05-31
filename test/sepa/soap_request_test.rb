@@ -33,13 +33,61 @@ class SoapRequestTest < MiniTest::Unit::TestCase
   def test_get_user_info_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
 
-    get_user_info_template = File.read(
+    template = File.read(
     "#{@xml_templates_path}/get_user_info.xml")
 
-    get_user_info_digest = Base64.encode64(
-    sha1.digest(get_user_info_template)).strip
+    digest = Base64.encode64(
+    sha1.digest(template)).strip
 
-    assert_equal get_user_info_digest, "D+jatiDWHRCKro5E14cfzwPKcBE="
+    assert_equal digest, "D+jatiDWHRCKro5E14cfzwPKcBE="
+  end
+
+  def test_download_file_list_template_is_unmodified
+    sha1 = OpenSSL::Digest::SHA1.new
+
+    template = File.read(
+    "#{@xml_templates_path}/download_file_list.xml")
+
+    digest = Base64.encode64(
+    sha1.digest(template)).strip
+
+    assert_equal digest, "Xulym3UQiwUXMyaOu8RCCvJIjeY="
+  end
+
+  def test_download_file_template_is_unmodified
+    sha1 = OpenSSL::Digest::SHA1.new
+
+    template = File.read(
+    "#{@xml_templates_path}/download_file.xml")
+
+    digest = Base64.encode64(
+    sha1.digest(template)).strip
+
+    assert_equal digest, "eKy22p3HkrBcOCsyhd2zhVz0uTA="
+  end
+
+  def test_upload_file_template_is_unmodified
+    sha1 = OpenSSL::Digest::SHA1.new
+
+    template = File.read(
+    "#{@xml_templates_path}/upload_file.xml")
+
+    digest = Base64.encode64(
+    sha1.digest(template)).strip
+
+    assert_equal digest, "DDeIBq4WY7N0Hql4hK+xOeBkP18="
+  end
+
+  def test_header_template_is_unmodified
+    sha1 = OpenSSL::Digest::SHA1.new
+
+    template = File.read(
+    "#{@xml_templates_path}/header.xml")
+
+    digest = Base64.encode64(
+    sha1.digest(template)).strip
+
+    assert_equal digest, "Y8Apuq67Pdk7dNXfp3QKEFI63MI="
   end
 
   def test_should_initialize_with_proper_params
