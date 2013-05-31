@@ -83,4 +83,11 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
     assert timestamp <= Time.now && timestamp > (Time.now - 60)
   end
+
+  def test_language_is_set_correctly
+    language_node =
+    @doc.xpath("//bxd:Language", 'bxd' => 'http://model.bxd.fi').first
+
+    assert_equal language_node.content, @params[:language]
+  end
 end
