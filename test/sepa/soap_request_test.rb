@@ -215,4 +215,23 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
     assert_equal actual_digest, added_digest
   end
+
+  def test_header_created_timestamp_is_added_correctly
+    timestamp_node = @doc.xpath("//wsu:Created", 'wsu' => 'http://docs.oasis-open' +
+    '.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
+
+    timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
+
+    assert timestamp <= Time.now && timestamp > (Time.now - 60)
+  end
+
+  def test_header_expires_timestamp_is_added_correctly
+    timestamp_node = @doc.xpath("//wsu:Expires", 'wsu' => 'http://docs.oasis-open' +
+    '.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
+
+    timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
+
+    assert timestamp <= (Time.now + 3600) &&
+    timestamp > ((Time.now + 3600) - 60)
+  end
 end
