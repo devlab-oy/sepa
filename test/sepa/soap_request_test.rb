@@ -98,4 +98,12 @@ class SoapRequestTest < MiniTest::Unit::TestCase
     assert_equal user_agent_node.content,
     "Sepa Transfer Library version " + Sepa::VERSION
   end
+
+  # I'm quite sure that receiver id and target is are the same
+  def test_receiver_is_is_set_correctly
+    receiver_id_node =
+    @doc.xpath("//bxd:ReceiverId", 'bxd' => 'http://model.bxd.fi').first
+
+    assert_equal receiver_id_node.content, @params[:target_id]
+  end
 end
