@@ -106,4 +106,16 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
     assert_equal receiver_id_node.content, @params[:target_id]
   end
+
+  # Just test that the content of application request is a base64 encoded xml
+  # document and that it's customer is matches the one provided in the params
+  def test_application_request_should_be_inserted_properly
+    ar_node =
+    @doc.xpath("//bxd:ApplicationRequest", 'bxd' => 'http://model.bxd.fi').first
+
+    ar_doc = Nokogiri::XML(Base64.decode64(ar_node.content))
+
+    assert ar_doc.respond_to?(:canonicalize)
+    assert_equal ar_doc.at_css("CustomerId").content, @params[:customer_id]
+  end
 end
