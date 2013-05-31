@@ -79,7 +79,7 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
     digest = Base64.encode64(sha1.digest(template)).strip
 
-    assert_equal digest, "Y8Apuq67Pdk7dNXfp3QKEFI63MI="
+    assert_equal digest, "Hv8Av1pPApRx9wLnCKjewO3ZsQ4="
   end
 
   def test_should_initialize_with_proper_params
@@ -290,11 +290,18 @@ class SoapRequestTest < MiniTest::Unit::TestCase
   end
 
   def test_should_validate_against_ws_security_schema
+    ws_node = @doc.xpath('//wsse:Security', 'wsse' =>
+      'http://docs.oasis-open.org/wss/2004/01/oasis-200401-' +
+      'wss-wssecurity-secext-1.0.xsd')
+
+    ws_node = ws_node.to_xml
+
+    ws_node = Nokogiri::XML(ws_node)
+
     Dir.chdir(@schemas_path) do
-      xsd = Nokogiri::XML::Schema(IO.read('oasis-200401-wss-wssecurity-secext-1.0.xsd'))
-      xsd.validate(@doc).each do |error|
-        puts error.message
-      end
+      xsd = Nokogiri::XML::Schema(IO.read(
+        'oasis-200401-wss-wssecurity-secext-1.0.xsd'))
+      assert xsd.valid?(ws_node)
     end
   end
 end
