@@ -1,4 +1,4 @@
-<env:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:cer="http://bxd.fi/CertificateService">
+<env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:cer="http://bxd.fi/CertificateService">
    <env:Header/>
    <env:Body>
       <cer:getCertificatein>

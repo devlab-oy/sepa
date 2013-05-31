@@ -1,21 +1,24 @@
-require 'nokogiri'
-require 'openssl'
-require 'base64'
-require 'time'
-require 'securerandom'
-require_relative 'application_request'
-
 module Sepa
    class CertRequest
     def initialize(params)
-      @private_key = OpenSSL::PKey::RSA.new File.read params[:private_key]
-      @cert = OpenSSL::X509::Certificate.new File.read params[:cert]
-      @command = params[:command]
-      @customer_id = params[:customer_id]
+      @private_key = params.fetch(:private_key)
+      @cert = params.fetch(:cert)
+      @command = params.fetch(:command)
+      @customer_id = params.fetch(:customer_id)
       @target_id = params[:target_id]
       @ar = ApplicationRequest.new(params)
       @language = params[:language]
     end
+
+#    def initialize(params)
+#      @private_key = OpenSSL::PKey::RSA.new File.read params[:private_key]
+#      @cert = OpenSSL::X509::Certificate.new File.read params[:cert]
+#      @command = params[:command]
+#      @customer_id = params[:customer_id]
+#      @target_id = params[:target_id]
+#      @ar = ApplicationRequest.new(params)
+#      @language = params[:language]
+#    end
 
     def to_xml
       sign.to_xml
@@ -112,7 +115,7 @@ module Sepa
       # Take digest from soap request body, base64 code it and put it to the signature
       #body = Nokogiri::XML(soap)
       body = soap.xpath("//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/').first
-      body = Nokogiri::XML(body)
+      #body = Nokogiri::XML(body)
       canonbody = body.canonicalize(mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,with_comments=false)
       sha1 = OpenSSL::Digest::SHA1.new
       digestbin = sha1.digest(canonbody)
@@ -129,19 +132,19 @@ module Sepa
 
       # Add the base64 coded signature to the signature element
 #      signature_node = header.xpath("//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-      signature_node = body.xpath("//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
+      #signature_node = body.xpath("//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
       #signature_node.content = signature_base64
 
       # Format the certificate and add the it to the certificate element
-      cert_formatted = @cert.to_s.split('-----BEGIN CERTIFICATE-----')[1].split('-----END CERTIFICATE-----')[0].gsub(/\s+/, "")
-      cert_node = body.xpath("//wsse:BinarySecurityToken", 'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd').first
+      #cert_formatted = @cert.to_s.split('-----BEGIN CERTIFICATE-----')[1].split('-----END CERTIFICATE-----')[0].gsub(/\s+/, "")
+      #cert_node = body.xpath("//wsse:BinarySecurityToken", 'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd').first
       #cert_node.content = cert_formatted
 
       # Merge the header and body
       #header.root.add_child(soap.xpath("//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/').first)
 
       #header
-      puts soap.to_xml
+      #puts soap.to_xml
       soap
     end
   end

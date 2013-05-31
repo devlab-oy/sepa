@@ -11,6 +11,7 @@ module Sepa
       @file_type = params[:file_type]
       @content = params[:content]
       @file_reference = params[:file_reference]
+      @service = params[:service]
     end
 
     def get_as_base64
@@ -62,17 +63,9 @@ module Sepa
 
       case @command
       when :get_certificate
-        # Set the command
-        command = ar.at_css "Command"
-        command.content = "GetCertificate"
-
-        # Set the service
-        service = ar.at_css "Service"
-        service.content = "service"
-
-        # Set the content (paylod) of the renew certificate request after base64 encoding it
-        content = ar.at_css "Content"
-        content.content = Base64.encode64(@content)
+        set_node("Command", "GetCertificate")
+        set_node("Service", @service)
+        set_node("Content", Base64.encode64(@content))
 
       when :download_file_list
         set_node("Status", @status)

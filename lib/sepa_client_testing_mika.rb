@@ -15,6 +15,8 @@
 # puts process.get_debit_credit_notification_content("sepa/nordea_testing/response/content_054.xml")
 
 require 'sepa'
+private_key = OpenSSL::PKey::RSA.new(File.read("sepa/nordea_testing/keys/nordea.key"))
+cert = OpenSSL::X509::Certificate.new(File.read("sepa/nordea_testing/keys/nordea.crt"))
 
 # Test activation code
 activation_code = '1234567890'
@@ -25,10 +27,10 @@ payload = "pay me, im a load"
 # The params hash is populated with the data that is needed for gem to function
 params = {
   # Path for your own private key
-  private_key: 'sepa/nordea_testing/keys/nordea.key',
+  private_key: private_key,
 
   # Path to your certificate
-  cert: 'sepa/nordea_testing/keys/nordea.crt',
+  cert: cert,
 
   # Command :download_file_list, :upload_file, :download_file or :get_user_info
   #command: :get_service_certificates,
@@ -71,16 +73,7 @@ params = {
   # File reference for :download_file command
   # file_reference: "11111111A12006030329501800000014"
 }
-def test_should_validate_against_schema
-	@ar_file = Sepa::ApplicationRequest.new(@params)
-	@doc_file = Nokogiri::XML(Base64.decode64(@ar_file.get_as_base64))
-	@schemas_path = File.expand_path('../sepa/xml_schemas',__FILE__)
-    Dir.chdir(@schemas_path) do
-      xsd = Nokogiri::XML::Schema(IO.read('cert_application_request.xsd'))
-      assert xsd.valid?(@doc_file)
-    end
-end
-test_should_validate_against_schema
+
 # You just create the client with the parameters described above.
 sepa_client = Sepa::Client.new(params)
 
