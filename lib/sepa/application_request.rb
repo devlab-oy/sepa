@@ -1,16 +1,11 @@
-require 'nokogiri'
-require 'openssl'
-require 'base64'
-require 'time'
-
 module Sepa
   class ApplicationRequest
     def initialize(params)
-      @private_key = OpenSSL::PKey::RSA.new File.read params[:private_key]
-      @cert = OpenSSL::X509::Certificate.new File.read params[:cert]
-      @command = params[:command]
-      @customer_id = params[:customer_id]
-      @environment = params[:environment]
+      @private_key = params.fetch(:private_key)
+      @cert = params.fetch(:cert)
+      @command = params.fetch(:command)
+      @customer_id = params.fetch(:customer_id)
+      @environment = params.fetch(:environment)
       @status = params[:status]
       @target_id = params[:target_id]
       @file_type = params[:file_type]
@@ -18,58 +13,52 @@ module Sepa
       @file_reference = params[:file_reference]
     end
 
-    # Returns the application request in base64 encoded format
     def get_as_base64
-      ar = sign
-      Base64.encode64(ar.to_xml)
-    end
-
-    def get_as_xml
-      sign.to_xml
+      load_template(@command)
+      set_nodes_contents
+      process_signature
+      Base64.encode64(@ar.to_xml)
     end
 
     private
 
-    def load
-      # Selecting which application request template to load
-      case @command
+    # Loads the application request template according to the command
+    def load_template(command)
+      template_dir = File.expand_path('../xml_templates/application_request', __FILE__)
+
+      case command
+        
       when :get_service_certificates
-        path = File.expand_path('../xml_templates/application_request/renew_certificate.xml', __FILE__)
+        path = "#{template_dir}/renew_certificate.xml" #File.expand_path('../xml_templates/application_request/renew_certificate.xml', __FILE__)
       when :get_certificate
-        path = File.expand_path('../xml_templates/application_request/renew_certificate.xml', __FILE__)
+        path = "#{template_dir}/renew_certificate.xml"
+      when :download_file_list
+        path = "#{template_dir}/download_file_list.xml"
+      when :get_user_info
+        path = "#{template_dir}/get_user_info.xml"
+      when :upload_file
+        path = "#{template_dir}/upload_file.xml"
+      when :download_file
+        path = "#{template_dir}/download_file.xml"
       else
-        puts 'Could not load application request template because command was unrecognised.'
-        return nil
+        raise ArgumentError, 'Could not load application request template because command was
+        unrecognised.'
       end
 
-      f = File.open(path)
-      ar = Nokogiri::XML(f)
-      f.close
-
-      ar
+      @ar = Nokogiri::XML(File.open(path))
     end
 
-    def process
-      ar = load
+    def set_node(node, value)
+      @ar.at_css(node).content = value
+    end
 
-      #First the content that is common to all commands#
-      ##################################################
-
-      # Set the customer id of the application request
-      customer_id = ar.at_css "CustomerId"
-      customer_id.content = @customer_id
-
-      #Set the timestamp
-      timestamp = ar.at_css "Timestamp"
-      timestamp.content = Time.now.iso8601
-
-      # Set the environment
-      environment = ar.at_css "Environment"
-      environment.content = @environment
-
-      # Set the software id
-      softwareid = ar.at_css "SoftwareId"
-      softwareid.content = "Sepa Transfer Library version " + VERSION
+    # Set the nodes' contents according to the command
+    def set_nodes_contents
+      set_node("CustomerId", @customer_id)
+      set_node("Timestamp", Time.now.iso8601)
+      set_node("Environment", @environment)
+      set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
+      set_node("Command", @command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join)
 
       case @command
       when :get_certificate
@@ -86,101 +75,77 @@ module Sepa
         content.content = Base64.encode64(@content)
 
       when :download_file_list
-        # Set the command
-        command = ar.at_css "Command"
-        command.content = "DownloadFileList"
-
-        # Set the status
-        status = ar.at_css "Status"
-        status.content = @status
-
-        # Set the target id
-        targetid = ar.at_css "TargetId"
-        targetid.content = @target_id
-
-        # Set the file type
-        filetype = ar.at_css "FileType"
-        filetype.content = @file_type
-      when :get_user_info
-        command = ar.at_css "Command"
-        command.content = "GetUserInfo"
-      when :upload_file
-        command = ar.at_css "Command"
-        command.content = "UploadFile"
-
-        targetid = ar.at_css "TargetId"
-        targetid.content = @target_id
-
-        # Set the file type of the file to be uploaded
-        filetype = ar.at_css "FileType"
-        filetype.content = @file_type
-
-        # Set the content (paylod) of the application request after base64 encoding it
-        content = ar.at_css "Content"
-        content.content = Base64.encode64(@content)
+        set_node("Status", @status)
+        set_node("TargetId", @target_id)
+        set_node("FileType", @file_type)
       when :download_file
-        command = ar.at_css "Command"
-        command.content = "DownloadFile"
-
-        # Set status
-        status = ar.at_css "Status"
-        status.content = @status
-
-        targetid = ar.at_css "TargetId"
-        targetid.content = @target_id
-
-        # Set the filetype of the file to be downloaded
-        filetype = ar.at_css "FileType"
-        filetype.content = @file_type
-
-        # Reference number of the file to be downloaded
-        file_reference = ar.at_css "FileReference"
-        file_reference.content = @file_reference
-      else
-        puts 'Could not process application request because command was unrecognised.'
-        return nil
+        set_node("Status", @status)
+        set_node("TargetId", @target_id)
+        set_node("FileType", @file_type)
+        set_node("FileReference", @file_reference)
+      when :upload_file
+        set_node("Content", Base64.encode64(@content))
+        set_node("FileType", @file_type)
+        set_node("TargetId", @target_id)
       end
-
-      ar
     end
 
-    # Sign the whole application request using enveloped signature
-    def sign
-      ar = process
+    def remove_signature_node(doc)
+      doc.xpath(
+      "//dsig:Signature", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+      ).remove
+    end
 
-      #Remove signature element from application request for hashing
-      signature = ar.xpath("//dsig:Signature", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
-      signature.remove
+    def add_signature_node(doc, signature)
+      doc.root.add_child(signature)
+    end
 
-      #Take digest from application request
+    def take_digest(doc)
       sha1 = OpenSSL::Digest::SHA1.new
-      digestbin = sha1.digest(ar.canonicalize(mode=Nokogiri::XML::XML_C14N_1_0,inclusive_namespaces=nil,with_comments=false))
-      digest = Base64.encode64(digestbin)
+      Base64.encode64(sha1.digest(doc.canonicalize))
+    end
 
-      # Add the signature
-      ar.root.add_child(signature)
+    def add_digest(doc, digest)
+      doc.xpath(
+      ".//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+      ).first
+      .content = digest.gsub(/\s+/, "")
+    end
 
-      # Insert digest to correct place
-      ar_digest = ar.xpath(".//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-      ar_digest.content = digest.gsub(/\s+/, "")
+    def calculate_signature(node, private_key)
+      digest = OpenSSL::Digest::SHA1.new
+      signature = private_key.sign(digest, node.canonicalize)
+      Base64.encode64(signature).gsub(/\s+/, "")
+    end
 
-      # Sign Signed info element
-      signed_info = ar.xpath(".//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-      signed_info_canon = signed_info.canonicalize(mode=Nokogiri::XML::XML_C14N_1_0,inclusive_namespaces=nil,with_comments=false)
-      digest_sign = OpenSSL::Digest::SHA1.new
-      signed_info_signature = @private_key.sign(digest_sign, signed_info_canon)
-      signature_base64 = Base64.encode64(signed_info_signature)
+    def add_signature(doc, signature)
+      signature_node = doc
+      .xpath(".//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
+      .first
+      signature_node.content = signature
+    end
 
-      #Add the base64 coded signature to the signature element
-      signature_node = ar.xpath(".//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-      signature_node.content = signature_base64.gsub(/\s+/, "")
+    def add_certificate(doc, cert)
+      doc
+      .xpath(".//dsig:X509Certificate", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
+      .first
+      .content = cert
+      .to_s
+      .split('-----BEGIN CERTIFICATE-----')[1]
+      .split('-----END CERTIFICATE-----')[0]
+      .gsub(/\s+/, "")
+    end
 
-      #Format the certificate and add the it to the certificate element
-      cert_formatted = @cert.to_s.split('-----BEGIN CERTIFICATE-----')[1].split('-----END CERTIFICATE-----')[0].gsub(/\s+/, "")
-      cert_node = ar.xpath(".//dsig:X509Certificate", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-      cert_node.content = cert_formatted
-
-      ar
+    def process_signature
+      signature_node = remove_signature_node(@ar)
+      digest = take_digest(@ar)
+      add_signature_node(@ar, signature_node)
+      add_digest(@ar, digest)
+      signature = calculate_signature(
+      @ar.xpath(".//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first,
+      @private_key)
+      add_signature(@ar, signature)
+      add_certificate(@ar, @cert)
     end
   end
 end

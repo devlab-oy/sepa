@@ -371,4 +371,8 @@ class TestApplicationRequest < MiniTest::Unit::TestCase
       assert xsd.valid?(@doc_file)
     end
   end
+<<<<<<< HEAD
 end
+=======
+end
+>>>>>>> master
