@@ -5,7 +5,7 @@ module Sepa
       @cert = params.fetch(:cert)
       @command = params.fetch(:command)
       @customer_id = params.fetch(:customer_id)
-      @target_id = params[:target_id]
+      @target_id = params.fetch(:target_id)
       @ar = ApplicationRequest.new(params)
       @language = params[:language]
     end
