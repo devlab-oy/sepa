@@ -90,4 +90,12 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
     assert_equal language_node.content, @params[:language]
   end
+
+  def test_user_agent_is_set_correctly
+    user_agent_node =
+    @doc.xpath("//bxd:UserAgent", 'bxd' => 'http://model.bxd.fi').first
+
+    assert_equal user_agent_node.content,
+    "Sepa Transfer Library version " + Sepa::VERSION
+  end
 end
