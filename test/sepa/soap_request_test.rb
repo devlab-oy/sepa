@@ -2,6 +2,9 @@ require File.expand_path('../../test_helper.rb', __FILE__)
 
 class SoapRequestTest < MiniTest::Unit::TestCase
   def setup
+    @xml_templates_path = File.expand_path(
+    '../../../lib/sepa/xml_templates/soap', __FILE__)
+
     keys_path = File.expand_path('../nordea_test_keys', __FILE__)
 
     private_key = OpenSSL::PKey::RSA.new(File.read("#{keys_path}/nordea.key"))
@@ -25,6 +28,18 @@ class SoapRequestTest < MiniTest::Unit::TestCase
     @soap_request = Sepa::SoapRequest.new(@params)
 
     @doc = Nokogiri::XML(@soap_request.to_xml)
+  end
+
+  def test_get_user_info_template_is_unmodified
+    sha1 = OpenSSL::Digest::SHA1.new
+
+    get_user_info_template = File.read(
+    "#{@xml_templates_path}/get_user_info.xml")
+
+    get_user_info_digest = Base64.encode64(
+    sha1.digest(get_user_info_template)).strip
+
+    assert_equal get_user_info_digest, "D+jatiDWHRCKro5E14cfzwPKcBE="
   end
 
   def test_should_initialize_with_proper_params
