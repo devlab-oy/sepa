@@ -288,4 +288,13 @@ class SoapRequestTest < MiniTest::Unit::TestCase
       refute xsd.valid?(@doc)
     end
   end
+
+  def test_should_validate_against_ws_security_schema
+    Dir.chdir(@schemas_path) do
+      xsd = Nokogiri::XML::Schema(IO.read('oasis-200401-wss-wssecurity-secext-1.0.xsd'))
+      xsd.validate(@doc).each do |error|
+        puts error.message
+      end
+    end
+  end
 end
