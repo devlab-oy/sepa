@@ -118,4 +118,18 @@ class SoapRequestTest < MiniTest::Unit::TestCase
     assert ar_doc.respond_to?(:canonicalize)
     assert_equal ar_doc.at_css("CustomerId").content, @params[:customer_id]
   end
+
+  def test_cert_is_added_correctly
+    added_cert =
+    @doc.xpath("//wsse:BinarySecurityToken", 'wsse' => 'http://docs.oasis-' +
+    'open.org/wss/2004/01/oasis-200401-wss-wssecurity-' +
+    'secext-1.0.xsd').first.content
+
+    actual_cert = @params.fetch(:cert).to_s
+    actual_cert = actual_cert.split('-----BEGIN CERTIFICATE-----')[1]
+    actual_cert = actual_cert.split('-----END CERTIFICATE-----')[0]
+    actual_cert = actual_cert.gsub(/\s+/, "")
+
+    assert_equal added_cert, actual_cert
+  end
 end
