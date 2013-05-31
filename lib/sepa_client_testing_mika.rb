@@ -70,6 +70,8 @@ params = {
 
   activation_code: activation_code,
 
+  service: "service"
+
   # File reference for :download_file command
   # file_reference: "11111111A12006030329501800000014"
 }
