@@ -128,6 +128,38 @@ class SoapRequestTest < MiniTest::Unit::TestCase
     end
   end
 
+  def test_should_load_correct_template_with_download_file_list
+    @params[:command] = :download_file_list
+    doc = Nokogiri::XML(Sepa::SoapRequest.new(@params).to_xml)
+
+    assert doc.xpath('//cor:downloadFileListin', 'cor' =>
+      'http://bxd.fi/CorporateFileService').first
+  end
+
+  def test_should_load_correct_template_with_get_user_info
+    @params[:command] = :get_user_info
+    doc = Nokogiri::XML(Sepa::SoapRequest.new(@params).to_xml)
+
+    assert doc.xpath('//cor:getUserInfoin', 'cor' =>
+      'http://bxd.fi/CorporateFileService').first
+  end
+
+  def test_should_load_correct_template_with_download_file
+    @params[:command] = :download_file
+    doc = Nokogiri::XML(Sepa::SoapRequest.new(@params).to_xml)
+
+    assert doc.xpath('//cor:downloadFilein', 'cor' =>
+      'http://bxd.fi/CorporateFileService').first
+  end
+
+  def test_should_load_correct_template_with_upload_file
+    @params[:command] = :upload_file
+    doc = Nokogiri::XML(Sepa::SoapRequest.new(@params).to_xml)
+
+    assert doc.xpath('//cor:uploadFilein', 'cor' =>
+      'http://bxd.fi/CorporateFileService').first
+  end
+
   def test_sender_id_is_properly_set
     assert_equal @params[:customer_id],
     @doc.xpath("//bxd:SenderId", 'bxd' => 'http://model.bxd.fi').first.content
