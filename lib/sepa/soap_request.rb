@@ -11,16 +11,20 @@ module Sepa
     end
 
     def to_xml
-      load_body(@command)
-      set_node_contents
-      load_header_template
-      sign
-      @header.to_xml
+      construct_soap_request.to_xml
     end
 
     private
 
-      def load_body(command)
+      def construct_soap_request
+        load_body_template(@command)
+        set_body_contents
+        load_header_template
+        process_header
+        merge_header_and_body(@header, @body)
+      end
+
+      def load_body_template(command)
         # Selecting which soap request template to load
         case command
         when :download_file_list
@@ -45,8 +49,18 @@ module Sepa
         end
 
         body_template = File.open(path)
-        @soap = Nokogiri::XML(body_template)
+        @body = Nokogiri::XML(body_template)
         body_template.close
+      end
+
+      def set_body_contents
+        set_ar(@ar)
+        set_sender_id(@customer_id)
+        set_request_id
+        set_timestamp
+        set_language(@language)
+        set_user_agent("Sepa Transfer Library version " + VERSION)
+        set_receiver_id(@target_id)
       end
 
       def load_header_template
@@ -57,56 +71,55 @@ module Sepa
         header_template.close
       end
 
+      def process_header
+        add_header_created_timestamp
+        add_header_expires_timestamp (Time.now + 3600).iso8601
+        add_header_timestamps_digest(calculate_header_timestamps_digest)
+        add_soap_body_digest(calculate_soap_body_digest)
+        add_signature(calculate_signature(@private_key))
+        add_certificate(@cert)
+      end
+
       def set_ar(ar)
-        @soap.xpath(
+        @body.xpath(
           "//bxd:ApplicationRequest", 'bxd' => 'http://model.bxd.fi'
         ).first.content = ar.get_as_base64
       end
 
       def set_sender_id(sender_id)
-        @soap.xpath(
+        @body.xpath(
           "//bxd:SenderId", 'bxd' => 'http://model.bxd.fi'
         ).first.content = sender_id
       end
 
       def set_request_id
-        @soap.xpath(
+        @body.xpath(
           "//bxd:RequestId", 'bxd' => 'http://model.bxd.fi'
         ).first.content = SecureRandom.hex(17)
       end
 
       def set_timestamp
-        @soap.xpath(
+        @body.xpath(
           "//bxd:Timestamp", 'bxd' => 'http://model.bxd.fi'
         ).first.content = Time.now.iso8601
       end
 
       def set_language(language)
-        @soap.xpath(
+        @body.xpath(
           "//bxd:Language", 'bxd' => 'http://model.bxd.fi'
         ).first.content = language
       end
 
       def set_user_agent(user_agent)
-        @soap.xpath(
+        @body.xpath(
           "//bxd:UserAgent", 'bxd' => 'http://model.bxd.fi'
         ).first.content = user_agent
       end
 
       def set_receiver_id(receiver_id)
-        @soap.xpath(
+        @body.xpath(
           "//bxd:ReceiverId", 'bxd' => 'http://model.bxd.fi'
         ).first.content = receiver_id
-      end
-
-      def set_node_contents
-        set_ar(@ar)
-        set_sender_id(@customer_id)
-        set_request_id
-        set_timestamp
-        set_language(@language)
-        set_user_agent("Sepa Transfer Library version " + VERSION)
-        set_receiver_id(@target_id)
       end
 
       def add_header_created_timestamp
@@ -149,7 +162,7 @@ module Sepa
       def calculate_soap_body_digest
         sha1 = OpenSSL::Digest::SHA1.new
 
-        body = @soap.xpath(
+        body = @body.xpath(
           "//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/'
         ).first
 
@@ -173,12 +186,12 @@ module Sepa
 
         signed_info_node = @header.xpath(
           "//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
-          ).first
+        ).first
 
         canon_signed_info = signed_info_node.canonicalize(
           mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
           with_comments=false
-          )
+        )
 
         signature = private_key.sign(sha1, canon_signed_info)
 
@@ -188,7 +201,7 @@ module Sepa
       def add_signature(signature)
         @header.xpath(
           "//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
-          ).first.content = signature
+        ).first.content = signature
       end
 
       def add_certificate(cert)
@@ -200,25 +213,17 @@ module Sepa
         @header.xpath(
           "//wsse:BinarySecurityToken", 'wsse' => 'http://docs.oasis-open.org' \
           '/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
-          ).first.content = cert
+        ).first.content = cert
       end
 
       def merge_header_and_body(header, body)
         body = body.xpath(
           "//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/'
-          ).first
+        ).first
 
         header.root.add_child(body)
-      end
 
-      def sign
-        add_header_created_timestamp
-        add_header_expires_timestamp (Time.now + 3600).iso8601
-        add_header_timestamps_digest(calculate_header_timestamps_digest)
-        add_soap_body_digest(calculate_soap_body_digest)
-        add_signature(calculate_signature(@private_key))
-        add_certificate(@cert)
-        merge_header_and_body(@header, @soap)
+        header
       end
   end
 end
