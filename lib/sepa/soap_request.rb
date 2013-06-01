@@ -13,7 +13,9 @@ module Sepa
     def to_xml
       load_body(@command)
       set_node_contents
-      sign.to_xml
+      load_header_template
+      sign
+      @header.to_xml
     end
 
     private
@@ -51,9 +53,8 @@ module Sepa
         header_template = File.open(
           File.expand_path('../xml_templates/soap/header.xml', __FILE__)
         )
-        header = Nokogiri::XML(header_template)
+        @header = Nokogiri::XML(header_template)
         header_template.close
-        header
       end
 
       def set_ar(ar)
@@ -77,25 +78,25 @@ module Sepa
       def set_timestamp
         @soap.xpath(
           "//bxd:Timestamp", 'bxd' => 'http://model.bxd.fi'
-          ).first.content = Time.now.iso8601
+        ).first.content = Time.now.iso8601
       end
 
       def set_language(language)
         @soap.xpath(
           "//bxd:Language", 'bxd' => 'http://model.bxd.fi'
-          ).first.content = language
+        ).first.content = language
       end
 
       def set_user_agent(user_agent)
         @soap.xpath(
           "//bxd:UserAgent", 'bxd' => 'http://model.bxd.fi'
-          ).first.content = user_agent
+        ).first.content = user_agent
       end
 
       def set_receiver_id(receiver_id)
         @soap.xpath(
           "//bxd:ReceiverId", 'bxd' => 'http://model.bxd.fi'
-          ).first.content = receiver_id
+        ).first.content = receiver_id
       end
 
       def set_node_contents
@@ -108,53 +109,116 @@ module Sepa
         set_receiver_id(@target_id)
       end
 
-      # Sign the soap message body using detached signature
+      def add_header_created_timestamp
+        @header.xpath(
+          "//wsu:Created", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/o' \
+          'asis-200401-wss-wssecurity-utility-1.0.xsd'
+        ).first.content = Time.now.iso8601
+      end
+
+      def add_header_expires_timestamp(expiration_time)
+        @header.xpath(
+          "//wsu:Expires", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/o' \
+          'asis-200401-wss-wssecurity-utility-1.0.xsd'
+        ).first.content = expiration_time
+      end
+
+      def calculate_header_timestamps_digest
+        sha1 = OpenSSL::Digest::SHA1.new
+
+        timestamp_node = @header.xpath(
+          "//wsu:Timestamp", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01' \
+          '/oasis-200401-wss-wssecurity-utility-1.0.xsd'
+        ).first
+
+        canon_timestamp_node = timestamp_node.canonicalize(
+          mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
+          with_comments=false
+        )
+
+        Base64.encode64(sha1.digest(canon_timestamp_node)).gsub(/\s+/, "")
+      end
+
+      def add_header_timestamps_digest(digest)
+        @header.xpath(
+          "//dsig:Reference[@URI='#dsfg8sdg87dsf678g6dsg6ds7fg']/dsig:DigestV" \
+          "alue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+        ).first.content = digest
+      end
+
+      def calculate_soap_body_digest
+        sha1 = OpenSSL::Digest::SHA1.new
+
+        body = @soap.xpath(
+          "//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/'
+        ).first
+
+        canon_body = body.canonicalize(
+          mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
+          with_comments=false
+        )
+
+        Base64.encode64(sha1.digest(canon_body)).gsub(/\s+/, "")
+      end
+
+      def add_soap_body_digest(digest)
+        @header.xpath(
+          "//dsig:Reference[@URI='#sdf6sa7d86f87s6df786sd87f6s8fsda']/dsig:Di" \
+          "gestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+        ).first.content = digest
+      end
+
+      def calculate_signature(private_key)
+        sha1 = OpenSSL::Digest::SHA1.new
+
+        signed_info_node = @header.xpath(
+          "//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+          ).first
+
+        canon_signed_info = signed_info_node.canonicalize(
+          mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
+          with_comments=false
+          )
+
+        signature = private_key.sign(sha1, canon_signed_info)
+
+        Base64.encode64(signature).gsub(/\s+/, "")
+      end
+
+      def add_signature(signature)
+        @header.xpath(
+          "//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+          ).first.content = signature
+      end
+
+      def add_certificate(cert)
+        cert = cert.to_s
+        cert = cert.split('-----BEGIN CERTIFICATE-----')[1]
+        cert = cert.split('-----END CERTIFICATE-----')[0]
+        cert = cert.gsub(/\s+/, "")
+
+        @header.xpath(
+          "//wsse:BinarySecurityToken", 'wsse' => 'http://docs.oasis-open.org' \
+          '/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+          ).first.content = cert
+      end
+
+      def merge_header_and_body(header, body)
+        body = body.xpath(
+          "//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/'
+          ).first
+
+        header.root.add_child(body)
+      end
+
       def sign
-        header = load_header_template
-
-        # Add header timestamps
-        created_node = header.xpath("//wsu:Created", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
-        created_node.content = Time.now.iso8601
-        expires_node = header.xpath("//wsu:Expires", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
-        expires_node.content = (Time.now + 3600).iso8601
-
-        # Take digest from header timestamps
-        timestamp_node = header.xpath("//wsu:Timestamp", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
-        sha1 = OpenSSL::Digest::SHA1.new
-        digestbin = sha1.digest(timestamp_node.canonicalize(mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,with_comments=false))
-        digest = Base64.encode64(digestbin)
-        timestamp_digest_node = header.xpath("//dsig:Reference[@URI='#dsfg8sdg87dsf678g6dsg6ds7fg']/dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-        timestamp_digest_node.content = digest.gsub(/\s+/, "")
-
-        # Take digest from soap request body, base64 code it and put it to the signature
-        body = @soap.xpath("//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/').first
-        canonbody = body.canonicalize(mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,with_comments=false)
-        sha1 = OpenSSL::Digest::SHA1.new
-        digestbin = sha1.digest(canonbody)
-        digest = Base64.encode64(digestbin)
-        body_digest_node = header.xpath("//dsig:Reference[@URI='#sdf6sa7d86f87s6df786sd87f6s8fsda']/dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-        body_digest_node.content = digest.gsub(/\s+/, "")
-
-        # Sign SignedInfo element with private key and add it to the correct field
-        signed_info_node = header.xpath("//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-        canon_signed_info = signed_info_node.canonicalize(mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,with_comments=false)
-        digest_sign = OpenSSL::Digest::SHA1.new
-        signature = @private_key.sign(digest_sign, canon_signed_info)
-        signature_base64 = Base64.encode64(signature).gsub(/\s+/, "")
-
-        # Add the base64 coded signature to the signature element
-        signature_node = header.xpath("//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-        signature_node.content = signature_base64
-
-        # Format the certificate and add the it to the certificate element
-        cert_formatted = @cert.to_s.split('-----BEGIN CERTIFICATE-----')[1].split('-----END CERTIFICATE-----')[0].gsub(/\s+/, "")
-        cert_node = header.xpath("//wsse:BinarySecurityToken", 'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd').first
-        cert_node.content = cert_formatted
-
-        # Merge the header and body
-        header.root.add_child(@soap.xpath("//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/').first)
-
-        header
+        add_header_created_timestamp
+        add_header_expires_timestamp (Time.now + 3600).iso8601
+        add_header_timestamps_digest(calculate_header_timestamps_digest)
+        add_soap_body_digest(calculate_soap_body_digest)
+        add_signature(calculate_signature(@private_key))
+        add_certificate(@cert)
+        merge_header_and_body(@header, @soap)
       end
   end
 end
