@@ -165,7 +165,7 @@ class SoapRequestTest < MiniTest::Unit::TestCase
   def test_should_raise_error_if_unrecognised_command
     @params[:command] = :wrong_command
 
-    assert_raises(LoadError) do
+    assert_raises(ArgumentError) do
       soap = Sepa::SoapRequest.new(@params)
       soap.to_xml
     end
