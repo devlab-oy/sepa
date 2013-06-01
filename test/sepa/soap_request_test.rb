@@ -5,12 +5,14 @@ class SoapRequestTest < MiniTest::Unit::TestCase
     @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)
 
     @xml_templates_path = File.expand_path(
-    '../../../lib/sepa/xml_templates/soap', __FILE__)
+      '../../../lib/sepa/xml_templates/soap',
+      __FILE__
+    )
 
     keys_path = File.expand_path('../nordea_test_keys', __FILE__)
 
-    private_key = OpenSSL::PKey::RSA.new(File.read("#{keys_path}/nordea.key"))
-    cert = OpenSSL::X509::Certificate.new(File.read("#{keys_path}/nordea.crt"))
+    private_key = OpenSSL::PKey::RSA.new File.read "#{keys_path}/nordea.key"
+    cert = OpenSSL::X509::Certificate.new File.read "#{keys_path}/nordea.crt"
 
     @params = {
       private_key: private_key,
@@ -34,9 +36,7 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
   def test_get_user_info_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
-
     template = File.read("#{@xml_templates_path}/get_user_info.xml")
-
     digest = Base64.encode64(sha1.digest(template)).strip
 
     assert_equal digest, "D+jatiDWHRCKro5E14cfzwPKcBE="
@@ -44,9 +44,7 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
   def test_download_file_list_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
-
     template = File.read("#{@xml_templates_path}/download_file_list.xml")
-
     digest = Base64.encode64(sha1.digest(template)).strip
 
     assert_equal digest, "Xulym3UQiwUXMyaOu8RCCvJIjeY="
@@ -54,9 +52,7 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
   def test_download_file_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
-
     template = File.read("#{@xml_templates_path}/download_file.xml")
-
     digest = Base64.encode64(sha1.digest(template)).strip
 
     assert_equal digest, "eKy22p3HkrBcOCsyhd2zhVz0uTA="
@@ -64,9 +60,7 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
   def test_upload_file_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
-
     template = File.read("#{@xml_templates_path}/upload_file.xml")
-
     digest = Base64.encode64(sha1.digest(template)).strip
 
     assert_equal digest, "DDeIBq4WY7N0Hql4hK+xOeBkP18="
@@ -74,9 +68,7 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
   def test_header_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
-
     template = File.read("#{@xml_templates_path}/header.xml")
-
     digest = Base64.encode64(sha1.digest(template)).strip
 
     assert_equal digest, "Hv8Av1pPApRx9wLnCKjewO3ZsQ4="
@@ -88,6 +80,7 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
   def test_should_get_error_if_private_key_missing
     @params.delete(:private_key)
+
     assert_raises(KeyError) do
       Sepa::SoapRequest.new(@params)
     end
@@ -95,6 +88,7 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
   def test_should_get_error_if_cert_missing
     @params.delete(:cert)
+
     assert_raises(KeyError) do
       Sepa::SoapRequest.new(@params)
     end
@@ -102,6 +96,7 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
   def test_should_get_error_if_command_missing
     @params.delete(:command)
+
     assert_raises(KeyError) do
       Sepa::SoapRequest.new(@params)
     end
@@ -109,6 +104,7 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
   def test_should_get_error_if_customer_id_missing
     @params.delete(:customer_id)
+
     assert_raises(KeyError) do
       Sepa::SoapRequest.new(@params)
     end
@@ -116,6 +112,7 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
   def test_should_get_error_if_target_id_missing
     @params.delete(:target_id)
+
     assert_raises(KeyError) do
       Sepa::SoapRequest.new(@params)
     end
@@ -123,6 +120,7 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
   def test_should_get_error_if_language_missing
     @params.delete(:language)
+
     assert_raises(KeyError) do
       Sepa::SoapRequest.new(@params)
     end
@@ -132,24 +130,27 @@ class SoapRequestTest < MiniTest::Unit::TestCase
     @params[:command] = :download_file_list
     doc = Nokogiri::XML(Sepa::SoapRequest.new(@params).to_xml)
 
-    assert doc.xpath('//cor:downloadFileListin', 'cor' =>
-                     'http://bxd.fi/CorporateFileService').first
+    assert doc.xpath(
+      '//cor:downloadFileListin', 'cor' => 'http://bxd.fi/CorporateFileService'
+    ).first
   end
 
   def test_should_load_correct_template_with_get_user_info
     @params[:command] = :get_user_info
     doc = Nokogiri::XML(Sepa::SoapRequest.new(@params).to_xml)
 
-    assert doc.xpath('//cor:getUserInfoin', 'cor' =>
-                     'http://bxd.fi/CorporateFileService').first
+    assert doc.xpath(
+      '//cor:getUserInfoin', 'cor' => 'http://bxd.fi/CorporateFileService'
+    ).first
   end
 
   def test_should_load_correct_template_with_download_file
     @params[:command] = :download_file
     doc = Nokogiri::XML(Sepa::SoapRequest.new(@params).to_xml)
 
-    assert doc.xpath('//cor:downloadFilein', 'cor' =>
-                     'http://bxd.fi/CorporateFileService').first
+    assert doc.xpath(
+      '//cor:downloadFilein', 'cor' => 'http://bxd.fi/CorporateFileService'
+    ).first
   end
 
   def test_should_load_correct_template_with_upload_file
@@ -170,16 +171,18 @@ class SoapRequestTest < MiniTest::Unit::TestCase
   # the length is 30 characters because 35 is the max that can be set
   # according to the schema and Securerandom can generate only some int times 2
   def test_request_id_is_properly_set
-    request_id_node = @doc.xpath("//bxd:RequestId", 'bxd' =>
-                                 'http://model.bxd.fi').first
+    request_id_node = @doc.xpath(
+      "//bxd:RequestId", 'bxd' => 'http://model.bxd.fi'
+    ).first
 
     assert request_id_node.content =~ /^[0-9A-F]+$/i
     assert_equal request_id_node.content.length, 34
   end
 
   def test_timestamp_is_set_correctly
-    timestamp_node = @doc.xpath("//bxd:Timestamp", 'bxd' =>
-                                'http://model.bxd.fi').first
+    timestamp_node = @doc.xpath(
+      "//bxd:Timestamp", 'bxd' => 'http://model.bxd.fi'
+    ).first
 
     timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
 
@@ -187,15 +190,17 @@ class SoapRequestTest < MiniTest::Unit::TestCase
   end
 
   def test_language_is_set_correctly
-    language_node = @doc.xpath("//bxd:Language", 'bxd' =>
-                               'http://model.bxd.fi').first
+    language_node = @doc.xpath(
+      "//bxd:Language", 'bxd' => 'http://model.bxd.fi'
+    ).first
 
     assert_equal language_node.content, @params[:language]
   end
 
   def test_user_agent_is_set_correctly
-    user_agent_node = @doc.xpath("//bxd:UserAgent", 'bxd' =>
-                                 'http://model.bxd.fi').first
+    user_agent_node = @doc.xpath(
+      "//bxd:UserAgent", 'bxd' => 'http://model.bxd.fi'
+    ).first
 
     assert_equal user_agent_node.content,
       "Sepa Transfer Library version " + Sepa::VERSION
@@ -203,8 +208,9 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
   # I'm quite sure that receiver id and target is are the same
   def test_receiver_is_is_set_correctly
-    receiver_id_node = @doc.xpath("//bxd:ReceiverId", 'bxd' =>
-                                  'http://model.bxd.fi').first
+    receiver_id_node = @doc.xpath(
+      "//bxd:ReceiverId", 'bxd' => 'http://model.bxd.fi'
+    ).first
 
     assert_equal receiver_id_node.content, @params[:target_id]
   end
@@ -212,8 +218,9 @@ class SoapRequestTest < MiniTest::Unit::TestCase
   # Just test that the content of application request is a base64 encoded xml
   # document and that it's customer is matches the one provided in the params
   def test_application_request_should_be_inserted_properly
-    ar_node = @doc.xpath("//bxd:ApplicationRequest", 'bxd' =>
-                         'http://model.bxd.fi').first
+    ar_node = @doc.xpath(
+      "//bxd:ApplicationRequest", 'bxd' => 'http://model.bxd.fi'
+    ).first
 
     ar_doc = Nokogiri::XML(Base64.decode64(ar_node.content))
 
@@ -296,7 +303,8 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
     timestamp_node = timestamp_node.canonicalize(
       mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
-    with_comments=false)
+      with_comments=false
+    )
 
     actual_digest = Base64.encode64(sha1.digest(timestamp_node)).strip
 
@@ -317,10 +325,12 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
     signed_info_node = signed_info_node.canonicalize(
       mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
-    with_comments=false)
+      with_comments=false
+    )
 
     actual_signature = Base64.encode64(
-    private_key.sign(sha1, signed_info_node)).gsub(/\s+/, "")
+      private_key.sign(sha1, signed_info_node)
+    ).gsub(/\s+/, "")
 
     assert_equal actual_signature, added_signature
   end
