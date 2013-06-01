@@ -162,6 +162,15 @@ class SoapRequestTest < MiniTest::Unit::TestCase
     ).first
   end
 
+  def test_should_raise_error_if_unrecognised_command
+    @params[:command] = :wrong_command
+
+    assert_raises(ArgumentError) do
+      soap = Sepa::SoapRequest.new(@params)
+      soap.to_xml
+    end
+  end
+
   def test_sender_id_is_properly_set
     assert_equal @params[:customer_id],
       @doc.xpath("//bxd:SenderId", 'bxd' => 'http://model.bxd.fi').first.content
