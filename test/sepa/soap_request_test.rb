@@ -39,7 +39,7 @@ class SoapRequestTest < MiniTest::Unit::TestCase
     template = File.read("#{@xml_templates_path}/get_user_info.xml")
     digest = Base64.encode64(sha1.digest(template)).strip
 
-    assert_equal digest, "D+jatiDWHRCKro5E14cfzwPKcBE="
+    assert_equal digest, "A1UYZTOycIBHAY/70Q5G3lNjQBo="
   end
 
   def test_download_file_list_template_is_unmodified
@@ -47,7 +47,7 @@ class SoapRequestTest < MiniTest::Unit::TestCase
     template = File.read("#{@xml_templates_path}/download_file_list.xml")
     digest = Base64.encode64(sha1.digest(template)).strip
 
-    assert_equal digest, "Xulym3UQiwUXMyaOu8RCCvJIjeY="
+    assert_equal digest, "+3UaQMgseUUn5OKUp/PTHl/BNFE="
   end
 
   def test_download_file_template_is_unmodified
@@ -55,7 +55,7 @@ class SoapRequestTest < MiniTest::Unit::TestCase
     template = File.read("#{@xml_templates_path}/download_file.xml")
     digest = Base64.encode64(sha1.digest(template)).strip
 
-    assert_equal digest, "eKy22p3HkrBcOCsyhd2zhVz0uTA="
+    assert_equal digest, "HSWQCmwOsMdPJP3erjksi/Sz7hE="
   end
 
   def test_upload_file_template_is_unmodified
@@ -63,7 +63,7 @@ class SoapRequestTest < MiniTest::Unit::TestCase
     template = File.read("#{@xml_templates_path}/upload_file.xml")
     digest = Base64.encode64(sha1.digest(template)).strip
 
-    assert_equal digest, "DDeIBq4WY7N0Hql4hK+xOeBkP18="
+    assert_equal digest, "hdbglkugI1pzkeetqKIh2WBDkFM="
   end
 
   def test_header_template_is_unmodified

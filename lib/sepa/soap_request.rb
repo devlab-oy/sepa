@@ -91,10 +91,11 @@ module Sepa
         add_certificate(cert)
       end
 
+      def set_node()
+      end
+
       def set_ar(ar)
-        @body.xpath(
-          "//bxd:ApplicationRequest", 'bxd' => 'http://model.bxd.fi'
-        ).first.content = ar
+          @body.at_css('bxd|ApplicationRequest').content = ar
       end
 
       def set_sender_id(sender_id)
