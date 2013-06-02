@@ -1,132 +1,238 @@
 module Sepa
   class SoapRequest
     def initialize(params)
-      @private_key = OpenSSL::PKey::RSA.new File.read params[:private_key]
-      @cert = OpenSSL::X509::Certificate.new File.read params[:cert]
-      @command = params[:command]
-      @customer_id = params[:customer_id]
-      @target_id = params[:target_id]
-      @ar = ApplicationRequest.new(params)
-      @language = params[:language]
+      @private_key = params.fetch(:private_key)
+      @cert = params.fetch(:cert)
+      @command = params.fetch(:command)
+      @sender_id = params.fetch(:customer_id)
+      @receiver_id = params.fetch(:target_id)
+      @ar = ApplicationRequest.new(params).get_as_base64
+      @language = params.fetch(:language)
     end
 
     def to_xml
-      sign.to_xml
+      construct_soap_request(@command, @ar, @sender_id, @language, @receiver_id,
+                             @private_key, @cert
+                             ).to_xml
     end
 
-    def load_body
-      # Selecting which soap request template to load
-      case @command
-      when :download_file_list
-        path = File.expand_path('../xml_templates/soap/download_file_list.xml', __FILE__)
-      when :get_user_info
-        path = File.expand_path('../xml_templates/soap/get_user_info.xml', __FILE__)
-      when :upload_file
-        path = File.expand_path('../xml_templates/soap/upload_file.xml', __FILE__)
-      when :download_file
-        path = File.expand_path('../xml_templates/soap/download_file.xml', __FILE__)
-      else
-        puts 'Could not load soap request template because command was unrecognised.'
-        return nil
+    private
+
+      def construct_soap_request(command, ar, sender_id, language, receiver_id,
+                                 private_key, cert)
+        body = load_body_template(command)
+        set_body_contents(body, ar, sender_id, language, receiver_id)
+
+        header = load_header_template
+        process_header(header, body, private_key, cert)
+
+        merge_header_and_body(header, body)
       end
 
-      f = File.open(path)
-      soap = Nokogiri::XML(f)
-      f.close
+      def load_body_template(command)
+        case command
+        when :download_file_list
+          path = File.expand_path(
+            '../xml_templates/soap/download_file_list.xml', __FILE__
+          )
+        when :get_user_info
+          path = File.expand_path(
+            '../xml_templates/soap/get_user_info.xml', __FILE__
+          )
+        when :upload_file
+          path = File.expand_path(
+            '../xml_templates/soap/upload_file.xml', __FILE__
+          )
+        when :download_file
+          path = File.expand_path(
+            '../xml_templates/soap/download_file.xml', __FILE__
+          )
+        else
+          raise LoadError, "Could not load soap request template because the" \
+            "command was unrecognised"
+        end
 
-      soap
-    end
+        body_template = File.open(path)
+        body = Nokogiri::XML(body_template)
+        body_template.close
 
-    # Loading the soap header
-    def load_header
-      f = File.open(File.expand_path('../xml_templates/soap/header.xml', __FILE__))
-      header = Nokogiri::XML(f)
-      f.close
+        body
+      end
 
-      header
-    end
+      def set_body_contents(body, ar, sender_id, language, receiver_id)
+        set_ar(body, ar)
+        set_sender_id(body, sender_id)
+        set_request_id(body)
+        set_timestamp(body)
+        set_language(body, language)
+        set_user_agent(body, "Sepa Transfer Library version " + VERSION)
+        set_receiver_id(body, receiver_id)
+      end
 
-    def process
-      soap = load_body
-      #Add the base64 coded application request to the soap envelope
-      ar_node = soap.xpath("//bxd:ApplicationRequest", 'bxd' => 'http://model.bxd.fi').first
-      ar_node.content = @ar.get_as_base64
+      def load_header_template
+        header_template = File.open(
+          File.expand_path('../xml_templates/soap/header.xml', __FILE__)
+        )
+        header = Nokogiri::XML(header_template)
+        header_template.close
+        header
+      end
 
-      # Set the customer id
-      sender_id_node = soap.xpath("//bxd:SenderId", 'bxd' => 'http://model.bxd.fi').first
-      sender_id_node.content = @customer_id
+      def process_header(header, body, private_key, cert)
+        add_header_created_timestamp(header)
+        add_header_expires_timestamp(header, (Time.now + 3600).iso8601)
+        add_header_timestamps_digest(
+          header,
+        calculate_header_timestamps_digest(header))
+        add_soap_body_digest(header, calculate_soap_body_digest(body))
+        add_signature(header, calculate_signature(header, private_key))
+        add_certificate(header, cert)
+      end
 
-      # Set the request id, a random 35 digit hex number
-      request_id_node = soap.xpath("//bxd:RequestId", 'bxd' => 'http://model.bxd.fi').first
-      request_id_node.content = SecureRandom.hex(35)
+      def set_ar(body, ar)
+        body.xpath(
+          "//bxd:ApplicationRequest", 'bxd' => 'http://model.bxd.fi'
+        ).first.content = ar
+      end
 
-      # Add timestamp
-      timestamp_node = soap.xpath("//bxd:Timestamp", 'bxd' => 'http://model.bxd.fi').first
-      timestamp_node.content = Time.now.iso8601
+      def set_sender_id(body, sender_id)
+        body.xpath(
+          "//bxd:SenderId", 'bxd' => 'http://model.bxd.fi'
+        ).first.content = sender_id
+      end
 
-      # Add language
-      language_node = soap.xpath("//bxd:Language", 'bxd' => 'http://model.bxd.fi').first
-      language_node.content = @language
+      def set_request_id(body)
+        body.xpath(
+          "//bxd:RequestId", 'bxd' => 'http://model.bxd.fi'
+        ).first.content = SecureRandom.hex(17)
+      end
 
-      # Add useragent
-      useragent_node = soap.xpath("//bxd:UserAgent", 'bxd' => 'http://model.bxd.fi').first
-      useragent_node.content = "Sepa Transfer Library version " + VERSION
+      def set_timestamp(body)
+        body.xpath(
+          "//bxd:Timestamp", 'bxd' => 'http://model.bxd.fi'
+        ).first.content = Time.now.iso8601
+      end
 
-      # Add receiver id
-      receiverid_node = soap.xpath("//bxd:ReceiverId", 'bxd' => 'http://model.bxd.fi').first
-      receiverid_node.content = @target_id
+      def set_language(body, language)
+        body.xpath(
+          "//bxd:Language", 'bxd' => 'http://model.bxd.fi'
+        ).first.content = language
+      end
 
-      soap
-    end
+      def set_user_agent(body, user_agent)
+        body.xpath(
+          "//bxd:UserAgent", 'bxd' => 'http://model.bxd.fi'
+        ).first.content = user_agent
+      end
 
-    # Sign the soap message body using detached signature
-    def sign
-      soap = process
-      header = load_header
+      def set_receiver_id(body, receiver_id)
+        body.xpath(
+          "//bxd:ReceiverId", 'bxd' => 'http://model.bxd.fi'
+        ).first.content = receiver_id
+      end
 
-      # Add header timestamps
-      created_node = header.xpath("//wsu:Created", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
-      created_node.content = Time.now.iso8601
-      expires_node = header.xpath("//wsu:Expires", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
-      expires_node.content = (Time.now + 3600).iso8601
+      def add_header_created_timestamp(header)
+        header.xpath(
+          "//wsu:Created", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/o' \
+          'asis-200401-wss-wssecurity-utility-1.0.xsd'
+        ).first.content = Time.now.iso8601
+      end
 
-      # Take digest from header timestamps
-      timestamp_node = header.xpath("//wsu:Timestamp", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd').first
-      sha1 = OpenSSL::Digest::SHA1.new
-      digestbin = sha1.digest(timestamp_node.canonicalize(mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,with_comments=false))
-      digest = Base64.encode64(digestbin)
-      timestamp_digest_node = header.xpath("//dsig:Reference[@URI='#dsfg8sdg87dsf678g6dsg6ds7fg']/dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-      timestamp_digest_node.content = digest.gsub(/\s+/, "")
+      def add_header_expires_timestamp(header, expiration_time)
+        header.xpath(
+          "//wsu:Expires", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/o' \
+          'asis-200401-wss-wssecurity-utility-1.0.xsd'
+        ).first.content = expiration_time
+      end
 
-      # Take digest from soap request body, base64 code it and put it to the signature
-      body = soap.xpath("//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/').first
-      canonbody = body.canonicalize(mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,with_comments=false)
-      sha1 = OpenSSL::Digest::SHA1.new
-      digestbin = sha1.digest(canonbody)
-      digest = Base64.encode64(digestbin)
-      body_digest_node = header.xpath("//dsig:Reference[@URI='#sdf6sa7d86f87s6df786sd87f6s8fsda']/dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-      body_digest_node.content = digest.gsub(/\s+/, "")
+      def calculate_header_timestamps_digest(header)
+        sha1 = OpenSSL::Digest::SHA1.new
 
-      # Sign SignedInfo element with private key and add it to the correct field
-      signed_info_node = header.xpath("//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-      canon_signed_info = signed_info_node.canonicalize(mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,with_comments=false)
-      digest_sign = OpenSSL::Digest::SHA1.new
-      signature = @private_key.sign(digest_sign, canon_signed_info)
-      signature_base64 = Base64.encode64(signature).gsub(/\s+/, "")
+        timestamp_node = header.xpath(
+          "//wsu:Timestamp", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01' \
+          '/oasis-200401-wss-wssecurity-utility-1.0.xsd'
+        ).first
 
-      # Add the base64 coded signature to the signature element
-      signature_node = header.xpath("//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-      signature_node.content = signature_base64
+        canon_timestamp_node = timestamp_node.canonicalize(
+          mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
+          with_comments=false
+        )
 
-      # Format the certificate and add the it to the certificate element
-      cert_formatted = @cert.to_s.split('-----BEGIN CERTIFICATE-----')[1].split('-----END CERTIFICATE-----')[0].gsub(/\s+/, "")
-      cert_node = header.xpath("//wsse:BinarySecurityToken", 'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd').first
-      cert_node.content = cert_formatted
+        Base64.encode64(sha1.digest(canon_timestamp_node)).gsub(/\s+/, "")
+      end
 
-      # Merge the header and body
-      header.root.add_child(soap.xpath("//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/').first)
+      def add_header_timestamps_digest(header, digest)
+        header.xpath(
+          "//dsig:Reference[@URI='#dsfg8sdg87dsf678g6dsg6ds7fg']/dsig:DigestV" \
+          "alue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+        ).first.content = digest
+      end
 
-      header
-    end
+      def calculate_soap_body_digest(body)
+        sha1 = OpenSSL::Digest::SHA1.new
+
+        body = body.xpath(
+          "//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/'
+        ).first
+
+        canon_body = body.canonicalize(
+          mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
+          with_comments=false
+        )
+
+        Base64.encode64(sha1.digest(canon_body)).gsub(/\s+/, "")
+      end
+
+      def add_soap_body_digest(header, digest)
+        header.xpath(
+          "//dsig:Reference[@URI='#sdf6sa7d86f87s6df786sd87f6s8fsda']/dsig:Di" \
+          "gestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+        ).first.content = digest
+      end
+
+      def calculate_signature(header, private_key)
+        sha1 = OpenSSL::Digest::SHA1.new
+
+        signed_info_node = header.xpath(
+          "//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+        ).first
+
+        canon_signed_info = signed_info_node.canonicalize(
+          mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
+          with_comments=false
+        )
+
+        signature = private_key.sign(sha1, canon_signed_info)
+
+        Base64.encode64(signature).gsub(/\s+/, "")
+      end
+
+      def add_signature(header, signature)
+        header.xpath(
+          "//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+        ).first.content = signature
+      end
+
+      def add_certificate(header, cert)
+        cert = cert.to_s
+        cert = cert.split('-----BEGIN CERTIFICATE-----')[1]
+        cert = cert.split('-----END CERTIFICATE-----')[0]
+        cert = cert.gsub(/\s+/, "")
+
+        header.xpath(
+          "//wsse:BinarySecurityToken", 'wsse' => 'http://docs.oasis-open.org' \
+          '/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+        ).first.content = cert
+      end
+
+      def merge_header_and_body(header, body)
+        body = body.xpath(
+          "//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/'
+        ).first
+
+        header.root.add_child(body)
+
+        header
+      end
   end
 end
