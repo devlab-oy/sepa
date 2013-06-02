@@ -71,7 +71,7 @@ class SoapRequestTest < MiniTest::Unit::TestCase
     template = File.read("#{@xml_templates_path}/header.xml")
     digest = Base64.encode64(sha1.digest(template)).strip
 
-    assert_equal digest, "Hv8Av1pPApRx9wLnCKjewO3ZsQ4="
+    assert_equal digest, "W6TTO6gmlVDssKeZJYsxiJebs6Q="
   end
 
   def test_should_initialize_with_proper_params
