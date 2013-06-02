@@ -7,26 +7,30 @@ module Sepa
       @sender_id = params.fetch(:customer_id)
       @receiver_id = params.fetch(:target_id)
       @ar = ApplicationRequest.new(params).get_as_base64
-      @language = params.fetch(:language)
+      @lang = params.fetch(:language)
+
+      @body = load_body_template(@command)
+      @header = load_header_template
     end
 
     def to_xml
-      construct_soap_request(@command, @ar, @sender_id, @language, @receiver_id,
-                             @private_key, @cert
-                             ).to_xml
+      construct(
+        @command,
+        @ar,
+        @sender_id,
+        @lang,
+        @receiver_id,
+        @private_key,
+        @cert
+      ).to_xml
     end
 
     private
 
-      def construct_soap_request(command, ar, sender_id, language, receiver_id,
-                                 private_key, cert)
-        body = load_body_template(command)
-        set_body_contents(body, ar, sender_id, language, receiver_id)
-
-        header = load_header_template
-        process_header(header, body, private_key, cert)
-
-        merge_header_and_body(header, body)
+      def construct(command, ar, sender_id, lang, receiver_id, private_key, cert)
+        set_body_contents(ar, sender_id, lang, receiver_id)
+        process_header(private_key, cert)
+        merge_header_and_body(@header, @body)
       end
 
       def load_body_template(command)
@@ -59,14 +63,14 @@ module Sepa
         body
       end
 
-      def set_body_contents(body, ar, sender_id, language, receiver_id)
-        set_ar(body, ar)
-        set_sender_id(body, sender_id)
-        set_request_id(body)
-        set_timestamp(body)
-        set_language(body, language)
-        set_user_agent(body, "Sepa Transfer Library version " + VERSION)
-        set_receiver_id(body, receiver_id)
+      def set_body_contents(ar, sender_id, lang, receiver_id)
+        set_ar(ar)
+        set_sender_id(sender_id)
+        set_request_id(SecureRandom.hex(17))
+        set_timestamp(Time.now.iso8601)
+        set_lang(lang)
+        set_user_agent("Sepa Transfer Library version " + VERSION)
+        set_receiver_id(receiver_id)
       end
 
       def load_header_template
@@ -78,77 +82,75 @@ module Sepa
         header
       end
 
-      def process_header(header, body, private_key, cert)
-        add_header_created_timestamp(header)
-        add_header_expires_timestamp(header, (Time.now + 3600).iso8601)
-        add_header_timestamps_digest(
-          header,
-        calculate_header_timestamps_digest(header))
-        add_soap_body_digest(header, calculate_soap_body_digest(body))
-        add_signature(header, calculate_signature(header, private_key))
-        add_certificate(header, cert)
+      def process_header(private_key, cert)
+        add_header_created_timestamp(Time.now.iso8601)
+        add_header_expires_timestamp((Time.now + 3600).iso8601)
+        add_header_timestamps_digest(calculate_header_timestamps_digest)
+        add_soap_body_digest(calculate_soap_body_digest)
+        add_signature(calculate_signature(private_key))
+        add_certificate(cert)
       end
 
-      def set_ar(body, ar)
-        body.xpath(
+      def set_ar(ar)
+        @body.xpath(
           "//bxd:ApplicationRequest", 'bxd' => 'http://model.bxd.fi'
         ).first.content = ar
       end
 
-      def set_sender_id(body, sender_id)
-        body.xpath(
+      def set_sender_id(sender_id)
+        @body.xpath(
           "//bxd:SenderId", 'bxd' => 'http://model.bxd.fi'
         ).first.content = sender_id
       end
 
-      def set_request_id(body)
-        body.xpath(
+      def set_request_id(request_id)
+        @body.xpath(
           "//bxd:RequestId", 'bxd' => 'http://model.bxd.fi'
-        ).first.content = SecureRandom.hex(17)
+        ).first.content = request_id
       end
 
-      def set_timestamp(body)
-        body.xpath(
+      def set_timestamp(timestamp)
+        @body.xpath(
           "//bxd:Timestamp", 'bxd' => 'http://model.bxd.fi'
-        ).first.content = Time.now.iso8601
+        ).first.content = timestamp
       end
 
-      def set_language(body, language)
-        body.xpath(
+      def set_lang(lang)
+        @body.xpath(
           "//bxd:Language", 'bxd' => 'http://model.bxd.fi'
-        ).first.content = language
+        ).first.content = lang
       end
 
-      def set_user_agent(body, user_agent)
-        body.xpath(
+      def set_user_agent(user_agent)
+        @body.xpath(
           "//bxd:UserAgent", 'bxd' => 'http://model.bxd.fi'
         ).first.content = user_agent
       end
 
-      def set_receiver_id(body, receiver_id)
-        body.xpath(
+      def set_receiver_id(receiver_id)
+        @body.xpath(
           "//bxd:ReceiverId", 'bxd' => 'http://model.bxd.fi'
         ).first.content = receiver_id
       end
 
-      def add_header_created_timestamp(header)
-        header.xpath(
+      def add_header_created_timestamp(timestamp)
+        @header.xpath(
           "//wsu:Created", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/o' \
           'asis-200401-wss-wssecurity-utility-1.0.xsd'
-        ).first.content = Time.now.iso8601
+        ).first.content = timestamp
       end
 
-      def add_header_expires_timestamp(header, expiration_time)
-        header.xpath(
+      def add_header_expires_timestamp(expiration_time)
+        @header.xpath(
           "//wsu:Expires", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/o' \
           'asis-200401-wss-wssecurity-utility-1.0.xsd'
         ).first.content = expiration_time
       end
 
-      def calculate_header_timestamps_digest(header)
+      def calculate_header_timestamps_digest
         sha1 = OpenSSL::Digest::SHA1.new
 
-        timestamp_node = header.xpath(
+        timestamp_node = @header.xpath(
           "//wsu:Timestamp", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01' \
           '/oasis-200401-wss-wssecurity-utility-1.0.xsd'
         ).first
@@ -161,17 +163,17 @@ module Sepa
         Base64.encode64(sha1.digest(canon_timestamp_node)).gsub(/\s+/, "")
       end
 
-      def add_header_timestamps_digest(header, digest)
-        header.xpath(
+      def add_header_timestamps_digest(digest)
+        @header.xpath(
           "//dsig:Reference[@URI='#dsfg8sdg87dsf678g6dsg6ds7fg']/dsig:DigestV" \
           "alue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
         ).first.content = digest
       end
 
-      def calculate_soap_body_digest(body)
+      def calculate_soap_body_digest
         sha1 = OpenSSL::Digest::SHA1.new
 
-        body = body.xpath(
+        body = @body.xpath(
           "//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/'
         ).first
 
@@ -183,17 +185,17 @@ module Sepa
         Base64.encode64(sha1.digest(canon_body)).gsub(/\s+/, "")
       end
 
-      def add_soap_body_digest(header, digest)
-        header.xpath(
+      def add_soap_body_digest(digest)
+        @header.xpath(
           "//dsig:Reference[@URI='#sdf6sa7d86f87s6df786sd87f6s8fsda']/dsig:Di" \
           "gestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
         ).first.content = digest
       end
 
-      def calculate_signature(header, private_key)
+      def calculate_signature(private_key)
         sha1 = OpenSSL::Digest::SHA1.new
 
-        signed_info_node = header.xpath(
+        signed_info_node = @header.xpath(
           "//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
         ).first
 
@@ -207,19 +209,19 @@ module Sepa
         Base64.encode64(signature).gsub(/\s+/, "")
       end
 
-      def add_signature(header, signature)
-        header.xpath(
+      def add_signature(signature)
+        @header.xpath(
           "//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
         ).first.content = signature
       end
 
-      def add_certificate(header, cert)
+      def add_certificate(cert)
         cert = cert.to_s
         cert = cert.split('-----BEGIN CERTIFICATE-----')[1]
         cert = cert.split('-----END CERTIFICATE-----')[0]
         cert = cert.gsub(/\s+/, "")
 
-        header.xpath(
+        @header.xpath(
           "//wsse:BinarySecurityToken", 'wsse' => 'http://docs.oasis-open.org' \
           '/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
         ).first.content = cert

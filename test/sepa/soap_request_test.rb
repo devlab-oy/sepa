@@ -167,7 +167,6 @@ class SoapRequestTest < MiniTest::Unit::TestCase
 
     assert_raises(ArgumentError) do
       soap = Sepa::SoapRequest.new(@params)
-      soap.to_xml
     end
   end
 
