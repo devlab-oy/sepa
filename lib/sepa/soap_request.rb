@@ -64,13 +64,13 @@ module Sepa
       end
 
       def set_body_contents(ar, sender_id, lang, receiver_id)
-        set_ar(ar)
-        set_sender_id(sender_id)
-        set_request_id(SecureRandom.hex(17))
-        set_timestamp(Time.now.iso8601)
-        set_lang(lang)
-        set_user_agent("Sepa Transfer Library version " + VERSION)
-        set_receiver_id(receiver_id)
+        set_node(@body, 'bxd|ApplicationRequest', ar)
+        set_node(@body, 'bxd|SenderId', sender_id)
+        set_node(@body, 'bxd|RequestId', SecureRandom.hex(17))
+        set_node(@body, 'bxd|Timestamp', Time.now.iso8601)
+        set_node(@body, 'bxd|Language', lang)
+        set_node(@body, 'bxd|UserAgent', "Sepa Transfer Library version " + VERSION)
+        set_node(@body, 'bxd|ReceiverId', receiver_id)
       end
 
       def load_header_template
@@ -91,47 +91,8 @@ module Sepa
         add_certificate(cert)
       end
 
-      def set_node()
-      end
-
-      def set_ar(ar)
-          @body.at_css('bxd|ApplicationRequest').content = ar
-      end
-
-      def set_sender_id(sender_id)
-        @body.xpath(
-          "//bxd:SenderId", 'bxd' => 'http://model.bxd.fi'
-        ).first.content = sender_id
-      end
-
-      def set_request_id(request_id)
-        @body.xpath(
-          "//bxd:RequestId", 'bxd' => 'http://model.bxd.fi'
-        ).first.content = request_id
-      end
-
-      def set_timestamp(timestamp)
-        @body.xpath(
-          "//bxd:Timestamp", 'bxd' => 'http://model.bxd.fi'
-        ).first.content = timestamp
-      end
-
-      def set_lang(lang)
-        @body.xpath(
-          "//bxd:Language", 'bxd' => 'http://model.bxd.fi'
-        ).first.content = lang
-      end
-
-      def set_user_agent(user_agent)
-        @body.xpath(
-          "//bxd:UserAgent", 'bxd' => 'http://model.bxd.fi'
-        ).first.content = user_agent
-      end
-
-      def set_receiver_id(receiver_id)
-        @body.xpath(
-          "//bxd:ReceiverId", 'bxd' => 'http://model.bxd.fi'
-        ).first.content = receiver_id
+      def set_node(doc, node, value)
+        doc.at_css(node).content = value
       end
 
       def add_header_created_timestamp(timestamp)
