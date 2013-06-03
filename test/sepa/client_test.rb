@@ -1,6 +1,6 @@
 require File.expand_path('../../test_helper.rb', __FILE__)
 
-class SoapRequestTest < MiniTest::Test
+class ClientTest < MiniTest::Test
   def setup
     keys_path = File.expand_path('../nordea_test_keys', __FILE__)
 
