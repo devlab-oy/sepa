@@ -17,7 +17,7 @@ module Sepa
     def get_as_base64
       load_template(@command)
       set_nodes_contents
-      process_signature
+      process_signature unless @command == :get_certificate
       Base64.encode64(@ar.to_xml)
     end
 

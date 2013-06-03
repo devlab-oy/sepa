@@ -10,16 +10,6 @@ module Sepa
       @language = params[:language]
     end
 
-#    def initialize(params)
-#      @private_key = OpenSSL::PKey::RSA.new File.read params[:private_key]
-#      @cert = OpenSSL::X509::Certificate.new File.read params[:cert]
-#      @command = params[:command]
-#      @customer_id = params[:customer_id]
-#      @target_id = params[:target_id]
-#      @ar = ApplicationRequest.new(params)
-#      @language = params[:language]
-#    end
-
     def to_xml
       sign.to_xml
       #puts process
@@ -114,21 +104,21 @@ module Sepa
 
       # Take digest from soap request body, base64 code it and put it to the signature
       #body = Nokogiri::XML(soap)
-      body = soap.xpath("//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/').first
-      #body = Nokogiri::XML(body)
-      canonbody = body.canonicalize(mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,with_comments=false)
-      sha1 = OpenSSL::Digest::SHA1.new
-      digestbin = sha1.digest(canonbody)
-      digest = Base64.encode64(digestbin)
+##      body = soap.xpath("//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/').first
+##      #body = Nokogiri::XML(body)
+##      canonbody = body.canonicalize(mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,with_comments=false)
+##      sha1 = OpenSSL::Digest::SHA1.new
+##      digestbin = sha1.digest(canonbody)
+##      digest = Base64.encode64(digestbin)
       #body_digest_node = header.xpath("//dsig:Reference[@URI='#sdf6sa7d86f87s6df786sd87f6s8fsda']/dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
       #body_digest_node.content = digest.gsub(/\s+/, "")
 
       # Sign SignedInfo element with private key and add it to the correct field
-      signed_info_node = body.xpath("//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
-      canon_signed_info = Nokogiri::XML(signed_info_node).canonicalize(mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,with_comments=false)
-      digest_sign = OpenSSL::Digest::SHA1.new
-      signature = @private_key.sign(digest_sign, canon_signed_info)
-      signature_base64 = Base64.encode64(signature).gsub(/\s+/, "")
+##      signed_info_node = body.xpath("//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
+##      canon_signed_info = Nokogiri::XML(signed_info_node).canonicalize(mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,with_comments=false)
+##      digest_sign = OpenSSL::Digest::SHA1.new
+##      signature = @private_key.sign(digest_sign, canon_signed_info)
+##      signature_base64 = Base64.encode64(signature).gsub(/\s+/, "")
 
       # Add the base64 coded signature to the signature element
 #      signature_node = header.xpath("//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
