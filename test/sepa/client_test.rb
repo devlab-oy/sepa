@@ -32,4 +32,10 @@ class ClientTest < MiniTest::Test
 
     assert_raises(KeyError) { Sepa::Client.new(@params) }
   end
+
+  def test_should_raise_error_if_command_missing
+    @params.delete(:command)
+
+    assert_raises(KeyError) { Sepa::Client.new(@params) }
+  end
 end

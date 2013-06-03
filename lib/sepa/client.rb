@@ -4,7 +4,7 @@ module Sepa
       # Initialize savon client with params
       @client = Savon.client(wsdl: params.fetch(:wsdl), pretty_print_xml: true)
       @soap = SoapRequest.new(params)
-      @command = params[:command]
+      @command = params.fetch(:command)
     end
 
     # Call savon to make the actual request to the server
