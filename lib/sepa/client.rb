@@ -4,6 +4,7 @@ module Sepa
       # Initialize savon client with params
       @client = Savon.client(wsdl: params[:wsdl], pretty_print_xml: true, log_level: :warn)
       @soap = CertRequest.new(params)
+      #@soap = SoapRequest.new(params)
       @command = params[:command]
     end
 
