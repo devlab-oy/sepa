@@ -10,7 +10,7 @@ module Sepa
     # Call savon to make the actual request to the server
     def send
       puts @soap.to_xml
-      puts @command
+      #puts @command
       @client.call(@command, xml: @soap.to_xml)
     end
 

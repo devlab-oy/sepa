@@ -30,9 +30,9 @@ module Sepa
       case command
         
       when :get_service_certificates
-        path = "#{template_dir}/renew_certificate.xml" #File.expand_path('../xml_templates/application_request/renew_certificate.xml', __FILE__)
-      when :get_certificate
         path = "#{template_dir}/renew_certificate.xml"
+      when :get_certificate
+        path = "#{template_dir}/get_cert.xml"
       when :download_file_list
         path = "#{template_dir}/download_file_list.xml"
       when :get_user_info
