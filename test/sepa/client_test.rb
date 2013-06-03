@@ -106,4 +106,11 @@ class ClientTest < MiniTest::Test
     assert_equal sender_id, '11111111'
     assert_equal created_timestamp, '2013-06-03T16:56:00Z'
   end
+
+  def test_should_get_ar_as_xml
+    client = Sepa::Client.new(@params)
+    ar = Nokogiri::XML(client.ar_to_xml)
+
+    assert_equal ar.at_css('c2b|CustomerId').content, '11111111'
+  end
 end
