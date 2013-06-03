@@ -2,7 +2,7 @@ require File.expand_path('../../test_helper.rb', __FILE__)
 
 class ClientTest < MiniTest::Test
   def setup
-    @wsdl_path = File.expand_path('../../../lib/sepa/wsdl/wsdl_nordea.xml',
+    wsdl_path = File.expand_path('../../../lib/sepa/wsdl/wsdl_nordea.xml',
                                   __FILE__)
 
     keys_path = File.expand_path('../nordea_test_keys', __FILE__)
@@ -20,7 +20,7 @@ class ClientTest < MiniTest::Test
       target_id: '11111111A1',
       language: 'FI',
       file_type: 'TITO',
-      wsdl: @wsdl_path,
+      wsdl: wsdl_path,
       content: Base64.encode64("Kurppa"),
       file_reference: "11111111A12006030329501800000014"
     }
@@ -28,7 +28,11 @@ class ClientTest < MiniTest::Test
     observer = Class.new {
 
       def notify(*)
-        HTTPI::Response.new(200, { "Haisuli" => "Haiseva" }, "Vesinokkaelain")
+        test_response = File.read(
+          File.expand_path('../test_responses/get_user_info.xml',__FILE__)
+        )
+
+        HTTPI::Response.new(200, { "Haisuli" => "Haiseva" }, test_response)
       end
 
     }.new
@@ -88,13 +92,18 @@ class ClientTest < MiniTest::Test
     assert_raises(KeyError) { Sepa::Client.new(@params) }
   end
 
-  # Temporary test to make sure that savon mocking is working
-  def test_savon_mocking_works
+  # Testing that the client gets a response from savon. An example response is
+  # loaded. Then some random data is parsed from the response.
+  def test_should_get_proper_response_from_savon
     client = Sepa::Client.new(@params)
     response = client.send
 
-    assert_equal response.http.code, 200
-    assert_equal response.http.headers, 'Haisuli' => 'Haiseva'
-    assert_equal response.http.body, 'Vesinokkaelain'
+    sender_id = response.body.values[0][:response_header][:sender_id]
+
+    created_timestamp = response.header[:security][:timestamp][:created]
+    created_timestamp = created_timestamp.to_time.utc.iso8601
+
+    assert_equal sender_id, '11111111'
+    assert_equal created_timestamp, '2013-06-03T16:56:00Z'
   end
 end
