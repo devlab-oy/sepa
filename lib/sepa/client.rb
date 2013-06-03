@@ -2,7 +2,7 @@ module Sepa
   class Client
     def initialize(params)
       # Initialize savon client with params
-      @client = Savon.client(wsdl: params[:wsdl], pretty_print_xml: true)
+      @client = Savon.client(wsdl: params.fetch(:wsdl), pretty_print_xml: true)
       @soap = SoapRequest.new(params)
       @command = params[:command]
     end
