@@ -3,7 +3,7 @@ require File.expand_path('../../test_helper.rb', __FILE__)
 class ClientTest < MiniTest::Test
   def setup
     wsdl_path = File.expand_path('../../../lib/sepa/wsdl/wsdl_nordea.xml',
-                                  __FILE__)
+                                 __FILE__)
 
     keys_path = File.expand_path('../nordea_test_keys', __FILE__)
 
@@ -29,7 +29,7 @@ class ClientTest < MiniTest::Test
 
       def notify(*)
         test_response = File.read(
-          File.expand_path('../test_responses/get_user_info.xml',__FILE__)
+          File.expand_path('../test_responses/get_user_info.xml', __FILE__)
         )
 
         HTTPI::Response.new(200, { "Haisuli" => "Haiseva" }, test_response)
@@ -38,6 +38,16 @@ class ClientTest < MiniTest::Test
     }.new
 
     Savon.observers << observer
+  end
+
+  def test_example_response_is_unmodified
+    sha1 = OpenSSL::Digest::SHA1.new
+    test_response = File.read(
+      File.expand_path('../test_responses/get_user_info.xml', __FILE__)
+    )
+    digest = Base64.encode64(sha1.digest(test_response)).strip
+
+    assert_equal digest, 'FBJEWs1drKGWBERigYeRNZuoiaM='
   end
 
   def test_should_initialize_with_proper_params
