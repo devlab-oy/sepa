@@ -1,6 +1,6 @@
 require_relative '../test_helper'
 
-class TestApplicationRequest < MiniTest::Unit::TestCase
+class TestApplicationRequest < MiniTest::Test
   def setup
     keys_path = File.expand_path('../nordea_test_keys', __FILE__)
 
