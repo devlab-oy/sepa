@@ -12,12 +12,14 @@ module Sepa
       @content = params[:content]
       @file_reference = params[:file_reference]
       @service = params[:service]
+      @activation_code = params[:activation_code]
+      @hmac = params[:hmac]
     end
 
     def get_as_base64
       load_template(@command)
       set_nodes_contents
-      process_signature unless @command == :get_certificate
+      process_signature unless @command == :get_certificate || @command == :get_service_certificates
       Base64.encode64(@ar.to_xml)
     end
 
@@ -62,11 +64,16 @@ module Sepa
       set_node("Command", @command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join)
 
       case @command
-      when :get_certificate
-        set_node("Command", "GetCertificate")
+      when :get_service_certificates
+        #set_node("Command", "GetCertificate")
         set_node("Service", @service)
         set_node("Content", Base64.encode64(@content))
-
+      when :get_certificate
+        #set_node("Command", "GetCertificate")
+        set_node("Service", @service)
+        set_node("Content", Base64.encode64(@content))
+        set_node("HMAC", Base64.encode64(@hmac))
+        #set_node("HMAC", @activation_code)
       when :download_file_list
         set_node("Status", @status)
         set_node("TargetId", @target_id)

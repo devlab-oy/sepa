@@ -1,6 +1,6 @@
-<env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:cer="http://bxd.fi/CertificateService">
-   <env:Header/>
-   <env:Body>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:cer="http://bxd.fi/CertificateService">
+   <soapenv:Header/>
+   <soapenv:Body>
       <cer:getCertificatein>
          <cer:RequestHeader>
             <cer:SenderId></cer:SenderId>
@@ -9,5 +9,5 @@
          </cer:RequestHeader>
          <cer:ApplicationRequest></cer:ApplicationRequest>
       </cer:getCertificatein>
-   </env:Body>
-</env:Envelope>
+   </soapenv:Body>
+</soapenv:Envelope>

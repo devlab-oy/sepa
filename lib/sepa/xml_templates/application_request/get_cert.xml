@@ -4,8 +4,7 @@
 	<Environment></Environment>
 	<SoftwareId></SoftwareId>
 	<Command></Command>
-	<Service></Service>
-	
-<Content></Content>
-	<HMAC>F8Y8sxWtHbtaaUTVQ9tDp9KxM0A=</HMAC>
+	<Service></Service>	
+    <Content></Content>
+	<HMAC></HMAC>
 </CertApplicationRequest>
