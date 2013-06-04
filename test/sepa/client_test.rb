@@ -2,6 +2,8 @@ require File.expand_path('../../test_helper.rb', __FILE__)
 
 class ClientTest < MiniTest::Test
   def setup
+    @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)
+
     wsdl_path = File.expand_path('../../../lib/sepa/wsdl/wsdl_nordea.xml',
                                  __FILE__)
 
@@ -26,15 +28,16 @@ class ClientTest < MiniTest::Test
     }
 
     observer = Class.new {
+      def notify(operation_name, builder, globals, locals)
+        @operation_name = operation_name
+        @builder = builder
+        @globals = globals
+        @locals  = locals
 
-      def notify(*)
-        test_response = File.read(
-          File.expand_path('../test_responses/get_user_info.xml', __FILE__)
-        )
-
-        HTTPI::Response.new(200, { "Haisuli" => "Haiseva" }, test_response)
+        HTTPI::Response.new(200,
+                            { "Reponse is actually" => "the request, w0000t" },
+                            locals[:xml])
       end
-
     }.new
 
     Savon.observers << observer
@@ -102,25 +105,75 @@ class ClientTest < MiniTest::Test
     assert_raises(KeyError) { Sepa::Client.new(@params) }
   end
 
-  # Testing that the client gets a response from savon. An example response is
-  # loaded. Then some random data is parsed from the response.
-  def test_should_get_proper_response_from_savon
-    client = Sepa::Client.new(@params)
-    response = client.send
-
-    sender_id = response.body.values[0][:response_header][:sender_id]
-
-    created_timestamp = response.header[:security][:timestamp][:created]
-    created_timestamp = created_timestamp.to_time.utc.iso8601
-
-    assert_equal sender_id, '11111111'
-    assert_equal created_timestamp, '2013-06-03T16:56:00Z'
-  end
-
   def test_should_get_ar_as_xml
+    observer = Class.new {
+      def notify(*)
+        test_response = File.read(
+          File.expand_path('../test_responses/get_user_info.xml', __FILE__)
+        )
+
+        HTTPI::Response.new(200, { "Example" => "response" }, test_response)
+      end
+    }.new
+
+    Savon.observers << observer
+
     client = Sepa::Client.new(@params)
     ar = Nokogiri::XML(client.ar_to_xml)
 
     assert_equal ar.at_css('c2b|CustomerId').content, '11111111'
+  end
+
+  # The response from savon will be the request to check that a proper request
+  # was made in the following four tests
+  def test_should_send_proper_request_with_get_user_info
+    client = Sepa::Client.new(@params)
+    response = client.send
+
+    assert_equal response.body.keys[0], :get_user_infoin
+
+    Dir.chdir(@schemas_path) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(Nokogiri::XML(response.to_xml))
+    end
+  end
+
+  def test_should_send_proper_request_with_download_file_list
+    @params[:command] = :download_file_list
+    client = Sepa::Client.new(@params)
+    response = client.send
+
+    assert_equal response.body.keys[0], :download_file_listin
+
+    Dir.chdir(@schemas_path) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(Nokogiri::XML(response.to_xml))
+    end
+  end
+
+  def test_should_send_proper_request_with_download_file
+    @params[:command] = :download_file
+    client = Sepa::Client.new(@params)
+    response = client.send
+
+    assert_equal response.body.keys[0], :download_filein
+
+    Dir.chdir(@schemas_path) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(Nokogiri::XML(response.to_xml))
+    end
+  end
+
+  def test_should_send_proper_request_with_upload_file
+    @params[:command] = :upload_file
+    client = Sepa::Client.new(@params)
+    response = client.send
+
+    assert_equal response.body.keys[0], :upload_filein
+
+    Dir.chdir(@schemas_path) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(Nokogiri::XML(response.to_xml))
+    end
   end
 end
