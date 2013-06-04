@@ -2,7 +2,8 @@ module Sepa
   class Client
     def initialize(params)
       # Initialize savon client with params
-      @client = Savon.client(wsdl: params[:wsdl], pretty_print_xml: true, log_level: :warn)
+      @client = Savon.client(wsdl: params[:wsdl], pretty_print_xml: true)
+      #, log_level: :warn
       @command = params[:command]
       if @command == :get_certificate || @command == :get_service_certificates
         @soap = CertRequest.new(params)
@@ -13,7 +14,7 @@ module Sepa
 
     # Call savon to make the actual request to the server
     def send
-      #puts @soap.to_xml
+      puts @soap.to_xml
       #puts @command
       @client.call(@command, xml: @soap.to_xml)
     end
