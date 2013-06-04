@@ -41,8 +41,9 @@ certrequest = OpenSSL::ASN1.decode(der)
 #puts certrequest.inspect
 
 #%x(openssl asn1parse -inform DER -in certificate_request.der)
-digest  = OpenSSL::Digest::Digest.new('sha1')
-hmacseal = OpenSSL::HMAC.digest(digest,key, certrequest.to_der)
+#digest  = OpenSSL::Digest::Digest.new('sha1')
+#hmacseal = OpenSSL::HMAC.digest(digest,key, certrequest.to_der)
+hmacseal = OpenSSL::HMAC.digest('sha1',key, certrequest.to_der)
 #hmacseal = Base64.encode64(hmacseal)
 
 #6. Send PKCS#10 with HMAC seal to Nordea

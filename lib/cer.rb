@@ -18,7 +18,7 @@ require 'base64'
 #  (private key is newer sent to the bank)
 #  use: key length 1024bit, SHA-1 algorithm, DER –encoded
 #  Subject info: CN=name, serialNumber=userID, C=country (as above)
-%x(openssl req -newkey rsa:1024 -keyout key.pem -out certificate_request.der -passout pass:1234 -outform DER -config cer.cnf)
+%x(openssl req -newkey rsa -keyout key.pem -out certificate_request.der -passout pass:1234 -outform DER -config cer.cnf)
 
 #4. Create HMAC seal
 #  use DER coded PKCS#10 above as input
@@ -52,7 +52,7 @@ command = :get_certificate
 #  SOAP
 #  SOAP message need not to be signed
 
-puts OpenSSL::ASN1.decode(der).to_der
+#puts OpenSSL::ASN1.decode(der).to_der
 puts certrequest.to_der
 
 #value = "sha1"
@@ -71,3 +71,20 @@ puts certrequest.to_der
 #puts Base64.encode64(skartje)
 
 
+#OpenSSL::HMAC.hexdigest('sha1', key, signature)
+
+require 'base64'
+require 'cgi'
+require 'openssl'
+
+#key = '1234'
+signature = 'kissa'
+puts CGI.escape(Base64.encode64("#{OpenSSL::HMAC.digest('sha1',key, signature)}\n"))
+
+
+puts OpenSSL::HMAC.hexdigest('sha1', key, signature)
+
+
+digest  = OpenSSL::Digest::Digest.new('sha1')
+puts OpenSSL::HMAC.digest(digest,key, certrequest.to_der)
+puts OpenSSL::HMAC.digest('sha1',key, certrequest.to_der)

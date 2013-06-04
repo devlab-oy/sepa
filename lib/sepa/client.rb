@@ -3,9 +3,12 @@ module Sepa
     def initialize(params)
       # Initialize savon client with params
       @client = Savon.client(wsdl: params[:wsdl], pretty_print_xml: true, log_level: :warn)
-      @soap = CertRequest.new(params)
-      #@soap = SoapRequest.new(params)
       @command = params[:command]
+      if @command == :get_certificate || @command == :get_service_certificates
+        @soap = CertRequest.new(params)
+      else
+        @soap = SoapRequest.new(params)
+      end
     end
 
     # Call savon to make the actual request to the server
