@@ -12,7 +12,6 @@ module Sepa
       @content = params[:content]
       @file_reference = params[:file_reference]
       @service = params[:service]
-      @activation_code = params[:activation_code]
       @hmac = params[:hmac]
     end
 
@@ -65,15 +64,12 @@ module Sepa
 
       case @command
       when :get_service_certificates
-        #set_node("Command", "GetCertificate")
         set_node("Service", @service)
         set_node("Content", Base64.encode64(@content))
       when :get_certificate
-        #set_node("Command", "GetCertificate")
         set_node("Service", @service)
         set_node("Content", Base64.encode64(@content))
         set_node("HMAC", Base64.encode64(@hmac))
-        #set_node("HMAC", @activation_code)
       when :download_file_list
         set_node("Status", @status)
         set_node("TargetId", @target_id)

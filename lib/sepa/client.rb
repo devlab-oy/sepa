@@ -13,10 +13,9 @@ module Sepa
 
     # Call savon to make the actual request to the server
     def send
-      puts @soap.to_xml
+      #puts @soap.to_xml
       #puts @command
       @client.call(@command, xml: @soap.to_xml)
-      #@client.call(:renew_cert, xml: @soap.to_xml)
     end
 
     def get_ar_as_base64
