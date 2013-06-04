@@ -57,6 +57,14 @@ class ClientTest < MiniTest::Test
     assert Sepa::Client.new(@params)
   end
 
+  def test_should_give_proper_error_if_initialized_with_something_not_hash_like
+    not_hashes = ['Merihevonsenkenka', 1, :verhokangas]
+
+    not_hashes.each do |not_hash|
+      assert_raises(ArgumentError) { Sepa::Client.new(not_hash) }
+    end
+  end
+
   def test_should_raise_error_if_wsdl_missing
     @params.delete(:wsdl)
 
@@ -103,25 +111,6 @@ class ClientTest < MiniTest::Test
     @params.delete(:language)
 
     assert_raises(KeyError) { Sepa::Client.new(@params) }
-  end
-
-  def test_should_get_ar_as_xml
-    observer = Class.new {
-      def notify(*)
-        test_response = File.read(
-          File.expand_path('../test_responses/get_user_info.xml', __FILE__)
-        )
-
-        HTTPI::Response.new(200, { "Example" => "response" }, test_response)
-      end
-    }.new
-
-    Savon.observers << observer
-
-    client = Sepa::Client.new(@params)
-    ar = Nokogiri::XML(client.ar_to_xml)
-
-    assert_equal ar.at_css('c2b|CustomerId').content, '11111111'
   end
 
   # The response from savon will be the request to check that a proper request

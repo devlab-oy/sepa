@@ -1,22 +1,26 @@
 module Sepa
   class Client
     def initialize(params)
-      # Initialize savon client with params
-      @client = Savon.client(wsdl: params.fetch(:wsdl), pretty_print_xml: true)
+      check_params(params)
+      # Initialize savon client with params and construct soap message
+      wsdl = params.fetch(:wsdl)
+      @client = Savon.client(wsdl: wsdl)
       @soap = SoapRequest.new(params).to_xml
       @command = params.fetch(:command)
     end
 
-    # Call savon to make the actual request to the server
+    # Call savon to make the soap request with the correct command and the
+    # the constructed soap. The returned object will be a savon response.
     def send
       @client.call(@command, xml: @soap)
     end
 
-    def ar_to_xml
-      hash_key = (@command.to_s + "out").to_sym
-      response = @client.call(@command, xml: @soap)
-      ar = response.body[hash_key][:application_response]
-      Base64.decode64(ar)
-    end
+    private
+
+      def check_params(params)
+        unless params.respond_to?(:each_pair)
+          fail ArgumentError, "You didn't provide a proper hash"
+        end
+      end
   end
 end
