@@ -139,4 +139,4 @@ puts "Next line should be 0xde7c9b85b8b78aa6bc8a7a36f70a90701c9db4d9"
 puts OpenSSL::HMAC.hexdigest('sha1','key','The quick brown fox jumps over the lazy dog')
 puts "Next line should be 0xfbdb1d1b18aa6c08324b7d64b71fb76370690e1d"
 puts OpenSSL::HMAC.hexdigest('sha1','','')
-puts OpenSSL::HMAC.digest('sha1','','')
+#puts OpenSSL::HMAC.digest('sha1','','')

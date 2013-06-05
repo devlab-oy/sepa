@@ -12,7 +12,6 @@ module Sepa
 
     def to_xml
       sign.to_xml
-      #puts process
     end
 
     private
@@ -47,7 +46,7 @@ module Sepa
 
     def process
       soap = load_body
-      
+
       #Add the base64 coded application request to the soap envelope
       ar_node = soap.xpath("//cer:ApplicationRequest", 'cer' => 'http://bxd.fi/CertificateService').first
       ar_node.content = @ar.get_as_base64
@@ -59,8 +58,8 @@ module Sepa
 
       # Set the request id, a random 35 digit hex number
       request_id_node = soap.xpath("//cer:RequestId", 'cer' => 'http://bxd.fi/CertificateService').first
-      #request_id_node.content = SecureRandom.hex(35)
-      request_id_node.content = 212345
+      request_id_node.content = SecureRandom.hex(35)
+      #request_id_node.content = 212345
 
       # Add timestamp
       timestamp_node = soap.xpath("//cer:Timestamp", 'cer' => 'http://bxd.fi/CertificateService').first
@@ -77,7 +76,7 @@ module Sepa
 #      # Add receiver id
 #      receiverid_node = soap.xpath("//bxd:ReceiverId", 'cer' => 'http://model.bxd.fi').first
 #      receiverid_node.content = @target_id
-        
+
       #puts soap.to_xml
       soap.to_xml
     end

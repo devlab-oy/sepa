@@ -1,11 +1,10 @@
 # This app can be used to test the functionality of the sepa client
 
 require 'sepa'
+
+# Define certificate paths (These are not needed if testing Certificate service)
 private_key = OpenSSL::PKey::RSA.new(File.read("sepa/nordea_testing/keys/nordea.key"))
 cert = OpenSSL::X509::Certificate.new(File.read("sepa/nordea_testing/keys/nordea.crt"))
-
-# Test activation code (PIN from txt message)
-#activation_code = '1234567890'
 
 #1. The administrator makes agreement for the company using Web Services and receives 10-
 #digit activation code to his/her mobile phone via SMS. It is valid for 7 days, but a new one can
@@ -19,40 +18,35 @@ cert = OpenSSL::X509::Certificate.new(File.read("sepa/nordea_testing/keys/nordea
 #  country code (e.g. FI)
 #  10 digit SMS activation code received by administrator registered into the agreement
 
-# 3 above defined in cer.cfg, key in step 4
-
 #3. Banking software creates key pair for certificate and generates PKCS#10 request
 #  (private key is newer sent to the bank)
 #  use: key length 1024bit, SHA-1 algorithm, DER –encoded
 #  Subject info: CN=name, serialNumber=userID, C=country (as above)
-%x(openssl req -newkey rsa:1024 -keyout key.pem -out certificate_request.der -passout pass:1234 -outform DER -config cer.cnf)
+
+# Create 1024bit sha1 private key and generate Certificate Signing Request with it using parameters from cert_req.conf
+%x(openssl req -newkey rsa:1024 -keyout signing_key.pem -keyform PEM -out CSR.csr -outform DER -config cert_req.conf -nodes)
 
 #4. Create HMAC seal
 #  use DER coded PKCS#10 above as input
 #  SMS-activation code as the key (10-digits)
 
-key = '1234567890'
+# Test pin for nordea
+pin = '1234567890'
 
-der = File.binread("certificate_request.der")
-certrequest = OpenSSL::X509::Request.new(der)
-#certrequest = der
-#puts key
-#puts der.inspect
-#puts certrequest.inspect
+# Open Certificate Signing Request PKCS#10
+csr = OpenSSL::X509::Request.new(File.read ('CSR.csr'))
 
-#%x(openssl asn1parse -inform DER -in certificate_request.der)
-#digest  = OpenSSL::Digest::Digest.new('sha1')
-#hmacseal = OpenSSL::HMAC.digest(digest,key, certrequest.to_der)
-hmacseal = OpenSSL::HMAC.hexdigest('sha1',key, certrequest.to_der)
-#hmacseal = Base64.encode64(hmacseal)
+# Generate HMAC seal (SHA1 hash) with pin as key and PKCS#10 as message
+hmacseal = OpenSSL::HMAC.hexdigest('sha1',pin,csr.to_der)
 
 #6. Send PKCS#10 with HMAC seal to Nordea
 #  using schema: CertApplicationRequest
-#   put PKCS#10 in base64 format to Content element
-payload = certrequest.to_der
-#   put calculated HMAC to HMAC element
+#TODO validation against schema before sending??
+# Assign the generated PKCS#10 to as payload (goes to Content element)
+payload = csr.to_der
+# Assign the calculated HMAC seal as hmac (goes to HMAC element)
 hmac = hmacseal
-#   put code “service” to Service-element
+# Assigns value for service (goes to Service element)
 service = "service"
 
 # The params hash is populated with the data that is needed for gem to function
@@ -63,16 +57,16 @@ params = {
   # Path to your certificate
   cert: cert,
 
-  # Command :download_file_list, :upload_file, :download_file or :get_user_info
-  command: :get_service_certificates,
-  #command: :get_certificate,
+  # Command :download_file_list, :upload_file, :download_file, :get_user_info OR :get_certificate, :get_service_certificates
+  #command: :get_service_certificates,
+  command: :get_certificate,
 
   # Unique customer ID
   customer_id: '11111111',
   #customer_id: '482430003',
 
   # Set the environment to be either PRODUCTION or TEST
-  environment: 'TEST',
+  environment: 'PRODUCTION',
 
   # For filtering stuff. Must be either NEW, DOWNLOADED or ALL
   status: 'NEW',
@@ -102,3 +96,6 @@ params = {
 sepa_client = Sepa::Client.new(params)
 
 sepa_client.send
+
+# Decodes response to readable form
+puts sepa_client.get_ar_as_string

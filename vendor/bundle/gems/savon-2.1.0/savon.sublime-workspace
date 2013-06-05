@@ -1,0 +1,494 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"namespace",
+				"namespace_identifier"
+			],
+			[
+				"http",
+				"http_request"
+			],
+			[
+				"us",
+				"used_namespaces"
+			],
+			[
+				"exp",
+				"expected_header"
+			],
+			[
+				"end",
+				"endpoint"
+			],
+			[
+				"new",
+				"new_client"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 167.0,
+		"selected_items":
+		[
+			[
+				"insp",
+				"Package Control: Install Package"
+			],
+			[
+				"save",
+				"Project: Save As"
+			],
+			[
+				"remp",
+				"Package Control: Remove Package"
+			],
+			[
+				"themr",
+				"Themr: Default"
+			],
+			[
+				"inspa",
+				"Package Control: Install Package"
+			],
+			[
+				"rem",
+				"Package Control: Remove Package"
+			],
+			[
+				"inspack",
+				"Package Control: Install Package"
+			],
+			[
+				"rpack",
+				"Package Control: Remove Package"
+			],
+			[
+				"rempa",
+				"Package Control: Remove Package"
+			],
+			[
+				"pip",
+				"Package Control: Install Package"
+			],
+			[
+				"soda",
+				"Preferences: Package Control Settings – Default"
+			],
+			[
+				"disco",
+				"Package Control: Discover Packages"
+			],
+			[
+				":w",
+				":w - Save"
+			]
+		],
+		"width": 593.0
+	},
+	"console":
+	{
+		"height": 139.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/rubiii/Dropbox/github/savonrb/savon/lib/savon/message.rb",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/lib/savon/builder.rb",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/lib/savon/qualified_message.rb",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/spec/savon/qualified_message_spec.rb",
+		"/Users/rubiii/Downloads/magento.xml",
+		"/Users/rubiii/Dropbox/wsdl/e-dialog.xml",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/lib/savon/operation.rb",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/spec/savon/operation_spec.rb",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/spec/savon/builder_spec.rb",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/lib/savon/client.rb",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/Gemfile",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/lib/savon/options.rb",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/spec/savon/client_spec.rb",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/spec/integration/zipcode_example_spec.rb",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/lib/savon/wsdl_shim.rb",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/spec/savon/options_spec.rb",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/spec/integration/email_example_spec.rb",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/lib/savon/request.rb",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/lib/savon/header.rb",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/savon.gemspec",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/spec/fixtures/wsdl/responsys.xml",
+		"/Users/rubiii/Library/Application Support/Sublime Text 2/Packages/User/Preferences.sublime-settings",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/CHANGELOG.md",
+		"/Users/rubiii/Library/Application Support/Sublime Text 2/Packages/User/Markdown.sublime-settings",
+		"/Users/rubiii/Library/Application Support/Sublime Text 2/Packages/User/JSON.sublime-settings",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/spec/fixtures/wsdl/innsist.xml",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/spec/integration/innsist_example_spec.rb",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/lib/savon.rb",
+		"/Users/rubiii/Dropbox/github/savonrb/savon/lib/savon/model.rb",
+		"/Users/rubiii/Library/Application Support/Sublime Text 2/Packages/User/Default (OSX).sublime-keymap",
+		"/Users/rubiii/Library/Application Support/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
+		"/Users/rubiii/Dropbox/github/savon/lib/savon/client.rb",
+		"/Users/rubiii/Downloads/fix_remote_code_exec_vulnerability (2).patch",
+		"/Users/rubiii/Dropbox/github/savon/lib/savon/request.rb",
+		"/Users/rubiii/Dropbox/github/savon/.gitignore",
+		"/Users/rubiii/Dropbox/github/savon/savon.gemspec",
+		"/Users/rubiii/Dropbox/github/savon/Gemfile",
+		"/Users/rubiii/Library/Application Support/Sublime Text 2/Packages/User/Distraction Free.sublime-settings",
+		"/Users/rubiii/Library/Application Support/Sublime Text 2/Packages/Theme - Default/Widget.sublime-settings",
+		"/Users/rubiii/Library/Application Support/Sublime Text 2/Packages/RubyTest/TestConsole.hidden-tmTheme",
+		"/Users/rubiii/Dropbox/github/savon/spec/savon/client_spec.rb",
+		"/Users/rubiii/Library/Application Support/Sublime Text 2/Packages/Package Control/Package Control.sublime-settings",
+		"/Users/rubiii/Library/Application Support/Sublime Text 2/Packages/RubyTest/RubyTest.sublime-settings",
+		"/Users/rubiii/Library/Application Support/Sublime Text 2/Packages/User/RubyTest.sublime-settings",
+		"/Users/rubiii/Library/Application Support/Google/Chrome/Default/Preferences",
+		"/Users/rubiii/Desktop/disqus.csv",
+		"/Users/rubiii/Downloads/rubiii-2013-01-01T01-07-55.471924-links.csv",
+		"/Users/rubiii/Desktop/hashtest.rb",
+		"/Users/rubiii/Dropbox/wsdl/jirasoapservice-v2.xml",
+		"/Users/rubiii/Library/Application Support/Sublime Text 2/Packages/User/Base File.sublime-settings",
+		"/Users/rubiii/Library/Application Support/Sublime Text 2/Packages/Ruby/Ruby.sublime-build",
+		"/Users/rubiii/Desktop/hash.rb",
+		"/etc/passwd",
+		"/Users/rubiii/Dropbox/github/puma/test/test_minissl.rb",
+		"/Users/rubiii/Dropbox/github/puma/lib/puma/minissl.rb",
+		"/Users/rubiii/Dropbox/github/puma/test/test_puma_server.rb",
+		"/Users/rubiii/Dropbox/github/puma/ext/puma_http11/mini_ssl.c",
+		"/Users/rubiii/Dropbox/github/lysbon/config/locales/it.yml",
+		"/Users/rubiii/Desktop/rspec-vim.app/Contents/Info.plist",
+		"/Users/rubiii/Dropbox/github/puma/puma.gemspec",
+		"/Users/rubiii/Dropbox/github/puma/lib/puma/server.rb",
+		"/Users/rubiii/Desktop/PVWATTS.xml",
+		"/Users/rubiii/Downloads/karotzusb (2)/network.conf",
+		"/Users/rubiii/Desktop/descriptor.xml",
+		"/Users/rubiii/Downloads/karotzusb (1)/network.conf",
+		"/Users/rubiii/Downloads/karotzusb (1)/uuid.conf",
+		"/Users/rubiii/Desktop/gemstats",
+		"/Users/rubiii/Desktop/test.rb",
+		"/Users/rubiii/Library/Application Support/KeyRemap4MacBook/private.xml",
+		"/Users/rubiii/Dropbox/documents/keyremap.xml",
+		"/Users/rubiii/Desktop/Mocha_files/Array.js",
+		"/Users/rubiii/Desktop/Mocha_files/chai.js",
+		"/Users/rubiii/Desktop/Mocha.html",
+		"/Users/rubiii/Desktop/ci.md",
+		"/Users/rubiii/Desktop/thingstobuild",
+		"/Users/rubiii/Dropbox/Mercury/angebote/fragen.md",
+		"/Users/rubiii/Dropbox/Mercury/angebote/UIM Formatted",
+		"/Users/rubiii/Desktop/Tomorrow Focus Formatted.txt",
+		"/Users/rubiii/Dropbox/Mercury/angebote/Interactive Angebot Formatted.txt",
+		"/Users/rubiii/Downloads/layout35/reset-fonts-grids.css",
+		"/Users/rubiii/Downloads/layout35/base.css",
+		"/Users/rubiii/Desktop/mercury-fragen",
+		"/Users/rubiii/Downloads/layout35/index.html",
+		"/Users/rubiii/Dropbox/Mercury/fragen zum interface prototype",
+		"/Users/rubiii/Desktop/bla.html"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"cookies",
+			"wsdl_shim",
+			"Savon::WSDLShim",
+			"WSDLShim",
+			"document?",
+			"info",
+			"namespace_identifier",
+			"example",
+			"type_namespaces",
+			"Wasabi::Document",
+			"type",
+			"listfoldersrequest",
+			"Header",
+			"soap:header",
+			"header",
+			"translated_op",
+			"Gyoku",
+			"header",
+			"message_tag",
+			"InitializationError",
+			"import",
+			"highligh",
+			"overla",
+			"Dark",
+			"lig",
+			"true",
+			"import",
+			"request",
+			"signature",
+			"soap",
+			"SSL_want_read",
+			"module",
+			"price:",
+			"0",
+			"2700",
+			"\"format\"",
+			"\"placement\"",
+			"\"medium\":",
+			"    {\"publisher\"",
+			"type:",
+			"key:",
+			"key",
+			"label"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"Wasabi::InterpreterShim"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		},
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 34.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			0.5,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 583.0
+	},
+	"replace":
+	{
+		"height": 64.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"clisp",
+				"spec/savon/client_spec.rb"
+			],
+			[
+				"clis",
+				"spec/savon/client_spec.rb"
+			],
+			[
+				"zip",
+				"spec/integration/zipcode_example_spec.rb"
+			],
+			[
+				"oper",
+				"lib/savon/operation.rb"
+			],
+			[
+				"optisp",
+				"spec/savon/options_spec.rb"
+			],
+			[
+				"emai",
+				"spec/integration/email_example_spec.rb"
+			],
+			[
+				"zi",
+				"spec/integration/zipcode_example_spec.rb"
+			],
+			[
+				"optsp",
+				"spec/savon/options_spec.rb"
+			],
+			[
+				"ops",
+				"spec/savon/operation_spec.rb"
+			],
+			[
+				"builsp",
+				"spec/savon/builder_spec.rb"
+			],
+			[
+				"buisp",
+				"spec/savon/builder_spec.rb"
+			],
+			[
+				"qum",
+				"lib/savon/qualified_message.rb"
+			],
+			[
+				"responsys",
+				"spec/fixtures/wsdl/responsys.xml"
+			],
+			[
+				"mess",
+				"lib/savon/message.rb"
+			],
+			[
+				"buil",
+				"lib/savon/builder.rb"
+			],
+			[
+				"head",
+				"lib/savon/header.rb"
+			],
+			[
+				"opt",
+				"lib/savon/options.rb"
+			],
+			[
+				"chang",
+				"CHANGELOG.md"
+			],
+			[
+				"bui",
+				"lib/savon/builder.rb"
+			],
+			[
+				"clie",
+				"lib/savon/client.rb"
+			],
+			[
+				"inn",
+				"spec/fixtures/wsdl/innsist.xml"
+			],
+			[
+				"cli",
+				"lib/savon/client.rb"
+			],
+			[
+				"ver",
+				"lib/nori/version.rb"
+			],
+			[
+				"chan",
+				"CHANGELOG.md"
+			],
+			[
+				"cl",
+				"lib/savon/client.rb"
+			],
+			[
+				"clsp",
+				"spec/savon/client_spec.rb"
+			],
+			[
+				"gemf",
+				"Gemfile"
+			],
+			[
+				"gems",
+				"savon.gemspec"
+			],
+			[
+				"",
+				".gitignore"
+			],
+			[
+				"req",
+				"lib/savon/request.rb"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+			[
+				"w",
+				"/Users/rubiii/Dropbox/github/savonrb/wasabi/wasabi.sublime-project"
+			],
+			[
+				"m",
+				"/Users/rubiii/Dropbox/github/mercury/mercury.sublime-project"
+			],
+			[
+				"mer",
+				"/Users/rubiii/Dropbox/github/mercury/mercury.sublime-project"
+			],
+			[
+				"was",
+				"/Users/rubiii/Dropbox/github/savonrb/wasabi/wasabi.sublime-project"
+			],
+			[
+				"",
+				"/Users/rubiii/Dropbox/github/savonrb/wasabi.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"show_minimap": false,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": false,
+	"side_bar_width": 236.0,
+	"status_bar_visible": true
+}
