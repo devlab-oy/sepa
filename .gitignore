@@ -14,6 +14,8 @@ test/version_tmp
 tmp
 lib/key.pem
 lib/certificate_request.der
+lib/CSR.csr
+lib/signing_key.pem
 vendor
 
 # YARD artifacts
