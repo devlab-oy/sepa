@@ -20,6 +20,4 @@ countryName_default            = FI
 countryName_min                = 2
 countryName_max                = 2
 
-
-
 [ req_attributes ]

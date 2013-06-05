@@ -34,8 +34,8 @@ cert = OpenSSL::X509::Certificate.new(File.read("sepa/nordea_testing/keys/nordea
 key = '1234567890'
 
 der = File.binread("certificate_request.der")
-certrequest = OpenSSL::ASN1.decode(der)
-
+certrequest = OpenSSL::X509::Request.new(der)
+#certrequest = der
 #puts key
 #puts der.inspect
 #puts certrequest.inspect
@@ -43,7 +43,7 @@ certrequest = OpenSSL::ASN1.decode(der)
 #%x(openssl asn1parse -inform DER -in certificate_request.der)
 #digest  = OpenSSL::Digest::Digest.new('sha1')
 #hmacseal = OpenSSL::HMAC.digest(digest,key, certrequest.to_der)
-hmacseal = OpenSSL::HMAC.digest('sha1',key, certrequest.to_der)
+hmacseal = OpenSSL::HMAC.hexdigest('sha1',key, certrequest.to_der)
 #hmacseal = Base64.encode64(hmacseal)
 
 #6. Send PKCS#10 with HMAC seal to Nordea
@@ -95,7 +95,7 @@ params = {
 
   service: service
 
-  
+
 }
 
 # You just create the client with the parameters described above.
