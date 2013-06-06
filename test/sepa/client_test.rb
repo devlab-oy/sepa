@@ -55,12 +55,6 @@ class ClientTest < MiniTest::Test
     end
   end
 
-  def test_should_raise_error_if_environment_missing
-    @params.delete(:environment)
-
-    assert_raises(KeyError) { Sepa::Client.new(@params) }
-  end
-
   def test_should_raise_error_if_target_id_missing
     @params.delete(:target_id)
 
@@ -117,6 +111,16 @@ class ClientTest < MiniTest::Test
 
     wrong_ids.each do |wrong_id|
       @params[:customer_id] = wrong_id
+
+      assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+    end
+  end
+
+  def test_should_raise_error_if_environment_wrong_or_missing
+    wrong_envs = ["not proper", 5, :protuction, nil]
+
+    wrong_envs.each do |wrong_env|
+      @params[:environment] = wrong_env
 
       assert_raises(ArgumentError) { Sepa::Client.new(@params) }
     end
