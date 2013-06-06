@@ -74,7 +74,7 @@ module Sepa
       def check_env(env)
         unless ['PRODUCTION', 'TEST'].include?(env)
           fail ArgumentError, "You didn't provide a proper environment." \
-          "Acceptable values are PRODUCTION or TEST."
+            "Acceptable values are PRODUCTION or TEST."
         end
       end
   end
