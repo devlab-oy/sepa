@@ -22,6 +22,7 @@ module Sepa
         check_private_key(params[:private_key])
         check_cert(params[:cert])
         check_wsdl(params[:wsdl])
+        check_customer_id(params[:customer_id])
       end
 
       def check_params_hash(params)
@@ -59,6 +60,13 @@ module Sepa
         unless xsd.valid?(wsdl)
           fail ArgumentError, "The wsdl file provided doesn't validate " \
             "against the wsdl schema and thus was rejected."
+        end
+      end
+
+      def check_customer_id(customer_id)
+        unless customer_id && customer_id.respond_to?(:to_s) &&
+            customer_id.length <= 16
+          fail ArgumentError, "You didn't provide a proper customer id"
         end
       end
   end

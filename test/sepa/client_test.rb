@@ -55,18 +55,6 @@ class ClientTest < MiniTest::Test
     end
   end
 
-  def test_should_raise_error_if_command_missing
-    @params.delete(:command)
-
-    assert_raises(KeyError) { Sepa::Client.new(@params) }
-  end
-
-  def test_should_raise_error_if_customer_id_missing
-    @params.delete(:customer_id)
-
-    assert_raises(KeyError) { Sepa::Client.new(@params) }
-  end
-
   def test_should_raise_error_if_environment_missing
     @params.delete(:environment)
 
@@ -119,6 +107,16 @@ class ClientTest < MiniTest::Test
 
     wrong_commands.each do |wrong_command|
       @params[:command] = wrong_command
+
+      assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+    end
+  end
+
+  def test_should_raise_error_if_customer_id_wrong_or_missing
+    wrong_ids = ["I'm a way too long a string and probably also not valid", nil]
+
+    wrong_ids.each do |wrong_id|
+      @params[:customer_id] = wrong_id
 
       assert_raises(ArgumentError) { Sepa::Client.new(@params) }
     end
