@@ -43,16 +43,6 @@ class ClientTest < MiniTest::Test
     Savon.observers << observer
   end
 
-  def test_example_response_is_unmodified
-    sha1 = OpenSSL::Digest::SHA1.new
-    test_response = File.read(
-      File.expand_path('../test_responses/get_user_info.xml', __FILE__)
-    )
-    digest = Base64.encode64(sha1.digest(test_response)).strip
-
-    assert_equal digest, 'FBJEWs1drKGWBERigYeRNZuoiaM='
-  end
-
   def test_should_initialize_with_proper_params
     assert Sepa::Client.new(@params)
   end
