@@ -18,8 +18,18 @@ module Sepa
     private
 
       def check_params(params)
+        check_params_hash(params)
+        check_private_key(params[:private_key])
+      end
+      def check_params_hash(params)
         unless params.respond_to?(:each_pair)
           fail ArgumentError, "You didn't provide a proper hash"
+        end
+      end
+
+      def check_private_key(private_key)
+        unless private_key.respond_to?(:sign)
+          fail ArgumentError, "You didn't provide a proper private key"
         end
       end
   end

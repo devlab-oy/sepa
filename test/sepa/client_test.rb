@@ -67,12 +67,6 @@ class ClientTest < MiniTest::Test
     assert_raises(KeyError) { Sepa::Client.new(@params) }
   end
 
-  def test_should_raise_error_if_private_key_missing
-    @params.delete(:private_key)
-
-    assert_raises(KeyError) { Sepa::Client.new(@params) }
-  end
-
   def test_should_raise_error_if_cert_missing
     @params.delete(:cert)
 
@@ -101,6 +95,15 @@ class ClientTest < MiniTest::Test
     @params.delete(:language)
 
     assert_raises(KeyError) { Sepa::Client.new(@params) }
+  end
+
+  def test_should_raise_error_if_private_key_in_wrong_format_or_missing
+    wrong_pks = ['Im not a key', 99, :leppakerttu]
+
+    wrong_pks.each do |wrong_pk|
+      @params[:private_key] = wrong_pk
+      assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+    end
   end
 
   # The response from savon will be the request to check that a proper request
