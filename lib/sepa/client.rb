@@ -20,6 +20,7 @@ module Sepa
       def check_params(params)
         check_params_hash(params)
         check_private_key(params[:private_key])
+        check_cert(params[:cert])
       end
       def check_params_hash(params)
         unless params.respond_to?(:each_pair)
@@ -30,6 +31,12 @@ module Sepa
       def check_private_key(private_key)
         unless private_key.respond_to?(:sign)
           fail ArgumentError, "You didn't provide a proper private key"
+        end
+      end
+
+      def check_cert(cert)
+        unless cert.respond_to?(:check_private_key)
+          fail ArgumentError, "You didn't provide a proper cert"
         end
       end
   end

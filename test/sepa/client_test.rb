@@ -67,12 +67,6 @@ class ClientTest < MiniTest::Test
     assert_raises(KeyError) { Sepa::Client.new(@params) }
   end
 
-  def test_should_raise_error_if_cert_missing
-    @params.delete(:cert)
-
-    assert_raises(KeyError) { Sepa::Client.new(@params) }
-  end
-
   def test_should_raise_error_if_customer_id_missing
     @params.delete(:customer_id)
 
@@ -98,10 +92,19 @@ class ClientTest < MiniTest::Test
   end
 
   def test_should_raise_error_if_private_key_in_wrong_format_or_missing
-    wrong_pks = ['Im not a key', 99, :leppakerttu]
+    wrong_pks = ['Im not a key', 99, :leppakerttu, nil]
 
     wrong_pks.each do |wrong_pk|
       @params[:private_key] = wrong_pk
+      assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+    end
+  end
+
+  def test_should_raise_error_if_cert_in_wrong_format_or_missing
+    wrong_certs = ['Im not a cert', 99, :leppakerttu, nil]
+
+    wrong_certs.each do |wrong_cert|
+      @params[:cert] = wrong_cert
       assert_raises(ArgumentError) { Sepa::Client.new(@params) }
     end
   end
