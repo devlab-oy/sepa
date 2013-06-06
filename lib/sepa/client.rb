@@ -21,7 +21,9 @@ module Sepa
         check_params_hash(params)
         check_private_key(params[:private_key])
         check_cert(params[:cert])
+        check_wsdl(params[:wsdl])
       end
+
       def check_params_hash(params)
         unless params.respond_to?(:each_pair)
           fail ArgumentError, "You didn't provide a proper hash"
@@ -37,6 +39,26 @@ module Sepa
       def check_cert(cert)
         unless cert.respond_to?(:check_private_key)
           fail ArgumentError, "You didn't provide a proper cert"
+        end
+      end
+
+      def check_wsdl(wsdl)
+        schema_file = File.expand_path('../../../lib/sepa/xml_schemas/wsdl.xml',
+                                       __FILE__)
+        xsd = Nokogiri::XML::Schema(File.read(schema_file))
+
+        begin
+          wsdl_file = File.read(wsdl)
+        rescue
+          fail ArgumentError, "You didn't provide a wsdl file or the path is" \
+            "invalid"
+        end
+
+        wsdl = Nokogiri::XML(wsdl_file)
+
+        unless xsd.valid?(wsdl)
+          fail ArgumentError, "The wsdl file provided doesn't validate " \
+            "against the wsdl schema and thus was rejected."
         end
       end
   end

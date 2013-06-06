@@ -55,12 +55,6 @@ class ClientTest < MiniTest::Test
     end
   end
 
-  def test_should_raise_error_if_wsdl_missing
-    @params.delete(:wsdl)
-
-    assert_raises(KeyError) { Sepa::Client.new(@params) }
-  end
-
   def test_should_raise_error_if_command_missing
     @params.delete(:command)
 
@@ -105,6 +99,16 @@ class ClientTest < MiniTest::Test
 
     wrong_certs.each do |wrong_cert|
       @params[:cert] = wrong_cert
+      assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+    end
+  end
+
+  def test_should_raise_error_if_wsdl_in_wrong_format_or_missing
+    wrong_wsdls = ['not quite wsdl', 99, :leppakerttu, nil]
+
+    wrong_wsdls.each do |wrong_wsdl|
+      @params[:wsdl] = wrong_wsdl
+
       assert_raises(ArgumentError) { Sepa::Client.new(@params) }
     end
   end
