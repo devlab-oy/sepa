@@ -113,6 +113,17 @@ class ClientTest < MiniTest::Test
     end
   end
 
+  def test_should_raise_error_if_command_wrong_or_missing
+    wrong_commands = ['string is not a command', 1337, :symbol_but_not_proper,
+                      nil]
+
+    wrong_commands.each do |wrong_command|
+      @params[:command] = wrong_command
+
+      assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+    end
+  end
+
   # The response from savon will be the request to check that a proper request
   # was made in the following four tests
   def test_should_send_proper_request_with_get_user_info
