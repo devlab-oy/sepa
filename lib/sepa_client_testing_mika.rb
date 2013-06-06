@@ -38,7 +38,7 @@ pin = '1234567890'
 csr = OpenSSL::X509::Request.new(File.read ('CSR.csr'))
 
 # Generate HMAC seal (SHA1 hash) with pin as key and PKCS#10 as message
-hmacseal = OpenSSL::HMAC.hexdigest('sha1',pin,csr.to_der)
+hmacseal = OpenSSL::HMAC.digest('sha1',pin,csr.to_der)
 
 #6. Send PKCS#10 with HMAC seal to Nordea
 #  using schema: CertApplicationRequest

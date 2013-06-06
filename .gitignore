@@ -17,6 +17,7 @@ lib/certificate_request.der
 lib/CSR.csr
 lib/signing_key.pem
 vendor
+dansketest
 
 # YARD artifacts
 .yardoc
