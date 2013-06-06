@@ -53,17 +53,18 @@ module Sepa
 
       # Set the customer id
       sender_id_node = soap.xpath("//cer:SenderId", 'cer' => 'http://bxd.fi/CertificateService').first
-      sender_id_node.content = @customer_id
-      #sender_id_node.content = 1
+      #sender_id_node.content = @customer_id
+      sender_id_node.content = 1
 
       # Set the request id, a random 35 digit hex number
       request_id_node = soap.xpath("//cer:RequestId", 'cer' => 'http://bxd.fi/CertificateService').first
-      request_id_node.content = SecureRandom.hex(35)
-      #request_id_node.content = 212345
+      #request_id_node.content = SecureRandom.hex(35)
+      request_id_node.content = 2
 
       # Add timestamp
       timestamp_node = soap.xpath("//cer:Timestamp", 'cer' => 'http://bxd.fi/CertificateService').first
-      timestamp_node.content = Time.now.iso8601
+      #timestamp_node.content = Time.now.iso8601
+      timestamp_node.content = "2011-02-08T14:00:08Z"
 #
 #      # Add language
 #      language_node = soap.xpath("//bxd:Language", 'cer' => 'http://model.bxd.fi').first
@@ -106,6 +107,8 @@ module Sepa
 ##      body = soap.xpath("//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/').first
 ##      #body = Nokogiri::XML(body)
 ##      canonbody = body.canonicalize(mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,with_comments=false)
+      #soap = soap.canonicalize(mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,with_comments=false)
+      #soap = Nokogiri::XML(soap)
 ##      sha1 = OpenSSL::Digest::SHA1.new
 ##      digestbin = sha1.digest(canonbody)
 ##      digest = Base64.encode64(digestbin)
@@ -134,6 +137,7 @@ module Sepa
 
       #header
       #puts soap.to_xml
+      #puts soap
       soap
     end
   end
