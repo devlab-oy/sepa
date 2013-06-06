@@ -6,6 +6,7 @@ require 'sepa'
 private_key = OpenSSL::PKey::RSA.new(File.read("sepa/nordea_testing/keys/nordea.key"))
 cert = OpenSSL::X509::Certificate.new(File.read("sepa/nordea_testing/keys/nordea.crt"))
 
+# Steps defined by Nordea Web Services documentation
 #1. The administrator makes agreement for the company using Web Services and receives 10-
 #digit activation code to his/her mobile phone via SMS. It is valid for 7 days, but a new one can
 #be ordered again from the branch office or from eSupport for corporate customers (see
@@ -66,7 +67,7 @@ params = {
   #customer_id: '482430003',
 
   # Set the environment to be either PRODUCTION or TEST
-  environment: 'PRODUCTION',
+  environment: 'TEST',
 
   # For filtering stuff. Must be either NEW, DOWNLOADED or ALL
   status: 'NEW',
@@ -85,8 +86,6 @@ params = {
 
   hmac: hmac,
 
-  #activation_code: activation_code,
-
   service: service
 
 
@@ -98,4 +97,4 @@ sepa_client = Sepa::Client.new(params)
 sepa_client.send
 
 # Decodes response to readable form
-puts sepa_client.get_ar_as_string
+#puts sepa_client.get_ar_as_string
