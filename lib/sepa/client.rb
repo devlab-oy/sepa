@@ -24,7 +24,17 @@ module Sepa
         check_wsdl(params[:wsdl])
         check_customer_id(params[:customer_id])
         check_env(params[:environment])
-        check_status(params[:status])
+
+        case params[:command]
+        when :download_file
+          check_status(params[:status])
+          check_target_id(params[:target_id])
+        when :download_file_list
+          check_status(params[:status])
+          check_target_id(params[:target_id])
+        when :upload_file
+          check_target_id(params[:target_id])
+        end
       end
 
       def check_params_hash(params)
@@ -83,6 +93,13 @@ module Sepa
         unless ['NEW', 'DOWNLOADED', 'ALL'].include?(status)
           fail ArgumentError, "You didn't provide a proper status." \
             "Acceptable values are NEW, DOWNLOADED or ALL."
+        end
+      end
+
+      def check_target_id(target_id)
+        unless target_id && target_id.respond_to?(:to_s) &&
+            target_id.length <= 80
+          fail ArgumentError, "You didn't provide a proper target id"
         end
       end
   end
