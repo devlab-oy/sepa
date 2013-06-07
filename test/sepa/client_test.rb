@@ -55,18 +55,6 @@ class ClientTest < MiniTest::Test
     end
   end
 
-  def test_should_raise_error_if_target_id_missing
-    @params.delete(:target_id)
-
-    assert_raises(KeyError) { Sepa::Client.new(@params) }
-  end
-
-  def test_should_raise_error_if_language_missing
-    @params.delete(:language)
-
-    assert_raises(KeyError) { Sepa::Client.new(@params) }
-  end
-
   def test_should_raise_error_if_private_key_in_wrong_format_or_missing
     wrong_pks = ['Im not a key', 99, :leppakerttu, nil]
 
@@ -155,6 +143,16 @@ class ClientTest < MiniTest::Test
 
         assert_raises(ArgumentError) { Sepa::Client.new(@params) }
       end
+    end
+  end
+
+  def test_should_raise_error_if_language_wrong
+    wrong_langs = ["Joo", 7, :protuction]
+
+    wrong_langs.each do |wrong_lang|
+      @params[:language] = wrong_lang
+
+      assert_raises(ArgumentError) { Sepa::Client.new(@params) }
     end
   end
 

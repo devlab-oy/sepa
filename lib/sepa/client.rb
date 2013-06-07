@@ -24,6 +24,7 @@ module Sepa
         check_wsdl(params[:wsdl])
         check_customer_id(params[:customer_id])
         check_env(params[:environment])
+        check_lang(params[:language])
 
         case params[:command]
         when :download_file
@@ -100,6 +101,13 @@ module Sepa
         unless target_id && target_id.respond_to?(:to_s) &&
             target_id.length <= 80
           fail ArgumentError, "You didn't provide a proper target id"
+        end
+      end
+
+      def check_lang(lang)
+        unless ['FI', 'SE', 'EN', nil].include?(lang)
+          fail ArgumentError, "You didn't provide a proper language." \
+            "Acceptable values are FI, SE or EN."
         end
       end
   end
