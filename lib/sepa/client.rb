@@ -24,6 +24,7 @@ module Sepa
         check_wsdl(params[:wsdl])
         check_customer_id(params[:customer_id])
         check_env(params[:environment])
+        check_status(params[:status])
       end
 
       def check_params_hash(params)
@@ -75,6 +76,13 @@ module Sepa
         unless ['PRODUCTION', 'TEST'].include?(env)
           fail ArgumentError, "You didn't provide a proper environment." \
             "Acceptable values are PRODUCTION or TEST."
+        end
+      end
+
+      def check_status(status)
+        unless ['NEW', 'DOWNLOADED', 'ALL'].include?(status)
+          fail ArgumentError, "You didn't provide a proper status." \
+            "Acceptable values are NEW, DOWNLOADED or ALL."
         end
       end
   end

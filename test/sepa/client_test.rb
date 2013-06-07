@@ -126,6 +126,16 @@ class ClientTest < MiniTest::Test
     end
   end
 
+  def test_should_raise_error_if_status_wrong
+    wrong_statuses = ["ready", 'steady', 5, :nipsu]
+
+    wrong_statuses.each do |wrong_status|
+      @params[:status] = wrong_status
+
+      assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+    end
+  end
+
   # The response from savon will be the request to check that a proper request
   # was made in the following four tests
   def test_should_send_proper_request_with_get_user_info
