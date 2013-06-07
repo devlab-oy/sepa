@@ -68,6 +68,7 @@ vBVs5PGGZ//dlrlYX0iY8qhQicTdPQT3MRoYjUKBvi7IRJnfbWbpQKIZSweblEKN
 7P7OjDsBG7G+4XFeqiRkpOPHDj9mb9PKp7SptH4rtv6bZZ4R3xnLWO74ZqIZuy3d
 GmwtTeBavOJLLRkdYZhVsBkRX4sAHTt0190G80jbl+5NJRpb/ii0e2Sm0x7gIu66
 qu8t+G80raOpKwI8CA==")
+#payload = Nokogiri::XML(File.open("certest/taken_re.xml"))
 
 # The params hash is populated with the data that is needed for gem to function
 params = {
@@ -82,8 +83,8 @@ params = {
   command: :get_certificate,
 
   # Unique customer ID
-  #customer_id: '11111111',
-  customer_id: '482430003',
+  customer_id: '11111111',
+  #customer_id: '482430003',
 
   # Set the environment to be either PRODUCTION or TEST
   environment: 'TEST',

@@ -71,7 +71,7 @@ module Sepa
       when :get_certificate
         set_node("Service", @service)
         set_node("Content", Base64.encode64(@content))
-        set_node("HMAC", Base64.encode64(@hmac))
+        set_node("HMAC", Base64.encode64(@hmac).chop)
       when :download_file_list
         set_node("Status", @status)
         set_node("TargetId", @target_id)
