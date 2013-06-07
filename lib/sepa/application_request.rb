@@ -1,9 +1,9 @@
 module Sepa
   class ApplicationRequest
     def initialize(params)
-      @private_key = params.fetch(:private_key)
-      @cert = params.fetch(:cert)
       @command = params.fetch(:command)
+      @private_key = params.fetch(:private_key) unless @command == :get_certificate
+      @cert = params.fetch(:cert) unless @command == :get_certificate
       @customer_id = params.fetch(:customer_id)
       @environment = params.fetch(:environment)
       @status = params[:status]
@@ -18,7 +18,7 @@ module Sepa
     def get_as_base64
       load_template(@command)
       set_nodes_contents
-      process_signature unless @command == :get_certificate || @command == :get_service_certificates
+      process_signature unless @command == :get_certificate
       Base64.encode64(@ar.to_xml)
     end
 
@@ -30,10 +30,8 @@ module Sepa
 
       case command
 
-      when :get_service_certificates
-        path = "#{template_dir}/renew_certificate.xml"
       when :get_certificate
-        path = "#{template_dir}/get_cert.xml"
+        path = "#{template_dir}/get_certificate.xml"
       when :download_file_list
         path = "#{template_dir}/download_file_list.xml"
       when :get_user_info
@@ -58,16 +56,12 @@ module Sepa
     def set_nodes_contents
       set_node("CustomerId", @customer_id)
       set_node("Timestamp", Time.now.iso8601)
-      #set_node("Timestamp", "2010-07-08T14:46:14.756+03:00")
       set_node("Environment", @environment)
       set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
-      #set_node("SoftwareId", "Petri")
       set_node("Command", @command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join)
 
       case @command
-      when :get_service_certificates
-        set_node("Service", @service)
-        set_node("Content", Base64.encode64(@content))
+
       when :get_certificate
         set_node("Service", @service)
         set_node("Content", Base64.encode64(@content))
