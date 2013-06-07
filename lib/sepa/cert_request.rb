@@ -41,7 +41,7 @@ module Sepa
         set_node(body, 'cer|SenderId', sender_id)
         set_node(body, 'cer|RequestId', SecureRandom.hex(17))
         set_node(body, 'cer|Timestamp', Time.now.iso8601)
-        set_node(body, 'bxd|UserAgent',
+        set_node(body, 'cer|UserAgent',
                  "Sepa Transfer Library version " + VERSION)
       end
 
