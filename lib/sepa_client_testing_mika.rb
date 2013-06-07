@@ -4,6 +4,7 @@ require 'sepa'
 
 # Create 1024bit sha1 private key and generate Certificate Signing Request with it using parameters from cert_req.conf
 %x(openssl req -newkey rsa:1024 -keyout signing_key.pem -keyform PEM -out CSR.csr -outform DER -config cert_req.conf -nodes)
+#%x(rm signing_key.pem)
 
 # Test pin for nordea
 pin = '1234567890'
@@ -20,11 +21,9 @@ payload = csr.to_der
 # Assign the calculated HMAC seal as hmac (goes to HMAC element)
 hmac = hmacseal
 
-# Assigns value for service (goes to Service element)
-
 # The params hash is populated with the data that is needed for gem to function
 params = {
-  # Command :download_file_list, :upload_file, :download_file, :get_user_info OR :get_certificate, :get_service_certificates
+  # Command for CertificateService :get_certificate
   command: :get_certificate,
 
   # Unique customer ID
@@ -32,9 +31,6 @@ params = {
 
   # Set the environment to be either PRODUCTION or TEST
   environment: 'TEST',
-
-  # Language must be either FI, EN or SV
-  language: 'FI',
 
   # The WSDL file used by nordea. Is identical between banks except for the address.
   wsdl: 'sepa/wsdl/wsdl_nordea_cert.xml',
