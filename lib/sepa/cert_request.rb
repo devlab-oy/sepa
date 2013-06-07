@@ -3,7 +3,7 @@ module Sepa
     def initialize(params)
       @command = params.fetch(:command)
       @sender_id = params.fetch(:customer_id)
-      @ar = ApplicationRequest.new(params)
+      @ar = ApplicationRequest.new(params).get_as_base64
 
       template_path = File.expand_path('../xml_templates/soap/', __FILE__)
 
@@ -41,8 +41,8 @@ module Sepa
         set_node(body, 'cer|SenderId', sender_id)
         set_node(body, 'cer|RequestId', SecureRandom.hex(17))
         set_node(body, 'cer|Timestamp', Time.now.iso8601)
-        set_node(body, 'cer|UserAgent',
-                 "Sepa Transfer Library version " + VERSION)
+
+        body
       end
 
       def set_node(doc, node, value)
