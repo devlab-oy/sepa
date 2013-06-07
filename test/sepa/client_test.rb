@@ -127,12 +127,18 @@ class ClientTest < MiniTest::Test
   end
 
   def test_should_raise_error_if_status_wrong
-    wrong_statuses = ["ready", 'steady', 5, :nipsu]
+    commands = [:download_file, :download_file_list]
 
-    wrong_statuses.each do |wrong_status|
-      @params[:status] = wrong_status
+    commands.each do |command|
+      @params[:command] = command
 
-      assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+      wrong_statuses = ["ready", 'steady', 5, :nipsu]
+
+      wrong_statuses.each do |wrong_status|
+        @params[:status] = wrong_status
+
+        assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+      end
     end
   end
 
