@@ -41,7 +41,7 @@ params = {
   # HMAC seal
   hmac: hmac,
 
-  # Selected service
+  # Selected service (For testing: service, For real: ISSUER)
   service: 'service'
 
 }

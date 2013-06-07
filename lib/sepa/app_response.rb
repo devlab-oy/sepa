@@ -2,7 +2,7 @@ module Sepa
   # This class is able to handle GetUserInfo, DownloadFileList, DownloadFile responses and pass content
   class ApplicationResponse
     attr_accessor :timestamp, :responseCode, :encrypted, :compressed, :customerId, :responseText, :fileDescriptors, :userFiletypes
-    
+
     # Reads values from content field (xml file), returns a hash
     # Bank to customer statement
     def get_account_statement_content(file)
@@ -37,7 +37,7 @@ module Sepa
         transactions = []
 
         content.xpath("//Document/BkToCstmrStmt/Stmt/Ntry").each do |node|
-          
+
           # To contain the values of a single transaction
           transaction_content = {}
 
@@ -92,7 +92,7 @@ module Sepa
       end
     end
 
-    
+
     # Reads values from content field (xml file), returns a hash
     def get_debit_credit_notification_content(file)
 
@@ -107,25 +107,25 @@ module Sepa
 
         # account iban
         notification_content[:account_iban] = content.at_css("Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Id/IBAN").content unless content.at_css("Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Id/IBAN") == nil
-       
+
         # payer name
         notification_content[:account_owner] = content.at_css("Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Ownr/Nm").content unless content.at_css("Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Ownr/Nm") == nil
-        
+
         # bic
         notification_content[:account_bic] = content.at_css("Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Svcr/FinInstnId/BIC").content unless content.at_css("Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Acct/Svcr/FinInstnId/BIC") == nil
 
         #Viitesiirtokentat
         # Notification entries
         notification_entries = []
-        
+
         #txdtls_content = {}
-        
+
         content.xpath("//Document/BkToCstmrDbtCdtNtfctn/Ntfctn/Ntry").each do |node|
 
           entry_content = {}
 
           # reference
-          entry_content[:entry_reference] = node.at_css("NtryRef").content unless node.at_css("NtryRef") == nil 
+          entry_content[:entry_reference] = node.at_css("NtryRef").content unless node.at_css("NtryRef") == nil
           # sum
           entry_content[:entry_sum] = node.at_css("Amt").content unless node.at_css("Amt") == nil
           # currency code
@@ -156,7 +156,7 @@ module Sepa
 
           txdtls_all<<txdtls_content unless txdtls_content[:gross_outgoing_currency] == txdtls_content[:currency_post_exchange]
           end
-          entry_content[:txdtls] = txdtls_all            
+          entry_content[:txdtls] = txdtls_all
           # Add single notification entry to array
           notification_entries<<entry_content
         end
@@ -208,14 +208,14 @@ module Sepa
 
       # To help navigating the response xml
       xml.remove_namespaces!
-   
+
       customerId = xml.at_css("CustomerId").content unless xml.at_css("CustomerId") == nil
       timestamp = xml.at_css("Timestamp").content unless xml.at_css("Timestamp") == nil
       responseCode = xml.at_css("ResponseCode").content unless xml.at_css("ResponseCode") == nil
       responseText = xml.at_css("ResponseText").content unless xml.at_css("ResponseText") == nil
       encrypted = xml.at_css("Encrypted").content unless xml.at_css("Encrypted").content == nil
       compressed = xml.at_css("Compressed").content unless xml.at_css("Compressed") == nil
-  
+
       # Decode the content portion automatically so that it can be read
       content = Base64.decode64(xml.at_css("Content").content) unless xml.at_css("Content") == nil
       puts content unless content == ""
