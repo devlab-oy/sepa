@@ -56,24 +56,76 @@ Or install it yourself as:
 4. There are five methods that can be called after initializing the client:
 
   * Returns the whole soap response as a hash:
-  
+
             sepa_client.call
-  
+
   * Returns the application request in base64 coded format:
-  
+
             sepa_client.get_ar_as_base64
-  
+
   * Returns the application request as a string:
-  
+
             sepa_client.get_ar_as_string
-  
+
   * Returns the content field of the application request in base64 coded format:
-  
+
             sepa_client.get_content_as_base64
-  
+
   * Returns the content field of the application request as a string:
-  
+
             sepa_client.get_content_as_string
+
+### For downloading Nordea certificate
+
+1. Require the gem:
+
+        require 'sepa'
+
+2. Create a request config file (cert_req.conf) with following contents (filled with values appropriate for testing)
+
+        [ req ]
+        default_bits            = 1024
+        default_keyfile         = defaultkeyfilename.pem
+        default_md              = sha1
+
+        prompt                  = no
+        distinguished_name      = distinguished_name
+
+        [ distinguished_name ]
+        CN                      = Company name
+        serialNumber            = 11111111
+        C                       = FI
+
+3. Create 1024bit SHA-1 Private Key and generate a Certificate Signing Request in DER format using your personal PIN as the key (using values appropriate for testing)
+
+        openssl req -newkey rsa:1024 -keyout signing_key.pem -keyform PEM -out CSR.csr -outform DER -config cert_req.conf -nodes
+
+        pin = '1234567890'
+
+        csr = OpenSSL::X509::Request.new(File.read ('CSR.csr'))
+
+        hmac = OpenSSL::HMAC.digest('sha1',pin,csr.to_der)
+
+        payload = csr.to_der
+
+4. Define the hash that will be passed to the gem when initializing it:
+
+        params = {
+          command: :get_certificate,
+          customer_id: '11111111',
+          environment: 'TEST',
+          wsdl: 'sepa/wsdl/wsdl_nordea_cert.xml(or url)',
+          content: payload,
+          hmac: hmac,
+          service: 'service'
+        }
+
+5. Initialize a new instance of the client and pass the params hash
+
+        sepa_client = Sepa::Client.new(params)
+        sepa_client.call
+
+6. Save the certificate from the response into a local file
 
 ***
 
@@ -83,7 +135,7 @@ Or install it yourself as:
 
 * cert: The path to your certificate file.
 
-* command: Either :download_file_list, :upload_file, :download_file or :get_user_info, depending on what you want to do.
+* command: Either :download_file_list, :upload_file, :download_file, :get_user_info or :get_certificate, depending on what you want to do.
 
 * customer_id: Your personal id with the bank.
 
@@ -98,17 +150,17 @@ Or install it yourself as:
 * file_type: File types to upload or download:
 
   * LMP300 = Laskujen maksupalvelu (lähtevä)
-  
+
   * LUM2 = Valuuttamaksut (lähtevä)
-  
+
   * KTL = Saapuvat viitemaksut (saapuva)
-  
+
   * TITO = Konekielinen tiliote (saapuva)
-  
+
   * NDCORPAYS = Yrityksen maksut XML (lähtevä)
-  
+
   * NDCAMT53L = Konekielinen XML-tiliote (saapuva)
-  
+
   * NDCAMT54L = Saapuvat XML viitemaksu (saapuva)
 
   * wsdl: Path to the WSDL file. Is identical at least between finnish banks except for the address.
@@ -116,6 +168,10 @@ Or install it yourself as:
   * content: The actual payload to send. The creation of this file may be supported by the client at some point.
 
   * file_reference: File reference for :download_file command
+
+* hmac: SHA-1 hmac seal generated with personal pin as key, certificate signing request as value
+
+* service: For testing value is service, otherwise ISSUER
 
 ***
 
@@ -125,7 +181,7 @@ Parsing based on specifications by Federation of Finnish Financial Services prov
 * Create new instance of ApplicationResponse
 * method get_account_statement_content takes a bank statement file (xml) as a parameter and returns selected info in a hash
 * method get_debit_credit_notification_content takes a debit credit notification file (xml) as a parameter and returns selected info in a hash
-* method animate_response takes a full application response xml as a parameter and parses data into objects, can be used to take out different formats of "content"-field, without predefined parameter specs
+* method animate_response takes a full application response xml as a parameter and parses data into objects, can be used to take out different formats of Content-field, without predefined parameter specs
 
 ## Contributing
 
