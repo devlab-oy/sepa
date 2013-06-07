@@ -57,11 +57,11 @@ module Sepa
     # Set the nodes' contents according to the command
     def set_nodes_contents
       set_node("CustomerId", @customer_id)
-      #set_node("Timestamp", Time.now.iso8601)
-      set_node("Timestamp", "2010-07-08T14:46:14.756+03:00")
+      set_node("Timestamp", Time.now.iso8601)
+      #set_node("Timestamp", "2010-07-08T14:46:14.756+03:00")
       set_node("Environment", @environment)
-      #set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
-      set_node("SoftwareId", "Petri")
+      set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
+      #set_node("SoftwareId", "Petri")
       set_node("Command", @command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join)
 
       case @command

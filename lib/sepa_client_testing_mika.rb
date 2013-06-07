@@ -48,27 +48,7 @@ payload = csr.to_der
 # Assign the calculated HMAC seal as hmac (goes to HMAC element)
 hmac = hmacseal
 # Assigns value for service (goes to Service element)
-service = "service"
-
-hmac = Base64.decode64("F8Y8sxWtHbtaaUTVQ9tDp9KxM0A=")
-payload = Base64.decode64("MIIDCTCCAnICAQAwOjEXMBUGA1UEAxMOUGV0cmkgVC4gTHVvdG8xEjAQBgNVBAUT
-CTY3OTE1NTMzMDELMAkGA1UEBhMCRkkwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJ
-AoGBAJo41eSLt4P7FBwXZtFBNEks55y1sl2zdfRHqTH1QsfZvs5lKbkhIKRXWb6y
-Ifnw5pktY6nYYM+Jd6SwbZbtvuUTIHTtNxlGSkfvGOXndlczky3e7qRRFfKy9LFS
-WIAH7baVr/lDsTPxWXOOFxrTiyfWtTye0lrjvyRqWaBvBKdLAgMBAAGgggGNMBoG
-CisGAQQBgjcNAgMxDBYKNS4xLjI2MDAuMjB7BgorBgEEAYI3AgEOMW0wazAOBgNV
-HQ8BAf8EBAMCBPAwRAYJKoZIhvcNAQkPBDcwNTAOBggqhkiG9w0DAgICAIAwDgYI
-KoZIhvcNAwQCAgCAMAcGBSsOAwIHMAoGCCqGSIb3DQMHMBMGA1UdJQQMMAoGCCsG
-AQUFBwMCMIHxBgorBgEEAYI3DQICMYHiMIHfAgEBHk4ATQBpAGMAcgBvAHMAbwBm
-AHQAIABTAHQAcgBvAG4AZwAgAEMAcgB5AHAAdABvAGcAcgBhAHAAaABpAGMAIABQ
-AHIAbwB2AGkAZABlAHIDgYkAbII1TrHis4afw+wbLrZIOYe1boagX3QNyHNj4kpk
-tRyBgIFt6WofQ1nXK6TXmpAm2/AmY20/h+a1GZ1/vn7EEzHcNQfjvHoSZH7yU5Fz
-vBVs5PGGZ//dlrlYX0iY8qhQicTdPQT3MRoYjUKBvi7IRJnfbWbpQKIZSweblEKN
-1IYAAAAAAAAAADANBgkqhkiG9w0BAQUFAAOBgQBSO7NiaLLu7vB3ZEMV7qjnBhPP
-7P7OjDsBG7G+4XFeqiRkpOPHDj9mb9PKp7SptH4rtv6bZZ4R3xnLWO74ZqIZuy3d
-GmwtTeBavOJLLRkdYZhVsBkRX4sAHTt0190G80jbl+5NJRpb/ii0e2Sm0x7gIu66
-qu8t+G80raOpKwI8CA==")
-#payload = Nokogiri::XML(File.open("certest/taken_re.xml"))
+#service = "service"
 
 # The params hash is populated with the data that is needed for gem to function
 params = {
@@ -79,21 +59,13 @@ params = {
   cert: cert,
 
   # Command :download_file_list, :upload_file, :download_file, :get_user_info OR :get_certificate, :get_service_certificates
-  #command: :get_service_certificates,
   command: :get_certificate,
 
   # Unique customer ID
   customer_id: '11111111',
-  #customer_id: '482430003',
 
   # Set the environment to be either PRODUCTION or TEST
   environment: 'TEST',
-
-  # For filtering stuff. Must be either NEW, DOWNLOADED or ALL
-  status: 'NEW',
-
-  # Some specification of the folder which to access in the bank. I have no idea how this works however.
-  target_id: '11111111A1',
 
   # Language must be either FI, EN or SV
   language: 'FI',
@@ -108,7 +80,7 @@ params = {
   hmac: hmac,
 
   # Selected service
-  service: service
+  service: 'service'
 
 }
 
