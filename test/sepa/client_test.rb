@@ -156,6 +156,22 @@ class ClientTest < MiniTest::Test
     end
   end
 
+  def test_should_raise_error_if_file_type_wrong_or_missing
+    commands = [:download_file, :download_file_list, :upload_file]
+
+    commands.each do |command|
+      @params[:command] = command
+
+      wrong_types = ["kalle"*41, nil]
+
+      wrong_types.each do |wrong_type|
+        @params[:file_type] = wrong_type
+
+        assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+      end
+    end
+  end
+
   # The response from savon will be the request to check that a proper request
   # was made in the following four tests
   def test_should_send_proper_request_with_get_user_info

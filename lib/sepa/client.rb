@@ -30,11 +30,14 @@ module Sepa
         when :download_file
           check_status(params[:status])
           check_target_id(params[:target_id])
+          check_file_type(params[:file_type])
         when :download_file_list
           check_status(params[:status])
           check_target_id(params[:target_id])
+          check_file_type(params[:file_type])
         when :upload_file
           check_target_id(params[:target_id])
+          check_file_type(params[:file_type])
         end
       end
 
@@ -108,6 +111,13 @@ module Sepa
         unless ['FI', 'SE', 'EN', nil].include?(lang)
           fail ArgumentError, "You didn't provide a proper language." \
             "Acceptable values are FI, SE or EN."
+        end
+      end
+
+      def check_file_type(file_type)
+        unless file_type && file_type.respond_to?(:to_s) &&
+            file_type.length <= 20
+          fail ArgumentError, "You didn't provide a proper file type"
         end
       end
   end
