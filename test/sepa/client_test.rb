@@ -74,7 +74,9 @@ class ClientTest < MiniTest::Test
   end
 
   def test_should_raise_error_if_wsdl_in_wrong_format_or_missing
-    wrong_wsdls = ['not quite wsdl', 99, :leppakerttu, nil]
+    invalid_wsdl_path = File.expand_path('../test_files/invalid.wsdl',
+      __FILE__)
+    wrong_wsdls = [invalid_wsdl_path, 99, :leppakerttu, nil]
 
     wrong_wsdls.each do |wrong_wsdl|
       @params[:wsdl] = wrong_wsdl

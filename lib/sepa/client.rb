@@ -1,8 +1,9 @@
 module Sepa
   class Client
+    # Check that parameters are valid, initialize savon client with them and
+    # construct soap message
     def initialize(params)
       check_params(params)
-      # Initialize savon client with params and construct soap message
       wsdl = params.fetch(:wsdl)
       @client = Savon.client(wsdl: wsdl)
       @soap = SoapRequest.new(params).to_xml
@@ -27,11 +28,7 @@ module Sepa
         check_lang(params[:language])
 
         case params[:command]
-        when :download_file
-          check_status(params[:status])
-          check_target_id(params[:target_id])
-          check_file_type(params[:file_type])
-        when :download_file_list
+        when :download_file, :download_file_list
           check_status(params[:status])
           check_target_id(params[:target_id])
           check_file_type(params[:file_type])
