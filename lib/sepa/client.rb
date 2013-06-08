@@ -18,6 +18,7 @@ module Sepa
 
     private
 
+      # Tries to validate the parameters as well as possible.
       def check_params(params)
         check_params_hash(params)
         check_private_key(params[:private_key])
@@ -47,13 +48,15 @@ module Sepa
 
       def check_private_key(private_key)
         unless private_key.respond_to?(:sign)
-          fail ArgumentError, "You didn't provide a proper private key"
+          fail ArgumentError, "You didn't provide a proper private key. The " \
+            "key has to be in OpenSSL::PKey::RSA - format."
         end
       end
 
       def check_cert(cert)
         unless cert.respond_to?(:check_private_key)
-          fail ArgumentError, "You didn't provide a proper cert"
+          fail ArgumentError, "You didn't provide a proper certificate. The " \
+            "certificate has to be in OpenSSL::X509::Certificate - format."
         end
       end
 
@@ -86,14 +89,14 @@ module Sepa
 
       def check_env(env)
         unless ['PRODUCTION', 'TEST'].include?(env)
-          fail ArgumentError, "You didn't provide a proper environment." \
+          fail ArgumentError, "You didn't provide a proper environment. " \
             "Acceptable values are PRODUCTION or TEST."
         end
       end
 
       def check_status(status)
         unless ['NEW', 'DOWNLOADED', 'ALL'].include?(status)
-          fail ArgumentError, "You didn't provide a proper status." \
+          fail ArgumentError, "You didn't provide a proper status. " \
             "Acceptable values are NEW, DOWNLOADED or ALL."
         end
       end
@@ -107,7 +110,7 @@ module Sepa
 
       def check_lang(lang)
         unless ['FI', 'SE', 'EN', nil].include?(lang)
-          fail ArgumentError, "You didn't provide a proper language." \
+          fail ArgumentError, "You didn't provide a proper language. " \
             "Acceptable values are FI, SE or EN."
         end
       end
@@ -115,13 +118,14 @@ module Sepa
       def check_file_type(file_type)
         unless file_type && file_type.respond_to?(:to_s) &&
             file_type.length <= 20
-          fail ArgumentError, "You didn't provide a proper file type"
+          fail ArgumentError, "You didn't provide a proper file type. Check " \
+            "Your bank's documentation for available file types."
         end
       end
 
       def check_content(content)
         unless content
-          fail ArgumentError, "You didn't provide any content"
+          fail ArgumentError, "You didn't provide any content."
         end
       end
   end
