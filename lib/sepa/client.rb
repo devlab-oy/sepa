@@ -38,6 +38,7 @@ module Sepa
         when :upload_file
           check_target_id(params[:target_id])
           check_file_type(params[:file_type])
+          check_content(params[:content])
         end
       end
 
@@ -118,6 +119,12 @@ module Sepa
         unless file_type && file_type.respond_to?(:to_s) &&
             file_type.length <= 20
           fail ArgumentError, "You didn't provide a proper file type"
+        end
+      end
+
+      def check_content(content)
+        unless content
+          fail ArgumentError, "You didn't provide any content"
         end
       end
   end
