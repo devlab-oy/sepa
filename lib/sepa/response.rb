@@ -4,9 +4,21 @@ module Sepa
       @response = response
     end
 
-    def verify_soap_digests
-      references = find_digest_values(@response)
-      find_nodes_to_verify(@response, references)
+    # Verifies that all digest values in the document match the actual ones.
+    def soap_hashes_match?
+      digests = find_digest_values(@response)
+      nodes = find_nodes_to_verify(@response, digests)
+
+      verified_digests = digests.select do |uri, digest|
+        uri = uri.sub(/^#/, '')
+        digest == nodes[uri]
+      end
+
+      if digests == verified_digests
+        true
+      else
+        false
+      end
     end
 
     private
@@ -43,16 +55,14 @@ module Sepa
             '-wssecurity-utility-1.0.xsd'
           )
 
-          nodes[uri] = node
+          nodes[uri] = calculate_digest(node)
         end
 
         nodes
       end
 
-      def calculate_digest(doc, node)
+      def calculate_digest(node)
         sha1 = OpenSSL::Digest::SHA1.new
-
-        node = doc.at_css(node)
 
         canon_node = node.canonicalize(
           mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,

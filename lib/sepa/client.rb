@@ -5,7 +5,7 @@ module Sepa
     def initialize(params)
       check_params(params)
       wsdl = params.fetch(:wsdl)
-      @client = Savon.client(wsdl: wsdl, pretty_print_xml: true)
+      @client = Savon.client(wsdl: wsdl)
       @soap = SoapRequest.new(params).to_xml
       @command = params.fetch(:command)
     end
