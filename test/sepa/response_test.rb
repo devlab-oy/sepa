@@ -7,4 +7,8 @@ class ResponseTest < MiniTest::Test
                                  __FILE__))
     )
   end
+
+  def test_should_initialize_with_proper_params
+    assert Sepa::Response.new(@response)
+  end
 end
