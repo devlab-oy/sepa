@@ -35,8 +35,8 @@ Or install it yourself as:
 2. Define the hash that will be passed to the gem when initializing it:
 
         params = {
-          private_key: 'path/to/private/key',
-          cert: 'path/to/cert',
+          private_key: OpenSSL::PKey::RSA.new(File.read("path/to/key")),
+          cert: OpenSSL::X509::Certificate.new(File.read("path/to/key")),
           command: :command_as_symbol,
           customer_id: '11111111',
           environment: 'PRODUCTION',
@@ -53,27 +53,11 @@ Or install it yourself as:
 
         sepa_client = Sepa::Client.new(params)
 
-4. There are five methods that can be called after initializing the client:
+4. There is only one method that can be called after initializing the client:
 
-  * Returns the whole soap response as a hash:
+  * Returns the whole soap response as a savon response object:
 
-            sepa_client.call
-
-  * Returns the application request in base64 coded format:
-
-            sepa_client.get_ar_as_base64
-
-  * Returns the application request as a string:
-
-            sepa_client.get_ar_as_string
-
-  * Returns the content field of the application request in base64 coded format:
-
-            sepa_client.get_content_as_base64
-
-  * Returns the content field of the application request as a string:
-
-            sepa_client.get_content_as_string
+            client.send
 
 ### For downloading Nordea certificate
 
@@ -131,9 +115,9 @@ Or install it yourself as:
 
 ### Parameter breakdown
 
-* private_key: The path to your private key file. Sepa client currently only supports unencrypted keys, but support for encypted keys will come shortly.
+* private_key: Your private key in OpenSSL PKey RSA format
 
-* cert: The path to your certificate file.
+* cert: Your certificate in OpenSSL X509 Certificate format.
 
 * command: Either :download_file_list, :upload_file, :download_file, :get_user_info or :get_certificate, depending on what you want to do.
 
