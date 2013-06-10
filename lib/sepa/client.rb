@@ -26,12 +26,19 @@ module Sepa
       def check_params(params)
         check_params_hash(params)
         if(params[:command] != :get_certificate)
-        check_private_key(params[:private_key])
-        check_cert(params[:cert])
-        check_wsdl(params[:wsdl])
-        check_customer_id(params[:customer_id])
-        check_env(params[:environment])
-        check_lang(params[:language])
+          check_private_key(params[:private_key])
+          check_cert(params[:cert])
+          check_wsdl(params[:wsdl])
+          check_customer_id(params[:customer_id])
+          check_env(params[:environment])
+          check_lang(params[:language])
+        end
+        if(params[:command] == :get_certificate)
+          check_wsdl(params[:wsdl])
+          check_customer_id(params[:customer_id])
+          check_env(params[:environment])
+          check_service(params[:service])
+          check_hmac(params[:hmac])
         end
         case params[:command]
         when :download_file, :download_file_list
@@ -131,6 +138,18 @@ module Sepa
       def check_content(content)
         unless content
           fail ArgumentError, "You didn't provide any content."
+        end
+      end
+
+      def check_service(service)
+        unless ['service', 'ISSUER', 'MATU'].include?(service)
+          fail ArgumentError, "You didn't provide a proper service."
+        end
+      end
+
+      def check_hmac(hmac)
+        unless hmac
+          fail ArgumentError, "You didn't provide any HMAC."
         end
       end
   end
