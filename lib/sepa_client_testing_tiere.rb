@@ -17,7 +17,7 @@ params = {
   cert: cert,
 
   # Command :download_file_list, :upload_file, :download_file or :get_user_info
-  command: :get_user_info,
+  command: :download_file,
 
   # Unique customer ID
   customer_id: '11111111',
