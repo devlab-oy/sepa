@@ -4,6 +4,8 @@ class ResponseTest < MiniTest::Test
   def setup
     @responses_path = File.expand_path('../test_files/test_responses', __FILE__)
 
+    @response = Nokogiri::XML(File.read("#{@responses_path}/invalid_1.xml"))
+
     @valid_1_file = File.read("#{@responses_path}/valid_1.xml")
     @valid_1 = Nokogiri::XML(@valid_1_file)
     @valid_1 = Sepa::Response.new(@valid_1)
@@ -38,7 +40,11 @@ class ResponseTest < MiniTest::Test
   end
 
   def test_should_initialize_with_proper_params
-    assert Sepa::Response.new(@valid_1)
+    assert Sepa::Response.new(@response)
+  end
+
+  def test_should_complain_if_initialized_with_something_weird
+    assert_raises(ArgumentError) { Sepa::Response.new("Sammakko") }
   end
 
   def test_valid_response_1_is_unmodified

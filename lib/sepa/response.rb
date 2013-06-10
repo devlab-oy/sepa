@@ -2,6 +2,9 @@ module Sepa
   class Response
     def initialize(response)
       @response = response
+      unless valid_against_schema?(@response)
+        fail ArgumentError, "The response doesn't validate against schema"
+      end
     end
 
     # Verifies that all digest values in the document match the actual ones.
@@ -70,6 +73,16 @@ module Sepa
         )
 
         Base64.encode64(sha1.digest(canon_node)).gsub(/\s+/, "")
+      end
+
+      def valid_against_schema?(doc)
+        schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',
+                                        __FILE__)
+
+        Dir.chdir(schemas_path) do
+          xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+          xsd.valid?(doc)
+        end
       end
   end
 end
