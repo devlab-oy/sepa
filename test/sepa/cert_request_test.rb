@@ -4,18 +4,16 @@ class CertRequestTest < MiniTest::Test
   def setup
     @schemapath
     @templatepath
-
-  # Create 1024bit sha1 private key and generate Certificate Signing Request with it using parameters from cert_req.conf
-  %x(openssl req -newkey rsa:1024 -keyout ../nordea_test_keys/test_key1.pem -keyform PEM -out ../nordea_test_keys/testcert.csr -outform DER -config test_req.conf -nodes)
+    keyspath = File.expand_path('../nordea_test_keys', __FILE__)
 
   # Test pin for nordea
   testpin = '1234567890'
 
   # Open Certificate Signing Request PKCS#10
-  csr = OpenSSL::X509::Request.new(File.read ('../nordea_test_keys/testcert.csr'))
+  testcert = OpenSSL::X509::Request.new(File.read ("#{keyspath}/testcert.csr"))
 
   # Generate HMAC seal (SHA1 hash) with pin as key and PKCS#10 as message
-  hmacseal = OpenSSL::HMAC.digest('sha1',pin,testcert.to_der)
+  hmacseal = OpenSSL::HMAC.digest('sha1',testpin,testcert.to_der)
 
   # Assign the generated PKCS#10 to as payload (goes to Content element)
   payload = testcert.to_der
