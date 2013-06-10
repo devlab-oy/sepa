@@ -122,4 +122,8 @@ class ResponseTest < MiniTest::Test
     assert_equal @invalid_3.soap_hashes_match?, false
     assert_equal @invalid_4.soap_hashes_match?, false
   end
+
+  def test_valid_signature_should_verify
+    assert @valid_1.soap_signature_is_valid?
+  end
 end

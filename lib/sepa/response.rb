@@ -29,6 +29,37 @@ module Sepa
       end
     end
 
+    def soap_signature_is_valid?
+      sha1 = OpenSSL::Digest::SHA1.new
+
+      node = @response.at_css('xmlns|SignedInfo',
+                              'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
+
+      canon_node = node.canonicalize(
+        mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
+        inclusive_namespaces=nil,with_comments=false
+      )
+
+      cert = @response.at_css(
+        'wsse|BinarySecurityToken',
+        'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-ws' \
+        'security-secext-1.0.xsd'
+      ).content.gsub(/\s+/, "")
+
+      cert = "-----BEGIN CERTIFICATE-----\n" \
+        "#{cert.to_s.gsub(/\s+/, "").scan(/.{1,64}/).join("\n")}\n" \
+        "-----END CERTIFICATE-----"
+
+      cert = OpenSSL::X509::Certificate.new(cert)
+
+      signature = @response.at_css(
+        'xmlns|SignatureValue',
+        'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+      ).content.gsub(/\s+/, "")
+
+      cert.public_key.verify(sha1, signature, canon_node)
+    end
+
     private
 
       # Finds all reference nodes with digest values in the document and returns
