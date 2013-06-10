@@ -16,6 +16,7 @@ vendor
 lib/debug
 lib/CSR.csr
 lib/signing_key.pem
+lib/danske
 
 # YARD artifacts
 .yardoc
