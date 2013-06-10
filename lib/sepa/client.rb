@@ -39,6 +39,7 @@ module Sepa
           check_env(params[:environment])
           check_service(params[:service])
           check_hmac(params[:hmac])
+          check_content(params[:content])
         end
         case params[:command]
         when :download_file, :download_file_list
