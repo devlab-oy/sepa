@@ -3,7 +3,7 @@ module Sepa
     # Check that parameters are valid, initialize savon client with them and
     # construct soap message
     def initialize(params)
-      # Initialize savon client with params and construct soap message
+      check_params(params)
       wsdl = params.fetch(:wsdl)
       @client = Savon.client(wsdl: wsdl)
       @command = params.fetch(:command)
@@ -25,13 +25,14 @@ module Sepa
       # Tries to validate the parameters as well as possible.
       def check_params(params)
         check_params_hash(params)
+        if(params[:command] != :get_certificate)
         check_private_key(params[:private_key])
         check_cert(params[:cert])
         check_wsdl(params[:wsdl])
         check_customer_id(params[:customer_id])
         check_env(params[:environment])
         check_lang(params[:language])
-
+        end
         case params[:command]
         when :download_file, :download_file_list
           check_status(params[:status])
