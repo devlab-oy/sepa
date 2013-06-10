@@ -2,8 +2,13 @@ module Sepa
   class Response
     def initialize(response)
       @response = response
-      unless valid_against_schema?(@response)
-        fail ArgumentError, "The response doesn't validate against schema"
+
+      if !@response.respond_to?(:canonicalize)
+        fail ArgumentError,
+          "The response you provided is not a valid Nokogiri::XML file."
+      elsif !valid_against_schema?(@response)
+        fail ArgumentError,
+          "The response you provided doesn't validate against soap schema."
       end
     end
 

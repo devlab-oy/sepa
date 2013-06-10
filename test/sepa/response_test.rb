@@ -39,12 +39,18 @@ class ResponseTest < MiniTest::Test
     @invalid_4 = Sepa::Response.new(@invalid_4)
   end
 
-  def test_should_initialize_with_proper_params
+  def test_should_initialize_with_proper_response
     assert Sepa::Response.new(@response)
   end
 
-  def test_should_complain_if_initialized_with_something_weird
+  def test_should_complain_if_initialized_with_something_not_nokogiri_xml
     assert_raises(ArgumentError) { Sepa::Response.new("Sammakko") }
+  end
+
+  def test_should_complain_if_response_not_valid_against_schema
+    assert_raises(ArgumentError) do
+      Sepa::Response.new(Nokogiri::XML("<tomaatti>moikka</tomaatti>"))
+    end
   end
 
   def test_valid_response_1_is_unmodified
