@@ -17,7 +17,7 @@ params = {
   cert: cert,
 
   # Command :download_file_list, :upload_file, :download_file or :get_user_info
-  command: :download_file,
+  command: :get_user_info,
 
   # Unique customer ID
   customer_id: '11111111',
@@ -57,4 +57,11 @@ params = {
 # You just create the client with the parameters described above.
 sepa_client = Sepa::Client.new(params)
 
-puts Sepa::Response.new(sepa_client.send)
+response = sepa_client.send
+
+response = Nokogiri::XML(response.to_xml)
+
+response = Sepa::Response.new(response)
+
+puts response.soap_hashes_match?
+puts response.soap_signature_is_valid?
