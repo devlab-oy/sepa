@@ -9,6 +9,8 @@ module Sepa
       @command = params.fetch(:command)
       if @command == :get_certificate
         @soap = CertRequest.new(params).to_xml
+      elsif @command == :create_certificate
+        @soap = DanskeCertRequest.new(params).to_xml
       else
         @soap = SoapRequest.new(params).to_xml
       end

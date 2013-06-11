@@ -1,0 +1,9 @@
+<tns:CreateCertificateRequest xmlns:xe="http://www.w3.org/2001/04/xmlenc#" xmlns:xd="http://www.w3.org/2000/09/xmldsig#" xmlns:tns="http://danskebank.dk/PKI/PKIFactoryService/elements" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:pkif="http://danskebank.dk/PKI/PKIFactoryService">
+    <tns:CustomerId></tns:CustomerId>
+    <tns:KeyGeneratorType></tns:KeyGeneratorType>
+    <tns:EncryptionCertPKCS10></tns:EncryptionCertPKCS10>
+    <tns:SigningCertPKCS10></tns:SigningCertPKCS10>
+    <tns:Timestamp></tns:Timestamp>
+    <tns:RequestId></tns:RequestId>
+    <tns:PIN></tns:PIN>
+</tns:CreateCertificateRequest>

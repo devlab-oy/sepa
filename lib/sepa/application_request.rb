@@ -13,12 +13,14 @@ module Sepa
       @file_reference = params[:file_reference]
       @service = params[:service]
       @hmac = params[:hmac]
+      @pin = params[:pin]
+      @key_generator_type = params[:key_generator_type]
     end
 
     def get_as_base64
       load_template(@command)
       set_nodes_contents
-      process_signature unless @command == :get_certificate
+      process_signature unless @command == :get_certificate || @command == :create_certificate
       Base64.encode64(@ar.to_xml)
     end
 
@@ -30,6 +32,8 @@ module Sepa
 
       case command
 
+      when :create_certificate
+        path = "#{template_dir}/create_certificate.xml"
       when :get_certificate
         path = "#{template_dir}/get_certificate.xml"
       when :download_file_list
@@ -56,12 +60,17 @@ module Sepa
     def set_nodes_contents
       set_node("CustomerId", @customer_id)
       set_node("Timestamp", Time.now.iso8601)
-      set_node("Environment", @environment)
-      set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
-      set_node("Command", @command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join)
+      set_node("Environment", @environment) unless @command == :create_certificate
+      set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}") unless @command == :create_certificate
+      set_node("Command", @command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join) unless @command == :create_certificate
 
       case @command
 
+      when :create_certificate
+        set_node("PIN", @pin)
+        set_node("KeyGeneratorType", @key_generator_type)
+        set_node("EncryptionCertPKCS10", @encryption_cert_pkcs10)
+        set_node("SigningCertPKCS10", @signing_cert_pkcs10)
       when :get_certificate
         set_node("Service", @service)
         set_node("Content", Base64.encode64(@content))
