@@ -85,21 +85,21 @@ class ResponseTest < MiniTest::Test
     sha1 = OpenSSL::Digest::SHA1.new
     digest = Base64.encode64(sha1.digest(@invalid_1_file)).strip
 
-    assert_equal digest, 'OVqP4mRPds+jFpFnl/SgDW4z+as='
+    assert_equal digest, '6Rkv+OCOmw4JahI8P2Prb13Y4Kg='
   end
 
   def test_invalid_response_2_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
     digest = Base64.encode64(sha1.digest(@invalid_2_file)).strip
 
-    assert_equal digest, 'rn/RyClIIVkKGk3ZhbMKD9lRrNM='
+    assert_equal digest, '6+yjYNvuqVvRX9TIhM2MbC9XAo4='
   end
 
   def test_invalid_response_3_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
     digest = Base64.encode64(sha1.digest(@invalid_3_file)).strip
 
-    assert_equal digest, 'HM1kfcoBN4Bfgr9b6Hc59bxFE3M='
+    assert_equal digest, 'ayTb+fazRLFNK6VwbQlYoVawCEs='
   end
 
   def test_invalid_response_4_is_unmodified
@@ -110,20 +110,30 @@ class ResponseTest < MiniTest::Test
   end
 
   def test_valid_responses_should_verify
-    assert_equal @valid_1.soap_hashes_match?, true
-    assert_equal @valid_2.soap_hashes_match?, true
-    assert_equal @valid_3.soap_hashes_match?, true
-    assert_equal @valid_4.soap_hashes_match?, true
+    assert @valid_1.soap_hashes_match?
+    assert @valid_2.soap_hashes_match?
+    assert @valid_3.soap_hashes_match?
+    assert @valid_4.soap_hashes_match?
   end
 
   def test_should_fail_with_invalid_responses
-    assert_equal @invalid_1.soap_hashes_match?, false
-    assert_equal @invalid_2.soap_hashes_match?, false
-    assert_equal @invalid_3.soap_hashes_match?, false
-    assert_equal @invalid_4.soap_hashes_match?, false
+    refute @invalid_1.soap_hashes_match?
+    refute @invalid_2.soap_hashes_match?
+    refute @invalid_3.soap_hashes_match?
+    refute @invalid_4.soap_hashes_match?
   end
 
   def test_valid_signature_should_verify
     assert @valid_1.soap_signature_is_valid?
+    assert @valid_2.soap_signature_is_valid?
+    assert @valid_3.soap_signature_is_valid?
+    assert @valid_4.soap_signature_is_valid?
+  end
+
+  def test_invalid_signature_should_not_verify
+    refute @invalid_1.soap_signature_is_valid?
+    refute @invalid_2.soap_signature_is_valid?
+    refute @invalid_3.soap_signature_is_valid?
+    refute @invalid_4.soap_signature_is_valid?
   end
 end

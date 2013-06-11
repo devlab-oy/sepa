@@ -57,4 +57,4 @@ params = {
 # You just create the client with the parameters described above.
 sepa_client = Sepa::Client.new(params)
 
-sepa_client.send
+puts Sepa::Response.new(sepa_client.send)

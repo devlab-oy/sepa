@@ -6,7 +6,7 @@ module Sepa
       if !@response.respond_to?(:canonicalize)
         fail ArgumentError,
           "The response you provided is not a valid Nokogiri::XML file."
-      elsif !valid_against_schema?(@response)
+      elsif !valid_against_soap_schema?(@response)
         fail ArgumentError,
           "The response you provided doesn't validate against soap schema."
       end
@@ -111,7 +111,7 @@ module Sepa
         Base64.encode64(sha1.digest(canon_node)).gsub(/\s+/, "")
       end
 
-      def valid_against_schema?(doc)
+      def valid_against_soap_schema?(doc)
         schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',
                                         __FILE__)
 
