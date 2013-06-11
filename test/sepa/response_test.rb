@@ -38,11 +38,7 @@ class ResponseTest < MiniTest::Test
     @invalid_4 = Nokogiri::XML(@invalid_4_file)
     @invalid_4 = Sepa::Response.new(@invalid_4)
 
-    @corrupted_structure = File.read(
-      "#{@responses_path}/corrupted_structure.xml"
-    )
-    @corrupted_structure = Nokogiri::XML(@corrupted_structure)
-    @corrupted_structure = Sepa::Response.new(@corrupted_structure)
+
 
     @corrupted_cert = File.read("#{@responses_path}/corrupted_cert.xml")
     @corrupted_cert = Nokogiri::XML(@corrupted_cert)
@@ -131,7 +127,6 @@ class ResponseTest < MiniTest::Test
     refute @invalid_2.soap_hashes_match?
     refute @invalid_3.soap_hashes_match?
     refute @invalid_4.soap_hashes_match?
-    refute @corrupted_structure.soap_hashes_match?
   end
 
   def test_valid_signature_should_verify
@@ -146,12 +141,20 @@ class ResponseTest < MiniTest::Test
     refute @invalid_2.soap_signature_is_valid?
     refute @invalid_3.soap_signature_is_valid?
     refute @invalid_4.soap_signature_is_valid?
-    refute @corrupted_structure.soap_signature_is_valid?
   end
 
   def test_should_raise_error_if_certificate_corrupted
     assert_raises(OpenSSL::X509::CertificateError) do
       @corrupted_cert.soap_signature_is_valid?
     end
+  end
+
+  def test_should_raise_error_if_structure_corrupted
+    corrupted_structure = File.read(
+      "#{@responses_path}/corrupted_structure.xml"
+    )
+    corrupted_structure = Nokogiri::XML(corrupted_structure)
+
+    assert_raises(ArgumentError) { Sepa::Response.new(corrupted_structure) }
   end
 end
