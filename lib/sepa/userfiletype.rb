@@ -2,10 +2,6 @@ module Sepa
   class Userfiletype
 
     attr_accessor :targetId, :fileType, :fileTypeName, :country, :direction, :filetypeServices
-    
-    def initialize
-      #filetypeServices = Array.new
-    end
     # Add incoming filetypeservice to array
     def add_filetypeservice(ftservice)
       filetypeServices<<ftservice

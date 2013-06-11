@@ -6,8 +6,12 @@ module Sepa
       check_params(params)
       wsdl = params.fetch(:wsdl)
       @client = Savon.client(wsdl: wsdl)
-      @soap = SoapRequest.new(params).to_xml
       @command = params.fetch(:command)
+      if @command == :get_certificate
+        @soap = CertRequest.new(params).to_xml
+      else
+        @soap = SoapRequest.new(params).to_xml
+      end
     end
 
     # Call savon to make the soap request with the correct command and the
@@ -21,13 +25,22 @@ module Sepa
       # Tries to validate the parameters as well as possible.
       def check_params(params)
         check_params_hash(params)
-        check_private_key(params[:private_key])
-        check_cert(params[:cert])
-        check_wsdl(params[:wsdl])
-        check_customer_id(params[:customer_id])
-        check_env(params[:environment])
-        check_lang(params[:language])
-
+        if(params[:command] != :get_certificate)
+          check_private_key(params[:private_key])
+          check_cert(params[:cert])
+          check_wsdl(params[:wsdl])
+          check_customer_id(params[:customer_id])
+          check_env(params[:environment])
+          check_lang(params[:language])
+        end
+        if(params[:command] == :get_certificate)
+          check_wsdl(params[:wsdl])
+          check_customer_id(params[:customer_id])
+          check_env(params[:environment])
+          check_service(params[:service])
+          check_hmac(params[:hmac])
+          check_content(params[:content])
+        end
         case params[:command]
         when :download_file, :download_file_list
           check_status(params[:status])
@@ -126,6 +139,18 @@ module Sepa
       def check_content(content)
         unless content
           fail ArgumentError, "You didn't provide any content."
+        end
+      end
+
+      def check_service(service)
+        unless ['service', 'ISSUER', 'MATU'].include?(service)
+          fail ArgumentError, "You didn't provide a proper service."
+        end
+      end
+
+      def check_hmac(hmac)
+        unless hmac
+          fail ArgumentError, "You didn't provide any HMAC."
         end
       end
   end

@@ -26,6 +26,30 @@ class ClientTest < MiniTest::Test
       content: Base64.encode64("Kurppa"),
       file_reference: "11111111A12006030329501800000014"
     }
+    # Test pin number for HMAC seal key
+    testpin = '1234567890'
+
+    # Open Certificate Signing Request PKCS#10
+    testcert = OpenSSL::X509::Request.new(File.read ("#{keys_path}/testcert.csr"))
+
+    # Generate HMAC seal (SHA1 hash) with pin as key and PKCS#10 as message
+    hmacseal = OpenSSL::HMAC.digest('sha1',testpin,testcert.to_der)
+
+    # Assign the generated PKCS#10 to as payload (goes to Content element)
+    payload = testcert.to_der
+
+    # Assign the calculated HMAC seal as hmac (goes to HMAC element)
+    hmac = hmacseal
+
+    @certparams = {
+      command: :get_certificate,
+      customer_id: '11111111',
+      environment: 'TEST',
+      wsdl: File.expand_path('../../../lib/sepa/wsdl/wsdl_nordea_cert.xml',__FILE__),
+      content: payload,
+      hmac: hmac,
+      service: 'service'
+    }
 
     observer = Class.new {
       def notify(operation_name, builder, globals, locals)
@@ -232,5 +256,42 @@ class ClientTest < MiniTest::Test
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
       assert xsd.valid?(Nokogiri::XML(response.to_xml))
     end
+  end
+
+  def test_should_initialize_with_proper_cert_params
+    assert Sepa::Client.new(@certparams)
+  end
+
+  def test_should_send_proper_request_with_get_certificate
+    client = Sepa::Client.new(@certparams)
+    response = client.send
+
+    assert_equal response.body.keys[0], :get_certificatein
+
+    Dir.chdir(@schemas_path) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(Nokogiri::XML(response.to_xml))
+    end
+  end
+
+  def test_should_raise_error_if_cert_content_missing
+    @certparams[:command] = :get_certificate
+    @certparams.delete(:content)
+
+    assert_raises(ArgumentError) { Sepa::Client.new(@certparams) }
+  end
+
+  def test_should_raise_error_if_cert_service_missing
+    @certparams[:command] = :get_certificate
+    @certparams.delete(:service)
+
+    assert_raises(ArgumentError) { Sepa::Client.new(@certparams) }
+  end
+
+  def test_should_raise_error_if_cert_hmac_missing
+    @certparams[:command] = :get_certificate
+    @certparams.delete(:hmac)
+
+    assert_raises(ArgumentError) { Sepa::Client.new(@certparams) }
   end
 end
