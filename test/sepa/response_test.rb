@@ -37,6 +37,16 @@ class ResponseTest < MiniTest::Test
     @invalid_4_file = File.read("#{@responses_path}/invalid_4.xml")
     @invalid_4 = Nokogiri::XML(@invalid_4_file)
     @invalid_4 = Sepa::Response.new(@invalid_4)
+
+    # Structure is corrupted
+    @invalid_5_file = File.read("#{@responses_path}/invalid_5.xml")
+    @invalid_5 = Nokogiri::XML(@invalid_5_file)
+    @invalid_5 = Sepa::Response.new(@invalid_5)
+
+    # Cerificate is corrupted.
+    @invalid_6_file = File.read("#{@responses_path}/invalid_6.xml")
+    @invalid_6 = Nokogiri::XML(@invalid_6_file)
+    @invalid_6 = Sepa::Response.new(@invalid_6)
   end
 
   def test_should_initialize_with_proper_response
@@ -51,6 +61,12 @@ class ResponseTest < MiniTest::Test
     assert_raises(ArgumentError) do
       Sepa::Response.new(Nokogiri::XML("<tomaatti>moikka</tomaatti>"))
     end
+  end
+
+  def test_should_complain_if_header_severely_corrupted
+    # assert_raises(ArgumentError) do
+    Sepa::Response.new(Nokogiri::XML(@invalid_5_file))
+    # end
   end
 
   def test_valid_response_1_is_unmodified
@@ -121,6 +137,7 @@ class ResponseTest < MiniTest::Test
     refute @invalid_2.soap_hashes_match?
     refute @invalid_3.soap_hashes_match?
     refute @invalid_4.soap_hashes_match?
+    refute @invalid_5.soap_hashes_match?
   end
 
   def test_valid_signature_should_verify
@@ -135,5 +152,12 @@ class ResponseTest < MiniTest::Test
     refute @invalid_2.soap_signature_is_valid?
     refute @invalid_3.soap_signature_is_valid?
     refute @invalid_4.soap_signature_is_valid?
+    refute @invalid_5.soap_signature_is_valid?
+  end
+
+  def test_should_raise_error_if_certificate_corrupted
+    assert_raises(OpenSSL::X509::CertificateError) do
+      @invalid_6.soap_signature_is_valid?
+    end
   end
 end

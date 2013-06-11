@@ -57,7 +57,13 @@ module Sepa
         "#{cert.to_s.gsub(/\s+/, "").scan(/.{1,64}/).join("\n")}\n" \
         "-----END CERTIFICATE-----"
 
-      cert = OpenSSL::X509::Certificate.new(cert)
+      begin
+        cert = OpenSSL::X509::Certificate.new(cert)
+      rescue => e
+        fail OpenSSL::X509::CertificateError,
+          "The certificate embedded to the soap response could not be process" \
+          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
+          end
 
       signature = @response.at_css(
         'xmlns|SignatureValue',
