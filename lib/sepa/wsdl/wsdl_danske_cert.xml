@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xenc="http://www.w3.org/2001/04/xmlenc#" xmlns:dbpki="http://danskebank.dk/PKI/PKIFactoryService" xmlns:ns="http://danskebank.dk/PKI/PKIFactoryService/elements" xmlns:ns1="http://www.w3.org/2000/09/xmldsig#" targetNamespace="http://danskebank.dk/PKI/PKIFactoryService">
+    <wsdl:types>
+        <xsd:schema targetNamespace="http://danskebank.dk/PKI/PKIFactoryService" xmlns:xenc="http://www.w3.org/2001/04/xmlenc#" xmlns:el="http://danskebank.dk/PKI/PKIFactoryService/elements" elementFormDefault="qualified" attributeFormDefault="qualified">
+            <xsd:import namespace="http://www.w3.org/2001/04/xmlenc#" schemaLocation="http://www.w3.org/TR/2002/REC-xmlenc-core-20021210/xenc-schema.xsd"/>
+            <!--<xsd:import namespace="http://www.w3.org/2001/04/xmlenc#" schemaLocation="store:///schemas/xenc-schema.xsd"/>-->
+            <xsd:import namespace="http://danskebank.dk/PKI/PKIFactoryService/elements" schemaLocation="PKIFactory.xsd"/>
+            <xsd:complexType name="RequestHeaderType">
+                <xsd:sequence>
+                    <xsd:element name="SenderId" type="el:CustomerIdType"/>
+                    <xsd:element name="CustomerId" type="el:CustomerIdType"/>
+                    <xsd:element name="RequestId" type="el:RequestIdType"/>
+                    <xsd:element name="Timestamp" type="xsd:dateTime"/>
+                    <xsd:element name="InterfaceVersion" type="el:InterfaceVersionType"/>
+                    <xsd:element name="Environment" type="el:EnvironmentType" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="ResponseHeaderType">
+                <xsd:sequence>
+                    <xsd:element name="SenderId" type="el:CustomerIdType"/>
+                    <xsd:element name="CustomerId" type="el:CustomerIdType"/>
+                    <xsd:element name="RequestId" type="el:RequestIdType"/>
+                    <xsd:element name="Timestamp" type="xsd:dateTime"/>
+                    <xsd:element name="InterfaceVersion" type="el:InterfaceVersionType"/>
+                    <xsd:element name="Environment" type="el:EnvironmentType" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="CreateCertificateInType">
+                <xsd:sequence>
+                    <xsd:element name="RequestHeader" type="dbpki:RequestHeaderType"/>
+                    <xsd:element ref="xenc:EncryptedData"/>
+                    <!-- must decrypt into a CreateCertificateRequest -->
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="CreateCertificateOutType">
+                <xsd:sequence>
+                    <xsd:element name="ResponseHeader" type="dbpki:ResponseHeaderType"/>
+                    <xsd:element ref="el:CreateCertificateResponse"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="RenewCertificateInType">
+                <xsd:sequence>
+                    <xsd:element name="RequestHeader" type="dbpki:RequestHeaderType"/>
+                    <xsd:element ref="xenc:EncryptedData"/>
+                    <!-- must decrypt into a RenewCertificateRequest -->
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="RenewCertificateOutType">
+                <xsd:sequence>
+                    <xsd:element name="ResponseHeader" type="dbpki:ResponseHeaderType"/>
+                    <xsd:element ref="el:RenewCertificateResponse"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="RevokeCertificateInType">
+                <xsd:sequence>
+                    <xsd:element name="RequestHeader" type="dbpki:RequestHeaderType"/>
+                    <xsd:element ref="el:RevokeCertificateRequest"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="RevokeCertificateOutType">
+                <xsd:sequence>
+                    <xsd:element name="ResponseHeader" type="dbpki:ResponseHeaderType"/>
+                    <xsd:element ref="el:RevokeCertificateResponse"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="CertificateStatusInType">
+                <xsd:sequence>
+                    <xsd:element name="RequestHeader" type="dbpki:RequestHeaderType"/>
+                    <xsd:element ref="el:CertificateStatusRequest"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="CertificateStatusOutType">
+                <xsd:sequence>
+                    <xsd:element name="ResponseHeader" type="dbpki:ResponseHeaderType"/>
+                    <xsd:element ref="el:CertificateStatusResponse"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="GetOwnCertificateListInType">
+                <xsd:sequence>
+                    <xsd:element name="RequestHeader" type="dbpki:RequestHeaderType"/>
+                    <xsd:element ref="el:GetOwnCertificateListRequest"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="GetOwnCertificateListOutType">
+                <xsd:sequence>
+                    <xsd:element name="ResponseHeader" type="dbpki:ResponseHeaderType"/>
+                    <xsd:element ref="el:GetOwnCertificateListResponse"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="GetBankCertificateInType">
+                <xsd:sequence>
+                    <xsd:element name="RequestHeader" type="dbpki:RequestHeaderType"/>
+                    <xsd:element ref="el:GetBankCertificateRequest"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="GetBankCertificateOutType">
+                <xsd:sequence>
+                    <xsd:element name="ResponseHeader" type="dbpki:ResponseHeaderType"/>
+                    <xsd:element ref="el:GetBankCertificateResponse"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="PKIFactoryServiceFaultDetailType">
+                <xsd:sequence>
+                    <xsd:element name="CustomerId" type="el:CustomerIdType"/>
+                    <xsd:element name="SenderId" type="el:CustomerIdType"/>
+                    <xsd:element name="RequestId" type="el:RequestIdType"/>
+                    <xsd:element name="Timestamp" type="xsd:dateTime"/>
+                    <xsd:element name="InterfaceVersion" type="el:InterfaceVersionType"/>
+                    <xsd:element name="ReturnCode" type="el:ReturncodeType"/>
+                    <xsd:element name="ReturnText" type="el:ReturnTextType"/>
+                    <xsd:element name="AdditionalReturnText" type="el:AdditionalReturnTextType" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="CreateCertificateIn" type="dbpki:CreateCertificateInType"/>
+            <xsd:element name="CreateCertificateOut" type="dbpki:CreateCertificateOutType"/>
+            <xsd:element name="RenewCertificateIn" type="dbpki:RenewCertificateInType"/>
+            <xsd:element name="RenewCertificateOut" type="dbpki:RenewCertificateOutType"/>
+            <xsd:element name="RevokeCertificateIn" type="dbpki:RevokeCertificateInType"/>
+            <xsd:element name="RevokeCertificateOut" type="dbpki:RevokeCertificateOutType"/>
+            <xsd:element name="CertificateStatusIn" type="dbpki:CertificateStatusInType"/>
+            <xsd:element name="CertificateStatusOut" type="dbpki:CertificateStatusOutType"/>
+            <xsd:element name="GetOwnCertificateListIn" type="dbpki:GetOwnCertificateListInType"/>
+            <xsd:element name="GetOwnCertificateListOut" type="dbpki:GetOwnCertificateListOutType"/>
+            <xsd:element name="GetBankCertificateIn" type="dbpki:GetBankCertificateInType"/>
+            <xsd:element name="GetBankCertificateOut" type="dbpki:GetBankCertificateOutType"/>
+            <xsd:element name="PKIFactoryServiceFaultElement" type="dbpki:PKIFactoryServiceFaultDetailType"/>
+        </xsd:schema>
+    </wsdl:types>
+    <wsdl:message name="PKIFactoryServiceFault">
+        <wsdl:part name="PKIFactoryServiceFault" element="dbpki:PKIFactoryServiceFaultElement"/>
+    </wsdl:message>
+    <wsdl:message name="GetBankCertificateOut">
+        <wsdl:part name="GetBankCertificateOut" element="dbpki:GetBankCertificateOut"/>
+    </wsdl:message>
+    <wsdl:message name="GetBankCertificateIn">
+        <wsdl:part name="GetBankCertificateIn" element="dbpki:GetBankCertificateIn"/>
+    </wsdl:message>
+    <wsdl:message name="GetOwnCertificateListOut">
+        <wsdl:part name="GetOwnCertificateList" element="dbpki:GetOwnCertificateListOut"/>
+    </wsdl:message>
+    <wsdl:message name="GetOwnCertificateListIn">
+        <wsdl:part name="GetOwnCertificateListIn" element="dbpki:GetOwnCertificateListIn"/>
+    </wsdl:message>
+    <wsdl:message name="CreateCertificateOut">
+        <wsdl:part name="CreateCertificateOut" element="dbpki:CreateCertificateOut"/>
+    </wsdl:message>
+    <wsdl:message name="CreateCertificateIn">
+        <wsdl:part name="CreateCertificateIn" element="dbpki:CreateCertificateIn"/>
+    </wsdl:message>
+    <wsdl:message name="RenewCertificateOut">
+        <wsdl:part name="RenewCertificateOut" element="dbpki:RenewCertificateOut"/>
+    </wsdl:message>
+    <wsdl:message name="RenewCertificateIn">
+        <wsdl:part name="RenewCertificateIn" element="dbpki:RenewCertificateIn"/>
+    </wsdl:message>
+    <wsdl:message name="RevokeCertificateIn">
+        <wsdl:part name="RevokeCertificateIn" element="dbpki:RevokeCertificateIn"/>
+    </wsdl:message>
+    <wsdl:message name="RevokeCertificateOut">
+        <wsdl:part name="RevokeCertificateOut" element="dbpki:RevokeCertificateOut"/>
+    </wsdl:message>
+    <wsdl:message name="CertificateStatusIn">
+        <wsdl:part name="CertificateStatusIn" element="dbpki:CertificateStatusIn"/>
+    </wsdl:message>
+    <wsdl:message name="CertificateStatusOut">
+        <wsdl:part name="CertificateStatusOut" element="dbpki:CertificateStatusOut"/>
+    </wsdl:message>
+    <wsdl:portType name="PkiServicePortType">
+        <wsdl:operation name="CreateCertificate">
+            <wsdl:input name="CreateCertificateIn" message="dbpki:CreateCertificateIn"/>
+            <wsdl:output name="CreateCertificateOut" message="dbpki:CreateCertificateOut"/>
+            <wsdl:fault name="PKIFactoryServiceFault" message="dbpki:PKIFactoryServiceFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="RenewCertificate">
+            <wsdl:input name="RenewCertificateIn" message="dbpki:RenewCertificateIn"/>
+            <wsdl:output name="RenewCertificateOut" message="dbpki:RenewCertificateOut"/>
+            <wsdl:fault name="PKIFactoryServiceFault" message="dbpki:PKIFactoryServiceFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="RevokeCertificate">
+            <wsdl:input name="RevokeCertificateIn" message="dbpki:RevokeCertificateIn"/>
+            <wsdl:output name="RevokeCertificateOut" message="dbpki:RevokeCertificateOut"/>
+            <wsdl:fault name="PKIFactoryServiceFault" message="dbpki:PKIFactoryServiceFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="CertificateStatus">
+            <wsdl:input name="CertificateStatusIn" message="dbpki:CertificateStatusIn"/>
+            <wsdl:output name="CertificateStatusOut" message="dbpki:CertificateStatusOut"/>
+            <wsdl:fault name="PKIFactoryServiceFault" message="dbpki:PKIFactoryServiceFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetOwnCertificateList">
+            <wsdl:input name="GetOwnCertificateListIn" message="dbpki:GetOwnCertificateListIn"/>
+            <wsdl:output name="GetOwnCertificateListOut" message="dbpki:GetOwnCertificateListOut"/>
+            <wsdl:fault name="PKIFactoryServiceFault" message="dbpki:PKIFactoryServiceFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetBankCertificate">
+            <wsdl:input name="GetBankCertificateIn" message="dbpki:GetBankCertificateIn"/>
+            <wsdl:output name="GetBankCertificateOut" message="dbpki:GetBankCertificateOut"/>
+            <wsdl:fault name="PKIFactoryServiceFault" message="dbpki:PKIFactoryServiceFault"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="PkiServiceHttpBinding" type="dbpki:PkiServicePortType">
+        <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="GetBankCertificate">
+            <wsdlsoap:operation soapAction="GetBankCertificate"/>
+            <wsdl:input name="GetBankCertificateIn">
+                <wsdlsoap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="GetBankCertificateOut">
+                <wsdlsoap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="PKIFactoryServiceFault">
+                <wsdlsoap:fault name="PKIFactoryServiceFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetOwnCertificateList">
+            <wsdlsoap:operation soapAction="GetOwnCertificateList"/>
+            <wsdl:input name="GetOwnCertificateListIn">
+                <wsdlsoap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="GetOwnCertificateListOut">
+                <wsdlsoap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="PKIFactoryServiceFault">
+                <wsdlsoap:fault name="PKIFactoryServiceFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="CreateCertificate">
+            <wsdlsoap:operation soapAction="CreateCertificate"/>
+            <wsdl:input name="CreateCertificateIn">
+                <wsdlsoap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="CreateCertificateOut">
+                <wsdlsoap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="PKIFactoryServiceFault">
+                <wsdlsoap:fault name="PKIFactoryServiceFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="RenewCertificate">
+            <wsdlsoap:operation soapAction="RenewCertificate"/>
+            <wsdl:input name="RenewCertificateIn">
+                <wsdlsoap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="RenewCertificateOut">
+                <wsdlsoap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="PKIFactoryServiceFault">
+                <wsdlsoap:fault name="PKIFactoryServiceFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="RevokeCertificate">
+            <wsdlsoap:operation soapAction="RevokeCertificate"/>
+            <wsdl:input name="RevokeCertificateIn">
+                <wsdlsoap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="RevokeCertificateOut">
+                <wsdlsoap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="PKIFactoryServiceFault">
+                <wsdlsoap:fault name="PKIFactoryServiceFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="CertificateStatus">
+            <wsdlsoap:operation soapAction="CertificateStatus"/>
+            <wsdl:input name="CertificateStatusIn">
+                <wsdlsoap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="CertificateStatusOut">
+                <wsdlsoap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="PKIFactoryServiceFault">
+                <wsdlsoap:fault name="PKIFactoryServiceFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="PkiService">
+        <wsdl:port name="PkiServiceHttpPort" binding="dbpki:PkiServiceHttpBinding">
+            <wsdlsoap:address location="https://businessws.danskebank.com/ra/pkiservice.asmx"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
