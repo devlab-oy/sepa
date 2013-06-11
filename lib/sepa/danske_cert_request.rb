@@ -9,6 +9,8 @@ module Sepa
       template_path = File.expand_path('../xml_templates/soap/', __FILE__)
 
       @body = load_body_template(template_path, @command)
+
+
     end
 
     def to_xml
@@ -19,6 +21,7 @@ module Sepa
 
       def construct(body, command, ar, sender_id, request_id)
         set_body_contents(body, ar, sender_id, request_id)
+        add_request_to_soap(ar, body)
       end
 
       def load_body_template(template_path, command)
@@ -38,24 +41,25 @@ module Sepa
       end
 
       def set_body_contents(body, ar, sender_id, request_id)
-        puts "KISSA1"
-        set_node(body, 'pkif|CreateCertificateIn', ar)
-        puts "KISSA1"
         set_node(body, 'pkif|SenderId', sender_id)
-        puts "KISSA1"
         set_node(body, 'pkif|CustomerId', sender_id)
-        puts "KISSA1"
         set_node(body, 'pkif|RequestId', request_id)
-        puts "KISSA1"
         set_node(body, 'pkif|Timestamp', Time.now.iso8601)
-        puts "KISSA1"
         set_node(body, 'pkif|InterfaceVersion', 1)
-        body
+        #set_node(body, 'pkif|CreateCertificateIn', ar)
+
+        #puts body.to_xml
+        #body
       end
 
       def set_node(doc, node, value)
         doc.at_css(node).content = value
       end
 
+      def add_request_to_soap(ar, body)
+        ar = ar.at_css('tns|CreateCertificateRequest')
+        body.at_css('pkif|CreateCertificateIn').add_child(ar)
+        body
+      end
   end
 end

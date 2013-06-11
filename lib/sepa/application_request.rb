@@ -23,11 +23,11 @@ module Sepa
     def get_as_base64
       load_template(@command)
       set_nodes_contents
-      puts @ar.to_xml
       process_signature unless @command == :get_certificate || @command == :create_certificate
-      Base64.encode64(@ar.to_xml)
+      Base64.encode64(@ar.to_xml) unless @command == :create_certificate
       if @command == :create_certificate
-        @ar.to_xml
+        #@ar.to_xml
+        @ar
       end
     end
 
