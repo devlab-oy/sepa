@@ -27,7 +27,7 @@ module Sepa
       # Tries to validate the parameters as well as possible.
       def check_params(params)
         check_params_hash(params)
-        if(params[:command] != :get_certificate)
+        if(params[:command] != :get_certificate && params[:command] != :create_certificate)
           check_private_key(params[:private_key])
           check_cert(params[:cert])
           check_wsdl(params[:wsdl])

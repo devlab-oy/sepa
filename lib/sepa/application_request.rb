@@ -2,8 +2,8 @@ module Sepa
   class ApplicationRequest
     def initialize(params)
       @command = params.fetch(:command)
-      @private_key = params.fetch(:private_key) unless @command == :get_certificate
-      @cert = params.fetch(:cert) unless @command == :get_certificate
+      @private_key = params.fetch(:private_key) unless @command == :get_certificate || @command == :create_certificate
+      @cert = params.fetch(:cert) unless @command == :get_certificate || @command == :create_certificate
       @customer_id = params.fetch(:customer_id)
       @environment = params.fetch(:environment)
       @status = params[:status]
@@ -15,13 +15,20 @@ module Sepa
       @hmac = params[:hmac]
       @pin = params[:pin]
       @key_generator_type = params[:key_generator_type]
+      @encryption_cert_pkcs10 = params[:encryption_cert_pkcs10]
+      @signing_cert_pkcs10 = params[:signing_cert_pkcs10]
+      @request_id = params[:request_id]
     end
 
     def get_as_base64
       load_template(@command)
       set_nodes_contents
+      puts @ar.to_xml
       process_signature unless @command == :get_certificate || @command == :create_certificate
       Base64.encode64(@ar.to_xml)
+      if @command == :create_certificate
+        @ar.to_xml
+      end
     end
 
     private
@@ -58,8 +65,8 @@ module Sepa
 
     # Set the nodes' contents according to the command
     def set_nodes_contents
-      set_node("CustomerId", @customer_id)
-      set_node("Timestamp", Time.now.iso8601)
+      set_node("CustomerId", @customer_id) unless @command == :create_certificate
+      set_node("Timestamp", Time.now.iso8601) unless @command == :create_certificate
       set_node("Environment", @environment) unless @command == :create_certificate
       set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}") unless @command == :create_certificate
       set_node("Command", @command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join) unless @command == :create_certificate
@@ -67,10 +74,13 @@ module Sepa
       case @command
 
       when :create_certificate
-        set_node("PIN", @pin)
-        set_node("KeyGeneratorType", @key_generator_type)
-        set_node("EncryptionCertPKCS10", @encryption_cert_pkcs10)
-        set_node("SigningCertPKCS10", @signing_cert_pkcs10)
+        set_node("tns|CustomerId", @customer_id)
+        set_node("tns|KeyGeneratorType", @key_generator_type)
+        set_node("tns|EncryptionCertPKCS10", Base64.encode64(@encryption_cert_pkcs10))
+        set_node("tns|SigningCertPKCS10", Base64.encode64(@signing_cert_pkcs10))
+        set_node("tns|Timestamp", Time.now.iso8601)
+        set_node("tns|RequestId", @request_id)
+        set_node("tns|PIN", @pin)
       when :get_certificate
         set_node("Service", @service)
         set_node("Content", Base64.encode64(@content))

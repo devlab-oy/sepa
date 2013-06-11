@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:pkif="http://danskebank.dk/PKI/PKIFactoryService">
     <soapenv:Header/>
     <soapenv:Body>
@@ -10,7 +9,6 @@
                 <pkif:Timestamp></pkif:Timestamp>
                 <pkif:InterfaceVersion></pkif:InterfaceVersion>
             </pkif:RequestHeader>
-            <xenc:EncryptedData Type="http://www.w3.org/2001/04/xmlenc#Element" xmlns:xenc="http://www.w3.org/2001/04/xmlenc#"><xenc:EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#tripledes-cbc"/><dsig:KeyInfo xmlns:dsig="http://www.w3.org/2000/09/xmldsig#"><xenc:EncryptedKey Recipient="name:DanskeBankCryptCERT"><xenc:EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#rsa-1_5"/><dsig:KeyInfo><dsig:X509Data><dsig:X509Certificate></dsig:X509Certificate></dsig:X509Data></dsig:KeyInfo><xenc:CipherData><xenc:CipherValue></xenc:CipherValue></xenc:CipherData></xenc:EncryptedKey></dsig:KeyInfo><xenc:CipherData><xenc:CipherValue></xenc:CipherValue></xenc:CipherData></xenc:EncryptedData>
         </pkif:CreateCertificateIn>
     </soapenv:Body>
 </soapenv:Envelope>
