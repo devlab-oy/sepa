@@ -30,12 +30,10 @@ module Sepa
     end
 
     def soap_signature_is_valid?
-      sha1 = OpenSSL::Digest::SHA1.new
-
       node = @response.at_css('xmlns|SignedInfo',
                               'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
 
-      canon_node = node.canonicalize(
+      node = node.canonicalize(
         mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
         inclusive_namespaces=nil,with_comments=false
       )
@@ -55,9 +53,11 @@ module Sepa
       signature = @response.at_css(
         'xmlns|SignatureValue',
         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
-      ).content.gsub(/\s+/, "")
+      ).content
 
-      cert.public_key.verify(sha1, signature, canon_node)
+      signature = Base64.decode64(signature)
+
+      cert.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
     end
 
     private
