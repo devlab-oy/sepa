@@ -79,7 +79,7 @@ module Sepa
       def encrypt_application_request(ar, cert, encrypted_request)
         set_node(encrypted_request, 'dsig|X509Certificate', Base64.encode64(cert.to_der))
         set_node(encrypted_request, 'xenc|CipherValue', "hello")
-        set_node(encrypted_request, '', Base64.encode64(cert.encrypt(ar))
+        #set_node(encrypted_request, '', Base64.encode64(cert.encrypt(ar))
       end
   end
 end
