@@ -4,7 +4,10 @@ class ResponseTest < MiniTest::Test
   def setup
     @responses_path = File.expand_path('../test_files/test_responses', __FILE__)
 
-    @response = Nokogiri::XML(File.read("#{@responses_path}/invalid_1.xml"))
+    @response = Nokogiri::XML(File.read("#{@responses_path}/valid_1.xml"))
+
+    # The following files are valid responses that should pass the hash
+    # verification.
 
     @valid_1_file = File.read("#{@responses_path}/valid_1.xml")
     @valid_1 = Nokogiri::XML(@valid_1_file)
@@ -22,6 +25,9 @@ class ResponseTest < MiniTest::Test
     @valid_4 = Nokogiri::XML(@valid_4_file)
     @valid_4 = Sepa::Response.new(@valid_4)
 
+    # The following are invalid files which have had their hashes corrupted.
+    # They should fail the hash veridication.
+
     @invalid_1_file = File.read("#{@responses_path}/invalid_1.xml")
     @invalid_1 = Nokogiri::XML(@invalid_1_file)
     @invalid_1 = Sepa::Response.new(@invalid_1)
@@ -38,8 +44,7 @@ class ResponseTest < MiniTest::Test
     @invalid_4 = Nokogiri::XML(@invalid_4_file)
     @invalid_4 = Sepa::Response.new(@invalid_4)
 
-
-
+    # This file's certificate has been corrupted. (A few characters removed.)
     @corrupted_cert = File.read("#{@responses_path}/corrupted_cert.xml")
     @corrupted_cert = Nokogiri::XML(@corrupted_cert)
     @corrupted_cert = Sepa::Response.new(@corrupted_cert)

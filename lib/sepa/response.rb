@@ -38,6 +38,8 @@ module Sepa
       end
     end
 
+    # Verifies the signature by extracting the public key from the certificate
+    # embedded in the soap header and verifying the signature value with that.
     def soap_signature_is_valid?
       node = @response.at_css('xmlns|SignedInfo',
                               'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
@@ -99,6 +101,8 @@ module Sepa
         references
       end
 
+      # Finds nodes to verify by comparing their id's to the uris' in the
+      # references hash.
       def find_nodes_to_verify(doc, references)
         nodes = {}
         references.each do |uri, digest_value|
