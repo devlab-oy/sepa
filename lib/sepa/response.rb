@@ -13,7 +13,7 @@ module Sepa
     end
 
     # Verifies that all digest values in the document match the actual ones.
-    def soap_hashes_match?
+    def soap_hashes_match?(options = {})
       digests = find_digest_values(@response)
       nodes = find_nodes_to_verify(@response, digests)
 
@@ -25,6 +25,15 @@ module Sepa
       if digests == verified_digests
         true
       else
+        unverified_digests = digests.select do |uri, digest|
+          uri = uri.sub(/^#/, '')
+          digest != nodes[uri]
+        end
+
+        if options[:verbose]
+          puts "These digests failed to verify: #{unverified_digests}."
+        end
+
         false
       end
     end
