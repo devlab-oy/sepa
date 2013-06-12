@@ -1,9 +1,14 @@
 require 'sepa'
 # Bank root cert
-cert = OpenSSL::X509::Certificate.new(File.read("root_certificate/DBGROOT_1111110002.cer"))
-#pkey = OpenSSL::PKey::RSA.new(File.read("root_certificate/DBGROOT_1111110002.cer"))
-#askd = OpenSSL::PKCS7.encrypt(cert,"kissa")
-#puts askd
+# TEST ONE:
+# Create a new symmetric key
+private_key = OpenSSL::PKey::RSA.new(2048)
+# Create a public key from the private symmetric key
+public_key = private_key.public_key
+# END OF TEST ONE:
+
+# Bank root cert
+cert = OpenSSL::X509::Certificate.new(File.read("danske_testing/keys/danske.crt"))
 
 # Create encryption key and pkcs10 request
 %x(openssl req -newkey rsa:2048 -keyout encryption_key.pem -keyform PEM -out encryption_pkcs.csr -outform DER -config req.conf -nodes)
@@ -18,6 +23,9 @@ idone = SecureRandom.random_number(1000).to_s
 idtwo = SecureRandom.random_number(1000).to_s<<idone
 puts "Todays lucky number was #{idtwo}"
 params = {
+          private_key: private_key,
+
+          public_key: public_key,
 
           command: :create_certificate,
 

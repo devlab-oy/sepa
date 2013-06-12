@@ -5,24 +5,28 @@ module Sepa
       @sender_id = params.fetch(:customer_id)
       @request_id = params.fetch(:request_id)
       @cert = params.fetch(:cert)
+      @private_key = params.fetch(:private_key)
+      @public_key = params.fetch(:public_key)
       @ar = ApplicationRequest.new(params).get_as_base64
 
       template_path = File.expand_path('../xml_templates/soap/', __FILE__)
 
       @body = load_body_template(template_path, @command)
 
-      @encrypted_request = load_encrypted_request_template(template_path, @command)
+      #@encrypted_request = load_encrypted_request_template(template_path, @command)
     end
 
     def to_xml
-      construct(@body, @command, @ar, @sender_id, @request_id).to_xml
+      construct(@body, @command, @ar, @sender_id, @request_id, @cert, @private_key, @public_key).to_xml
     end
 
     private
 
-      def construct(body, command, ar, sender_id, request_id, cert, encrypted_request)
-        set_body_contents(body, ar, sender_id, request_id)
-        add_request_to_soap(ar, body)
+      def construct(body, command, ar, sender_id, request_id, cert, private_key, public_key)
+        set_body_contents(body, sender_id, request_id)
+        encrypted_request = encrypt_application_request(ar, cert, private_key, public_key)
+        #puts encrypted_request.to_xml
+        add_request_to_soap(encrypted_request, body)
       end
 
       def load_body_template(template_path, command)
@@ -43,7 +47,7 @@ module Sepa
 
       def load_encrypted_request_template(template_path, command)
         case command
-        when :get_certificate
+        when :create_certificate
           path = "#{template_path}/danske_encrypted_request.xml"
         else
           fail LoadError, "Could not load soap request template because the" \
@@ -57,7 +61,7 @@ module Sepa
         encrypted_request
       end
 
-      def set_body_contents(body, ar, sender_id, request_id)
+      def set_body_contents(body, sender_id, request_id)
         set_node(body, 'pkif|SenderId', sender_id)
         set_node(body, 'pkif|CustomerId', sender_id)
         set_node(body, 'pkif|RequestId', request_id)
@@ -69,17 +73,41 @@ module Sepa
         doc.at_css(node).content = value
       end
 
-      def add_request_to_soap(ar, body, cert, encrypted_request)
-        ar = ar.at_css('tns|CreateCertificateRequest')
-        #ar = encrypt_application_request(ar, cert, encrypted_request)
-        body.at_css('pkif|CreateCertificateIn').add_child(ar)
+      def add_request_to_soap(encrypted_request, body)
+        encrypted_request = Nokogiri::XML(encrypted_request.to_xml)
+        encrypted_request = encrypted_request.at_css('xenc|EncryptedData')
+        body.at_css('pkif|CreateCertificateIn').add_child(encrypted_request)
         body
       end
 
-      def encrypt_application_request(ar, cert, encrypted_request)
-        set_node(encrypted_request, 'dsig|X509Certificate', Base64.encode64(cert.to_der))
-        set_node(encrypted_request, 'xenc|CipherValue', "hello")
-        #set_node(encrypted_request, '', Base64.encode64(cert.encrypt(ar))
+      def encrypt_application_request(ar, cert, private_key, public_key)
+        formatted_cert = Base64.encode64(cert.to_der)
+        ciphervalue1 = Base64.encode64(private_key.to_der)
+        ciphervalue2 = Base64.encode64(ar)
+        builder = Nokogiri::XML::Builder.new do |xml|
+          xml['xenc'].EncryptedData('xmlns:xenc' => "http://www.w3.org/2001/04/xmlenc#", 'Type' => "http://www.w3.org/2001/04/xmlenc#Element") {
+            xml.EncryptionMethod('Algorithm' => "http://www.w3.org/2001/04/xmlenc#tripledes-cbc") {
+            }
+            xml['dsig'].KeyInfo('xmlns:dsig' => "http://www.w3.org/2000/09/xmldsig#"){
+               xml['xenc'].EncryptedKey('Recipient' =>"name:DanskeBankCryptCERT"){
+                    xml.EncryptionMethod('Algorithm' => "http://www.w3.org/2001/04/xmlenc#rsa-1_5")
+                    xml['dsig'].KeyInfo {
+                         xml.X509Data {
+                         xml.X509Certificate formatted_cert
+                         }
+                    }
+                    xml['xenc'].CipherData{
+                         xml.CipherValue ciphervalue1
+                    }
+               }
+            }
+            xml['xenc'].CipherData{
+                         xml.CipherValue ciphervalue2
+                    }
+          }
+        end
+
+      builder
       end
   end
 end
