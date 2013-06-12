@@ -59,9 +59,9 @@ sepa_client = Sepa::Client.new(params)
 
 response = sepa_client.send
 
-response = Nokogiri::XML(response.to_xml)
+# response = Nokogiri::XML(response.to_xml)
 
-response = Sepa::Response.new(response)
+# response = Sepa::Response.new(response)
 
-puts response.soap_hashes_match?
-puts response.soap_signature_is_valid?
+# puts response.soap_hashes_match?
+# puts response.soap_signature_is_valid?

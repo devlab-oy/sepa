@@ -2,56 +2,23 @@ require File.expand_path('../../test_helper.rb', __FILE__)
 
 class ResponseTest < MiniTest::Test
   def setup
-    @responses_path = File.expand_path('../test_files/test_responses', __FILE__)
+    responses_path = File.expand_path('../test_files/test_responses', __FILE__)
 
-    @response = Nokogiri::XML(File.read("#{@responses_path}/valid_1.xml"))
+    # Response that was requested with :download_file_list command
+    @dfl = Nokogiri::XML(File.read("#{responses_path}/dfl.xml"))
 
-    # The following files are valid responses that should pass the hash
-    # verification.
+    # Response that was requested with :upload_file command
+    @uf = Nokogiri::XML(File.read("#{responses_path}/uf.xml"))
 
-    @valid_1_file = File.read("#{@responses_path}/valid_1.xml")
-    @valid_1 = Nokogiri::XML(@valid_1_file)
-    @valid_1 = Sepa::Response.new(@valid_1)
+    # Response that was requested with :download_file command
+    @df = Nokogiri::XML(File.read("#{responses_path}/df.xml"))
 
-    @valid_2_file = File.read("#{@responses_path}/valid_2.xml")
-    @valid_2 = Nokogiri::XML(@valid_2_file)
-    @valid_2 = Sepa::Response.new(@valid_2)
-
-    @valid_3_file = File.read("#{@responses_path}/valid_3.xml")
-    @valid_3 = Nokogiri::XML(@valid_3_file)
-    @valid_3 = Sepa::Response.new(@valid_3)
-
-    @valid_4_file = File.read("#{@responses_path}/valid_4.xml")
-    @valid_4 = Nokogiri::XML(@valid_4_file)
-    @valid_4 = Sepa::Response.new(@valid_4)
-
-    # The following are invalid files which have had their hashes corrupted.
-    # They should fail the hash veridication.
-
-    @invalid_1_file = File.read("#{@responses_path}/invalid_1.xml")
-    @invalid_1 = Nokogiri::XML(@invalid_1_file)
-    @invalid_1 = Sepa::Response.new(@invalid_1)
-
-    @invalid_2_file = File.read("#{@responses_path}/invalid_2.xml")
-    @invalid_2 = Nokogiri::XML(@invalid_2_file)
-    @invalid_2 = Sepa::Response.new(@invalid_2)
-
-    @invalid_3_file = File.read("#{@responses_path}/invalid_3.xml")
-    @invalid_3 = Nokogiri::XML(@invalid_3_file)
-    @invalid_3 = Sepa::Response.new(@invalid_3)
-
-    @invalid_4_file = File.read("#{@responses_path}/invalid_4.xml")
-    @invalid_4 = Nokogiri::XML(@invalid_4_file)
-    @invalid_4 = Sepa::Response.new(@invalid_4)
-
-    # This file's certificate has been corrupted. (A few characters removed.)
-    @corrupted_cert = File.read("#{@responses_path}/corrupted_cert.xml")
-    @corrupted_cert = Nokogiri::XML(@corrupted_cert)
-    @corrupted_cert = Sepa::Response.new(@corrupted_cert)
+    # Response that was requested with :get_user_info command
+    @gui = Nokogiri::XML(File.read("#{responses_path}/gui.xml"))
   end
 
   def test_should_initialize_with_proper_response
-    assert Sepa::Response.new(@response)
+    assert Sepa::Response.new(@dfl)
   end
 
   def test_should_complain_if_initialized_with_something_not_nokogiri_xml
@@ -64,102 +31,185 @@ class ResponseTest < MiniTest::Test
     end
   end
 
-  def test_valid_response_1_is_unmodified
-    sha1 = OpenSSL::Digest::SHA1.new
-    digest = Base64.encode64(sha1.digest(@valid_1_file)).strip
-
-    assert_equal digest, 'vp0OeOELDa1V40/erOR6TgzmkdI='
+  def test_proper_dfl_hash_check_should_verify
+    assert Sepa::Response.new(@dfl).soap_hashes_match?
   end
 
-  def test_valid_response_2_is_unmodified
-    sha1 = OpenSSL::Digest::SHA1.new
-    digest = Base64.encode64(sha1.digest(@valid_2_file)).strip
-
-    assert_equal digest, 'ccXgIZi7yVf9gQqjEJT9halcrc8='
+  def test_proper_uf_hash_check_should_verify
+    assert Sepa::Response.new(@uf).soap_hashes_match?
   end
 
-  def test_valid_response_3_is_unmodified
-    sha1 = OpenSSL::Digest::SHA1.new
-    digest = Base64.encode64(sha1.digest(@valid_3_file)).strip
-
-    assert_equal digest, 'ignmVdl+/K/Ths8PZmyxLvyZFUU='
+  def test_proper_df_hash_check_should_verify
+    assert Sepa::Response.new(@df).soap_hashes_match?
   end
 
-  def test_valid_response_4_is_unmodified
-    sha1 = OpenSSL::Digest::SHA1.new
-    digest = Base64.encode64(sha1.digest(@valid_4_file)).strip
-
-    assert_equal digest, 'laS34UjcnI1k5vP+fwzrKbDpHEw='
+  def test_proper_gui_hash_check_should_verify
+    assert Sepa::Response.new(@gui).soap_hashes_match?
   end
 
-  def test_invalid_response_1_is_unmodified
-    sha1 = OpenSSL::Digest::SHA1.new
-    digest = Base64.encode64(sha1.digest(@invalid_1_file)).strip
+  def test_corrupted_hash_in_dfl_should_fail_hash_check
+    hash_node = @dfl.css(
+      'xmlns|DigestValue',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+    )[0]
 
-    assert_equal digest, '6Rkv+OCOmw4JahI8P2Prb13Y4Kg='
+    hash_node.content = Base64.encode64('alsdflsdhf'*6)
+
+    refute Sepa::Response.new(@dfl).soap_hashes_match?
   end
 
-  def test_invalid_response_2_is_unmodified
-    sha1 = OpenSSL::Digest::SHA1.new
-    digest = Base64.encode64(sha1.digest(@invalid_2_file)).strip
+  def test_corrupted_hash_in_uf_should_fail_hash_check
+    hash_node = @uf.css(
+      'xmlns|DigestValue',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+    )[1]
 
-    assert_equal digest, '6+yjYNvuqVvRX9TIhM2MbC9XAo4='
+    wrong_value = Base64.encode64(OpenSSL::Digest::SHA1.new.digest('hemuli'))
+
+    hash_node.content = wrong_value
+
+    refute Sepa::Response.new(@uf).soap_hashes_match?
   end
 
-  def test_invalid_response_3_is_unmodified
-    sha1 = OpenSSL::Digest::SHA1.new
-    digest = Base64.encode64(sha1.digest(@invalid_3_file)).strip
+  def test_corrupted_hash_in_df_should_fail_hash_check
+    hash_node = @df.css(
+      'xmlns|DigestValue',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+    )[0]
+    wrong_value = Base64.encode64(
+      OpenSSL::Digest::SHA1.new.digest('whatifitoldyouimnotavalidvalueforhash' \
+                                       'ing')
+    )
 
-    assert_equal digest, 'ayTb+fazRLFNK6VwbQlYoVawCEs='
+    hash_node.content = wrong_value
+
+    refute Sepa::Response.new(@df).soap_hashes_match?
   end
 
-  def test_invalid_response_4_is_unmodified
-    sha1 = OpenSSL::Digest::SHA1.new
-    digest = Base64.encode64(sha1.digest(@invalid_4_file)).strip
+  def test_corrupted_hash_in_gui_should_fail_hash_check
+    hash_node = @gui.css(
+      'xmlns|DigestValue',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+    )[1]
 
-    assert_equal digest, '/LEwhGmdHv2ynOG+Y0AYcgy+sjA='
+    hash_node.content = hash_node.content[6..-1]
+
+    refute Sepa::Response.new(@gui).soap_hashes_match?
   end
 
-  def test_valid_responses_should_verify
-    assert @valid_1.soap_hashes_match?
-    assert @valid_2.soap_hashes_match?
-    assert @valid_3.soap_hashes_match?
-    assert @valid_4.soap_hashes_match?
+  def test_proper_dfl_signature_should_verify
+    assert Sepa::Response.new(@dfl).soap_signature_is_valid?
   end
 
-  def test_should_fail_with_invalid_responses
-    refute @invalid_1.soap_hashes_match?
-    refute @invalid_2.soap_hashes_match?
-    refute @invalid_3.soap_hashes_match?
-    refute @invalid_4.soap_hashes_match?
+  def test_proper_uf_signature_should_verify
+    assert Sepa::Response.new(@uf).soap_signature_is_valid?
   end
 
-  def test_valid_signature_should_verify
-    assert @valid_1.soap_signature_is_valid?
-    assert @valid_2.soap_signature_is_valid?
-    assert @valid_3.soap_signature_is_valid?
-    assert @valid_4.soap_signature_is_valid?
+  def test_proper_df_signature_should_verify
+    assert Sepa::Response.new(@df).soap_signature_is_valid?
   end
 
-  def test_invalid_signature_should_not_verify
-    refute @invalid_1.soap_signature_is_valid?
-    refute @invalid_2.soap_signature_is_valid?
-    refute @invalid_3.soap_signature_is_valid?
-    refute @invalid_4.soap_signature_is_valid?
+  def test_proper_gui_signature_should_verify
+    assert Sepa::Response.new(@gui).soap_signature_is_valid?
   end
 
-  def test_should_raise_error_if_certificate_corrupted
+  def test_corrupted_signature_in_dfl_should_fail_signature_verification
+    signature_node = @dfl.at_css(
+      'xmlns|SignatureValue',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+    )
+
+    signature_node.content = signature_node.content[1..-1]
+
+    refute Sepa::Response.new(@dfl).soap_signature_is_valid?
+  end
+
+  def test_corrupted_signature_in_uf_should_fail_signature_verification
+    signature_node = @uf.at_css(
+      'xmlns|SignatureValue',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+    )
+
+    signature_node.content = signature_node.content[6..-4]
+
+    refute Sepa::Response.new(@uf).soap_signature_is_valid?
+  end
+
+  def test_corrupted_signature_in_df_should_fail_signature_verification
+    signature_node = @df.at_css(
+      'xmlns|SignatureValue',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+    )
+
+    signature_node.content = signature_node.content[0..-2]
+
+    refute Sepa::Response.new(@df).soap_signature_is_valid?
+  end
+
+  def test_corrupted_signature_in_gui_should_fail_signature_verification
+    signature_node = @gui.at_css(
+      'xmlns|SignatureValue',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+    )
+
+    signature_node.content = 'i' + signature_node.content
+
+    refute Sepa::Response.new(@gui).soap_signature_is_valid?
+  end
+
+  def test_should_raise_error_if_certificate_corrupted_in_dfl
+    cert_node = @dfl.at_css(
+      'wsse|BinarySecurityToken',
+      'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-ws' \
+      'security-secext-1.0.xsd'
+    )
+
+    cert_node.content = cert_node.content + 'a'
+
     assert_raises(OpenSSL::X509::CertificateError) do
-      @corrupted_cert.soap_signature_is_valid?
+      Sepa::Response.new(@dfl).soap_signature_is_valid?
     end
   end
 
-  def test_should_raise_error_if_structure_corrupted
-    corrupted_structure = File.read(
-      "#{@responses_path}/corrupted_structure.xml"
+  def test_should_raise_error_if_certificate_corrupted_in_uf
+    cert_node = @uf.at_css(
+      'wsse|BinarySecurityToken',
+      'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-ws' \
+      'security-secext-1.0.xsd'
     )
-    corrupted_structure = Nokogiri::XML(corrupted_structure)
 
-    assert_raises(ArgumentError) { Sepa::Response.new(corrupted_structure) }
+    cert_node.content = cert_node.content[1..-1]
+
+    assert_raises(OpenSSL::X509::CertificateError) do
+      Sepa::Response.new(@uf).soap_signature_is_valid?
+    end
+  end
+
+  def test_should_raise_error_if_certificate_corrupted_in_df
+    cert_node = @df.at_css(
+      'wsse|BinarySecurityToken',
+      'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-ws' \
+      'security-secext-1.0.xsd'
+    )
+
+    cert_node.content = cert_node.content[0..-5]
+
+    assert_raises(OpenSSL::X509::CertificateError) do
+      Sepa::Response.new(@df).soap_signature_is_valid?
+    end
+  end
+
+  def test_should_raise_error_if_certificate_corrupted_in_gui
+    cert_node = @gui.at_css(
+      'wsse|BinarySecurityToken',
+      'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-ws' \
+      'security-secext-1.0.xsd'
+    )
+
+    cert_node.content = cert_node.content[9..-1]
+
+    assert_raises(OpenSSL::X509::CertificateError) do
+      Sepa::Response.new(@gui).soap_signature_is_valid?
+    end
   end
 end
