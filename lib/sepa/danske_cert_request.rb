@@ -13,7 +13,8 @@ module Sepa
 
       @body = load_body_template(template_path, @command)
 
-      #@encrypted_request = load_encrypted_request_template(template_path, @command)
+      @cipher
+
     end
 
     def to_xml
@@ -25,7 +26,6 @@ module Sepa
       def construct(body, command, ar, sender_id, request_id, cert, private_key, public_key)
         set_body_contents(body, sender_id, request_id)
         encrypted_request = encrypt_application_request(ar, cert, private_key, public_key)
-        #puts encrypted_request.to_xml
         add_request_to_soap(encrypted_request, body)
       end
 
@@ -79,11 +79,18 @@ module Sepa
         body.at_css('pkif|CreateCertificateIn').add_child(encrypted_request)
         body
       end
-
+      def encrypt(data)
+        cipher = OpenSSL::Cipher::Cipher.new('DES-EDE3-CBC')
+          cipher.encrypt
+          @cipher = cipher
+          output = cipher.update(data)
+          output << cipher.final
+          output
+      end
       def encrypt_application_request(ar, cert, private_key, public_key)
         formatted_cert = Base64.encode64(cert.to_der)
-        ciphervalue1 = Base64.encode64(private_key.to_der)
-        ciphervalue2 = Base64.encode64(ar)
+        ciphervalue2 = encrypt(Base64.encode64(ar))
+        ciphervalue1 = Base64.encode64(@cipher.to_s)
         builder = Nokogiri::XML::Builder.new do |xml|
           xml['xenc'].EncryptedData('xmlns:xenc' => "http://www.w3.org/2001/04/xmlenc#", 'Type' => "http://www.w3.org/2001/04/xmlenc#Element") {
             xml.EncryptionMethod('Algorithm' => "http://www.w3.org/2001/04/xmlenc#tripledes-cbc") {
