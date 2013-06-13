@@ -5,7 +5,7 @@ module Sepa
       @sender_id = params.fetch(:customer_id)
       @request_id = params.fetch(:request_id)
       @cert = params.fetch(:cert)
-      @private_key = params.fetch(:private_key)
+      #@private_key = params.fetch(:private_key)
       @public_key = params.fetch(:public_key)
       @ar = ApplicationRequest.new(params).get_as_base64
 
@@ -18,14 +18,14 @@ module Sepa
     end
 
     def to_xml
-      construct(@body, @command, @ar, @sender_id, @request_id, @cert, @private_key, @public_key).to_xml
+      construct(@body, @command, @ar, @sender_id, @request_id, @cert, @public_key).to_xml
     end
 
     private
 
-      def construct(body, command, ar, sender_id, request_id, cert, private_key, public_key)
+      def construct(body, command, ar, sender_id, request_id, cert, public_key)
         set_body_contents(body, sender_id, request_id)
-        encrypted_request = encrypt_application_request(ar, cert, private_key, public_key)
+        encrypted_request = encrypt_application_request(ar, cert, public_key)
         add_request_to_soap(encrypted_request, body)
       end
 
@@ -79,18 +79,19 @@ module Sepa
         body.at_css('pkif|CreateCertificateIn').add_child(encrypted_request)
         body
       end
-      def encrypt(data)
-        cipher = OpenSSL::Cipher::Cipher.new('DES-EDE3-CBC')
-          cipher.encrypt
-          @cipher = cipher
-          output = cipher.update(data)
-          output << cipher.final
-          output
-      end
-      def encrypt_application_request(ar, cert, private_key, public_key)
+
+      def encrypt_application_request(ar, cert, public_key)
         formatted_cert = Base64.encode64(cert.to_der)
-        ciphervalue2 = encrypt(Base64.encode64(ar))
-        ciphervalue1 = Base64.encode64(@cipher.to_s)
+
+        cipher = OpenSSL::Cipher::Cipher.new('DES-EDE3-CBC')
+        cipher.encrypt
+        key = cipher.random_key
+        output = cipher.update(ar)
+        output << cipher.final
+
+        ciphervalue1 = Base64.encode64(public_key.public_encrypt(key))
+        ciphervalue2 = Base64.encode64(output)
+
         builder = Nokogiri::XML::Builder.new do |xml|
           xml['xenc'].EncryptedData('xmlns:xenc' => "http://www.w3.org/2001/04/xmlenc#", 'Type' => "http://www.w3.org/2001/04/xmlenc#Element") {
             xml.EncryptionMethod('Algorithm' => "http://www.w3.org/2001/04/xmlenc#tripledes-cbc") {
