@@ -8,6 +8,7 @@
                 <pkif:RequestId></pkif:RequestId>
                 <pkif:Timestamp></pkif:Timestamp>
                 <pkif:InterfaceVersion></pkif:InterfaceVersion>
+                <pkif:Environment></pkif:Environment>
             </pkif:RequestHeader>
         </pkif:CreateCertificateIn>
     </soapenv:Body>

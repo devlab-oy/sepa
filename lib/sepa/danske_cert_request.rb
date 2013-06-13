@@ -5,6 +5,7 @@ module Sepa
       @sender_id = params.fetch(:customer_id)
       @request_id = params.fetch(:request_id)
       @cert = params.fetch(:cert)
+      @environment = params.fetch(:environment)
       #@private_key = params.fetch(:private_key)
       @public_key = params.fetch(:public_key)
       @ar = ApplicationRequest.new(params).get_as_base64
@@ -18,13 +19,13 @@ module Sepa
     end
 
     def to_xml
-      construct(@body, @command, @ar, @sender_id, @request_id, @cert, @public_key).to_xml
+      construct(@body, @command, @ar, @sender_id, @request_id, @cert, @public_key, @environment).to_xml
     end
 
     private
 
-      def construct(body, command, ar, sender_id, request_id, cert, public_key)
-        set_body_contents(body, sender_id, request_id)
+      def construct(body, command, ar, sender_id, request_id, cert, public_key, environment)
+        set_body_contents(body, sender_id, request_id, environment)
         encrypted_request = encrypt_application_request(ar, cert, public_key)
         add_request_to_soap(encrypted_request, body)
       end
@@ -61,12 +62,13 @@ module Sepa
         encrypted_request
       end
 
-      def set_body_contents(body, sender_id, request_id)
+      def set_body_contents(body, sender_id, request_id, environment)
         set_node(body, 'pkif|SenderId', sender_id)
         set_node(body, 'pkif|CustomerId', sender_id)
         set_node(body, 'pkif|RequestId', request_id)
         set_node(body, 'pkif|Timestamp', Time.now.iso8601)
         set_node(body, 'pkif|InterfaceVersion', 1)
+        set_node(body, 'pkif|Environment', environment)
       end
 
       def set_node(doc, node, value)
