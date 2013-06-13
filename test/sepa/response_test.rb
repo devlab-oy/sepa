@@ -15,6 +15,12 @@ class ResponseTest < MiniTest::Test
 
     # Response that was requested with :get_user_info command
     @gui = Nokogiri::XML(File.read("#{responses_path}/gui.xml"))
+
+    # A response object for testing
+    @dfl_response = Sepa::Response.new(@dfl)
+    @uf_response = Sepa::Response.new(@uf)
+    @df_response = Sepa::Response.new(@df)
+    @gui_response = Sepa::Response.new(@gui)
   end
 
   def test_should_initialize_with_proper_response
@@ -211,5 +217,12 @@ class ResponseTest < MiniTest::Test
     assert_raises(OpenSSL::X509::CertificateError) do
       Sepa::Response.new(@gui).soap_signature_is_valid?
     end
+  end
+
+  def test_should_return_certificate_with_certificate_method
+    assert @dfl_response.certificate.respond_to?(:public_key)
+    assert @uf_response.certificate.respond_to?(:public_key)
+    assert @df_response.certificate.respond_to?(:public_key)
+    assert @gui_response.certificate.respond_to?(:public_key)
   end
 end

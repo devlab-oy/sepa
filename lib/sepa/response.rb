@@ -12,6 +12,26 @@ module Sepa
       end
     end
 
+    # Returns the x509 certificate embedded in the soap as an
+    # OpenSSL::X509::Certificate
+    def certificate
+      cert_value = @response.at_css(
+        'wsse|BinarySecurityToken',
+        'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-ws' \
+        'security-secext-1.0.xsd'
+      ).content.gsub(/\s+/, "")
+
+      cert = process_cert_value(cert_value)
+
+      begin
+        cert = OpenSSL::X509::Certificate.new(cert)
+      rescue => e
+        fail OpenSSL::X509::CertificateError,
+          "The certificate embedded to the soap response could not be process" \
+          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
+          end
+    end
+
     # Verifies that all digest values in the document match the actual ones.
     def soap_hashes_match?(options = {})
       digests = find_digest_values(@response)
@@ -49,22 +69,6 @@ module Sepa
         inclusive_namespaces=nil,with_comments=false
       )
 
-      cert_value = @response.at_css(
-        'wsse|BinarySecurityToken',
-        'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-ws' \
-        'security-secext-1.0.xsd'
-      ).content.gsub(/\s+/, "")
-
-      cert = process_cert_value(cert_value)
-
-      begin
-        cert = OpenSSL::X509::Certificate.new(cert)
-      rescue => e
-        fail OpenSSL::X509::CertificateError,
-          "The certificate embedded to the soap response could not be process" \
-          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
-          end
-
       signature = @response.at_css(
         'xmlns|SignatureValue',
         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
@@ -72,7 +76,7 @@ module Sepa
 
       signature = Base64.decode64(signature)
 
-      cert.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
+      certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
     end
 
     private
