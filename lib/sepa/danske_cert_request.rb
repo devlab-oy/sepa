@@ -94,6 +94,7 @@ module Sepa
         cipher = OpenSSL::Cipher::Cipher.new('DES-EDE3-CBC')
         cipher.encrypt
         key = cipher.random_key
+        cipher.key = key
         output = cipher.update(ar)
         output << cipher.final
 
@@ -101,6 +102,7 @@ module Sepa
         ciphervalue1 = Base64.encode64(public_key.public_encrypt(key))
         ciphervalue2 = Base64.encode64(output)
 
+        # Build the xml to contain encrypted fields
         builder = Nokogiri::XML::Builder.new do |xml|
           xml['xenc'].EncryptedData('xmlns:xenc' => "http://www.w3.org/2001/04/xmlenc#", 'Type' => "http://www.w3.org/2001/04/xmlenc#Element") {
             xml.EncryptionMethod('Algorithm' => "http://www.w3.org/2001/04/xmlenc#tripledes-cbc") {

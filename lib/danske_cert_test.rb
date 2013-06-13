@@ -1,20 +1,17 @@
 require 'sepa'
-# Bank root cert
-# TEST ONE:
-# Create a new symmetric key
-private_key = OpenSSL::PKey::RSA.new(2048)
-# Create a public key from the private symmetric key
-public_key = private_key.public_key
-# END OF TEST ONE:
 
 # Bank root cert
-cert = OpenSSL::X509::Certificate.new(File.read("danske_testing/keys/danske.crt"))
+cert = OpenSSL::X509::Certificate.new(File.read("sepa/danske_testing/keys/danske.crt"))
+
+# Extract public key from bank root certificate
+public_key = cert.public_key
+public_key = OpenSSL::PKey::RSA.new(public_key)
 
 # Create encryption key and pkcs10 request
-%x(openssl req -newkey rsa:2048 -keyout encryption_key.pem -keyform PEM -out encryption_pkcs.csr -outform DER -config req.conf -nodes)
+%x(openssl req -newkey rsa:2048 -keyout danske_encryption_key.pem -keyform PEM -out encryption_pkcs.csr -outform DER -config req.conf -nodes)
 
 # Create signing key and pkcs10 request
-%x(openssl req -newkey rsa:2048 -keyout signing_key.pem -keyform PEM -out signing_pkcs.csr -outform DER -config req.conf -nodes)
+%x(openssl req -newkey rsa:2048 -keyout danske_signing_key.pem -keyform PEM -out signing_pkcs.csr -outform DER -config req.conf -nodes)
 
 encryption_pkcs = OpenSSL::X509::Request.new(File.read ('encryption_pkcs.csr'))
 signing_pkcs = OpenSSL::X509::Request.new(File.read ('signing_pkcs.csr'))
@@ -23,13 +20,12 @@ idone = SecureRandom.random_number(1000).to_s
 idtwo = SecureRandom.random_number(1000).to_s<<idone
 puts "Todays lucky number was #{idtwo}"
 params = {
-          private_key: private_key,
 
           public_key: public_key,
 
           command: :create_certificate,
 
-          wsdl: 'wsdl_danske_cert.xml',
+          wsdl: 'sepa/wsdl/wsdl_danske_cert.xml',
 
           request_id: idtwo,
 
