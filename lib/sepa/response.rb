@@ -49,15 +49,13 @@ module Sepa
         inclusive_namespaces=nil,with_comments=false
       )
 
-      cert = @response.at_css(
+      cert_value = @response.at_css(
         'wsse|BinarySecurityToken',
         'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-ws' \
         'security-secext-1.0.xsd'
       ).content.gsub(/\s+/, "")
 
-      cert = "-----BEGIN CERTIFICATE-----\n" \
-        "#{cert.to_s.gsub(/\s+/, "").scan(/.{1,64}/).join("\n")}\n" \
-        "-----END CERTIFICATE-----"
+      cert = process_cert_value(cert_value)
 
       begin
         cert = OpenSSL::X509::Certificate.new(cert)
@@ -138,6 +136,13 @@ module Sepa
           xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
           xsd.valid?(doc)
         end
+      end
+
+      def process_cert_value(cert_value)
+        cert = "-----BEGIN CERTIFICATE-----\n"
+        cert += cert_value.to_s.gsub(/\s+/, "").scan(/.{1,64}/).join("\n")
+        cert += "\n"
+        cert += "-----END CERTIFICATE-----"
       end
   end
 end
