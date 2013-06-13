@@ -32,6 +32,17 @@ module Sepa
           end
     end
 
+    # Verifies that the soap's certificate is trusted.
+    def cert_is_trusted?(root_cert)
+      if root_cert.subject == certificate.issuer
+        certificate.verify(root_cert.public_key)
+      else
+        fail SecurityError,
+          "The issuer of the certificate doesn't match the subject of the roo" \
+          "t certificate."
+      end
+    end
+
     # Verifies that all digest values in the document match the actual ones.
     def soap_hashes_match?(options = {})
       digests = find_digest_values(@response)

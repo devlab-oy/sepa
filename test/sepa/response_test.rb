@@ -2,6 +2,12 @@ require File.expand_path('../../test_helper.rb', __FILE__)
 
 class ResponseTest < MiniTest::Test
   def setup
+    keys_path = File.expand_path('../nordea_test_keys', __FILE__)
+
+    @root_cert = OpenSSL::X509::Certificate.new File.read(
+      "#{keys_path}/root_cert.cer"
+    )
+
     responses_path = File.expand_path('../test_files/test_responses', __FILE__)
 
     # Response that was requested with :download_file_list command
@@ -16,7 +22,7 @@ class ResponseTest < MiniTest::Test
     # Response that was requested with :get_user_info command
     @gui = Nokogiri::XML(File.read("#{responses_path}/gui.xml"))
 
-    # A response object for testing
+    # Actual response objects for testing.
     @dfl_response = Sepa::Response.new(@dfl)
     @uf_response = Sepa::Response.new(@uf)
     @df_response = Sepa::Response.new(@df)
@@ -224,5 +230,12 @@ class ResponseTest < MiniTest::Test
     assert @uf_response.certificate.respond_to?(:public_key)
     assert @df_response.certificate.respond_to?(:public_key)
     assert @gui_response.certificate.respond_to?(:public_key)
+  end
+
+  def test_cert_should_be_trusted_with_correct_root_cert
+    assert @dfl_response.cert_is_trusted?(@root_cert)
+    assert @uf_response.cert_is_trusted?(@root_cert)
+    assert @df_response.cert_is_trusted?(@root_cert)
+    assert @gui_response.cert_is_trusted?(@root_cert)
   end
 end
