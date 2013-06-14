@@ -90,12 +90,16 @@ module Sepa
         #cert.gsub!(/\s+/, "")
         formatted_cert = Base64.encode64(cert.to_der)
 
+        puts "----- ApplicationRequest PRE encryption -----"
+        puts ar.to_xml
+        puts "----- ApplicationRequest PRE encryption -----"
+
         # Encrypt ApplicationRequest and set key
         cipher = OpenSSL::Cipher::Cipher.new('DES-EDE3-CBC')
         cipher.encrypt
-        key = 'dingdongdingelidong'
+        key = SecureRandom.hex(16)
         #cipher.iv = key
-        cipher.pkcs5_keyivgen(key)
+        cipher.key = key
         output = cipher.update(ar)
         output << cipher.final
 
