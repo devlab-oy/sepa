@@ -93,8 +93,8 @@ module Sepa
         # Encrypt ApplicationRequest and set key
         cipher = OpenSSL::Cipher::Cipher.new('DES-EDE3-CBC')
         cipher.encrypt
-        key = cipher.random_key
-        cipher.key = key
+        key = cipher.random_iv
+        cipher.iv = key
         output = cipher.update(ar)
         output << cipher.final
 
