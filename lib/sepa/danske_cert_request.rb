@@ -84,17 +84,18 @@ module Sepa
 
       def encrypt_application_request(ar, cert, public_key)
         # Format certificate
-        cert = cert.to_s
-        cert = cert.split('-----BEGIN CERTIFICATE-----')[1]
-        cert = cert.split('-----END CERTIFICATE-----')[0]
-        cert.gsub!(/\s+/, "")
-        formatted_cert = Base64.encode64(cert)
+        #cert = cert.to_s
+        #cert = cert.split('-----BEGIN CERTIFICATE-----')[1]
+        #cert = cert.split('-----END CERTIFICATE-----')[0]
+        #cert.gsub!(/\s+/, "")
+        formatted_cert = Base64.encode64(cert.to_der)
 
         # Encrypt ApplicationRequest and set key
         cipher = OpenSSL::Cipher::Cipher.new('DES-EDE3-CBC')
         cipher.encrypt
-        key = cipher.random_iv
-        cipher.iv = key
+        key = 'dingdongdingelidong'
+        #cipher.iv = key
+        cipher.pkcs5_keyivgen(key)
         output = cipher.update(ar)
         output << cipher.final
 
