@@ -90,6 +90,12 @@ module Sepa
       certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
     end
 
+    def application_response
+      ar = @response.at_css('mod|ApplicationResponse').content
+      ar = Base64.decode64(ar)
+      ar = Nokogiri::XML(ar)
+    end
+
     private
 
       # Finds all reference nodes with digest values in the document and returns
