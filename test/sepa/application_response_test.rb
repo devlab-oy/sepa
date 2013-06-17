@@ -15,6 +15,11 @@ class ApplicationResponseTest < MiniTest::Test
 
     @gui = Nokogiri::XML(File.read("#{responses_path}/gui.xml"))
     @gui = Sepa::Response.new(@gui).application_response
+
+    @dfl_ar = Sepa::ApplicationResponse.new(@dfl)
+    @uf_ar = Sepa::ApplicationResponse.new(@uf)
+    @df_ar = Sepa::ApplicationResponse.new(@df)
+    @gui_ar = Sepa::ApplicationResponse.new(@gui)
   end
 
   def test_should_initialize_with_proper_params
@@ -28,9 +33,61 @@ class ApplicationResponseTest < MiniTest::Test
     assert_raises(ArgumentError) { Sepa::ApplicationResponse.new("Jees") }
   end
 
-  def test_should_complain_if_response_not_valid_against_schema
+  def test_should_complain_if_ar_not_valid_against_schema
     assert_raises(ArgumentError) do
       Sepa::ApplicationResponse.new(Nokogiri::XML("<ar>text</ar>"))
     end
+  end
+
+  def test_proper_dfl_hash_check_should_verify
+    assert @dfl_ar.hashes_match?
+  end
+
+  def test_proper_uf_hash_check_should_verify
+    assert @uf_ar.hashes_match?
+  end
+
+  def test_proper_df_hash_check_should_verify
+    assert @df_ar.hashes_match?
+  end
+
+  def test_proper_gui_hash_check_should_verify
+    assert @gui_ar.hashes_match?
+  end
+
+  def test_invalid_dfl_hash_check_should_not_verify
+    customer_id_node = @dfl.at_css('c2b|CustomerId')
+    customer_id_node.content = customer_id_node.content[0..-2]
+
+    refute Sepa::ApplicationResponse.new(@dfl).hashes_match?
+  end
+
+  def test_invalid_uf_hash_check_should_not_verify
+    timestamp_node = @uf.at_css('c2b|Timestamp')
+    timestamp_node.content = Time.now.iso8601
+
+    refute Sepa::ApplicationResponse.new(@uf).hashes_match?
+  end
+
+  def test_invalid_df_hash_check_should_not_verify
+    digest_value_node = @df.at_css(
+      'xmlns|DigestValue',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+    )
+
+    digest_value_node.content = digest_value_node.content[4..-1]
+
+    refute Sepa::ApplicationResponse.new(@df).hashes_match?
+  end
+
+  def test_invalid_gui_hash_check_should_not_verify
+    digest_value_node = @gui.at_css(
+      'xmlns|DigestValue',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+    )
+
+    digest_value_node.content = '1234' + digest_value_node.content
+
+    refute Sepa::ApplicationResponse.new(@gui).hashes_match?
   end
 end
