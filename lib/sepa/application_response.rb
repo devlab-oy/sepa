@@ -14,6 +14,8 @@ module Sepa
       end
     end
 
+    # Checks that the hash value reported in the signature matches the actual
+    # one.
     def hashes_match?
       ar = @ar.clone
 
@@ -36,6 +38,7 @@ module Sepa
       end
     end
 
+    # Extracts the X509 certificate from the application response.
     def certificate
       cert_value = @ar.at_css(
         'xmlns|X509Certificate',
@@ -54,6 +57,8 @@ module Sepa
           end
     end
 
+    # Checks that the signature is signed with the private key of the
+    # certificate's public key.
     def signature_is_valid?
       node = @ar.at_css('xmlns|SignedInfo',
                         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
@@ -70,6 +75,8 @@ module Sepa
       certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
     end
 
+    # Checks that the certificate in the application response is signed with the
+    # private key of the public key of the certificate as parameter.
     def cert_is_trusted?(root_cert)
       if root_cert.subject == certificate.issuer
         certificate.verify(root_cert.public_key)
@@ -103,6 +110,9 @@ module Sepa
         end
       end
 
+      # Takes the certificate from the application response, adds begin and end
+      # certificate texts and splits it into multiple lines so that OpenSSL
+      # can read it.
       def process_cert_value(cert_value)
         cert = "-----BEGIN CERTIFICATE-----\n"
         cert += cert_value.to_s.gsub(/\s+/, "").scan(/.{1,64}/).join("\n")
