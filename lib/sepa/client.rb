@@ -38,7 +38,7 @@ module Sepa
 
     private
 
-      # Tries to validate the parameters as well as possible.
+      # Tries to validate the parameters or their presence.
       def check_params(params)
         # Universally for all
         check_params_hash(params)

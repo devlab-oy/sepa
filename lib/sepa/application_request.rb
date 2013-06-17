@@ -1,18 +1,25 @@
 module Sepa
   class ApplicationRequest
     def initialize(params)
+      # Used by most, both Nordea and Danske
       @command = params.fetch(:command)
-      @private_key = params.fetch(:private_key) unless @command == :get_certificate || @command == :create_certificate
-      @cert = params.fetch(:cert) unless @command == :get_certificate || @command == :create_certificate
       @customer_id = params.fetch(:customer_id)
       @environment = params.fetch(:environment)
-      @status = params[:status]
       @target_id = params[:target_id]
+      @status = params[:status]
       @file_type = params[:file_type]
       @content = params[:content]
       @file_reference = params[:file_reference]
+
+      # For signed Nordea application requests
+      @private_key = params.fetch(:private_key) unless @command == :get_certificate || @command == :create_certificate
+      @cert = params.fetch(:cert) unless @command == :get_certificate || @command == :create_certificate
+
+      # Only for cert requests
+      # Nordea Bank
       @service = params[:service]
       @hmac = params[:hmac]
+      # Danske Bank
       @pin = params[:pin]
       @key_generator_type = params[:key_generator_type]
       @encryption_cert_pkcs10 = params[:encryption_cert_pkcs10]

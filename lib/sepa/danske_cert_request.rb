@@ -6,7 +6,6 @@ module Sepa
       @request_id = params.fetch(:request_id)
       @cert = params.fetch(:cert)
       @environment = params.fetch(:environment)
-      #@public_key = params.fetch(:public_key)
       @ar = ApplicationRequest.new(params).get_as_base64
 
       @public_key = extract_public_key(@cert)
@@ -47,6 +46,7 @@ module Sepa
       def extract_public_key(cert)
         pkey = cert.public_key
         pkey = OpenSSL::PKey::RSA.new(pkey)
+
         pkey
       end
 
@@ -83,6 +83,7 @@ module Sepa
         encrypted_request = Nokogiri::XML(encrypted_request.to_xml)
         encrypted_request = encrypted_request.at_css('xenc|EncryptedData')
         body.at_css('pkif|CreateCertificateIn').add_child(encrypted_request)
+
         body
       end
 
@@ -102,7 +103,6 @@ module Sepa
         cipher = OpenSSL::Cipher::Cipher.new('DES-EDE3-CBC')
         cipher.encrypt
         key = SecureRandom.hex(16)
-        #cipher.iv = key
         cipher.key = key
         output = cipher.update(ar)
         output << cipher.final
