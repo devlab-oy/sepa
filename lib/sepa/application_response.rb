@@ -27,8 +27,7 @@ module Sepa
         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
       ).remove
 
-      actual_digest = OpenSSL::Digest::SHA1.new.digest(ar.canonicalize)
-      actual_digest = Base64.encode64(actual_digest).strip
+      actual_digest = calculate_digest(ar)
 
       if digest_value == actual_digest
         true
@@ -69,6 +68,16 @@ module Sepa
       signature = Base64.decode64(signature)
 
       certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
+    end
+
+    def cert_is_trusted?(root_cert)
+      if root_cert.subject == certificate.issuer
+        certificate.verify(root_cert.public_key)
+      else
+        fail SecurityError,
+          "The issuer of the certificate doesn't match the subject of the " \
+          "root certificate."
+      end
     end
 
     private

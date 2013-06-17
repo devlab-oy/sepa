@@ -8,6 +8,10 @@ class ResponseTest < MiniTest::Test
       "#{keys_path}/root_cert.cer"
     )
 
+    @not_root_cert = OpenSSL::X509::Certificate.new File.read(
+      "#{keys_path}/nordea.crt"
+    )
+
     responses_path = File.expand_path('../test_files/test_responses', __FILE__)
 
     # Response that was requested with :download_file_list command
@@ -237,5 +241,29 @@ class ResponseTest < MiniTest::Test
     assert @uf_response.cert_is_trusted?(@root_cert)
     assert @df_response.cert_is_trusted?(@root_cert)
     assert @gui_response.cert_is_trusted?(@root_cert)
+  end
+
+  def test_dfl_should_fail_if_wrong_root_cert
+    assert_raises(SecurityError) do
+      @dfl_response.cert_is_trusted?(@not_root_cert)
+    end
+  end
+
+  def test_uf_should_fail_if_wrong_root_cert
+    assert_raises(SecurityError) do
+      @uf_response.cert_is_trusted?(@not_root_cert)
+    end
+  end
+
+  def test_df_should_fail_if_wrong_root_cert
+    assert_raises(SecurityError) do
+      @df_response.cert_is_trusted?(@not_root_cert)
+    end
+  end
+
+  def test_gui_should_fail_if_wrong_root_cert
+    assert_raises(SecurityError) do
+      @gui_response.cert_is_trusted?(@not_root_cert)
+    end
   end
 end

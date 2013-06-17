@@ -2,6 +2,16 @@ require File.expand_path('../../test_helper.rb', __FILE__)
 
 class ApplicationResponseTest < MiniTest::Test
   def setup
+    keys_path = File.expand_path('../nordea_test_keys', __FILE__)
+
+    @root_cert = OpenSSL::X509::Certificate.new File.read(
+      "#{keys_path}/root_cert.cer"
+    )
+
+    @not_root_cert = OpenSSL::X509::Certificate.new File.read(
+      "#{keys_path}/nordea.crt"
+    )
+
     responses_path = File.expand_path('../test_files/test_responses', __FILE__)
 
     @dfl = Nokogiri::XML(File.read("#{responses_path}/dfl.xml"))
@@ -149,5 +159,80 @@ class ApplicationResponseTest < MiniTest::Test
     signature_node.content = 'zombi' + signature_node.content[1..-1]
 
     refute Sepa::ApplicationResponse.new(@gui).signature_is_valid?
+  end
+
+  def test_cert_should_be_trusted_with_correct_root_cert
+    assert @dfl_ar.cert_is_trusted?(@root_cert)
+    assert @uf_ar.cert_is_trusted?(@root_cert)
+    assert @df_ar.cert_is_trusted?(@root_cert)
+    assert @gui_ar.cert_is_trusted?(@root_cert)
+  end
+
+  def test_should_raise_error_if_certificate_corrupted_in_dfl
+    cert_node = @dfl.at_css(
+      'xmlns|X509Certificate',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+    )
+
+    cert_node.content = cert_node.content[0..-5]
+
+    assert_raises(OpenSSL::X509::CertificateError) do
+      Sepa::ApplicationResponse.new(@dfl).certificate
+    end
+  end
+
+  def test_should_raise_error_if_certificate_corrupted_in_uf
+    cert_node = @uf.at_css(
+      'xmlns|X509Certificate',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+    )
+
+    cert_node.content = cert_node.content[4..-1]
+
+    assert_raises(OpenSSL::X509::CertificateError) do
+      Sepa::ApplicationResponse.new(@uf).certificate
+    end
+  end
+
+  def test_should_raise_error_if_certificate_corrupted_in_df
+    cert_node = @df.at_css(
+      'xmlns|X509Certificate',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+    )
+
+    cert_node.content = "n5iw#{cert_node.content}"
+
+    assert_raises(OpenSSL::X509::CertificateError) do
+      Sepa::ApplicationResponse.new(@df).certificate
+    end
+  end
+
+  def test_should_raise_error_if_certificate_corrupted_in_gui
+    cert_node = @gui.at_css(
+      'xmlns|X509Certificate',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+    )
+
+    cert_node.content = Base64.encode64('voivoi')
+
+    assert_raises(OpenSSL::X509::CertificateError) do
+      Sepa::ApplicationResponse.new(@gui).certificate
+    end
+  end
+
+  def test_dfl_should_fail_if_wrong_root_cert
+    assert_raises(SecurityError) { @dfl_ar.cert_is_trusted?(@not_root_cert) }
+  end
+
+  def test_uf_should_fail_if_wrong_root_cert
+    assert_raises(SecurityError) { @uf_ar.cert_is_trusted?(@not_root_cert) }
+  end
+
+  def test_df_should_fail_if_wrong_root_cert
+    assert_raises(SecurityError) { @df_ar.cert_is_trusted?(@not_root_cert) }
+  end
+
+  def test_gui_should_fail_if_wrong_root_cert
+    assert_raises(SecurityError) { @gui_ar.cert_is_trusted?(@not_root_cert) }
   end
 end
