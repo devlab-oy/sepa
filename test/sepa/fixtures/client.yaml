@@ -1,0 +1,10 @@
+certparams:
+{     bank: :nordea,
+      command: :get_certificate,
+      customer_id: '11111111',
+      environment: 'TEST',
+      wsdl: File.expand_path('../../../lib/sepa/wsdl/wsdl_nordea_cert.xml',__FILE__),
+      content: payload,
+      hmac: hmac,
+      service: 'service'
+}

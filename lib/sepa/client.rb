@@ -47,26 +47,26 @@ module Sepa
         check_wsdl(params[:wsdl])
         check_customer_id(params[:customer_id])
 
+        # Generic commands
+        generic_commands = [:download_file,:download_file_list,:get_user_info]
+
         # Depending on command
         case params[:command]
         when :get_certificate
           check_service(params[:service])
           check_hmac(params[:hmac])
           check_content(params[:content])
-        when :download_file
+        when *generic_commands
+          if params[:bank] == :nordea
           check_private_key(params[:private_key])
           check_cert(params[:cert])
           check_lang(params[:language])
           check_status(params[:status])
           check_target_id(params[:target_id])
           check_file_type(params[:file_type])
-        when :download_file_list
-          check_private_key(params[:private_key])
-          check_cert(params[:cert])
-          check_lang(params[:language])
-          check_status(params[:status])
-          check_target_id(params[:target_id])
-          check_file_type(params[:file_type])
+          else
+            fail ArgumentError, "Command not supported by #{params[:bank]}"
+          end
         when :upload_file
           check_private_key(params[:private_key])
           check_cert(params[:cert])
@@ -74,13 +74,6 @@ module Sepa
           check_target_id(params[:target_id])
           check_file_type(params[:file_type])
           check_content(params[:content])
-        when :get_user_info
-          check_private_key(params[:private_key])
-          check_cert(params[:cert])
-          check_lang(params[:language])
-          check_status(params[:status])
-          check_target_id(params[:target_id])
-          check_file_type(params[:file_type])
         when :create_certificate
           check_cert(params[:cert])
           check_request_id(params[:request_id])

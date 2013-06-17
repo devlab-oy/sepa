@@ -1,6 +1,8 @@
 require File.expand_path('../../test_helper.rb', __FILE__)
+#require File.expand_path('../fixtures/client.yaml', __FILE__)
 
 class ClientTest < MiniTest::Test
+  fixtures :client
   def setup
     @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)
 
@@ -42,16 +44,17 @@ class ClientTest < MiniTest::Test
     # Assign the calculated HMAC seal as hmac (goes to HMAC element)
     hmac = hmacseal
 
-    @certparams = {
-      bank: :nordea,
-      command: :get_certificate,
-      customer_id: '11111111',
-      environment: 'TEST',
-      wsdl: File.expand_path('../../../lib/sepa/wsdl/wsdl_nordea_cert.xml',__FILE__),
-      content: payload,
-      hmac: hmac,
-      service: 'service'
-    }
+@certparams = client(:certparams)
+    # @certparams = {
+    #   bank: :nordea,
+    #   command: :get_certificate,
+    #   customer_id: '11111111',
+    #   environment: 'TEST',
+    #   wsdl: File.expand_path('../../../lib/sepa/wsdl/wsdl_nordea_cert.xml',__FILE__),
+    #   content: payload,
+    #   hmac: hmac,
+    #   service: 'service'
+    # }
 
     observer = Class.new {
       def notify(operation_name, builder, globals, locals)
