@@ -13,6 +13,7 @@ class ClientTest < MiniTest::Test
     cert = OpenSSL::X509::Certificate.new File.read "#{keys_path}/nordea.crt"
 
     @params = {
+      bank: :nordea,
       private_key: private_key,
       cert: cert,
       command: :get_user_info,
@@ -42,6 +43,7 @@ class ClientTest < MiniTest::Test
     hmac = hmacseal
 
     @certparams = {
+      bank: :nordea,
       command: :get_certificate,
       customer_id: '11111111',
       environment: 'TEST',
@@ -65,6 +67,17 @@ class ClientTest < MiniTest::Test
     }.new
 
     Savon.observers << observer
+  end
+
+  def test_should_raise_error_with_wrong_bank
+    @params[:bank] = :royal_bank_of_skopje
+    assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+  end
+
+  def test_should_raise_error_with_wrong_command_when_bank_doesnt_support_the_command
+    @certparams[:bank] = :danske
+    @certparams[:command] = :get_certificate
+    assert_raises(ArgumentError) { Sepa::Client.new(@certparams) }
   end
 
   def test_should_initialize_with_proper_params

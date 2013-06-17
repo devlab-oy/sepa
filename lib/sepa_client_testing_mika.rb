@@ -22,6 +22,7 @@ hmac = hmacseal
 
 # The params hash is populated with the data that is needed for gem to function
 params = {
+  bank: :nordea,
   # Command for CertificateService :get_certificate
   command: :get_certificate,
 

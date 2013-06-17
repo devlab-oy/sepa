@@ -15,6 +15,7 @@ class SoapRequestTest < MiniTest::Test
     cert = OpenSSL::X509::Certificate.new File.read "#{keys_path}/nordea.crt"
 
     @params = {
+      bank: :nordea,
       private_key: private_key,
       cert: cert,
       command: :get_user_info,

@@ -6,16 +6,14 @@ module Sepa
       @request_id = params.fetch(:request_id)
       @cert = params.fetch(:cert)
       @environment = params.fetch(:environment)
-      #@private_key = params.fetch(:private_key)
-      @public_key = params.fetch(:public_key)
+      #@public_key = params.fetch(:public_key)
       @ar = ApplicationRequest.new(params).get_as_base64
+
+      @public_key = extract_public_key(@cert)
 
       template_path = File.expand_path('../xml_templates/soap/', __FILE__)
 
       @body = load_body_template(template_path, @command)
-
-      @cipher
-
     end
 
     def to_xml
@@ -44,6 +42,12 @@ module Sepa
         body_template.close
 
         body
+      end
+
+      def extract_public_key(cert)
+        pkey = cert.public_key
+        pkey = OpenSSL::PKey::RSA.new(pkey)
+        pkey
       end
 
       def load_encrypted_request_template(template_path, command)

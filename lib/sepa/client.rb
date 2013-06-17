@@ -7,12 +7,26 @@ module Sepa
       wsdl = params.fetch(:wsdl)
       @client = Savon.client(wsdl: wsdl)
       @command = params.fetch(:command)
-      if @command == :get_certificate
-        @soap = CertRequest.new(params).to_xml
-      elsif @command == :create_certificate
-        @soap = DanskeCertRequest.new(params).to_xml
+
+      # To define which kind of a SOAP request to build
+      case params[:bank]
+      when :nordea
+        if @command == :get_certificate
+          @soap = CertRequest.new(params).to_xml
+        elsif [:get_user_info,:download_file_list,:download_file,:upload_file].include?(@command)
+          @soap = SoapRequest.new(params).to_xml
+        else
+          fail ArgumentError, "Command not supported by #{params[:bank]}"
+        end
+      when :danske
+        if @command == :create_certificate
+          @soap = DanskeCertRequest.new(params).to_xml
+        else
+          fail ArgumentError, "Command not supported by #{params[:bank]}"
+        end
       else
-        @soap = SoapRequest.new(params).to_xml
+        fail ArgumentError, "Something went unexpectedly with choosing combination of bank and " \
+          "command. Combination not supported or not implemented. "
       end
     end
 
@@ -26,38 +40,99 @@ module Sepa
 
       # Tries to validate the parameters as well as possible.
       def check_params(params)
+        # Universally for all
         check_params_hash(params)
-        if(params[:command] != :get_certificate && params[:command] != :create_certificate)
-          check_private_key(params[:private_key])
-          check_cert(params[:cert])
-          check_wsdl(params[:wsdl])
-          check_customer_id(params[:customer_id])
-          check_env(params[:environment])
-          check_lang(params[:language])
-        end
-        if(params[:command] == :get_certificate)
-          check_wsdl(params[:wsdl])
-          check_customer_id(params[:customer_id])
-          check_env(params[:environment])
+        check_bank(params[:bank])
+        check_env(params[:environment])
+        check_wsdl(params[:wsdl])
+        check_customer_id(params[:customer_id])
+
+        # Depending on command
+        case params[:command]
+        when :get_certificate
           check_service(params[:service])
           check_hmac(params[:hmac])
           check_content(params[:content])
-        end
-        case params[:command]
-        when :download_file, :download_file_list
+        when :download_file
+          check_private_key(params[:private_key])
+          check_cert(params[:cert])
+          check_lang(params[:language])
+          check_status(params[:status])
+          check_target_id(params[:target_id])
+          check_file_type(params[:file_type])
+        when :download_file_list
+          check_private_key(params[:private_key])
+          check_cert(params[:cert])
+          check_lang(params[:language])
           check_status(params[:status])
           check_target_id(params[:target_id])
           check_file_type(params[:file_type])
         when :upload_file
+          check_private_key(params[:private_key])
+          check_cert(params[:cert])
+          check_lang(params[:language])
           check_target_id(params[:target_id])
           check_file_type(params[:file_type])
           check_content(params[:content])
+        when :get_user_info
+          check_private_key(params[:private_key])
+          check_cert(params[:cert])
+          check_lang(params[:language])
+          check_status(params[:status])
+          check_target_id(params[:target_id])
+          check_file_type(params[:file_type])
+        when :create_certificate
+          check_cert(params[:cert])
+          check_request_id(params[:request_id])
+          check_keygen_type(params[:key_generator_type])
+          check_encryption_pkcs10(params[:encryption_cert_pkcs10])
+          check_signing_pkcs10(params[:signing_cert_pkcs10])
+          check_pin(params[:pin])
+        else
+          fail ArgumentError, "Command not supported."
         end
       end
 
       def check_params_hash(params)
         unless params.respond_to?(:each_pair)
           fail ArgumentError, "You didn't provide a proper hash"
+        end
+      end
+
+      def check_bank(bank)
+          unless [:nordea, :danske].include?(bank)
+          fail ArgumentError, "You didn't provide a proper bank. " \
+            "Acceptable values are nordea OR danske."
+        end
+      end
+
+      def check_request_id(request_id)
+        unless request_id
+          fail ArgumentError, "You didn't provide a request id"
+        end
+      end
+
+      def check_keygen_type(keygen)
+        unless keygen
+          fail ArgumentError, "You didn't provide any Key Generator Type"
+        end
+      end
+
+      def check_encryption_pkcs10(enc_cert)
+        unless enc_cert
+          fail ArgumentError, "You didn't provide Encrypting certificate PKCS10"
+        end
+      end
+
+      def check_signing_pkcs10(sig_cert)
+        unless sig_cert
+          fail ArgumentError, "You didn't provide Signing certificate PKCS10"
+        end
+      end
+
+      def check_pin(pin)
+        unless pin
+          fail ArgumentError, "You didn't provide a secret PIN"
         end
       end
 
@@ -103,9 +178,9 @@ module Sepa
       end
 
       def check_env(env)
-        unless ['PRODUCTION', 'TEST'].include?(env)
+        unless ['PRODUCTION', 'TEST', 'customertest'].include?(env)
           fail ArgumentError, "You didn't provide a proper environment. " \
-            "Acceptable values are PRODUCTION or TEST."
+            "Acceptable values are PRODUCTION or TEST or customertest."
         end
       end
 

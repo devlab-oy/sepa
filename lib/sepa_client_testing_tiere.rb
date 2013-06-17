@@ -10,6 +10,7 @@ cert = OpenSSL::X509::Certificate.new(File.read("sepa/nordea_testing/keys/nordea
 
 # The params hash is populated with the data that is needed for gem to function
 params = {
+  bank: :nordea,
   # Path for your own private key
   private_key: private_key,
 
@@ -17,7 +18,7 @@ params = {
   cert: cert,
 
   # Command :download_file_list, :upload_file, :download_file or :get_user_info
-  command: :get_user_info,
+  command: :download_file_list,
 
   # Unique customer ID
   customer_id: '11111111',
