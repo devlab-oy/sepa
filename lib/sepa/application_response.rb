@@ -14,18 +14,20 @@ module Sepa
       end
     end
 
-    def hashes_match?(options = {})
-      digest_value = @ar.at_css(
+    def hashes_match?
+      ar = @ar.clone
+
+      digest_value = ar.at_css(
         'xmlns|DigestValue',
         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
       ).content.strip
 
-      @ar.at_css(
+      ar.at_css(
         "xmlns|Signature",
         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
       ).remove
 
-      actual_digest = OpenSSL::Digest::SHA1.new.digest(@ar.canonicalize)
+      actual_digest = OpenSSL::Digest::SHA1.new.digest(ar.canonicalize)
       actual_digest = Base64.encode64(actual_digest).strip
 
       if digest_value == actual_digest
