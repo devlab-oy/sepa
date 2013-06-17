@@ -90,4 +90,64 @@ class ApplicationResponseTest < MiniTest::Test
 
     refute Sepa::ApplicationResponse.new(@gui).hashes_match?
   end
+
+  def test_proper_dfl_signature_should_verify
+    assert @dfl_ar.signature_is_valid?
+  end
+
+  def test_proper_uf_signature_should_verify
+    assert @uf_ar.signature_is_valid?
+  end
+
+  def test_proper_df_signature_should_verify
+    assert @df_ar.signature_is_valid?
+  end
+
+  def test_proper_gui_signature_should_verify
+    assert @gui_ar.signature_is_valid?
+  end
+
+  def test_corrupted_signature_in_dfl_should_fail_signature_verification
+    signature_node = @dfl.at_css(
+      'xmlns|SignatureValue',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+    )
+
+    signature_node.content = signature_node.content[4..-1]
+
+    refute Sepa::ApplicationResponse.new(@dfl).signature_is_valid?
+  end
+
+  def test_corrupted_signature_in_uf_should_fail_signature_verification
+    signature_node = @uf.at_css(
+      'xmlns|SignatureValue',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+    )
+
+    signature_node.content = signature_node.content[0..-5]
+
+    refute Sepa::ApplicationResponse.new(@uf).signature_is_valid?
+  end
+
+  def test_corrupted_signature_in_df_should_fail_signature_verification
+    signature_node = @df.at_css(
+      'xmlns|SignatureValue',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+    )
+
+    signature_node.content = 'a' + signature_node.content[1..-1]
+
+    refute Sepa::ApplicationResponse.new(@df).signature_is_valid?
+  end
+
+  def test_corrupted_signature_in_gui_should_fail_signature_verification
+    signature_node = @gui.at_css(
+      'xmlns|SignatureValue',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+    )
+
+    signature_node.content = 'zombi' + signature_node.content[1..-1]
+
+    refute Sepa::ApplicationResponse.new(@gui).signature_is_valid?
+  end
 end
