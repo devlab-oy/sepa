@@ -2,7 +2,7 @@
 require 'sepa'
 
 # Create 1024bit sha1 private key and generate Certificate Signing Request with it using parameters from cert_req.conf
-%x(openssl req -newkey rsa:1024 -keyout signing_key.pem -keyform PEM -out CSR.csr -outform DER -config cert_req.conf -nodes)
+%x(openssl req -newkey rsa:1024 -keyout req_key.pem -keyform PEM -out CSR.csr -outform DER -config cert_req.conf -nodes)
 #%x(rm signing_key.pem)
 
 # Test pin for nordea

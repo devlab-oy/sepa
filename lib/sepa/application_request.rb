@@ -12,25 +12,33 @@ module Sepa
       @file_reference = params[:file_reference]
 
       # For signed Nordea application requests
-      @private_key = params.fetch(:private_key) unless @command == :get_certificate || @command == :create_certificate
-      @cert = params.fetch(:cert) unless @command == :get_certificate || @command == :create_certificate
-
-      # Only for cert requests
-      # Nordea Bank
-      @service = params[:service]
-      @hmac = params[:hmac]
-      # Danske Bank
-      @pin = params[:pin]
-      @key_generator_type = params[:key_generator_type]
-      @encryption_cert_pkcs10 = params[:encryption_cert_pkcs10]
-      @signing_cert_pkcs10 = params[:signing_cert_pkcs10]
-      @request_id = params[:request_id]
+      if @command != :get_certificate && @command != :create_certificate
+        @private_key = params.fetch(:private_key)
+        @cert = params.fetch(:cert)
+      elsif @command == :get_certificate || @command == :create_certificate
+        # Only for cert requests
+        # Nordea Bank
+        @service = params[:service]
+        @hmac = params[:hmac]
+        # Danske Bank
+        @pin = params[:pin]
+        @key_generator_type = params[:key_generator_type]
+        @encryption_cert_pkcs10 = params[:encryption_cert_pkcs10]
+        @signing_cert_pkcs10 = params[:signing_cert_pkcs10]
+        @request_id = params[:request_id]
+      else
+        raise ArgumentError, 'Command was not recognised.'
+      end
     end
 
     def get_as_base64
       load_template(@command)
       set_nodes_contents
-      process_signature unless @command == :get_certificate || @command == :create_certificate
+      # No signature for Certificate Requests
+      if @command != :get_certificate && @command != :create_certificate
+        process_signature
+      end
+      # Danske Certificate Request is encrypted and already encoded
       if @command == :create_certificate
         @ar
       else
