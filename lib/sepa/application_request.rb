@@ -80,11 +80,13 @@ module Sepa
 
     # Set the nodes' contents according to the command
     def set_nodes_contents
-      set_node("CustomerId", @customer_id) unless @command == :create_certificate
-      set_node("Timestamp", Time.now.iso8601) unless @command == :create_certificate
-      set_node("Environment", @environment) unless @command == :create_certificate
-      set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}") unless @command == :create_certificate
-      set_node("Command", @command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join) unless @command == :create_certificate
+      if @command != :create_certificate
+        set_node("CustomerId", @customer_id)
+        set_node("Timestamp", Time.now.iso8601)
+        set_node("Environment", @environment)
+        set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
+        set_node("Command", @command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join)
+      end
 
       case @command
 
