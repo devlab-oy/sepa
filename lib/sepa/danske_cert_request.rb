@@ -46,7 +46,7 @@ module Sepa
       def extract_public_key(cert)
         pkey = cert.public_key
         pkey = OpenSSL::PKey::RSA.new(pkey)
-
+        #puts pkey.to_s
         pkey
       end
 
@@ -94,19 +94,33 @@ module Sepa
         #cert = cert.split('-----END CERTIFICATE-----')[0]
         #cert.gsub!(/\s+/, "")
         formatted_cert = Base64.encode64(cert.to_der)
+        #formatted_cert = Base64.encode64(public_key.to_der)
 
         puts "----- ApplicationRequest PRE encryption -----"
-        puts ar.to_xml
+        ar = ar.canonicalize(
+          mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
+          with_comments=false
+        )
+        puts ar
         puts "----- ApplicationRequest PRE encryption -----"
 
         # Encrypt ApplicationRequest and set key
         cipher = OpenSSL::Cipher::Cipher.new('DES-EDE3-CBC')
         cipher.encrypt
-        key = SecureRandom.hex(16)
+        # Option 1
+        #key = SecureRandom.hex(16)
+        key = cipher.random_key
         cipher.key = key
+        # Option2
+        #iv = cipher.random_iv
+        #iv = SecureRandom.hex(16)
+        #cipher.iv = iv
+
         output = cipher.update(ar)
         output << cipher.final
 
+        #built_cipher = "02 | 45465519283985986 | 00 | #{key}"
+        #puts built_cipher
         # Base64 encode and encrypt key and set as content for encrypted application request
         ciphervalue1 = Base64.encode64(public_key.public_encrypt(key))
         ciphervalue2 = Base64.encode64(output)
