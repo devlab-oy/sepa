@@ -60,21 +60,21 @@ module Sepa
         pkey
       end
 
-      def load_encrypted_request_template(template_path, command)
-        case command
-        when :create_certificate
-          path = "#{template_path}/danske_encrypted_request.xml"
-        else
-          fail LoadError, "Could not load soap request template because the" \
-            "command was unrecognised"
-        end
+      # def load_encrypted_request_template(template_path, command)
+      #   case command
+      #   when :create_certificate
+      #     path = "#{template_path}/danske_encrypted_request.xml"
+      #   else
+      #     fail LoadError, "Could not load soap request template because the" \
+      #       "command was unrecognised"
+      #   end
 
-        encrypted_request_template = File.open(path)
-        encrypted_request = Nokogiri::XML(encrypted_request_template)
-        encrypted_request_template.close
+      #   encrypted_request_template = File.open(path)
+      #   encrypted_request = Nokogiri::XML(encrypted_request_template)
+      #   encrypted_request_template.close
 
-        encrypted_request
-      end
+      #   encrypted_request
+      # end
 
       def set_body_contents(body, sender_id, request_id, environment)
         set_node(body, 'pkif|SenderId', sender_id)
@@ -89,6 +89,8 @@ module Sepa
         doc.at_css(node).content = value
       end
       def add_unencrypted_request_to_soap(ar, body)
+        ar = Nokogiri::XML(ar.to_xml)
+        ar = ar.at_css('tns|CreateCertificateRequest')
         body.at_css('pkif|CreateCertificateIn').add_child(ar)
 
         body
@@ -110,13 +112,13 @@ module Sepa
         formatted_cert = Base64.encode64(cert.to_der)
         #formatted_cert = Base64.encode64(public_key.to_der)
 
-        puts "----- ApplicationRequest PRE encryption -----"
+        # puts "----- ApplicationRequest PRE encryption -----"
         ar = ar.canonicalize(
           mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
           with_comments=false
         )
-        puts ar
-        puts "----- ApplicationRequest PRE encryption -----"
+        # puts ar
+        # puts "----- ApplicationRequest PRE encryption -----"
 
         # Encrypt ApplicationRequest and set key
         cipher = OpenSSL::Cipher::Cipher.new('DES-EDE3-CBC')

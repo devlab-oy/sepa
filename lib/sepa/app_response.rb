@@ -1,8 +1,10 @@
 module Sepa
   # This class is able to handle GetUserInfo, DownloadFileList, DownloadFile responses and pass content
   class ApplicationResponse
-    attr_accessor :timestamp, :responseCode, :encrypted, :compressed, :customerId, :responseText, :fileDescriptors, :userFiletypes
-
+    attr_accessor :timestamp, :responseCode, :encrypted, :compressed, :customerId, :responseText, :fileDescriptors, :userFiletypes, :content
+    def initialize
+      @content
+    end
     # Reads values from content field (xml file), returns a hash
     # Bank to customer statement
     def get_account_statement_content(file)
@@ -217,8 +219,8 @@ module Sepa
       compressed = xml.at_css("Compressed").content unless xml.at_css("Compressed") == nil
 
       # Decode the content portion automatically so that it can be read
-      content = Base64.decode64(xml.at_css("Content").content) unless xml.at_css("Content") == nil
-      puts content unless content == ""
+      @content = Base64.decode64(xml.at_css("Content").content) unless xml.at_css("Content") == nil
+      #puts content unless content == ""
 
       # FILEDESCRIPTORS
       # Initialize array
