@@ -65,6 +65,11 @@ Or install it yourself as:
 
         response.hashes_match?
 
+        # You can also provide an optional parameter verbose:true
+        # if you want to see which hashes failed to verify.
+
+        response.hashes_match?(verbose: true)
+
 * Check that the signature of the response is valid
 
         response.signature_is_valid?
