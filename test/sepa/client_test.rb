@@ -67,7 +67,7 @@ class ClientTest < MiniTest::Test
       key_generator_type: 'software',
       encryption_cert_pkcs10: OpenSSL::X509::Request.new(File.read ("#{danske_keys_path}/encryption_pkcs.csr")),
       signing_cert_pkcs10: OpenSSL::X509::Request.new(File.read ("#{danske_keys_path}/signing_pkcs.csr")),
-      cert: OpenSSL::X509::Request.new(File.read ("#{danske_keys_path}/danskeroot.pem")),
+      cert: OpenSSL::X509::Certificate.new(File.read ("#{danske_keys_path}/danskeroot.pem")),
       pin: '1234'
     }
 
@@ -328,16 +328,41 @@ class ClientTest < MiniTest::Test
 
   def test_should_raise_error_if_signing_pkcs_missing_with_create_certificate
     @danskecertparams[:command] = :create_certificate
-    #@certparams.delete[:encryption_cert_pkcs10]
-    @danskecertparams.delete[:signing_cert_pkcs10]
+    @danskecertparams.delete(:signing_cert_pkcs10)
 
     assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
   end
 
   def test_should_raise_error_if_encryption_pkcs_missing_with_create_certificate
     @danskecertparams[:command] = :create_certificate
-    @certparams.delete[:encryption_cert_pkcs10]
-    #@danskecertparams.delete[:signing_cert_pkcs10]
+    @danskecertparams.delete(:encryption_cert_pkcs10)
+
+    assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
+  end
+
+  def test_should_raise_error_if_pin_missing_with_create_certificate
+    @danskecertparams[:command] = :create_certificate
+    @danskecertparams.delete(:pin)
+
+    assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
+  end
+
+  def test_should_raise_error_if_cert_missing_with_create_certificate
+    @danskecertparams[:command] = :create_certificate
+    @danskecertparams.delete(:cert)
+
+    assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
+  end
+
+  def test_should_raise_error_if_request_id_not_integer_with_create_certificate
+    @danskecertparams[:request_id] = "LOL I'm not a number"
+
+    assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
+  end
+
+  def test_should_raise_error_if_request_id_missing_with_create_certificate
+    @danskecertparams[:command] = :create_certificate
+    @danskecertparams.delete(:request_id)
 
     assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
   end

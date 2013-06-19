@@ -100,8 +100,10 @@ module Sepa
       end
 
       def check_request_id(request_id)
-        unless request_id
-          fail ArgumentError, "You didn't provide a request id"
+        if request_id.to_i == 0
+          fail ArgumentError, "Request ID must be a number and not 0"
+        # elsif !request_id # Should never go here
+        #   fail ArgumentError, "You didn't provide a request id"
         end
       end
 
