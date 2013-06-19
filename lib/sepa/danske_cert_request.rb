@@ -15,11 +15,21 @@ module Sepa
       @body = load_body_template(template_path, @command)
     end
 
+    def to_xml_unencrypted
+      construct_without_encryption(@body, @command, @ar, @sender_id, @request_id, @cert, @public_key, @environment).to_xml
+    end
+
     def to_xml
       construct(@body, @command, @ar, @sender_id, @request_id, @cert, @public_key, @environment).to_xml
     end
 
     private
+
+      def construct_without_encryption(body, command, ar, sender_id, request_id, cert, public_key, environment)
+        set_body_contents(body, sender_id, request_id, environment)
+        #encrypted_request = encrypt_application_request(ar, cert, public_key)
+        add_unencrypted_request_to_soap(ar, body)
+      end
 
       def construct(body, command, ar, sender_id, request_id, cert, public_key, environment)
         set_body_contents(body, sender_id, request_id, environment)
@@ -78,7 +88,11 @@ module Sepa
       def set_node(doc, node, value)
         doc.at_css(node).content = value
       end
+      def add_unencrypted_request_to_soap(ar, body)
+        body.at_css('pkif|CreateCertificateIn').add_child(ar)
 
+        body
+      end
       def add_request_to_soap(encrypted_request, body)
         encrypted_request = Nokogiri::XML(encrypted_request.to_xml)
         encrypted_request = encrypted_request.at_css('xenc|EncryptedData')

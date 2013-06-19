@@ -65,8 +65,8 @@ class ClientTest < MiniTest::Test
       customer_id: 'ABC123',
       environment: 'customertest',
       key_generator_type: 'software',
-      encryption_cert_pkcs10: OpenSSL::X509::Request.new(File.read ("#{danske_keys_path}/encryption_pkcs.csr")),
-      signing_cert_pkcs10: OpenSSL::X509::Request.new(File.read ("#{danske_keys_path}/signing_pkcs.csr")),
+      encryption_cert_pkcs10: OpenSSL::X509::Request.new(File.read ("#{danske_keys_path}/encryption_pkcs.csr")).to_der,
+      signing_cert_pkcs10: OpenSSL::X509::Request.new(File.read ("#{danske_keys_path}/signing_pkcs.csr")).to_der,
       cert: OpenSSL::X509::Certificate.new(File.read ("#{danske_keys_path}/danskeroot.pem")),
       pin: '1234'
     }
