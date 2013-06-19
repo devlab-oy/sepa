@@ -48,19 +48,19 @@ class ResponseTest < MiniTest::Test
   end
 
   def test_proper_dfl_hash_check_should_verify
-    assert Sepa::Response.new(@dfl).soap_hashes_match?
+    assert Sepa::Response.new(@dfl).hashes_match?
   end
 
   def test_proper_uf_hash_check_should_verify
-    assert Sepa::Response.new(@uf).soap_hashes_match?
+    assert Sepa::Response.new(@uf).hashes_match?
   end
 
   def test_proper_df_hash_check_should_verify
-    assert Sepa::Response.new(@df).soap_hashes_match?
+    assert Sepa::Response.new(@df).hashes_match?
   end
 
   def test_proper_gui_hash_check_should_verify
-    assert Sepa::Response.new(@gui).soap_hashes_match?
+    assert Sepa::Response.new(@gui).hashes_match?
   end
 
   def test_corrupted_hash_in_dfl_should_fail_hash_check
@@ -71,7 +71,7 @@ class ResponseTest < MiniTest::Test
 
     hash_node.content = Base64.encode64('alsdflsdhf'*6)
 
-    refute Sepa::Response.new(@dfl).soap_hashes_match?
+    refute Sepa::Response.new(@dfl).hashes_match?
   end
 
   def test_corrupted_hash_in_uf_should_fail_hash_check
@@ -84,7 +84,7 @@ class ResponseTest < MiniTest::Test
 
     hash_node.content = wrong_value
 
-    refute Sepa::Response.new(@uf).soap_hashes_match?
+    refute Sepa::Response.new(@uf).hashes_match?
   end
 
   def test_corrupted_hash_in_df_should_fail_hash_check
@@ -99,7 +99,7 @@ class ResponseTest < MiniTest::Test
 
     hash_node.content = wrong_value
 
-    refute Sepa::Response.new(@df).soap_hashes_match?
+    refute Sepa::Response.new(@df).hashes_match?
   end
 
   def test_corrupted_hash_in_gui_should_fail_hash_check
@@ -110,23 +110,23 @@ class ResponseTest < MiniTest::Test
 
     hash_node.content = hash_node.content[6..-1]
 
-    refute Sepa::Response.new(@gui).soap_hashes_match?
+    refute Sepa::Response.new(@gui).hashes_match?
   end
 
   def test_proper_dfl_signature_should_verify
-    assert Sepa::Response.new(@dfl).soap_signature_is_valid?
+    assert Sepa::Response.new(@dfl).signature_is_valid?
   end
 
   def test_proper_uf_signature_should_verify
-    assert Sepa::Response.new(@uf).soap_signature_is_valid?
+    assert Sepa::Response.new(@uf).signature_is_valid?
   end
 
   def test_proper_df_signature_should_verify
-    assert Sepa::Response.new(@df).soap_signature_is_valid?
+    assert Sepa::Response.new(@df).signature_is_valid?
   end
 
   def test_proper_gui_signature_should_verify
-    assert Sepa::Response.new(@gui).soap_signature_is_valid?
+    assert Sepa::Response.new(@gui).signature_is_valid?
   end
 
   def test_corrupted_signature_in_dfl_should_fail_signature_verification
@@ -137,7 +137,7 @@ class ResponseTest < MiniTest::Test
 
     signature_node.content = signature_node.content[1..-1]
 
-    refute Sepa::Response.new(@dfl).soap_signature_is_valid?
+    refute Sepa::Response.new(@dfl).signature_is_valid?
   end
 
   def test_corrupted_signature_in_uf_should_fail_signature_verification
@@ -148,7 +148,7 @@ class ResponseTest < MiniTest::Test
 
     signature_node.content = signature_node.content[6..-4]
 
-    refute Sepa::Response.new(@uf).soap_signature_is_valid?
+    refute Sepa::Response.new(@uf).signature_is_valid?
   end
 
   def test_corrupted_signature_in_df_should_fail_signature_verification
@@ -159,7 +159,7 @@ class ResponseTest < MiniTest::Test
 
     signature_node.content = signature_node.content[0..-2]
 
-    refute Sepa::Response.new(@df).soap_signature_is_valid?
+    refute Sepa::Response.new(@df).signature_is_valid?
   end
 
   def test_corrupted_signature_in_gui_should_fail_signature_verification
@@ -170,7 +170,7 @@ class ResponseTest < MiniTest::Test
 
     signature_node.content = 'i' + signature_node.content
 
-    refute Sepa::Response.new(@gui).soap_signature_is_valid?
+    refute Sepa::Response.new(@gui).signature_is_valid?
   end
 
   def test_should_raise_error_if_certificate_corrupted_in_dfl
@@ -183,7 +183,7 @@ class ResponseTest < MiniTest::Test
     cert_node.content = cert_node.content + 'a'
 
     assert_raises(OpenSSL::X509::CertificateError) do
-      Sepa::Response.new(@dfl).soap_signature_is_valid?
+      Sepa::Response.new(@dfl).signature_is_valid?
     end
   end
 
@@ -197,7 +197,7 @@ class ResponseTest < MiniTest::Test
     cert_node.content = cert_node.content[1..-1]
 
     assert_raises(OpenSSL::X509::CertificateError) do
-      Sepa::Response.new(@uf).soap_signature_is_valid?
+      Sepa::Response.new(@uf).signature_is_valid?
     end
   end
 
@@ -211,7 +211,7 @@ class ResponseTest < MiniTest::Test
     cert_node.content = cert_node.content[0..-5]
 
     assert_raises(OpenSSL::X509::CertificateError) do
-      Sepa::Response.new(@df).soap_signature_is_valid?
+      Sepa::Response.new(@df).signature_is_valid?
     end
   end
 
@@ -225,7 +225,7 @@ class ResponseTest < MiniTest::Test
     cert_node.content = cert_node.content[9..-1]
 
     assert_raises(OpenSSL::X509::CertificateError) do
-      Sepa::Response.new(@gui).soap_signature_is_valid?
+      Sepa::Response.new(@gui).signature_is_valid?
     end
   end
 

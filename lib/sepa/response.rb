@@ -6,7 +6,7 @@ module Sepa
       if !@response.respond_to?(:canonicalize)
         fail ArgumentError,
           "The response you provided is not a valid Nokogiri::XML file."
-      elsif !valid_against_soap_schema?(@response)
+      elsif !valid_against_schema?(@response)
         fail ArgumentError,
           "The response you provided doesn't validate against soap schema."
       end
@@ -43,8 +43,8 @@ module Sepa
       end
     end
 
-    # Verifies that all digest values in the document match the actual ones.
-    def soap_hashes_match?(options = {})
+    # Verifies that all digest values in the response match the actual ones.
+    def hashes_match?(options = {})
       digests = find_digest_values(@response)
       nodes = find_nodes_to_verify(@response, digests)
 
@@ -71,7 +71,7 @@ module Sepa
 
     # Verifies the signature by extracting the public key from the certificate
     # embedded in the soap header and verifying the signature value with that.
-    def soap_signature_is_valid?
+    def signature_is_valid?
       node = @response.at_css('xmlns|SignedInfo',
                               'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
 
@@ -90,10 +90,12 @@ module Sepa
       certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
     end
 
+    # Gets the application response from the response as an Nokogiri::XML
+    # document
     def application_response
       ar = @response.at_css('mod|ApplicationResponse').content
       ar = Base64.decode64(ar)
-      ar = Nokogiri::XML(ar)
+      Nokogiri::XML(ar)
     end
 
     private
@@ -149,7 +151,8 @@ module Sepa
         Base64.encode64(sha1.digest(canon_node)).gsub(/\s+/, "")
       end
 
-      def valid_against_soap_schema?(doc)
+      # Checks that the response is valid against soap schema.
+      def valid_against_schema?(doc)
         schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',
                                         __FILE__)
 
@@ -159,6 +162,9 @@ module Sepa
         end
       end
 
+      # Takes the certificate from the response, adds begin and end
+      # certificate texts and splits it into multiple lines so that OpenSSL
+      # can read it.
       def process_cert_value(cert_value)
         cert = "-----BEGIN CERTIFICATE-----\n"
         cert += cert_value.to_s.gsub(/\s+/, "").scan(/.{1,64}/).join("\n")
