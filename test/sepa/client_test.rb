@@ -9,6 +9,8 @@ class ClientTest < MiniTest::Test
 
     keys_path = File.expand_path('../nordea_test_keys', __FILE__)
 
+    danske_keys_path = File.expand_path('../danske_test_keys', __FILE__)
+
     private_key = OpenSSL::PKey::RSA.new File.read "#{keys_path}/nordea.key"
     cert = OpenSSL::X509::Certificate.new File.read "#{keys_path}/nordea.crt"
 
@@ -51,6 +53,22 @@ class ClientTest < MiniTest::Test
       content: payload,
       hmac: hmac,
       service: 'service'
+    }
+
+    reqid = SecureRandom.random_number(1000).to_s<<SecureRandom.random_number(1000).to_s
+
+    @danskecertparams = {
+      bank: :danske,
+      command: :create_certificate,
+      wsdl: File.expand_path('../../../lib/sepa/wsdl/wsdl_danske_cert.xml',__FILE__),
+      request_id: reqid,
+      customer_id: 'ABC123',
+      environment: 'customertest',
+      key_generator_type: 'software',
+      encryption_cert_pkcs10: OpenSSL::X509::Request.new(File.read ("#{danske_keys_path}/encryption_pkcs.csr")),
+      signing_cert_pkcs10: OpenSSL::X509::Request.new(File.read ("#{danske_keys_path}/signing_pkcs.csr")),
+      cert: OpenSSL::X509::Request.new(File.read ("#{danske_keys_path}/danskeroot.pem")),
+      pin: '1234'
     }
 
     observer = Class.new {
@@ -306,5 +324,21 @@ class ClientTest < MiniTest::Test
     @certparams.delete(:hmac)
 
     assert_raises(ArgumentError) { Sepa::Client.new(@certparams) }
+  end
+
+  def test_should_raise_error_if_signing_pkcs_missing_with_create_certificate
+    @danskecertparams[:command] = :create_certificate
+    #@certparams.delete[:encryption_cert_pkcs10]
+    @danskecertparams.delete[:signing_cert_pkcs10]
+
+    assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
+  end
+
+  def test_should_raise_error_if_encryption_pkcs_missing_with_create_certificate
+    @danskecertparams[:command] = :create_certificate
+    @certparams.delete[:encryption_cert_pkcs10]
+    #@danskecertparams.delete[:signing_cert_pkcs10]
+
+    assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
   end
 end
