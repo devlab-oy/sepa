@@ -25,9 +25,9 @@ module Sepa
 
     private
 
+      # Creates the certificate request without encryption, needed for testing output structure
       def construct_without_encryption(body, command, ar, sender_id, request_id, cert, public_key, environment)
         set_body_contents(body, sender_id, request_id, environment)
-        #encrypted_request = encrypt_application_request(ar, cert, public_key)
         add_unencrypted_request_to_soap(ar, body)
       end
 
@@ -56,25 +56,9 @@ module Sepa
       def extract_public_key(cert)
         pkey = cert.public_key
         pkey = OpenSSL::PKey::RSA.new(pkey)
-        #puts pkey.to_s
+
         pkey
       end
-
-      # def load_encrypted_request_template(template_path, command)
-      #   case command
-      #   when :create_certificate
-      #     path = "#{template_path}/danske_encrypted_request.xml"
-      #   else
-      #     fail LoadError, "Could not load soap request template because the" \
-      #       "command was unrecognised"
-      #   end
-
-      #   encrypted_request_template = File.open(path)
-      #   encrypted_request = Nokogiri::XML(encrypted_request_template)
-      #   encrypted_request_template.close
-
-      #   encrypted_request
-      # end
 
       def set_body_contents(body, sender_id, request_id, environment)
         set_node(body, 'pkif|SenderId', sender_id)
@@ -104,13 +88,12 @@ module Sepa
       end
 
       def encrypt_application_request(ar, cert, public_key)
-        # Format certificate
+        # Format certificate if using PEM format
         #cert = cert.to_s
         #cert = cert.split('-----BEGIN CERTIFICATE-----')[1]
         #cert = cert.split('-----END CERTIFICATE-----')[0]
         #cert.gsub!(/\s+/, "")
         formatted_cert = Base64.encode64(cert.to_der)
-        #formatted_cert = Base64.encode64(public_key.to_der)
 
         # puts "----- ApplicationRequest PRE encryption -----"
         ar = ar.canonicalize(
@@ -136,7 +119,7 @@ module Sepa
         output << cipher.final
 
         #built_cipher = "02 | 45465519283985986 | 00 | #{key}"
-        #puts built_cipher
+
         # Base64 encode and encrypt key and set as content for encrypted application request
         ciphervalue1 = Base64.encode64(public_key.public_encrypt(key))
         ciphervalue2 = Base64.encode64(output)

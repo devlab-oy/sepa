@@ -2,7 +2,7 @@ module Sepa
   class ApplicationRequest
     def initialize(params)
       # Used by most, both Nordea and Danske
-      @command = params.fetch(:command)
+      @command = check_command(params.fetch(:command))
       @customer_id = params.fetch(:customer_id)
       @environment = params.fetch(:environment)
       @target_id = params[:target_id]
@@ -28,6 +28,16 @@ module Sepa
         @request_id = params[:request_id]
       else
         raise ArgumentError, 'Command was not recognised.'
+      end
+    end
+
+    def check_command(command)
+      valid_commands = [:get_certificate, :create_certificate, :download_file_list, :download_file, :get_user_info, :upload_file, :download_file]
+      unless valid_commands.include?(command)
+        fail ArgumentError, "You didn't provide a proper command. " \
+        "Acceptable values are #{valid_commands.inspect}"
+      else
+        command
       end
     end
 

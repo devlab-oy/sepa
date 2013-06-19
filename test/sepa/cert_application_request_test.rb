@@ -77,8 +77,8 @@ class CertApplicationRequestTest < MiniTest::Test
     assert Sepa::ApplicationRequest.new(@params)
   end
 
-  def test_should_get_key_errors_unless_command_is_get_certificate
-    assert_raises(KeyError) do
+  def test_should_get_argument_errors_unless_command_is_get_certificate
+    assert_raises(ArgumentError) do
       @params[:command] = :wrong_command
       ar = Sepa::ApplicationRequest.new(@params)
       xml = ar.get_as_base64
