@@ -54,8 +54,6 @@ class DanskeCertRequestTest < MiniTest::Test
     assert_equal ar_node.at_css("EncryptionMethod")["Algorithm"], "http://www.w3.org/2001/04/xmlenc#tripledes-cbc"
   end
 
-  # Relocated tests from client
-
   def test_should_get_error_if_command_missing
     @danskecertparams.delete(:command)
 

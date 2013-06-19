@@ -87,6 +87,12 @@ class ClientTest < MiniTest::Test
     Savon.observers << observer
   end
 
+  def test_should_get_error_if_key_gen_type_missing
+    @danskecertparams.delete(:key_generator_type)
+
+    assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
+  end
+
   def test_should_raise_error_with_wrong_bank
     @params[:bank] = :royal_bank_of_skopje
     assert_raises(ArgumentError) { Sepa::Client.new(@params) }
@@ -96,6 +102,10 @@ class ClientTest < MiniTest::Test
     @certparams[:bank] = :danske
     @certparams[:command] = :get_certificate
     assert_raises(ArgumentError) { Sepa::Client.new(@certparams) }
+  end
+
+  def test_should_initialize_with_proper_params_danske_cert_params
+    assert Sepa::Client.new(@danskecertparams)
   end
 
   def test_should_initialize_with_proper_params
