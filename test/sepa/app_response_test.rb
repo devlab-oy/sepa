@@ -34,10 +34,11 @@ class AppResponseTest < MiniTest::Test
     assert_equal @parser.content.empty?, false
   end
 
-  # def test_should_parse_content_from_response_when_parsing_download_user_info_response
-  #   @parser.animate_response("#{@exampleresponsepath}/download_file_response.xml")
-  #   assert @parser.
-  # end
+  def test_should_parse_userfiletypes_from_response_when_parsing_get_user_info_response
+    @parser.animate_response("#{@exampleresponsepath}/get_user_info_response.xml")
+    assert @parser.list_userfiletypes.kind_of?(Array), "Type not an array"
+    assert @parser.list_userfiletypes.length > 0, "Array should not be empty" #Very unlikely to ever be empty
+  end
 
   def test_should_return_hash_from_053_request
     assert @parser.get_account_statement_content("#{@exampleresponsepath}/content_053.xml").kind_of?(Hash), "Does not return a hash"

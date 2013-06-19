@@ -44,7 +44,6 @@ class DanskeCertRequestTest < MiniTest::Test
     assert_raises(KeyError) { Sepa::DanskeCertRequest.new(@danskecertparams) }
   end
 
-
   def test_request_should_find_xmlenc_structure_when_request_encrypted
     xml = Nokogiri::XML(@certrequest.to_xml)
 
@@ -54,38 +53,37 @@ class DanskeCertRequestTest < MiniTest::Test
     assert ar_node.respond_to?(:canonicalize)
     assert_equal ar_node.at_css("EncryptionMethod")["Algorithm"], "http://www.w3.org/2001/04/xmlenc#tripledes-cbc"
   end
-  # Relocated tests from client
 
-  # def test_should_get_error_if_command_missing
-  #   @danskecertparams.delete(:command)
+  def test_should_get_error_if_command_missing
+    @danskecertparams.delete(:command)
 
-  #   assert_raises(KeyError) do
-  #     Sepa::DanskeCertRequest.new(@danskecertparams)
-  #   end
-  # end
+    assert_raises(KeyError) do
+      Sepa::DanskeCertRequest.new(@danskecertparams)
+    end
+  end
 
-  # def test_should_get_error_if_customer_id_missing
-  #   @danskecertparams.delete(:customer_id)
+  def test_should_get_error_if_customer_id_missing
+    @danskecertparams.delete(:customer_id)
 
-  #   assert_raises(KeyError) do
-  #     Sepa::DanskeCertRequest.new(@danskecertparams)
-  #   end
-  # end
+    assert_raises(KeyError) do
+      Sepa::DanskeCertRequest.new(@danskecertparams)
+    end
+  end
 
-  # def test_should_load_correct_template_with_get_certificate
-  #   @danskecertparams[:command] = :create_certificate
-  #   xml = Nokogiri::XML(Sepa::DanskeCertRequest.new(@danskecertparams).to_xml_unencrypted)
+  def test_should_load_correct_template_with_get_certificate
+    @danskecertparams[:command] = :create_certificate
+    xml = Nokogiri::XML(Sepa::DanskeCertRequest.new(@danskecertparams).to_xml_unencrypted)
 
-  #   assert xml.xpath('//tns:CreateCertificateRequest', 'tns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements').first, "Path/namespace not found"
-  # end
+    assert xml.xpath('//tns:CreateCertificateRequest', 'tns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements').first, "Path/namespace not found"
+  end
 
-  # def test_should_raise_error_if_command_not_correct
-  #   @danskecertparams[:command] = :wrong_command
-  #   # This will be KeyError until different way to choose between soap/certrequests is implemented in applicationrequest class
-  #   assert_raises(KeyError) do
-  #     soap = Sepa::DanskeCertRequest.new(@danskecertparams).to_xml
-  #   end
-  # end
+  def test_should_raise_error_if_command_not_correct
+    @danskecertparams[:command] = :wrong_command
+    # This will be KeyError until different way to choose between soap/certrequests is implemented in applicationrequest class
+    assert_raises(KeyError) do
+      soap = Sepa::DanskeCertRequest.new(@danskecertparams).to_xml
+    end
+  end
 
   def test_timestamp_is_set_correctly
     timestamp_node = @xml.xpath(
