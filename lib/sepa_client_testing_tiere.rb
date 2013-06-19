@@ -58,10 +58,23 @@ params = {
 sepa_client = Sepa::Client.new(params)
 
 response = sepa_client.send
+response = Nokogiri::XML(response.to_xml)
+response = Sepa::Response.new(response)
 
-# response = Nokogiri::XML(response.to_xml)
+ar = Sepa::ApplicationResponse.new(response.application_response)
 
-# response = Sepa::Response.new(response)
+puts "\n\nHashes match in the response: #{response.hashes_match?}"
+puts "Signature is valid in the response: #{response.signature_is_valid?}"
 
-# puts response.soap_hashes_match?
-# puts response.soap_signature_is_valid?
+puts "\nHashes match in the application response: #{ar.hashes_match?}"
+puts "Signature is valid in the application response: #{ar.signature_is_valid?}"
+
+puts "\nSome info about response's certificate:\n" \
+"Issuer: #{response.certificate.issuer}\n" \
+"First day to use this certificate: #{response.certificate.not_before}\n" \
+"Expires: #{response.certificate.not_after}"
+
+puts "\nSome info about application response's certificate:\n" \
+"Issuer: #{ar.certificate.issuer}\n" \
+"First day to use this certificate: #{ar.certificate.not_before}\n" \
+"Expires: #{ar.certificate.not_after}"
