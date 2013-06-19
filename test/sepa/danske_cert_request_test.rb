@@ -87,33 +87,31 @@ class DanskeCertRequestTest < MiniTest::Test
   #   end
   # end
 
-  # def test_timestamp_is_set_correctly
-  #   timestamp_node = @xml.xpath(
-  #     "//tns:Timestamp", 'tns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
-  #   ).first
+  def test_timestamp_is_set_correctly
+    timestamp_node = @xml.xpath(
+      "//tns:Timestamp", 'tns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
+    ).first
 
-  #   timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
+    timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
 
-  #   assert timestamp <= Time.now && timestamp > (Time.now - 60)
-  # end
+    assert timestamp <= Time.now && timestamp > (Time.now - 60)
+  end
 
-  # Where these are already elsewhere?
+  def test_request_id_is_set_correctly
+    request_id_node = @xml.xpath(
+      "//tns:RequestId", 'tns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
+    ).first
 
-  # def test_application_request_should_be_inserted_properly
-  #   ar_node = @xml.xpath(
-  #     "//tns:RequestId", 'tns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
-  #   ).first
+    request_id = request_id_node.content.to_i
 
-  #   ar_doc = Nokogiri::XML(Base64.decode64(ar_node.content))
+    assert request_id.kind_of?(Integer), "Request id should be a number"
+    assert request_id != 0, "Request id can't be 0"
+  end
 
-  #   assert ar_doc.respond_to?(:canonicalize)
-  #   assert_equal ar_doc.at_css("RequestId").content, @danskecertparams[:request_id]
-  # end
-
-  # def test_should_validate_against_schema
-  #   Dir.chdir(@schemapath) do
-  #     xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-  #     assert xsd.valid?(@xml)
-  #   end
-  # end
+  def test_should_validate_against_schema
+    Dir.chdir(@schemapath) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(@xml)
+    end
+  end
 end

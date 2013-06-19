@@ -3,94 +3,96 @@ module Sepa
   class ApplicationResponse
     attr_accessor :timestamp, :responseCode, :encrypted, :compressed, :customerId, :responseText, :fileDescriptors, :userFiletypes, :content
     def initialize
-      @content
+      @content = ""
+      @fileDescriptors = []
     end
     # Reads values from content field (xml file), returns a hash
     # Bank to customer statement
     def get_account_statement_content(file)
 
-      content = Nokogiri::XML(File.open(file))
-      content.remove_namespaces!
+      if file == ""
+        fail ArgumentError, "You didn't provide a file"
 
-      unless content == ""
+      elsif file != nil
+        content = Nokogiri::XML(File.open(file))
+        content.remove_namespaces!
 
-        # To contain all needed values
-        statement_content = {}
+        unless content == ""
 
-        # Selected fields
+          # To contain all needed values
+          statement_content = {}
 
-        ##CASE Devlab selected fields
-        # Booking date
-        statement_content[:bookingdatefrom] = content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/FrDtTm").content unless content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/FrDtTm") == nil
-        statement_content[:bookingdateto] = content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/ToDtTm").content unless content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/ToDtTm") == nil
-
-        # Account
-        statement_content[:owneracctiban] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Id/IBAN").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Id/IBAN") == nil
-        statement_content[:owneracctccy] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ccy").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ccy") == nil
-        statement_content[:owneraccttype] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Nm").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Nm") == nil
-
-        # Owner
-        statement_content[:acctownername] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/Nm").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/Nm") == nil
-
-        # BIC
-        statement_content[:owneracctbic] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Svcr/FinInstnId/BIC").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Svcr/FinInstnId/BIC").content == nil
-
-        # To contain each transaction listed in the content
-        transactions = []
-
-        content.xpath("//Document/BkToCstmrStmt/Stmt/Ntry").each do |node|
-
-          # To contain the values of a single transaction
-          transaction_content = {}
+          # Selected fields
 
           ##CASE Devlab selected fields
-          ##Arkistointitunnus
-          transaction_content[:acctsvcrref] = node.at_css("NtryDtls/TxDtls/Refs/AcctSvcrRef").content unless node.at_css("NtryDtls/TxDtls/Refs/AcctSvcrRef") == nil
-          ##Saajan tilinumero
-          transaction_content[:crdtiban] = node.at_css("NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/IBAN").content unless node.at_css("NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/IBAN") == nil
-          ##Maksupaiva
-          transaction_content[:bookingdate] = node.at_css("BookgDt/Dt").content unless node.at_css("BookgDt/Dt") == nil
-          ##Arvopaiva
-          transaction_content[:valuedate] = node.at_css("ValDt/Dt").content unless node.at_css("ValDt/Dt") == nil
-          ##Saaja/Maksaja
-          transaction_content[:crdtname] = node.at_css("NtryDtls/TxDtls/RltdPties/Cdtr/Nm").content unless node.at_css("NtryDtls/TxDtls/RltdPties/Cdtr/Nm") == nil
-          ##Viesti
-          transaction_content[:message] = node.at_css("NtryDtls/TxDtls/RmtInf/Ustrd").content unless node.at_css("NtryDtls/TxDtls/RmtInf/Ustrd") == nil
-          ##Maara sisaantuleva(arvo)
-          transaction_content[:incamt] = node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt") == nil
-          ##Valuutta sisaantuleva
-          transaction_content[:incccy] = node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt")["Ccy"] unless node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt") == nil
-          ##Maara kirjanpidollinen(arvo)
-          transaction_content[:bkdamt] = node.at_css("NtryDtls/TxDtls/AmtDtls/TxAmt/Amt").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/TxAmt/Amt") == nil
-          ##Valuutta kirjanpidollinen
-          transaction_content[:bkdccy] = node.at_css("NtryDtls/TxDtls/AmtDtls/TxAmt/Amt")["Ccy"] unless node.at_css("NtryDtls/TxDtls/AmtDtls/TxAmt/Amt") == nil
-          ##Tapahtumalaji (702, 705)
-          transaction_content[:trnscttype] = node.at_css("BkTxCd/Prtry/Cd").content unless node.at_css("BkTxCd/Prtry/Cd") == nil
-          ##Tapahtumien maara
-          transaction_content[:trnsctcnt] = node.at_css("NtryDtls/Btch/NbOfTxs").content unless node.at_css("NtryDtls/Btch/NbOfTxs") == nil
-          ##Oma sisainen viite
-          transaction_content[:internalid] = node.at_css("NtryDtls/Btch/PmtInfId").content unless node.at_css("NtryDtls/Btch/PmtInfId") == nil
-          ##Maksajan viite
-          transaction_content[:instrid] = node.at_css("NtryDtls/TxDtls/Refs/InstrId").content unless node.at_css("NtryDtls/TxDtls/Refs/InstrId") == nil
-          ##BIC koodi (saaja)
-          transaction_content[:crdtbin] = node.at_css("NtryDtls/TxDtls/RltdAgts/DbtrAgt/FinInstId").content unless node.at_css("NtryDtls/TxDtls/RltdAgts/DbtrAgt/FinInstId") == nil
-          ##Maksajan tunniste
-          transaction_content[:crdtid] = node.at_css("NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/Othr/Id").content unless node.at_css("NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/Othr/Id") == nil
-          ##SEPA arkistointitunnus
-          transaction_content[:sepabookingid] = node.at_css("AcctSvcrRef").content unless node.at_css("AcctSvcrRef") == nil
+          # Booking date
+          statement_content[:bookingdatefrom] = content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/FrDtTm").content unless content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/FrDtTm") == nil
+          statement_content[:bookingdateto] = content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/ToDtTm").content unless content.at_css("Document/BkToCstmrStmt/Stmt/FrToDt/ToDtTm") == nil
 
-          # Push to array
-          transactions<<transaction_content
+          # Account
+          statement_content[:owneracctiban] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Id/IBAN").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Id/IBAN") == nil
+          statement_content[:owneracctccy] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ccy").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ccy") == nil
+          statement_content[:owneraccttype] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Nm").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Nm") == nil
 
+          # Owner
+          statement_content[:acctownername] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/Nm").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Ownr/Nm") == nil
+
+          # BIC
+          statement_content[:owneracctbic] = content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Svcr/FinInstnId/BIC").content unless content.at_css("Document/BkToCstmrStmt/Stmt/Acct/Svcr/FinInstnId/BIC").content == nil
+
+          # To contain each transaction listed in the content
+          transactions = []
+
+          content.xpath("//Document/BkToCstmrStmt/Stmt/Ntry").each do |node|
+
+            # To contain the values of a single transaction
+            transaction_content = {}
+
+            ##CASE Devlab selected fields
+            ##Arkistointitunnus
+            transaction_content[:acctsvcrref] = node.at_css("NtryDtls/TxDtls/Refs/AcctSvcrRef").content unless node.at_css("NtryDtls/TxDtls/Refs/AcctSvcrRef") == nil
+            ##Saajan tilinumero
+            transaction_content[:crdtiban] = node.at_css("NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/IBAN").content unless node.at_css("NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/IBAN") == nil
+            ##Maksupaiva
+            transaction_content[:bookingdate] = node.at_css("BookgDt/Dt").content unless node.at_css("BookgDt/Dt") == nil
+            ##Arvopaiva
+            transaction_content[:valuedate] = node.at_css("ValDt/Dt").content unless node.at_css("ValDt/Dt") == nil
+            ##Saaja/Maksaja
+            transaction_content[:crdtname] = node.at_css("NtryDtls/TxDtls/RltdPties/Cdtr/Nm").content unless node.at_css("NtryDtls/TxDtls/RltdPties/Cdtr/Nm") == nil
+            ##Viesti
+            transaction_content[:message] = node.at_css("NtryDtls/TxDtls/RmtInf/Ustrd").content unless node.at_css("NtryDtls/TxDtls/RmtInf/Ustrd") == nil
+            ##Maara sisaantuleva(arvo)
+            transaction_content[:incamt] = node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt") == nil
+            ##Valuutta sisaantuleva
+            transaction_content[:incccy] = node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt")["Ccy"] unless node.at_css("NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt") == nil
+            ##Maara kirjanpidollinen(arvo)
+            transaction_content[:bkdamt] = node.at_css("NtryDtls/TxDtls/AmtDtls/TxAmt/Amt").content unless node.at_css("NtryDtls/TxDtls/AmtDtls/TxAmt/Amt") == nil
+            ##Valuutta kirjanpidollinen
+            transaction_content[:bkdccy] = node.at_css("NtryDtls/TxDtls/AmtDtls/TxAmt/Amt")["Ccy"] unless node.at_css("NtryDtls/TxDtls/AmtDtls/TxAmt/Amt") == nil
+            ##Tapahtumalaji (702, 705)
+            transaction_content[:trnscttype] = node.at_css("BkTxCd/Prtry/Cd").content unless node.at_css("BkTxCd/Prtry/Cd") == nil
+            ##Tapahtumien maara
+            transaction_content[:trnsctcnt] = node.at_css("NtryDtls/Btch/NbOfTxs").content unless node.at_css("NtryDtls/Btch/NbOfTxs") == nil
+            ##Oma sisainen viite
+            transaction_content[:internalid] = node.at_css("NtryDtls/Btch/PmtInfId").content unless node.at_css("NtryDtls/Btch/PmtInfId") == nil
+            ##Maksajan viite
+            transaction_content[:instrid] = node.at_css("NtryDtls/TxDtls/Refs/InstrId").content unless node.at_css("NtryDtls/TxDtls/Refs/InstrId") == nil
+            ##BIC koodi (saaja)
+            transaction_content[:crdtbin] = node.at_css("NtryDtls/TxDtls/RltdAgts/DbtrAgt/FinInstId").content unless node.at_css("NtryDtls/TxDtls/RltdAgts/DbtrAgt/FinInstId") == nil
+            ##Maksajan tunniste
+            transaction_content[:crdtid] = node.at_css("NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/Othr/Id").content unless node.at_css("NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/Othr/Id") == nil
+            ##SEPA arkistointitunnus
+            transaction_content[:sepabookingid] = node.at_css("AcctSvcrRef").content unless node.at_css("AcctSvcrRef") == nil
+
+            # Push to array
+            transactions<<transaction_content
         end
 
         statement_content[:transactions] = transactions
 
         # Returns hash
         statement_content
-      else
-        # No other kind of error handling implemented yet
-        puts "Content is empty."
+      end
       end
     end
 
@@ -98,6 +100,10 @@ module Sepa
     # Reads values from content field (xml file), returns a hash
     def get_debit_credit_notification_content(file)
 
+      if file == ""
+        fail ArgumentError, "You didn't provide a file"
+
+      elsif file != nil
       content = Nokogiri::XML(File.open(file))
       content.remove_namespaces!
 
@@ -167,9 +173,9 @@ module Sepa
 
         # Returns hash
         notification_content
-      else
-        puts "Content is empty."
+
       end
+    end
 
     end
 
@@ -186,11 +192,13 @@ module Sepa
     # Returns an array of file descriptors
     def list_new_descriptors
       # Lists NEW (not already downloaded) files only (as filedescriptor objects)
-      fileDescriptors.select { |fd| fd.status == "NEW" }
+      kek = Array.new
+      kek<<@fileDescriptors.select { |fd| fd.status == "NEW" }
+      kek
     end
 
     def list_all_descriptors
-      fileDescriptors
+      @fileDescriptors
     end
 
     # Returns the full array list of userfiletypes in the response
@@ -252,7 +260,6 @@ module Sepa
       # Iterate all userfiletypes
       xml.xpath("//UserFileTypes/UserFileType").each do |ftype|
         uftype = Sepa::Userfiletype.new
-        puts "I was at userfiletypes"
 
         # Assign class attributes
         uftype.targetId = ftype.at_css("TargetId").content
