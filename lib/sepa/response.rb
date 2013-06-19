@@ -44,6 +44,8 @@ module Sepa
     end
 
     # Verifies that all digest values in the response match the actual ones.
+    # Takes an optional verbose parameter to show which digests didn't match
+    # i.e. verbose: true
     def hashes_match?(options = {})
       digests = find_digest_values(@response)
       nodes = find_nodes_to_verify(@response, digests)

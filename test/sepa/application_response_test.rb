@@ -161,13 +161,6 @@ class ApplicationResponseTest < MiniTest::Test
     refute Sepa::ApplicationResponse.new(@gui).signature_is_valid?
   end
 
-  def test_cert_should_be_trusted_with_correct_root_cert
-    assert @dfl_ar.cert_is_trusted?(@root_cert)
-    assert @uf_ar.cert_is_trusted?(@root_cert)
-    assert @df_ar.cert_is_trusted?(@root_cert)
-    assert @gui_ar.cert_is_trusted?(@root_cert)
-  end
-
   def test_should_raise_error_if_certificate_corrupted_in_dfl
     cert_node = @dfl.at_css(
       'xmlns|X509Certificate',
@@ -218,6 +211,13 @@ class ApplicationResponseTest < MiniTest::Test
     assert_raises(OpenSSL::X509::CertificateError) do
       Sepa::ApplicationResponse.new(@gui).certificate
     end
+  end
+
+  def test_cert_should_be_trusted_with_correct_root_cert
+    assert @dfl_ar.cert_is_trusted?(@root_cert)
+    assert @uf_ar.cert_is_trusted?(@root_cert)
+    assert @df_ar.cert_is_trusted?(@root_cert)
+    assert @gui_ar.cert_is_trusted?(@root_cert)
   end
 
   def test_dfl_should_fail_if_wrong_root_cert

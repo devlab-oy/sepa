@@ -48,7 +48,7 @@ module Sepa
       cert = process_cert_value(cert_value)
 
       begin
-        cert = OpenSSL::X509::Certificate.new(cert)
+        OpenSSL::X509::Certificate.new(cert)
       rescue => e
         fail OpenSSL::X509::CertificateError,
           "The certificate embedded in the application response could not be " \
