@@ -5,8 +5,9 @@ module Sepa
     def initialize(params)
       check_params(params)
       wsdl = params.fetch(:wsdl)
-      @client = Savon.client(wsdl: wsdl)
+      @client = Savon.client(wsdl: wsdl, log_level: :info)
       @command = params.fetch(:command)
+
       if @command == :get_certificate
         @soap = CertRequest.new(params).to_xml
       else
@@ -25,6 +26,7 @@ module Sepa
       # Tries to validate the parameters as well as possible.
       def check_params(params)
         check_params_hash(params)
+
         if(params[:command] != :get_certificate)
           check_private_key(params[:private_key])
           check_cert(params[:cert])
@@ -33,6 +35,7 @@ module Sepa
           check_env(params[:environment])
           check_lang(params[:language])
         end
+
         if(params[:command] == :get_certificate)
           check_wsdl(params[:wsdl])
           check_customer_id(params[:customer_id])
@@ -41,6 +44,7 @@ module Sepa
           check_hmac(params[:hmac])
           check_content(params[:content])
         end
+
         case params[:command]
         when :download_file, :download_file_list
           check_status(params[:status])
