@@ -1,6 +1,6 @@
 require File.expand_path('../../test_helper.rb', __FILE__)
 
-class SoapRequestTest < MiniTest::Test
+class NordeaGenericSoapBuilderTest < MiniTest::Test
   def setup
     @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)
 
@@ -30,7 +30,7 @@ class SoapRequestTest < MiniTest::Test
       file_reference: "11111111A12006030329501800000014"
     }
 
-    @soap_request = Sepa::SoapRequest.new(@params)
+    @soap_request = Sepa::SoapBuilder.new(@params)
 
     @doc = Nokogiri::XML(@soap_request.to_xml)
   end
@@ -76,14 +76,14 @@ class SoapRequestTest < MiniTest::Test
   end
 
   def test_should_initialize_with_proper_params
-    assert Sepa::SoapRequest.new(@params)
+    assert Sepa::SoapBuilder.new(@params)
   end
 
   def test_should_get_error_if_private_key_missing
     @params.delete(:private_key)
 
     assert_raises(KeyError) do
-      Sepa::SoapRequest.new(@params)
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
@@ -91,7 +91,7 @@ class SoapRequestTest < MiniTest::Test
     @params.delete(:cert)
 
     assert_raises(KeyError) do
-      Sepa::SoapRequest.new(@params)
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
@@ -99,7 +99,7 @@ class SoapRequestTest < MiniTest::Test
     @params.delete(:command)
 
     assert_raises(KeyError) do
-      Sepa::SoapRequest.new(@params)
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
@@ -107,7 +107,7 @@ class SoapRequestTest < MiniTest::Test
     @params.delete(:customer_id)
 
     assert_raises(KeyError) do
-      Sepa::SoapRequest.new(@params)
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
@@ -115,7 +115,7 @@ class SoapRequestTest < MiniTest::Test
     @params.delete(:target_id)
 
     assert_raises(KeyError) do
-      Sepa::SoapRequest.new(@params)
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
@@ -123,13 +123,13 @@ class SoapRequestTest < MiniTest::Test
     @params.delete(:language)
 
     assert_raises(KeyError) do
-      Sepa::SoapRequest.new(@params)
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
   def test_should_load_correct_template_with_download_file_list
     @params[:command] = :download_file_list
-    doc = Nokogiri::XML(Sepa::SoapRequest.new(@params).to_xml)
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
 
     assert doc.xpath(
       '//cor:downloadFileListin', 'cor' => 'http://bxd.fi/CorporateFileService'
@@ -138,7 +138,7 @@ class SoapRequestTest < MiniTest::Test
 
   def test_should_load_correct_template_with_get_user_info
     @params[:command] = :get_user_info
-    doc = Nokogiri::XML(Sepa::SoapRequest.new(@params).to_xml)
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
 
     assert doc.xpath(
       '//cor:getUserInfoin', 'cor' => 'http://bxd.fi/CorporateFileService'
@@ -147,7 +147,7 @@ class SoapRequestTest < MiniTest::Test
 
   def test_should_load_correct_template_with_download_file
     @params[:command] = :download_file
-    doc = Nokogiri::XML(Sepa::SoapRequest.new(@params).to_xml)
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
 
     assert doc.xpath(
       '//cor:downloadFilein', 'cor' => 'http://bxd.fi/CorporateFileService'
@@ -156,7 +156,7 @@ class SoapRequestTest < MiniTest::Test
 
   def test_should_load_correct_template_with_upload_file
     @params[:command] = :upload_file
-    doc = Nokogiri::XML(Sepa::SoapRequest.new(@params).to_xml)
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
 
     assert doc.xpath(
       '//cor:uploadFilein', 'cor' => 'http://bxd.fi/CorporateFileService'
@@ -167,7 +167,7 @@ class SoapRequestTest < MiniTest::Test
     @params[:command] = :wrong_command
 
     assert_raises(ArgumentError) do
-      soap = Sepa::SoapRequest.new(@params)
+      soap = Sepa::SoapBuilder.new(@params)
     end
   end
 

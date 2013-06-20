@@ -8,7 +8,7 @@ module Sepa
       @client = Savon.client(wsdl: wsdl) #log_level: :info
       @command = params.fetch(:command)
       # SoapBuilder creates a complete SOAP message structure and returns it (.to_xml -format)
-      @soap = Sepa::SoapBuilder.new(params).to_xml
+      @soap = SoapBuilder.new(params).to_xml
       # # To define which kind of a SOAP request to build
       # case params[:bank]
       # when :nordea

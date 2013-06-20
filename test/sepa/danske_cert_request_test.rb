@@ -1,6 +1,6 @@
 require File.expand_path('../../test_helper.rb', __FILE__)
 
-class DanskeCertRequestTest < MiniTest::Test
+class DanskeCertSoapBuilderTest < MiniTest::Test
   def setup
     @schemapath = File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)
     @templatepath = File.expand_path('../../../lib/sepa/xml_templates/soap',__FILE__)
@@ -22,7 +22,7 @@ class DanskeCertRequestTest < MiniTest::Test
       pin: '1234'
     }
 
-    @certrequest = Sepa::DanskeCertRequest.new(@danskecertparams)
+    @certrequest = Sepa::SoapBuilder.new(@danskecertparams)
 
     @xml = Nokogiri::XML(@certrequest.to_xml_unencrypted)
   end
@@ -35,13 +35,13 @@ class DanskeCertRequestTest < MiniTest::Test
   end
 
   def test_should_initialize_with_proper_params
-    assert Sepa::DanskeCertRequest.new(@danskecertparams)
+    assert Sepa::SoapBuilder.new(@danskecertparams)
   end
 
   def test_should_fail_with_wrong_command
     @danskecertparams.delete(:command)
 
-    assert_raises(KeyError) { Sepa::DanskeCertRequest.new(@danskecertparams) }
+    assert_raises(KeyError) { Sepa::SoapBuilder.new(@danskecertparams) }
   end
 
   def test_request_should_find_xmlenc_structure_when_request_encrypted
@@ -58,7 +58,7 @@ class DanskeCertRequestTest < MiniTest::Test
     @danskecertparams.delete(:command)
 
     assert_raises(KeyError) do
-      Sepa::DanskeCertRequest.new(@danskecertparams)
+      Sepa::SoapBuilder.new(@danskecertparams)
     end
   end
 
@@ -66,13 +66,13 @@ class DanskeCertRequestTest < MiniTest::Test
     @danskecertparams.delete(:customer_id)
 
     assert_raises(KeyError) do
-      Sepa::DanskeCertRequest.new(@danskecertparams)
+      Sepa::SoapBuilder.new(@danskecertparams)
     end
   end
 
   def test_should_load_correct_template_with_get_certificate
     @danskecertparams[:command] = :create_certificate
-    xml = Nokogiri::XML(Sepa::DanskeCertRequest.new(@danskecertparams).to_xml_unencrypted)
+    xml = Nokogiri::XML(Sepa::SoapBuilder.new(@danskecertparams).to_xml_unencrypted)
 
     assert xml.xpath('//tns:CreateCertificateRequest', 'tns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements').first, "Path/namespace not found"
   end
@@ -81,7 +81,7 @@ class DanskeCertRequestTest < MiniTest::Test
     @danskecertparams[:command] = :wrong_command
     # This will be KeyError until different way to choose between soap/certrequests is implemented in applicationrequest class
     assert_raises(ArgumentError) do
-      soap = Sepa::DanskeCertRequest.new(@danskecertparams).to_xml
+      soap = Sepa::SoapBuilder.new(@danskecertparams).to_xml
     end
   end
 

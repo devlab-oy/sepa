@@ -47,7 +47,7 @@ class CertRequestTest < MiniTest::Test
 
   }
 
-  @certrequest = Sepa::CertRequest.new(@params)
+  @certrequest = Sepa::SoapBuilder.new(@params)
 
   @xml = Nokogiri::XML(@certrequest.to_xml)
   end
@@ -61,37 +61,37 @@ class CertRequestTest < MiniTest::Test
   end
 
   def test_should_initialize_with_proper_params
-    assert Sepa::CertRequest.new(@params)
+    assert Sepa::SoapBuilder.new(@params)
   end
 
   def test_should_get_error_if_command_missing
     @params.delete(:command)
 
-    assert_raises(KeyError) do
-      Sepa::CertRequest.new(@params)
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
   def test_should_get_error_if_customer_id_missing
     @params.delete(:customer_id)
 
-    assert_raises(KeyError) do
-      Sepa::CertRequest.new(@params)
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
   def test_should_load_correct_template_with_get_certificate
     @params[:command] = :get_certificate
-    xml = Nokogiri::XML(Sepa::CertRequest.new(@params).to_xml)
+    xml = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
 
     assert xml.xpath('//cer:getCertificatein', 'cer' => 'http://bxd.fi/CertificateService').first
   end
 
   def test_should_raise_error_if_command_not_correct
     @params[:command] = :wrong_command
-    # This will be KeyError until different way to choose between soap/certrequests is implemented in applicationrequest class
+    # This will be ArgumentError until different way to choose between soap/certrequests is implemented in applicationrequest class
     assert_raises(ArgumentError) do
-      soap = Sepa::CertRequest.new(@params).to_xml
+      soap = Sepa::SoapBuilder.new(@params).to_xml
     end
   end
 
