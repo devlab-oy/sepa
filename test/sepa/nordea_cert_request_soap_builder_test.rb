@@ -89,7 +89,6 @@ class NordeaCertRequestSoapBuilderTest < MiniTest::Test
 
   def test_should_raise_error_if_command_not_correct
     @params[:command] = :wrong_command
-    # This will be ArgumentError until different way to choose between soap/certrequests is implemented in applicationrequest class
     assert_raises(ArgumentError) do
       soap = Sepa::SoapBuilder.new(@params).to_xml
     end
