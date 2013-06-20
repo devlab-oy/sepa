@@ -57,7 +57,56 @@ Or install it yourself as:
 
   * Returns the whole soap response as a savon response object:
 
-            client.send
+            response = client.send
+
+### Verifying the response
+
+* Check that the hashes match in the response
+
+        response.hashes_match?
+
+        # You can also provide an optional parameter verbose:true
+        # if you want to see which hashes failed to verify.
+
+        response.hashes_match?(verbose: true)
+
+* Check that the signature of the response is valid
+
+        response.signature_is_valid?
+
+* Extract the certificate from the response
+
+        # Will return an OpenSSL::X509::Certificate object
+        response.certificate
+
+* Check that the certificate is trusted against a root cert
+
+        # The root cert has to be of type OpenSSL::X509::Certificate
+        response.cert_is_trusted?(root_cert)
+
+### Verifying the application response
+
+1. Extract the application request from the request
+
+        ar = response.application_request
+
+* Check that the hashes match in the application response
+
+        ar.hashes_match?
+
+* Check that the signature of the application response is valid
+
+        ar.signature_is_valid?
+
+* Extract the certificate from the application response
+
+        # Will return an OpenSSL::X509::Certificate object
+        ar.certificate
+
+* Check that the certificate is trusted against a root cert
+
+        # The root cert has to be of type OpenSSL::X509::Certificate
+        ar.cert_is_trusted?(root_cert)
 
 ### For downloading Nordea certificate
 
