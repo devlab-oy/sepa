@@ -39,9 +39,6 @@ module Sepa
           path = "#{template_path}/upload_file.xml"
         when :download_file
           path = "#{template_path}/download_file.xml"
-        else
-          fail LoadError, "Could not load soap request template because the" \
-            "command was unrecognised"
         end
 
         body_template = File.open(path)

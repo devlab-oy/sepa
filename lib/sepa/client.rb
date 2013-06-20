@@ -15,8 +15,6 @@ module Sepa
           @soap = CertRequest.new(params).to_xml
         elsif [:get_user_info,:download_file_list,:download_file,:upload_file].include?(@command)
           @soap = SoapRequest.new(params).to_xml
-        else
-          fail ArgumentError, "Command not supported by #{params[:bank]}"
         end
       when :danske
         if @command == :create_certificate
@@ -24,9 +22,6 @@ module Sepa
         else
           fail ArgumentError, "Command not supported by #{params[:bank]}"
         end
-      else
-        fail ArgumentError, "Something went unexpectedly with choosing combination of bank and " \
-          "command. Combination not supported or not implemented. "
       end
     end
 
@@ -64,8 +59,6 @@ module Sepa
           check_status(params[:status])
           check_target_id(params[:target_id])
           check_file_type(params[:file_type])
-          else
-            fail ArgumentError, "Command not supported by #{params[:bank]}"
           end
         when :upload_file
           check_private_key(params[:private_key])

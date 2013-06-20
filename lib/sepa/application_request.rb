@@ -26,8 +26,6 @@ module Sepa
         @encryption_cert_pkcs10 = params[:encryption_cert_pkcs10]
         @signing_cert_pkcs10 = params[:signing_cert_pkcs10]
         @request_id = params[:request_id]
-      else
-        raise ArgumentError, 'Command was not recognised.'
       end
     end
 
@@ -76,9 +74,6 @@ module Sepa
         path = "#{template_dir}/upload_file.xml"
       when :download_file
         path = "#{template_dir}/download_file.xml"
-      else
-        raise ArgumentError, 'Could not load application request template because command was
-        unrecognised.'
       end
 
       @ar = Nokogiri::XML(File.open(path))

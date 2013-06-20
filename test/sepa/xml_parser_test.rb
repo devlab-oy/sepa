@@ -1,10 +1,10 @@
 require File.expand_path('../../test_helper.rb', __FILE__)
 
-class AppResponseTest < MiniTest::Test
+class XmlParserTest < MiniTest::Test
   def setup
     @exampleresponsepath = File.expand_path('../../../lib/sepa/nordea_testing/response',__FILE__)
 
-    @parser = Sepa::ApplicationResponse.new
+    @parser = Sepa::XmlParser.new
   end
 
   def test_that_053_example_is_unmodified
@@ -59,5 +59,15 @@ class AppResponseTest < MiniTest::Test
     @parser.animate_response("#{@exampleresponsepath}/download_filelist_response.xml")
     assert @parser.list_all_descriptors.kind_of?(Array), "Type not an array"
     assert @parser.list_all_descriptors.length > 0, "Array should not be empty"
+  end
+
+  def test_method_selectdescriptor_should_return_file_information_with_file_reference
+    @parser.animate_response("#{@exampleresponsepath}/download_filelist_response.xml")
+    collection = @parser.list_new_descriptors
+    sampler = collection[0]
+    sample = sampler.sample
+
+    assert @parser.select_descriptor(sample.fileReference).kind_of?(Array), "Does not return an array"
+    assert @parser.select_descriptor(sample.fileReference).length > 0, "Should return an array with length more than 0"
   end
 end

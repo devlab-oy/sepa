@@ -24,9 +24,6 @@ module Sepa
         case command
         when :get_certificate
           path = "#{template_path}/get_certificate.xml"
-        else
-          fail LoadError, "Could not load soap request template because the" \
-            "command was unrecognised"
         end
 
         body_template = File.open(path)

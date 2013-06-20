@@ -1,6 +1,6 @@
 module Sepa
   # This class is able to handle GetUserInfo, DownloadFileList, DownloadFile responses and pass content
-  class ApplicationResponse
+  class XmlParser
     attr_accessor :timestamp, :responseCode, :encrypted, :compressed, :customerId, :responseText, :fileDescriptors, :userFiletypes, :content
     def initialize
       @content = ""
