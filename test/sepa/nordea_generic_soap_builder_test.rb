@@ -82,7 +82,7 @@ class NordeaGenericSoapBuilderTest < MiniTest::Test
   def test_should_get_error_if_private_key_missing
     @params.delete(:private_key)
 
-    assert_raises(KeyError) do
+    assert_raises(ArgumentError) do
       Sepa::SoapBuilder.new(@params)
     end
   end
@@ -90,7 +90,7 @@ class NordeaGenericSoapBuilderTest < MiniTest::Test
   def test_should_get_error_if_cert_missing
     @params.delete(:cert)
 
-    assert_raises(KeyError) do
+    assert_raises(ArgumentError) do
       Sepa::SoapBuilder.new(@params)
     end
   end
@@ -98,7 +98,7 @@ class NordeaGenericSoapBuilderTest < MiniTest::Test
   def test_should_get_error_if_command_missing
     @params.delete(:command)
 
-    assert_raises(KeyError) do
+    assert_raises(ArgumentError) do
       Sepa::SoapBuilder.new(@params)
     end
   end
@@ -106,7 +106,7 @@ class NordeaGenericSoapBuilderTest < MiniTest::Test
   def test_should_get_error_if_customer_id_missing
     @params.delete(:customer_id)
 
-    assert_raises(KeyError) do
+    assert_raises(ArgumentError) do
       Sepa::SoapBuilder.new(@params)
     end
   end
@@ -114,7 +114,7 @@ class NordeaGenericSoapBuilderTest < MiniTest::Test
   def test_should_get_error_if_target_id_missing
     @params.delete(:target_id)
 
-    assert_raises(KeyError) do
+    assert_raises(ArgumentError) do
       Sepa::SoapBuilder.new(@params)
     end
   end
@@ -122,7 +122,7 @@ class NordeaGenericSoapBuilderTest < MiniTest::Test
   def test_should_get_error_if_language_missing
     @params.delete(:language)
 
-    assert_raises(KeyError) do
+    assert_raises(ArgumentError) do
       Sepa::SoapBuilder.new(@params)
     end
   end

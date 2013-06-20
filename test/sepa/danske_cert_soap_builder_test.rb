@@ -41,7 +41,7 @@ class DanskeCertSoapBuilderTest < MiniTest::Test
   def test_should_fail_with_wrong_command
     @danskecertparams.delete(:command)
 
-    assert_raises(KeyError) { Sepa::SoapBuilder.new(@danskecertparams) }
+    assert_raises(ArgumentError) { Sepa::SoapBuilder.new(@danskecertparams) }
   end
 
   def test_request_should_find_xmlenc_structure_when_request_encrypted
@@ -57,7 +57,7 @@ class DanskeCertSoapBuilderTest < MiniTest::Test
   def test_should_get_error_if_command_missing
     @danskecertparams.delete(:command)
 
-    assert_raises(KeyError) do
+    assert_raises(ArgumentError) do
       Sepa::SoapBuilder.new(@danskecertparams)
     end
   end
@@ -65,7 +65,7 @@ class DanskeCertSoapBuilderTest < MiniTest::Test
   def test_should_get_error_if_customer_id_missing
     @danskecertparams.delete(:customer_id)
 
-    assert_raises(KeyError) do
+    assert_raises(ArgumentError) do
       Sepa::SoapBuilder.new(@danskecertparams)
     end
   end

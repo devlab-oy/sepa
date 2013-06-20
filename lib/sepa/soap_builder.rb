@@ -72,7 +72,7 @@ module Sepa
         ar = @ar
         sender_id = params.fetch(:customer_id)
 
-        body = load_body_template(@template_path, command)
+        body = load_body_template(command)
         nc_set_body_contents(body, ar, sender_id)
       end
 
@@ -88,10 +88,10 @@ module Sepa
 
         # From templates
         header = load_header_template(@template_path)
-        body = load_body_template(@template_path,command)
+        body = load_body_template(command)
 
         ng_set_body_contents(body, ar, sender_id, lang, receiver_id)
-        ng_process_header(header, private_key, cert)
+        ng_process_header(header,body, private_key, cert)
         ng_add_body_to_header(header, body)
       end
 
@@ -104,7 +104,7 @@ module Sepa
         cert = params.fetch(:cert)
 
         public_key = extract_public_key(cert)
-        body = load_body_template(@templatepath, command)
+        body = load_body_template(command)
 
         dc_set_body_contents(body, sender_id, request_id, environment)
         encrypted_request = dc_encrypt_application_request(ar, cert, public_key)
@@ -118,7 +118,7 @@ module Sepa
         request_id = params.fetch(:request_id)
         environment = params.fetch(:environment)
 
-        body = load_body_template(@templatepath, command)
+        body = load_body_template(command)
 
         dc_set_body_contents(body, sender_id, request_id, environment)
         dc_add_unencrypted_request_to_soap(ar, body)
@@ -153,20 +153,20 @@ module Sepa
         Base64.encode64(signature).gsub(/\s+/, "")
       end
 
-      def load_body_template(template_path, command)
+      def load_body_template(command)
         case command
         when :download_file_list
-          path = "#{template_path}/download_file_list.xml"
+          path = "#{@template_path}/download_file_list.xml"
         when :get_user_info
-          path = "#{template_path}/get_user_info.xml"
+          path = "#{@template_path}/get_user_info.xml"
         when :upload_file
-          path = "#{template_path}/upload_file.xml"
+          path = "#{@template_path}/upload_file.xml"
         when :download_file
-          path = "#{template_path}/download_file.xml"
+          path = "#{@template_path}/download_file.xml"
         when :create_certificate
-          path = "#{template_path}/create_certificate.xml"
+          path = "#{@template_path}/create_certificate.xml"
         when :get_certificate
-          path = "#{template_path}/get_certificate.xml"
+          path = "#{@template_path}/get_certificate.xml"
         end
 
         body_template = File.open(path)
@@ -224,16 +224,16 @@ module Sepa
         set_node(body, 'bxd|ReceiverId', receiver_id)
       end
 
-      def ng_process_header(header, private_key, cert)
+      def ng_process_header(header, body, private_key, cert)
         set_node(header, 'wsu|Created', Time.now.iso8601)
 
         set_node(header, 'wsu|Expires', (Time.now + 3600).iso8601)
 
-        timestamp_digest = calculate_digest(@header,'wsu|Timestamp')
+        timestamp_digest = calculate_digest(header,'wsu|Timestamp')
         set_node(header,'dsig|Reference[URI="#dsfg8sdg87dsf678g6dsg6ds7fg"]' \
                  ' dsig|DigestValue', timestamp_digest)
 
-        body_digest = calculate_digest(@body, 'env|Body')
+        body_digest = calculate_digest(body, 'env|Body')
         set_node(header,'dsig|Reference[URI="#sdf6sa7d86f87s6df786sd87f6s8fsd'\
                  'a"] dsig|DigestValue', body_digest)
 
@@ -475,7 +475,7 @@ module Sepa
       end
 
       def check_lang(lang)
-        unless ['FI', 'SE', 'EN', nil].include?(lang)
+        unless ['FI', 'SE', 'EN'].include?(lang)
           fail ArgumentError, "You didn't provide a proper language. " \
             "Acceptable values are FI, SE or EN."
         end
@@ -504,6 +504,12 @@ module Sepa
       def check_hmac(hmac)
         unless hmac
           fail ArgumentError, "You didn't provide any HMAC."
+        end
+      end
+
+      def check_command(command)
+        unless command
+          fail ArgumentError, "You didn't provide any command"
         end
       end
   end

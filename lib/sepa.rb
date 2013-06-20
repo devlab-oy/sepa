@@ -3,7 +3,6 @@ require "nokogiri"
 require "savon"
 require "sepa/xml_parser"
 require "sepa/client"
-require "sepa/soap_request"
 require "sepa/version"
 require 'base64'
 require 'nokogiri'
@@ -15,9 +14,6 @@ require 'sepa/filetypeservice'
 require 'sepa/signature'
 require 'sepa/userfiletype'
 require 'time'
-require 'sepa/danske_cert_request'
 require 'sepa/response'
-require 'sepa/cert_request'
 require 'sepa/application_response'
 require 'sepa/soap_builder'
-require 'sepa/request_builder'
