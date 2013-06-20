@@ -16,6 +16,8 @@ vendor
 lib/debug.rb
 lib/CSR.csr
 lib/signing_key.pem
+lib/encrypting_key.pem
+lib/req_key.pem
 lib/danske
 
 # YARD artifacts

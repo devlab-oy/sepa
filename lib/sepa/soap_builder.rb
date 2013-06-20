@@ -33,8 +33,6 @@ module Sepa
           build_danske_create_certificate_request(params)
         when "NordeaGenericRequest"
           build_nordea_generic_request(params)
-        else
-          fail ArgumentError, "No type found from build list"
         end
       end
 
@@ -55,8 +53,8 @@ module Sepa
             "NordeaGetCertificateRequest"
           elsif [:get_user_info,:download_file_list,:download_file,:upload_file].include?(command)
             "NordeaGenericRequest"
-          else
-            fail ArgumentError, "Command not supported by Nordea}"
+          # else
+          #   fail ArgumentError, "Command not supported by Nordea}"
           end
         when :danske
           if command == :create_certificate
@@ -381,8 +379,6 @@ module Sepa
           check_encryption_pkcs10(params[:encryption_cert_pkcs10])
           check_signing_pkcs10(params[:signing_cert_pkcs10])
           check_pin(params[:pin])
-          else
-            fail ArgumentError, "Command not supported by Danske."
           end
         else
           fail ArgumentError, "Command not supported."
@@ -504,12 +500,6 @@ module Sepa
       def check_hmac(hmac)
         unless hmac
           fail ArgumentError, "You didn't provide any HMAC."
-        end
-      end
-
-      def check_command(command)
-        unless command
-          fail ArgumentError, "You didn't provide any command"
         end
       end
   end

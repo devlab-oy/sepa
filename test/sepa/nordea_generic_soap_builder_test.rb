@@ -59,6 +59,12 @@ class NordeaGenericSoapBuilderTest < MiniTest::Test
     assert_equal digest, "HSWQCmwOsMdPJP3erjksi/Sz7hE="
   end
 
+  def test_should_not_initialize_with_unproper_params
+    @params = "kissa"
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
+    end
+  end
   def test_upload_file_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
     template = File.read("#{@xml_templates_path}/upload_file.xml")
