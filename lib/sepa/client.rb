@@ -5,7 +5,7 @@ module Sepa
     def initialize(params)
       check_params(params)
       wsdl = params.fetch(:wsdl)
-      @client = Savon.client(wsdl: wsdl, log_level: :info)
+      @client = Savon.client(wsdl: wsdl) #log_level: :info
       @command = params.fetch(:command)
 
       # To define which kind of a SOAP request to build
