@@ -31,10 +31,10 @@ module Sepa
 
       # Loads the application request template according to the command
       def load_template(command)
-        template_dir = File.expand_path('../xml_templates/application_request', __FILE__)
+        template_dir = File.expand_path('../xml_templates/application_request',
+                                        __FILE__)
 
         case command
-
         when :get_certificate
           path = "#{template_dir}/get_certificate.xml"
         when :download_file_list
@@ -46,11 +46,11 @@ module Sepa
         when :download_file
           path = "#{template_dir}/download_file.xml"
         else
-          raise ArgumentError, 'Could not load application request template because command was
-        unrecognised.'
+          raise ArgumentError, 'Could not load application request template  '\
+            'because command was unrecognised.'
         end
 
-        @ar = Nokogiri::XML(File.open(path))
+        @ar = Nokogiri::XML(File.read(path))
       end
 
       def set_node(node, value)
@@ -63,10 +63,10 @@ module Sepa
         set_node("Timestamp", Time.now.iso8601)
         set_node("Environment", @environment)
         set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
-        set_node("Command", @command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join)
+        set_node("Command",
+                 @command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join)
 
         case @command
-
         when :get_certificate
           set_node("Service", @service)
           set_node("Content", Base64.encode64(@content))
