@@ -87,10 +87,8 @@ module Sepa
         end
       end
 
-      def remove_signature_node(doc)
-        doc.xpath(
-          "//dsig:Signature", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
-        ).remove
+      def remove_node(doc, node, xmlns)
+        doc.at_css("xmlns|#{node}", 'xmlns' => xmlns).remove
       end
 
       def add_signature_node(doc, signature)
@@ -134,7 +132,9 @@ module Sepa
       end
 
       def process_signature
-        signature_node = remove_signature_node(@ar)
+        signature_node = remove_node(@ar,
+                                     'Signature',
+                                     'http://www.w3.org/2000/09/xmldsig#')
         digest = take_digest(@ar)
         add_signature_node(@ar, signature_node)
         add_digest(@ar, digest)
