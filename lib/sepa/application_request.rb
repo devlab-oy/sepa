@@ -91,11 +91,11 @@ module Sepa
         doc.at_css("xmlns|#{node}", 'xmlns' => xmlns).remove
       end
 
-      def add_signature_node(doc, signature)
-        doc.root.add_child(signature)
+      def add_node_to_root(doc, node)
+        doc.root.add_child(node)
       end
 
-      def take_digest(doc)
+      def calculate_digest(doc)
         sha1 = OpenSSL::Digest::SHA1.new
         Base64.encode64(sha1.digest(doc.canonicalize))
       end
@@ -135,8 +135,8 @@ module Sepa
         signature_node = remove_node(@ar,
                                      'Signature',
                                      'http://www.w3.org/2000/09/xmldsig#')
-        digest = take_digest(@ar)
-        add_signature_node(@ar, signature_node)
+        digest = calculate_digest(@ar)
+        add_node_to_root(@ar, signature_node)
         add_digest(@ar, digest)
         signature = calculate_signature(
           @ar.xpath(".//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first,
