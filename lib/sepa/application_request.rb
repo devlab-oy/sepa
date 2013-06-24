@@ -100,35 +100,25 @@ module Sepa
         Base64.encode64(sha1.digest(doc.canonicalize))
       end
 
-      def add_digest(doc, digest)
-        doc.xpath(
-          ".//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
-        ).first
-        .content = digest.gsub(/\s+/, "")
+      def add_value_to_signature(node, value)
+        node = @ar.at_css("dsig|#{node}",
+                          'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
+        node.content = value
       end
 
-      def calculate_signature(node, private_key)
-        digest = OpenSSL::Digest::SHA1.new
-        signature = private_key.sign(digest, node.canonicalize)
-        Base64.encode64(signature).gsub(/\s+/, "")
+      def calculate_signature(private_key)
+        sha1 = OpenSSL::Digest::SHA1.new
+        node = @ar.at_css("dsig|SignedInfo",
+                          'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
+        signature = private_key.sign(sha1, node.canonicalize)
+        Base64.encode64(signature)
       end
 
-      def add_signature(doc, signature)
-        signature_node = doc
-        .xpath(".//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
-        .first
-        signature_node.content = signature
-      end
-
-      def add_certificate(doc, cert)
-        doc
-        .xpath(".//dsig:X509Certificate", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
-        .first
-        .content = cert
-        .to_s
-        .split('-----BEGIN CERTIFICATE-----')[1]
-        .split('-----END CERTIFICATE-----')[0]
-        .gsub(/\s+/, "")
+      def format_cert(cert)
+        cert = cert.to_s
+        cert = cert.split('-----BEGIN CERTIFICATE-----')[1]
+        cert = cert.split('-----END CERTIFICATE-----')[0]
+        cert.gsub!(/\s+/, "")
       end
 
       def process_signature
@@ -137,12 +127,10 @@ module Sepa
                                      'http://www.w3.org/2000/09/xmldsig#')
         digest = calculate_digest(@ar)
         add_node_to_root(@ar, signature_node)
-        add_digest(@ar, digest)
-        signature = calculate_signature(
-          @ar.xpath(".//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first,
-        @private_key)
-        add_signature(@ar, signature)
-        add_certificate(@ar, @cert)
+        add_value_to_signature('DigestValue', digest)
+        signature = calculate_signature(@private_key)
+        add_value_to_signature('SignatureValue', signature)
+        add_value_to_signature('X509Certificate',format_cert(@cert))
       end
   end
 end
