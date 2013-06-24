@@ -12,6 +12,9 @@ module Sepa
         end
       end
 
+
+      # Builds : Create Certificate
+      # ------------------------------------------------------------------------
       def build_certificate_request(params)
         ar = @ar
         command = params.fetch(:command)
@@ -28,8 +31,6 @@ module Sepa
         add_encrypted_request_to_soap(encrypted_request, body)
       end
 
-      # Builds : Create Certificate
-      # ------------------------------------------------------------------------
       def set_body_contents(body, sender_id, request_id, environment)
         set_node(body, 'pkif|SenderId', sender_id)
         set_node(body, 'pkif|CustomerId', sender_id)
