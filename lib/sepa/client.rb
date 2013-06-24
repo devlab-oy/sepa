@@ -23,7 +23,6 @@ module Sepa
       def check_params(params)
         check_params_hash(params)
         check_wsdl(params[:wsdl])
-        #check_params_command(params[:command])
       end
 
       def check_params_hash(params)
