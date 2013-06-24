@@ -20,11 +20,11 @@ module Sepa
         environment = params.fetch(:environment)
         cert = params.fetch(:cert)
 
-        public_key = extract_public_key(cert) # From SoapBuilder
-        body = load_body_template(command) # From SoapBuilder
+        public_key = extract_public_key(cert)
+        body = load_body_template(command)
 
         set_body_contents(body, sender_id, request_id, environment)
-        encrypted_request = encrypt_application_request(ar, cert, public_key)
+        encrypted_request = encrypt_certificate_request(ar, cert, public_key)
         add_encrypted_request_to_soap(encrypted_request, body)
       end
 
@@ -39,38 +39,23 @@ module Sepa
         set_node(body, 'pkif|Environment', environment)
       end
 
-      def encrypt_application_request(ar, cert, public_key)
-        # Format certificate if using PEM format
-        #cert = cert.to_s
-        #cert = cert.split('-----BEGIN CERTIFICATE-----')[1]
-        #cert = cert.split('-----END CERTIFICATE-----')[0]
-        #cert.gsub!(/\s+/, "")
+      def encrypt_certificate_request(ar, cert, public_key)
         formatted_cert = Base64.encode64(cert.to_der)
 
-        # puts "----- ApplicationRequest PRE encryption -----"
         ar = ar.canonicalize(
           mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
           with_comments=false
         )
-        # puts ar
-        # puts "----- ApplicationRequest PRE encryption -----"
 
         # Encrypt ApplicationRequest and set key
         cipher = OpenSSL::Cipher::Cipher.new('DES-EDE3-CBC')
         cipher.encrypt
-        # Option 1
-        #key = SecureRandom.hex(16)
+
         key = cipher.random_key
         cipher.key = key
-        # Option2
-        #iv = cipher.random_iv
-        #iv = SecureRandom.hex(16)
-        #cipher.iv = iv
 
         output = cipher.update(ar)
         output << cipher.final
-
-        #built_cipher = "02 | 45465519283985986 | 00 | #{key}"
 
         # Base64 encode and encrypt key and set as content for encrypted application request
         ciphervalue1 = Base64.encode64(public_key.public_encrypt(key))
