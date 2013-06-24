@@ -5,33 +5,38 @@ require 'sepa'
 payload = "test_payload"
 
 # Keys
-private_key = OpenSSL::PKey::RSA.new(File.read("sepa/nordea_testing/keys/nordea.key"))
-cert = OpenSSL::X509::Certificate.new(File.read("sepa/nordea_testing/keys/nordea.crt"))
+private_key = OpenSSL::PKey::RSA.new(
+  File.read("sepa/nordea_testing/keys/nordea.key")
+)
+cert = OpenSSL::X509::Certificate.new(
+  File.read("sepa/nordea_testing/keys/nordea.crt")
+)
 
-# The params hash is populated with the data that is needed for gem to function
+# The params hash is populated with the data that is needed for gem to function.
 params = {
-  # Path for your own private key
+  # Path for your own private key.
   private_key: private_key,
 
   # Path to your certificate
   cert: cert,
 
-  # Command :download_file_list, :upload_file, :download_file or :get_user_info
+  # Command :download_file_list, :upload_file, :download_file or :get_user_info.
   command: :get_user_info,
 
-  # Unique customer ID
+  # Unique customer ID.
   customer_id: '11111111',
 
-  # Set the environment to be either PRODUCTION or TEST
+  # Set the environment to be either PRODUCTION or TEST.
   environment: 'PRODUCTION',
 
-  # For filtering stuff. Must be either NEW, DOWNLOADED or ALL
+  # For filtering stuff. Must be either NEW, DOWNLOADED or ALL.
   status: 'NEW',
 
-  # Some specification of the folder which to access in the bank. I have no idea how this works however.
+  # Some specification of the folder which to access in the bank. I have no
+  # idea how this works however.
   target_id: '11111111A1',
 
-  # Language must be either FI, EN or SV
+  # Language must be either FI, EN or SV.
   language: 'FI',
 
   # File types to upload or download:
@@ -44,13 +49,14 @@ params = {
   # - NDCAMT54L = Saapuvat XML viitemaksu (saapuva)
   file_type: 'TITO',
 
-  # The WSDL file used by nordea. Is identical between banks except for the address.
+  # The WSDL file used by nordea. Is identical between banks except for the
+  # address.
   wsdl: 'sepa/wsdl/wsdl_nordea.xml',
 
   # The actual payload to send.
   content: payload,
 
-  # File reference for :download_file command
+  # File reference for :download_file command.
   file_reference: "11111111A12006030329501800000014"
 }
 
@@ -70,11 +76,11 @@ puts "\nHashes match in the application response: #{ar.hashes_match?}"
 puts "Signature is valid in the application response: #{ar.signature_is_valid?}"
 
 puts "\nSome info about response's certificate:\n" \
-"Issuer: #{response.certificate.issuer}\n" \
-"First day to use this certificate: #{response.certificate.not_before}\n" \
-"Expires: #{response.certificate.not_after}"
+  "Issuer: #{response.certificate.issuer}\n" \
+  "First day to use this certificate: #{response.certificate.not_before}\n" \
+  "Expires: #{response.certificate.not_after}"
 
-puts "\nSome info about application response's certificate:\n" \
-"Issuer: #{ar.certificate.issuer}\n" \
-"First day to use this certificate: #{ar.certificate.not_before}\n" \
-"Expires: #{ar.certificate.not_after}"
+  puts "\nSome info about application response's certificate:\n" \
+  "Issuer: #{ar.certificate.issuer}\n" \
+  "First day to use this certificate: #{ar.certificate.not_before}\n" \
+  "Expires: #{ar.certificate.not_after}"
