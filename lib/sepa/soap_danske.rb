@@ -1,14 +1,6 @@
 module Sepa
-  class DanskeSoapRequest < SoapBuilder
-    # Builds the Danske SOAP, holding methods needed only for Danske Services
-    def initialize(params)
-      @params = params
-    end
-
-    def get_soap
-      find_correct_build(@params)
-    end
-
+  module DanskeSoapRequest
+    # Holding methods needed only for Danske Services SOAP
     private
 
       def find_correct_build(params)
@@ -16,12 +8,12 @@ module Sepa
 
         case command
         when :create_certificate
-          build_danske_create_certificate_request(params)
+          build_certificate_request(params)
         end
       end
 
-      def build_danske_create_certificate_request(params)
-        ar = get_application_request # From SoapBuilder (private)
+      def build_certificate_request(params)
+        ar = @ar
         command = params.fetch(:command)
         sender_id = params.fetch(:customer_id)
         request_id = params.fetch(:request_id)
@@ -118,6 +110,37 @@ module Sepa
 
         body
       end
+      # ------------------------------------------------------------------------
+
+      # Builds : Create Certificate Unencrypted FOR UNIT TESTS
+      # ------------------------------------------------------------------------
+      def debug_certificate_request_without_encryption(params)
+        ar = @ar
+        command = params.fetch(:command)
+        sender_id = params.fetch(:customer_id)
+        request_id = params.fetch(:request_id)
+        environment = params.fetch(:environment)
+
+        body = load_body_template(command)
+
+        set_body_contents(body, sender_id, request_id, environment)
+        add_unencrypted_request_to_soap(ar, body)
+      end
+
+      def add_unencrypted_request_to_soap(ar, body)
+        ar = Nokogiri::XML(ar.to_xml)
+        ar = ar.at_css('tns|CreateCertificateRequest')
+        body.at_css('pkif|CreateCertificateIn').add_child(ar)
+
+        body
+      end
+
+    public
+
+    def to_xml_unencrypted
+      debug_certificate_request_without_encryption(@params).to_xml
+    end
+
       # ------------------------------------------------------------------------
   end
 end

@@ -9,7 +9,6 @@ module Sepa
       @command = params.fetch(:command)
       # SoapBuilder creates a complete SOAP message structure and returns it (.to_xml -format)
       @soap = SoapBuilder.new(params).to_xml
-
     end
 
     # Call savon to make the soap request with the correct command and the

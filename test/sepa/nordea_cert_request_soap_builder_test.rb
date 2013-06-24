@@ -52,6 +52,12 @@ class NordeaCertRequestSoapBuilderTest < MiniTest::Test
   @xml = Nokogiri::XML(@certrequest.to_xml)
   end
 
+  def test_should_fail_if_bank_doesnt_support_command
+    @params[:command] = :create_certificate
+
+    assert_raises(ArgumentError) { Sepa::SoapBuilder.new(@params) }
+  end
+
   def test_that_get_certificate_soap_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
     template = File.read("#{@templatepath}/get_certificate.xml")
