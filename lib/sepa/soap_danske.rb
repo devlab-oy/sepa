@@ -9,9 +9,18 @@ module Sepa
         case command
         when :create_certificate
           build_certificate_request(params)
+        when :upload_file
+        when :download_file
         end
       end
 
+      # Builds : Upload File
+      # ------------------------------------------------------------------------
+      # ------------------------------------------------------------------------
+
+      # Builds : Download File
+      # ------------------------------------------------------------------------
+      # ------------------------------------------------------------------------
 
       # Builds : Create Certificate
       # ------------------------------------------------------------------------
@@ -48,6 +57,11 @@ module Sepa
           with_comments=false
         )
 
+        # DEBUG
+        puts "---------------------------DEBUG---------------------------"
+        puts ar
+        puts "---------------------------DEBUG---------------------------"
+
         # Encrypt ApplicationRequest and set key
         cipher = OpenSSL::Cipher::Cipher.new('DES-EDE3-CBC')
         cipher.encrypt
@@ -62,7 +76,7 @@ module Sepa
         ciphervalue1 = Base64.encode64(public_key.public_encrypt(key))
         ciphervalue2 = Base64.encode64(output)
 
-        # Build the xml to contain encrypted fields
+        # Build the xml structure to contain encrypted field values
         builder = Nokogiri::XML::Builder.new do |xml|
           xml['xenc'].EncryptedData('xmlns:xenc' => "http://www.w3.org/2001/04/xmlenc#", 'Type' => "http://www.w3.org/2001/04/xmlenc#Element") {
             xml.EncryptionMethod('Algorithm' => "http://www.w3.org/2001/04/xmlenc#tripledes-cbc") {
@@ -126,7 +140,6 @@ module Sepa
     def to_xml_unencrypted
       debug_certificate_request_without_encryption(@params).to_xml
     end
-
       # ------------------------------------------------------------------------
   end
 end
