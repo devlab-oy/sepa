@@ -299,10 +299,44 @@ module Sepa
         body
       end
 
+      def debug_application_request_without_encryption(params)
+        ar = Base64.decode64 @ar
+        command = params.fetch(:command)
+        sender_id = params.fetch(:customer_id)
+        request_id = params.fetch(:request_id)
+        receiver_id = params.fetch(:target_id)
+        lang = params.fetch(:language)
+        cert = params.fetch(:cert)
+        private_key = params.fetch(:private_key)
+
+        public_key = extract_public_key(cert)
+        body = load_body_template(command)
+        header = load_header_template(@template_path)
+
+        set_request_body_contents(body, sender_id, request_id, lang, receiver_id)
+        #encrypted_request = encrypt_application_request(ar, cert, public_key)
+
+        add_unencrypted_generic_request_to_soap(ar, body)
+
+        process_header(header,body,private_key,cert)
+        add_body_to_header(header,body)
+      end
+
+      def add_unencrypted_generic_request_to_soap(ar, body)
+        ar = Nokogiri::XML(ar).to_xml
+        #ar = ar.at_css('tns|CreateCertificateRequest')
+        body.at_css('bxd|ApplicationRequest').add_child(ar)
+        body
+      end
+
     public
 
     def to_xml_unencrypted
       debug_certificate_request_without_encryption(@params).to_xml
+    end
+
+    def to_xml_unencrypted_generic
+      debug_application_request_without_encryption(@params).to_xml
     end
       # ------------------------------------------------------------------------
   end
