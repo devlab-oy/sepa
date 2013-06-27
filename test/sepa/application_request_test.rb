@@ -1,11 +1,12 @@
-require_relative '../test_helper'
+require File.expand_path('../../test_helper.rb', __FILE__)
 
 class TestApplicationRequest < MiniTest::Test
   def setup
     keys_path = File.expand_path('../nordea_test_keys', __FILE__)
 
     @xml_templates_path = File.expand_path(
-    '../../../lib/sepa/xml_templates/application_request', __FILE__)
+      '../../../lib/sepa/xml_templates/application_request', __FILE__
+    )
 
     @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)
 
@@ -51,24 +52,30 @@ class TestApplicationRequest < MiniTest::Test
     sha1 = OpenSSL::Digest::SHA1.new
 
     get_user_info_template = File.read(
-    "#{@xml_templates_path}/get_user_info.xml")
+      "#{@xml_templates_path}/get_user_info.xml"
+    )
 
     download_file_list_template = File.read(
-    "#{@xml_templates_path}/download_file_list.xml")
+      "#{@xml_templates_path}/download_file_list.xml"
+    )
 
     download_file_template = File.read(
-    "#{@xml_templates_path}/download_file.xml")
+      "#{@xml_templates_path}/download_file.xml"
+    )
 
     upload_file_template = File.read(
-    "#{@xml_templates_path}/upload_file.xml")
+      "#{@xml_templates_path}/upload_file.xml"
+    )
 
     get_user_info_digest = Base64.encode64(
-    sha1.digest(get_user_info_template)).strip
+      sha1.digest(get_user_info_template)
+    ).strip
 
     sha1.reset
 
     download_file_list_digest = Base64.encode64(
-    sha1.digest(download_file_list_template)).strip
+      sha1.digest(download_file_list_template)
+    ).strip
 
     sha1.reset
 
@@ -81,23 +88,25 @@ class TestApplicationRequest < MiniTest::Test
     assert_equal get_user_info_digest, "LW5J5R7SnPFPurAa2pM7weTWL1Y="
 
     assert_equal download_file_list_digest.strip,
-    "dYtf4lOP1TXfXPVjYLvaTozhVrg="
+      "dYtf4lOP1TXfXPVjYLvaTozhVrg="
 
     assert_equal Base64.encode64(download_file_digest).strip,
-    "lY+8u+BhXlQmUyQiOiXcUfCUikc="
+      "lY+8u+BhXlQmUyQiOiXcUfCUikc="
 
     assert_equal Base64.encode64(upload_file_digest).strip,
-    "zRQTrNHkq4OLSX3u3ogxU05RJsI="
+      "zRQTrNHkq4OLSX3u3ogxU05RJsI="
   end
 
   def test_schemas_are_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
 
     ar_schema = File.read(
-    "#{@schemas_path}/application_request.xsd")
+      "#{@schemas_path}/application_request.xsd"
+    )
 
     xmldsig_schema = File.read(
-    "#{@schemas_path}/xmldsig-core-schema.xsd")
+      "#{@schemas_path}/xmldsig-core-schema.xsd"
+    )
 
     ar_schema_digest = sha1.digest(ar_schema)
 
@@ -106,10 +115,10 @@ class TestApplicationRequest < MiniTest::Test
     xmldsig_schema_digest = sha1.digest(xmldsig_schema)
 
     assert_equal Base64.encode64(ar_schema_digest).strip,
-    "1O24A7+/6S7CFYVlhH1jEZh1ARs="
+      "1O24A7+/6S7CFYVlhH1jEZh1ARs="
 
     assert_equal Base64.encode64(xmldsig_schema_digest).strip,
-    "bmG0+2KykgkLeWsXsl6CFbyo4Yc="
+      "bmG0+2KykgkLeWsXsl6CFbyo4Yc="
   end
 
   def test_ar_should_initialize_with_proper_params
@@ -165,28 +174,28 @@ class TestApplicationRequest < MiniTest::Test
 
   def test_should_have_timestamp_set_properly_with_all_commands
     timestamp_file = Time.strptime(@doc_file.at_css("Timestamp").content,
-    '%Y-%m-%dT%H:%M:%S%z')
+                                   '%Y-%m-%dT%H:%M:%S%z')
 
     timestamp_get = Time.strptime(@doc_get.at_css("Timestamp").content,
-    '%Y-%m-%dT%H:%M:%S%z')
+                                  '%Y-%m-%dT%H:%M:%S%z')
 
     timestamp_list = Time.strptime(@doc_list.at_css("Timestamp").content,
-    '%Y-%m-%dT%H:%M:%S%z')
+                                   '%Y-%m-%dT%H:%M:%S%z')
 
     timestamp_up = Time.strptime(@doc_up.at_css("Timestamp").content,
-    '%Y-%m-%dT%H:%M:%S%z')
+                                 '%Y-%m-%dT%H:%M:%S%z')
 
     assert timestamp_file <= Time.now && timestamp_file > (Time.now - 60),
-    "Timestamp was not set correctly"
+      "Timestamp was not set correctly"
 
     assert timestamp_get <= Time.now && timestamp_get > (Time.now - 60),
-    "Timestamp was not set correctly"
+      "Timestamp was not set correctly"
 
     assert timestamp_list <= Time.now && timestamp_list > (Time.now - 60),
-    "Timestamp was not set correctly"
+      "Timestamp was not set correctly"
 
     assert timestamp_up <= Time.now && timestamp_up > (Time.now - 60),
-    "Timestamp was not set correctly"
+      "Timestamp was not set correctly"
   end
 
   def test_should_have_command_set_when_get_user_info
@@ -215,16 +224,16 @@ class TestApplicationRequest < MiniTest::Test
 
   def test_should_have_software_id_set_with_all_commands
     assert_equal @doc_file.at_css("SoftwareId").content,
-    "Sepa Transfer Library version " + Sepa::VERSION
+      "Sepa Transfer Library version " + Sepa::VERSION
 
     assert_equal @doc_get.at_css("SoftwareId").content,
-    "Sepa Transfer Library version " + Sepa::VERSION
+      "Sepa Transfer Library version " + Sepa::VERSION
 
     assert_equal @doc_list.at_css("SoftwareId").content,
-    "Sepa Transfer Library version " + Sepa::VERSION
+      "Sepa Transfer Library version " + Sepa::VERSION
 
     assert_equal @doc_up.at_css("SoftwareId").content,
-    "Sepa Transfer Library version " + Sepa::VERSION
+      "Sepa Transfer Library version " + Sepa::VERSION
   end
 
   def test_should_have_status_set_when_download_file_list
@@ -273,7 +282,7 @@ class TestApplicationRequest < MiniTest::Test
 
   def test_should_have_file_reference_set_when_download_file
     assert_equal @doc_file.at_css("FileReference").content,
-    @params[:file_reference]
+      @params[:file_reference]
   end
 
   def test_should_not_have_file_ref_when_download_file_list
@@ -290,7 +299,7 @@ class TestApplicationRequest < MiniTest::Test
 
   def test_should_have_content_when_upload_file
     assert_equal @doc_up.at_css("Content").content,
-    Base64.encode64(@params[:content])
+      Base64.encode64(@params[:content])
   end
 
   def test_should_not_have_content_when_download_file_list
@@ -314,13 +323,13 @@ class TestApplicationRequest < MiniTest::Test
   end
 
   def test_digest_is_calculatd_correctly
-    calculated_digest = @doc_file.xpath(
-    ".//dsig:DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
-    ).first.content
+    calculated_digest = @doc_file.at_css(
+      "dsig|DigestValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+    ).content
 
     # Remove signature for calculating digest
-    @doc_file.xpath(
-    "//dsig:Signature", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+    @doc_file.at_css(
+      "dsig|Signature", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
     ).remove
 
     # Calculate digest
@@ -334,34 +343,32 @@ class TestApplicationRequest < MiniTest::Test
   def test_signature_is_constructed_correctly
     private_key = @params.fetch(:private_key)
 
-    signed_info_node = @doc_file.xpath(
-    ".//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').first
+    signed_info_node = @doc_file.at_css(
+    "dsig|SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
 
     # The value of the signature node in the constructed ar
-    calculated_signature = @doc_file.xpath(
-    ".//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
-    .first.content
+    calculated_signature = @doc_file.at_css(
+      "dsig|SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+    ).content
 
     # Calculate the actual signature
     sha1 = OpenSSL::Digest::SHA1.new
     actual_signature = Base64.encode64(private_key.sign(
     sha1, signed_info_node.canonicalize))
-    .gsub(/\s+/, "")
 
     # And then of course assert the two are equal
     assert_equal calculated_signature, actual_signature
   end
 
   def test_certificate_is_added_correctly
-    added_cert = @doc_file
-    .xpath(
-    ".//dsig:X509Certificate", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
-    .first.content
+    added_cert = @doc_file.at_css(
+      "dsig|X509Certificate", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+    ).content
 
     actual_cert = @params.fetch(:cert).to_s
-    .split('-----BEGIN CERTIFICATE-----')[1]
-    .split('-----END CERTIFICATE-----')[0]
-    .gsub(/\s+/, "")
+    actual_cert = actual_cert.split('-----BEGIN CERTIFICATE-----')[1]
+    actual_cert = actual_cert.split('-----END CERTIFICATE-----')[0]
+    actual_cert.gsub!(/\s+/, "")
 
     assert_equal added_cert, actual_cert
   end
