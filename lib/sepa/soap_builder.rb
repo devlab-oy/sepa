@@ -315,7 +315,7 @@ module Sepa
             fail ArgumentError, "You didn't provide a matching bank and service."
           end
         when :danske
-          allowed_commands = [:create_certificate, :download_file, :upload_file]
+          allowed_commands = [:create_certificate,:get_user_info,:download_file_list,:download_file,:upload_file]
           unless allowed_commands.include?(command)
             fail ArgumentError, "You didn't provide a matching bank and service."
           end

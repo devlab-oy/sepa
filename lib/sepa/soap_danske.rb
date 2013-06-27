@@ -9,10 +9,8 @@ module Sepa
         case command
         when :create_certificate
           build_certificate_request(params)
-        when :upload_file
-          build_upload_file_request(params)
-        when :download_file
-          build_download_file_request(params)
+        when :upload_file, :download_file, :get_user_info, :download_file_list
+          build_danske_generic_request(params)
         end
       end
 
@@ -22,10 +20,10 @@ module Sepa
         # NOTE : IF nothing changes here, collapse with encrypt_certificate_request
         formatted_cert = Base64.encode64(cert.to_der)
 
-        # ar = ar.canonicalize(
-        #   mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
-        #   with_comments=false
-        # )
+        ar = ar.canonicalize(
+          mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
+          with_comments=false
+        )
 
         # DEBUG
         puts "---------------------------DEBUG PRE-ENCRYPTED AR---------------------------"
@@ -76,9 +74,9 @@ module Sepa
       def load_danske_body_template(command)
         case command
         when :download_file_list
-          #path = "#{@template_path}/download_file_list.xml"
+          path = "#{@template_path}/download_file_list.xml"
         when :get_user_info
-          #path = "#{@template_path}/get_user_info.xml"
+          path = "#{@template_path}/get_user_info.xml"
         when :upload_file
           path = "#{@template_path}/upload_file.xml"
         when :download_file
@@ -114,6 +112,27 @@ module Sepa
         body
       end
 
+      def build_danske_generic_request(params)
+        ar = Base64.decode64 @ar
+        command = params.fetch(:command)
+        sender_id = params.fetch(:customer_id)
+        request_id = params.fetch(:request_id)
+        receiver_id = params.fetch(:target_id)
+        lang = params.fetch(:language)
+        cert = params.fetch(:cert)
+        private_key = params.fetch(:private_key)
+
+        public_key = extract_public_key(cert)
+        body = load_danske_body_template(command)
+        header = load_header_template(@template_path)
+
+        set_request_body_contents(body, sender_id, request_id, lang, receiver_id)
+        encrypted_request = encrypt_application_request(ar, cert, public_key)
+        add_encrypted_generic_request_to_soap(encrypted_request, body)
+
+        process_header(header,body,private_key,cert)
+        add_body_to_header(header,body)
+      end
       # def process_header(header, body, private_key, cert)
       #   set_node(header, 'wsu|Created', Time.now.iso8601)
 
@@ -137,27 +156,6 @@ module Sepa
 
       # Builds : Upload File
       # ------------------------------------------------------------------------
-      def build_upload_file_request(params)
-        ar = Base64.decode64 @ar
-        command = params.fetch(:command)
-        sender_id = params.fetch(:customer_id)
-        request_id = params.fetch(:request_id)
-        receiver_id = params.fetch(:target_id)
-        lang = params.fetch(:language)
-        cert = params.fetch(:cert)
-        private_key = params.fetch(:private_key)
-
-        public_key = extract_public_key(cert)
-        body = load_danske_body_template(command)
-        header = load_header_template(@template_path)
-
-        set_request_body_contents(body, sender_id, request_id, lang, receiver_id)
-        encrypted_request = encrypt_application_request(ar, cert, public_key)
-        add_encrypted_generic_request_to_soap(encrypted_request, body)
-
-        process_header(header,body,private_key,cert)
-        add_body_to_header(header,body)
-      end
       # ------------------------------------------------------------------------
 
       # Builds : Download File
