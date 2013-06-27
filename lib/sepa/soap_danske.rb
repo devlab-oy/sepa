@@ -20,10 +20,10 @@ module Sepa
         # NOTE : IF nothing changes here, collapse with encrypt_certificate_request
         formatted_cert = Base64.encode64(cert.to_der)
 
-        ar = ar.canonicalize(
-          mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
-          with_comments=false
-        )
+        # ar = ar.canonicalize(
+        #   mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
+        #   with_comments=false
+        # )
 
         # DEBUG
         puts "---------------------------DEBUG PRE-ENCRYPTED AR---------------------------"
@@ -71,28 +71,28 @@ module Sepa
       builder
       end
 
-      def load_danske_body_template(command)
-        case command
-        when :download_file_list
-          path = "#{@template_path}/download_file_list.xml"
-        when :get_user_info
-          path = "#{@template_path}/get_user_info.xml"
-        when :upload_file
-          path = "#{@template_path}/upload_file.xml"
-        when :download_file
-          path = "#{@template_path}/download_file.xml"
-        when :create_certificate
-          path = "#{@template_path}/create_certificate.xml"
-        when :get_certificate
-          #path = "#{@template_path}/get_certificate.xml"
-        end
+      # def load_danske_body_template(command)
+      #   case command
+      #   when :download_file_list
+      #     path = "#{@template_path}/download_file_list.xml"
+      #   when :get_user_info
+      #     path = "#{@template_path}/get_user_info.xml"
+      #   when :upload_file
+      #     path = "#{@template_path}/upload_file.xml"
+      #   when :download_file
+      #     path = "#{@template_path}/download_file.xml"
+      #   when :create_certificate
+      #     path = "#{@template_path}/create_certificate.xml"
+      #   when :get_certificate
+      #     #path = "#{@template_path}/get_certificate.xml"
+      #   end
 
-        body_template = File.open(path)
-        body = Nokogiri::XML(body_template)
-        body_template.close
+      #   body_template = File.open(path)
+      #   body = Nokogiri::XML(body_template)
+      #   body_template.close
 
-        body
-      end
+      #   body
+      # end
 
       def set_request_body_contents(body, sender_id, request_id, lang, receiver_id)
         set_node(body, 'bxd|SenderId', sender_id)
@@ -123,7 +123,7 @@ module Sepa
         private_key = params.fetch(:private_key)
 
         public_key = extract_public_key(cert)
-        body = load_danske_body_template(command)
+        body = load_body_template(command)
         header = load_header_template(@template_path)
 
         set_request_body_contents(body, sender_id, request_id, lang, receiver_id)
