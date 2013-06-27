@@ -108,12 +108,13 @@ module Sepa
       end
 
       def load_header_template(template_path)
-        case @bank
-        when :nordea
-          header_template = File.open("#{template_path}/header.xml")
-        when :danske
-          header_template = File.open("#{template_path}/danske_header.xml")
-        end
+        # case @bank
+        # when :nordea
+        #   header_template = File.open("#{template_path}/header.xml")
+        # when :danske
+        #   header_template = File.open("#{template_path}/danske_header.xml")
+        # end
+        header_template = File.open("#{template_path}/header.xml")
         header = Nokogiri::XML(header_template)
         header_template.close
         header
@@ -314,7 +315,7 @@ module Sepa
             fail ArgumentError, "You didn't provide a matching bank and service."
           end
         when :danske
-          allowed_commands = [:create_certificate, :download_file]
+          allowed_commands = [:create_certificate, :download_file, :upload_file]
           unless allowed_commands.include?(command)
             fail ArgumentError, "You didn't provide a matching bank and service."
           end

@@ -46,7 +46,7 @@ module Sepa
       if @command != :get_certificate && @command != :create_certificate
         process_signature
       end
-      # Danske Certificate Request is encrypted and already encoded
+      # Danske Certificate Request is going to be encrypted and encoded afterwards
       if @command == :create_certificate
         @ar
       else

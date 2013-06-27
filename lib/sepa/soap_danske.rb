@@ -80,7 +80,7 @@ module Sepa
         when :get_user_info
           #path = "#{@template_path}/get_user_info.xml"
         when :upload_file
-          #path = "#{@template_path}/upload_file.xml"
+          path = "#{@template_path}/upload_file.xml"
         when :download_file
           path = "#{@template_path}/download_file.xml"
         when :create_certificate
@@ -97,8 +97,6 @@ module Sepa
       end
 
       def set_request_body_contents(body, sender_id, request_id, lang, receiver_id)
-        puts body
-        puts "debugbody above ------------------"
         set_node(body, 'bxd|SenderId', sender_id)
         set_node(body, 'bxd|RequestId', request_id)
         set_node(body, 'bxd|Timestamp', Time.now.iso8601)
@@ -110,16 +108,37 @@ module Sepa
       def add_encrypted_generic_request_to_soap(encrypted_request, body)
         encrypted_request = Nokogiri::XML(encrypted_request.to_xml)
         encrypted_request = encrypted_request.at_css('xenc|EncryptedData')
+        encrypted_request = Base64.encode64(encrypted_request)
         body.at_css('bxd|ApplicationRequest').add_child(encrypted_request)
 
         body
       end
+
+      # def process_header(header, body, private_key, cert)
+      #   set_node(header, 'wsu|Created', Time.now.iso8601)
+
+      #   set_node(header, 'wsu|Expires', (Time.now + 3600).iso8601)
+
+      #   timestamp_digest = calculate_digest(header,'wsu|Timestamp')
+      #   set_node(header,'Reference[URI="#dsfg8sdg87dsf678g6dsg6ds7fg"]' \
+      #            ' DigestValue', timestamp_digest)
+
+      #   body_digest = calculate_digest(body, 'env|Body')
+      #   set_node(header,'Reference[URI="#sdf6sa7d86f87s6df786sd87f6s8fsd'\
+      #            'a"] DigestValue', body_digest)
+
+      #   signature = calculate_signature(header, 'dsig|SignedInfo', private_key)
+      #   set_node(header, 'SignatureValue', signature)
+
+      #   formatted_cert = format_cert(cert)
+      #   set_node(header, 'wsse|BinarySecurityToken', formatted_cert)
+      # end
       # ------------------------------------------------------------------------
 
       # Builds : Upload File
       # ------------------------------------------------------------------------
       def build_upload_file_request(params)
-        ar = @ar
+        ar = Base64.decode64 @ar
         command = params.fetch(:command)
         sender_id = params.fetch(:customer_id)
         request_id = params.fetch(:request_id)
@@ -130,10 +149,14 @@ module Sepa
 
         public_key = extract_public_key(cert)
         body = load_danske_body_template(command)
+        header = load_header_template(@template_path)
 
         set_request_body_contents(body, sender_id, request_id, lang, receiver_id)
         encrypted_request = encrypt_application_request(ar, cert, public_key)
         add_encrypted_generic_request_to_soap(encrypted_request, body)
+
+        process_header(header,body,private_key,cert)
+        add_body_to_header(header,body)
       end
       # ------------------------------------------------------------------------
 
