@@ -9,11 +9,7 @@
                 <pkif:Timestamp></pkif:Timestamp>
                 <pkif:InterfaceVersion></pkif:InterfaceVersion>
             </pkif:RequestHeader>
-            <elem:GetBankCertificateRequest>
-                <elem:BankRootCertificateSerialNo></elem:BankRootCertificateSerialNo>
-                <elem:Timestamp></elem:Timestamp>
-                <elem:RequestId></elem:RequestId>
-            </elem:GetBankCertificateRequest>
+            <elem:GetBankCertificateRequest></elem:GetBankCertificateRequest>
         </pkif:GetBankCertificateIn>
     </soapenv:Body>
 </soapenv:Envelope>

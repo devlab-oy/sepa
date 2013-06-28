@@ -74,6 +74,8 @@ module Sepa
           path = "#{@template_path}/create_certificate.xml"
         when :get_certificate
           path = "#{@template_path}/get_certificate.xml"
+        when :get_bank_certificate
+          path = "#{@template_path}/get_bank_certificate.xml"
         end
 
         body_template = File.open(path)
@@ -175,12 +177,16 @@ module Sepa
           check_content(params[:content])
         when :create_certificate
           if params[:bank] == :danske
-          check_cert(params[:cert])
-          check_request_id(params[:request_id])
-          check_keygen_type(params[:key_generator_type])
-          check_encryption_pkcs10(params[:encryption_cert_pkcs10])
-          check_signing_pkcs10(params[:signing_cert_pkcs10])
-          check_pin(params[:pin])
+            check_cert(params[:cert])
+            check_request_id(params[:request_id])
+            check_keygen_type(params[:key_generator_type])
+            check_encryption_pkcs10(params[:encryption_cert_pkcs10])
+            check_signing_pkcs10(params[:signing_cert_pkcs10])
+            check_pin(params[:pin])
+          end
+        when :get_bank_certificate
+          if params[:bank] == :danske
+            check_request_id(params[:request_id])
           end
         else
           fail ArgumentError, "Command not supported."
@@ -315,7 +321,7 @@ module Sepa
             fail ArgumentError, "You didn't provide a matching bank and service."
           end
         when :danske
-          allowed_commands = [:create_certificate,:get_user_info,:download_file_list,:download_file,:upload_file]
+          allowed_commands = [:get_bank_certificate,:create_certificate,:get_user_info,:download_file_list,:download_file,:upload_file]
           unless allowed_commands.include?(command)
             fail ArgumentError, "You didn't provide a matching bank and service."
           end

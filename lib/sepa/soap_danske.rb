@@ -11,6 +11,8 @@ module Sepa
           build_certificate_request(params)
         when :upload_file, :download_file, :get_user_info, :download_file_list
           build_danske_generic_request(params)
+        when :get_bank_certificate
+          build_get_bank_certificate_request(params)
         end
       end
 
@@ -271,6 +273,37 @@ module Sepa
         encrypted_request = Nokogiri::XML(encrypted_request.to_xml)
         encrypted_request = encrypted_request.at_css('xenc|EncryptedData')
         body.at_css('pkif|CreateCertificateIn').add_child(encrypted_request)
+
+        body
+      end
+      # ------------------------------------------------------------------------
+
+      # Builds : Get Bank Certificate
+      # ------------------------------------------------------------------------
+      def build_get_bank_certificate_request(params)
+        ar = @ar
+        command = params.fetch(:command)
+        sender_id = params.fetch(:customer_id)
+        request_id = params.fetch(:request_id)
+
+        body = load_body_template(command)
+
+        set_bank_certificate_body_contents(body, sender_id, request_id)
+        add_bank_certificate_body_to_soap(ar, body)
+      end
+
+      def set_bank_certificate_body_contents(body, sender_id, request_id)
+        set_node(body, 'elem|SenderId', sender_id)
+        set_node(body, 'elem|CustomerId', sender_id)
+        set_node(body, 'elem|RequestId', request_id)
+        set_node(body, 'elem|Timestamp', Time.now.iso8601)
+        set_node(body, 'elem|InterfaceVersion', 1)
+      end
+
+      def add_bank_certificate_body_to_soap(ar, body)
+        ar = Nokogiri::XML(ar.to_xml)
+        ar = ar.at_css('elem|GetBankCertificateRequest')
+        body.at_css('elem|GetBankCertificateRequest').add_child(ar)
 
         body
       end

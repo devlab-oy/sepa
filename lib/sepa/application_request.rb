@@ -12,20 +12,22 @@ module Sepa
       @file_reference = params[:file_reference]
 
       # For signed Nordea application requests
-      if @command != :get_certificate && @command != :create_certificate
+      if @command != :get_certificate && @command != :create_certificate @@command != :get_bank_certificate
         @private_key = params.fetch(:private_key)
         @cert = params.fetch(:cert)
-      elsif @command == :get_certificate || @command == :create_certificate
+      elsif @command == :get_certificate || @command == :create_certificate || @command == :get_bank_certificate
         # Only for cert requests
         # Nordea Bank
         @service = params[:service]
         @hmac = params[:hmac]
-        # Danske Bank
+        # Danske Bank Create Certificate
         @pin = params[:pin]
         @key_generator_type = params[:key_generator_type]
         @encryption_cert_pkcs10 = params[:encryption_cert_pkcs10]
         @signing_cert_pkcs10 = params[:signing_cert_pkcs10]
-        @request_id = params[:request_id]
+        @request_id = params[:request_id] # For Danske Bank PKI
+        # Danske Bank Get Bank Certificate
+        @bank_root_cert_serial = params[:bank_root_cert_serial]
       end
     end
 
@@ -33,7 +35,7 @@ module Sepa
       load_template(@command)
       set_nodes_contents
       # No signature for Certificate Requests
-      if @command != :get_certificate && @command != :create_certificate
+      if @command != :get_certificate && @command != :create_certificate && @command != :get_bank_certificate
         process_signature
       end
       # Danske Certificate Request is going to be encrypted and encoded afterwards
@@ -47,7 +49,7 @@ module Sepa
     private
 
       def check_command(command)
-        valid_commands = [:get_certificate, :create_certificate, :download_file_list, :download_file, :get_user_info, :upload_file, :download_file]
+        valid_commands = [:get_certificate, :create_certificate, :download_file_list, :download_file, :get_user_info, :upload_file, :download_file, :get_bank_certificate]
         unless valid_commands.include?(command)
           fail ArgumentError, "You didn't provide a proper command. " \
           "Acceptable values are #{valid_commands.inspect}"
@@ -73,6 +75,8 @@ module Sepa
           path = "#{template_dir}/upload_file.xml"
         when :download_file
           path = "#{template_dir}/download_file.xml"
+        when :get_bank_certificate
+          path = "#{template_dir}/get_bank_certificate.xml"
         end
 
         @ar = Nokogiri::XML(File.open(path))
@@ -85,7 +89,7 @@ module Sepa
 
       # Set the nodes' contents according to the command
       def set_nodes_contents
-        if @command != :create_certificate
+        if @command != :create_certificate && @command != :get_bank_certificate
           set_node("CustomerId", @customer_id)
           set_node("Timestamp", Time.now.iso8601)
           set_node("Environment", @environment)
@@ -121,6 +125,10 @@ module Sepa
           set_node("Content", Base64.encode64(@content))
           set_node("FileType", @file_type)
           set_node("TargetId", @target_id)
+        when :get_bank_certificate
+          set_node("elem|BankRootCertificateSerialNo", @bank_root_cert_serial)
+          set_node("elem|Timestamp", Time.now.iso8601)
+          set_node("elem|RequestId", @request_id)
         end
       end
 

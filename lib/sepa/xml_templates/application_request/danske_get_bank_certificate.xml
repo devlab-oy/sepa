@@ -1,0 +1,5 @@
+<elem:GetBankCertificateRequest>
+    <elem:BankRootCertificateSerialNo></elem:BankRootCertificateSerialNo>
+    <elem:Timestamp></elem:Timestamp>
+    <elem:RequestId></elem:RequestId>
+</elem:GetBankCertificateRequest>
