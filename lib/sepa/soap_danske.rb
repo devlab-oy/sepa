@@ -33,7 +33,7 @@ module Sepa
         puts "---------------------------DEBUG PRE-ENCRYPTED AR---------------------------"
 
         # Encrypt ApplicationRequest and set key
-        cipher = OpenSSL::Cipher::Cipher.new('DES-EDE3-CBC')
+        cipher = OpenSSL::Cipher.new('DES-EDE3-CBC')
         cipher.encrypt
 
         key = cipher.random_key
