@@ -36,7 +36,8 @@ module Sepa
         cipher = OpenSSL::Cipher.new('DES-EDE3-CBC')
         cipher.encrypt
 
-        key = cipher.random_key
+        #key = cipher.random_key
+        key = 'asdfasdfasdffasdasfghasd'
         cipher.key = key
 
         output = cipher.update(ar)
