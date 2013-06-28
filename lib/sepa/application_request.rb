@@ -12,7 +12,7 @@ module Sepa
       @file_reference = params[:file_reference]
 
       # For signed Nordea application requests
-      if @command != :get_certificate && @command != :create_certificate @@command != :get_bank_certificate
+      if @command != :get_certificate && @command != :create_certificate && @command != :get_bank_certificate
         @private_key = params.fetch(:private_key)
         @cert = params.fetch(:cert)
       elsif @command == :get_certificate || @command == :create_certificate || @command == :get_bank_certificate
@@ -76,7 +76,7 @@ module Sepa
         when :download_file
           path = "#{template_dir}/download_file.xml"
         when :get_bank_certificate
-          path = "#{template_dir}/get_bank_certificate.xml"
+          path = "#{template_dir}/danske_get_bank_certificate.xml"
         end
 
         @ar = Nokogiri::XML(File.open(path))

@@ -75,7 +75,7 @@ module Sepa
         when :get_certificate
           path = "#{@template_path}/get_certificate.xml"
         when :get_bank_certificate
-          path = "#{@template_path}/get_bank_certificate.xml"
+          path = "#{@template_path}/danske_get_bank_certificate.xml"
         end
 
         body_template = File.open(path)
