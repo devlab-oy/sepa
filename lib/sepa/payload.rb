@@ -1,6 +1,11 @@
 module Sepa
   class Payload
     def initialize(params)
+      @name = params.fetch(:name)
+      @address = params.fetch(:address)
+      @country = params.fetch(:country)
+      @postcode = params.fetch(:postcode)
+      @town = params.fetch(:town)
     end
 
     def to_xml
@@ -29,6 +34,20 @@ module Sepa
         xml.GrpHdr {
           xml.MsgId SecureRandom.hex(17)
           xml.CreDtTm Time.new.iso8601
+          xml.BtchBookg 'true'
+          xml.NbOfTxs 0
+          xml.Grpg 'MIXD'
+          xml.InitgPty {
+            xml.Nm @name
+            xml.PstlAdr {
+              xml.AdrLine @address
+              xml.AdrLine "#{@country}-#{@postcode}"
+              xml.StrtNm @address
+              xml.PstCd "#{@country}-#{@postcode}"
+              xml.TwnNm @town
+              xml.Ctry @country
+            }
+          }
         }
       end
     end
