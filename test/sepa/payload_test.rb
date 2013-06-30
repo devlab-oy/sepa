@@ -11,10 +11,12 @@ class TestPayload < MiniTest::Test
     assert Sepa::Payload.new(@params)
   end
 
-  def test_payload_validates_as_proper_xml
-    xsd = Nokogiri::XML::Schema(File.read("#{@schemas_path}/xml.xsd"))
-    xml = Nokogiri::XML(@payload.to_xml)
-    xsd.validate(xml).each do |error|
+  def test_validates_against_schema
+    xsd = Nokogiri::XML::Schema(
+      File.read("#{@schemas_path}/pain.001.001.02.xsd")
+    )
+    doc = Nokogiri::XML(@payload.to_xml)
+    xsd.validate(doc).each do |error|
       puts error.message
     end
   end
