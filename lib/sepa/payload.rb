@@ -4,6 +4,12 @@ module Sepa
     end
 
     def to_xml
+      doc = build_root
+      doc = build_group_header(doc)
+      doc.to_xml
+    end
+
+    def build_root
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.Document(
           xmlns: 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.02',
@@ -15,7 +21,13 @@ module Sepa
         }
       end
 
-      builder.to_xml
+      builder.doc
+    end
+
+    def build_group_header(root_e)
+      Nokogiri::XML::Builder.with(root_e.at('Document > *')) do |xml|
+        xml.GrpHdr
+      end
     end
   end
 end
