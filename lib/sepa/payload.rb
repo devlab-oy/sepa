@@ -1,14 +1,16 @@
 module Sepa
   class Payload
-    def initialize(params)
-      @name = params.fetch(:name)
-      @address = params.fetch(:address)
-      @country = params.fetch(:country)
-      @postcode = params.fetch(:postcode)
-      @town = params.fetch(:town)
-      @payment_id = params.fetch(:payment_id)
-      @sepa_country = params.fetch(:sepa_country)
-      @execution_date = params.fetch(:execution_date)
+    def initialize(payer, payee)
+      @payer_name = payer.fetch(:name)
+      @payer_address = payer.fetch(:address)
+      @payer_country = payer.fetch(:country)
+      @payer_postcode = payer.fetch(:postcode)
+      @payer_town = payer.fetch(:town)
+
+      @payee_name = payee.fetch(:name)
+      @payment_id = payee.fetch(:payment_id)
+      @sepa_country = payee.fetch(:sepa_country)
+      @execution_date = payee.fetch(:execution_date)
     end
 
     def to_xml
@@ -42,14 +44,14 @@ module Sepa
           xml.NbOfTxs 0
           xml.Grpg 'MIXD'
           xml.InitgPty {
-            xml.Nm @name
+            xml.Nm @payer_name
             xml.PstlAdr {
-              xml.AdrLine @address
-              xml.AdrLine "#{@country}-#{@postcode}"
-              xml.StrtNm @address
-              xml.PstCd "#{@country}-#{@postcode}"
-              xml.TwnNm @town
-              xml.Ctry @country
+              xml.AdrLine @payer_address
+              xml.AdrLine "#{@payer_country}-#{@payer_postcode}"
+              xml.StrtNm @payer_address
+              xml.PstCd "#{@payer_country}-#{@payer_postcode}"
+              xml.TwnNm @payer_town
+              xml.Ctry @payer_country
             }
           }
         }
@@ -73,6 +75,9 @@ module Sepa
           end
 
           xml.ReqdExctnDt @execution_date
+          xml.Dbtr {
+            xml.Nm @payee_name
+          }
         }
       end
     end
