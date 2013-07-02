@@ -20,6 +20,7 @@ module Sepa
       doc = build_root
       doc = build_group_header(doc)
       doc = build_payment_info(doc)
+      doc = build_credit_transfer(doc)
       doc.to_xml
     end
 
@@ -64,7 +65,7 @@ module Sepa
     end
 
     def build_payment_info(root_e)
-      Nokogiri::XML::Builder.with(root_e.at('Document > *')) do |xml|
+      builder = Nokogiri::XML::Builder.with(root_e.at('Document > *')) do |xml|
         xml.PmtInf {
           xml.PmtInfId @payment_id
           xml.PmtMtd 'TRF'
@@ -111,6 +112,13 @@ module Sepa
 
           xml.ChrgBr 'SLEV'
         }
+      end
+
+      builder.doc
+    end
+
+    def build_credit_transfer(root_e)
+      Nokogiri::XML::Builder.with(root_e.at('PmtInf')) do |xml|
       end
     end
   end
