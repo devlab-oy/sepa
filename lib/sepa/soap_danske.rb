@@ -130,7 +130,7 @@ module Sepa
         request_id = params.fetch(:request_id)
         receiver_id = params.fetch(:target_id)
         lang = params.fetch(:language)
-        cert = params.fetch(:cert)
+        cert = OpenSSL::X509::Certificate.new(params.fetch(:cert_plain))
         private_key = params.fetch(:private_key)
 
         public_key = extract_public_key(cert)

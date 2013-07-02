@@ -17,10 +17,13 @@ params = {
 
   bank: :nordea,
   # Path for your own private key
-  private_key: private_key,
+  #private_key: private_key,
 
   # Path to your certificate
-  cert: cert,
+  #cert: cert,
+  cert_path: "sepa/nordea_testing/keys/nordea.crt",
+
+  private_key_path: "sepa/nordea_testing/keys/nordea.key",
 
   # Command :download_file_list, :upload_file, :download_file or :get_user_info.
   command: :get_user_info,
