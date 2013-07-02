@@ -17,9 +17,6 @@ module Sepa
         @cert = params.fetch(:cert)
       elsif @command == :get_certificate || @command == :create_certificate || @command == :get_bank_certificate
         # Only for cert requests
-        # Nordea Bank
-        @service = params[:service]
-        @hmac = params[:hmac]
         # Danske Bank Create Certificate
         @pin = params[:pin]
         @key_generator_type = params[:key_generator_type]
@@ -28,6 +25,12 @@ module Sepa
         @request_id = params[:request_id] # For Danske Bank PKI
         # Danske Bank Get Bank Certificate
         @bank_root_cert_serial = params[:bank_root_cert_serial]
+        # Nordea Bank
+        @service = params[:service]
+        @csr = params[:csr]
+        params[:hmac] = create_hmac_seal(@pin,@csr)
+        @hmac = params[:hmac] # FIX to call create_hmac_seal with pin and csr
+
       end
     end
 
@@ -110,7 +113,7 @@ module Sepa
           set_node("tns|PIN", @pin)
         when :get_certificate
           set_node("Service", @service)
-          set_node("Content", Base64.encode64(@content))
+          set_node("Content", Base64.encode64(@csr.to_der))
           set_node("HMAC", Base64.encode64(@hmac).chop)
         when :download_file_list
           set_node("Status", @status)
@@ -130,6 +133,11 @@ module Sepa
           set_node("elem|Timestamp", Time.now.iso8601)
           set_node("elem|RequestId", @request_id)
         end
+      end
+
+      def create_hmac_seal(pin, csr)
+        hmacseal = OpenSSL::HMAC.digest('sha1',pin,csr.to_der)
+        hmacseal
       end
 
       def remove_node(doc, node, xmlns)

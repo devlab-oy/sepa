@@ -159,9 +159,10 @@ module Sepa
         # Depending on command
         case params[:command]
         when :get_certificate
+          check_pin(params[:pin])
           check_service(params[:service])
-          check_hmac(params[:hmac])
-          check_content(params[:content])
+          #check_hmac(params[:hmac])
+          #check_content(params[:content])
         when *generic_commands
           if params[:bank] == :nordea
           check_private_key(params[:private_key])
@@ -332,7 +333,7 @@ module Sepa
       end
 
       def initialize_certificates_and_csr(params)
-        command = params.fetch(:command)
+        command = params[:command]
         require_private_and_cert = [:get_user_info,:download_file_list,:download_file,:upload_file]
         require_nothing = [:get_bank_certificate]
         require_pkcs = [:get_certificate]

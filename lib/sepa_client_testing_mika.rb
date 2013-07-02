@@ -22,7 +22,12 @@ hmac = hmacseal
 
 # The params hash is populated with the data that is needed for gem to function
 params = {
+  # Test pin for nordea
+  pin: '1234567890',
+
+  # Selected bank
   bank: :nordea,
+
   # Command for CertificateService :get_certificate
   command: :get_certificate,
 
@@ -32,16 +37,12 @@ params = {
   # Set the environment to be either PRODUCTION or TEST
   environment: 'TEST',
 
-
-  # The WSDL file used by nordea. Is identical between banks except for the address.
-  #wsdl: 'sepa/wsdl/wsdl_nordea_cert.xml',
-
   # The actual payload to send.
-  content: payload,
+  #content: payload,
 
-
+  csr_path: 'CSR.csr',
   # HMAC seal
-  hmac: hmac,
+  #hmac: hmac,
 
   # Selected service (For testing: service, For real: ISSUER)
   service: 'service'
