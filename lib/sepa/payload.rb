@@ -108,6 +108,8 @@ module Sepa
               xml.BIC @payee_bic
             }
           }
+
+          xml.ChrgBr 'SLEV'
         }
       end
     end
