@@ -8,6 +8,7 @@ module Sepa
       @town = params.fetch(:town)
       @payment_id = params.fetch(:payment_id)
       @sepa_country = params.fetch(:sepa_country)
+      @execution_date = params.fetch(:execution_date)
     end
 
     def to_xml
@@ -70,6 +71,8 @@ module Sepa
               }
             }
           end
+
+          xml.ReqdExctnDt @execution_date
         }
       end
     end
