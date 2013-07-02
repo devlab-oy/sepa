@@ -36,15 +36,23 @@ module Sepa
         cipher = OpenSSL::Cipher.new('DES-EDE3-CBC')
         cipher.encrypt
 
-        #key = cipher.random_key
-        key = 'asdfasdfasdffasdasfghasd'
+        key = cipher.random_key
+        #key = SecureRandom.hex(17)
         cipher.key = key
+        #cipher.iv = cipher.random_iv
+        #cipher.iv = "vesihiisisihisihississa"
 
         output = cipher.update(ar)
         output << cipher.final
 
         # Base64 encode and encrypt key and set as content for encrypted application request
-        ciphervalue1 = Base64.encode64(public_key.public_encrypt(key))
+        # puts "UNENCRYPTED KEY"
+        # puts key
+        key_64 = Base64.encode64(key)
+        encryptedkey = public_key.public_encrypt(key_64)
+        # puts "ENCRYPTED KEY"
+        # puts encryptedkey
+        ciphervalue1 = Base64.encode64(encryptedkey)
         ciphervalue2 = Base64.encode64(output)
 
         # Build the xml structure to contain encrypted field values
@@ -216,60 +224,6 @@ module Sepa
         set_node(body, 'pkif|Environment', environment)
       end
 
-      # def encrypt_certificate_request(ar, cert, public_key)
-      #   formatted_cert = Base64.encode64(cert.to_der)
-
-      #   ar = ar.canonicalize(
-      #     mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
-      #     with_comments=false
-      #   )
-
-      #   # DEBUG
-      #   puts "---------------------------DEBUG---------------------------"
-      #   puts ar
-      #   puts "---------------------------DEBUG---------------------------"
-
-      #   # Encrypt ApplicationRequest and set key
-      #   cipher = OpenSSL::Cipher::Cipher.new('DES-EDE3-CBC')
-      #   cipher.encrypt
-
-      #   key = cipher.random_key
-      #   cipher.key = key
-
-      #   output = cipher.update(ar)
-      #   output << cipher.final
-
-      #   # Base64 encode and encrypt key and set as content for encrypted application request
-      #   ciphervalue1 = Base64.encode64(public_key.public_encrypt(key))
-      #   ciphervalue2 = Base64.encode64(output)
-
-      #   # Build the xml structure to contain encrypted field values
-      #   builder = Nokogiri::XML::Builder.new do |xml|
-      #     xml['xenc'].EncryptedData('xmlns:xenc' => "http://www.w3.org/2001/04/xmlenc#", 'Type' => "http://www.w3.org/2001/04/xmlenc#Element") {
-      #       xml.EncryptionMethod('Algorithm' => "http://www.w3.org/2001/04/xmlenc#tripledes-cbc") {
-      #       }
-      #       xml['dsig'].KeyInfo('xmlns:dsig' => "http://www.w3.org/2000/09/xmldsig#"){
-      #          xml['xenc'].EncryptedKey('Recipient' =>"name:DanskeBankCryptCERT"){
-      #               xml.EncryptionMethod('Algorithm' => "http://www.w3.org/2001/04/xmlenc#rsa-1_5")
-      #               xml['dsig'].KeyInfo {
-      #                    xml.X509Data {
-      #                    xml.X509Certificate formatted_cert
-      #                    }
-      #               }
-      #               xml['xenc'].CipherData{
-      #                    xml.CipherValue ciphervalue1
-      #               }
-      #          }
-      #       }
-      #       xml['xenc'].CipherData{
-      #                    xml.CipherValue ciphervalue2
-      #               }
-      #     }
-      #   end
-
-      # builder
-      # end
-
       def add_encrypted_request_to_soap(encrypted_request, body)
         encrypted_request = Nokogiri::XML(encrypted_request.to_xml)
         encrypted_request = encrypted_request.at_css('xenc|EncryptedData')
@@ -358,7 +312,6 @@ module Sepa
 
       def add_unencrypted_generic_request_to_soap(ar, body)
         ar = Nokogiri::XML(ar).to_xml
-        #ar = ar.at_css('tns|CreateCertificateRequest')
         body.at_css('bxd|ApplicationRequest').add_child(ar)
         body
       end

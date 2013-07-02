@@ -3,8 +3,10 @@ module Sepa
     # Check that parameters are valid, initialize savon client with them and
     # construct soap message
     def initialize(params)
+      wsdl = find_proper_wsdl(params.fetch(:bank), params.fetch(:command))
+      params[:wsdl] = wsdl
       check_params(params)
-      wsdl = params.fetch(:wsdl)
+
       @client = Savon.client(wsdl: wsdl) #log_level: :info
       @command = params.fetch(:command)
       # SoapBuilder creates a complete SOAP message structure and returns it (.to_xml -format)
@@ -18,6 +20,26 @@ module Sepa
     end
 
     private
+
+      def find_proper_wsdl(bank, command)
+        wsdlpath = File.expand_path('../../../lib/sepa/wsdl', __FILE__)
+        case bank
+        when :nordea
+          if command == :get_certificate
+            path = "#{wsdlpath}/wsdl_nordea_cert.xml"
+          else
+            path = "#{wsdlpath}/wsdl_nordea.xml"
+          end
+        when :danske
+          if command == :create_certificate || command == :get_bank_certificate
+            path = "#{wsdlpath}/wsdl_danske_cert.xml"
+          else
+            path = "#{wsdlpath}/wsdl_danske.xml"
+          end
+        end
+
+        path
+      end
 
       def check_params(params)
         check_params_hash(params)
@@ -38,7 +60,7 @@ module Sepa
         begin
           wsdl_file = File.read(wsdl)
         rescue
-          fail ArgumentError, "You didn't provide a wsdl file or the path is" \
+          fail ArgumentError, "You didn't provide a wsdl file or the path is " \
             "invalid"
         end
 

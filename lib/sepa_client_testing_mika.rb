@@ -34,7 +34,7 @@ params = {
 
 
   # The WSDL file used by nordea. Is identical between banks except for the address.
-  wsdl: 'sepa/wsdl/wsdl_nordea_cert.xml',
+  #wsdl: 'sepa/wsdl/wsdl_nordea_cert.xml',
 
   # The actual payload to send.
   content: payload,
