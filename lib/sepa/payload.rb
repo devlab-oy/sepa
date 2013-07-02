@@ -7,10 +7,12 @@ module Sepa
       @payer_postcode = payer.fetch(:postcode)
       @payer_town = payer.fetch(:town)
 
-      @payee_name = payee.fetch(:name)
       @payment_id = payee.fetch(:payment_id)
       @sepa_country = payee.fetch(:sepa_country)
       @execution_date = payee.fetch(:execution_date)
+      @payee_customer_id = payee.fetch(:customer_id)
+      @payee_y_tunnus = payee.fetch(:y_tunnus)
+      @payee_iban = payee.fetch(:iban)
     end
 
     def to_xml
@@ -76,7 +78,28 @@ module Sepa
 
           xml.ReqdExctnDt @execution_date
           xml.Dbtr {
-            xml.Nm @payee_name
+            xml.Nm @payer_name
+            xml.PstlAdr {
+              xml.AdrLine @payer_address
+              xml.AdrLine "#{@payer_country}-#{@payer_postcode} #{@payer_town}"
+              xml.Ctry @payer_country
+            }
+
+            xml.Id {
+              xml.OrgId {
+                if @payee_customer_id
+                  xml.BkPtyId @payee_customer_id
+                else
+                  xml.BkPtyId @payee_y_tunnus
+                end
+              }
+            }
+          }
+
+          xml.DbtrAcct {
+            xml.Id {
+              xml.IBAN @payee_iban
+            }
           }
         }
       end

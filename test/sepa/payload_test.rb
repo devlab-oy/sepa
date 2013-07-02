@@ -12,10 +12,12 @@ class TestPayload < MiniTest::Test
     }
 
     @payee = {
-      name: 'Testirahansaaja Ky',
+      customer_id: '1234',
+      y_tunnus: '1234',
       payment_id: '123456789',
       sepa_country: true,
-      execution_date: Date.new.iso8601
+      execution_date: Date.new.iso8601,
+      iban: 'GB29NWBK60161331926819'
     }
     @payload = Sepa::Payload.new(@payer, @payee)
   end
