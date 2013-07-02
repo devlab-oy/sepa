@@ -13,6 +13,7 @@ module Sepa
       @payee_customer_id = payee.fetch(:customer_id)
       @payee_y_tunnus = payee.fetch(:y_tunnus)
       @payee_iban = payee.fetch(:iban)
+      @payee_bic = payee.fetch(:bic)
     end
 
     def to_xml
@@ -99,6 +100,12 @@ module Sepa
           xml.DbtrAcct {
             xml.Id {
               xml.IBAN @payee_iban
+            }
+          }
+
+          xml.DbtrAgt {
+            xml.FinInstnId {
+              xml.BIC @payee_bic
             }
           }
         }

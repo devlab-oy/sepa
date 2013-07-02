@@ -17,7 +17,8 @@ class TestPayload < MiniTest::Test
       payment_id: '123456789',
       sepa_country: true,
       execution_date: Date.new.iso8601,
-      iban: 'GB29NWBK60161331926819'
+      iban: 'GB29NWBK60161331926819',
+      bic: 'NDEAFIHH'
     }
     @payload = Sepa::Payload.new(@payer, @payee)
   end
