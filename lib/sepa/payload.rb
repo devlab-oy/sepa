@@ -7,6 +7,7 @@ module Sepa
       @postcode = params.fetch(:postcode)
       @town = params.fetch(:town)
       @payment_id = params.fetch(:payment_id)
+      @sepa_country = params.fetch(:sepa_country)
     end
 
     def to_xml
@@ -60,6 +61,15 @@ module Sepa
       Nokogiri::XML::Builder.with(root_e.at('Document > *')) do |xml|
         xml.PmtInf {
           xml.PmtInfId @payment_id
+          xml.PmtMtd 'TRF'
+
+          if @sepa_country
+            xml.PmtTpInf {
+              xml.SvcLvl {
+                xml.Cd 'SEPA'
+              }
+            }
+          end
         }
       end
     end
