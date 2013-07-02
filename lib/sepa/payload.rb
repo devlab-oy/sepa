@@ -11,7 +11,8 @@ module Sepa
     def to_xml
       doc = build_root
       doc = build_group_header(doc)
-      puts doc.to_xml
+      doc = build_payment_info(doc)
+      doc.to_xml
     end
 
     def build_root
@@ -30,7 +31,7 @@ module Sepa
     end
 
     def build_group_header(root_e)
-      Nokogiri::XML::Builder.with(root_e.at('Document > *')) do |xml|
+      builder = Nokogiri::XML::Builder.with(root_e.at('Document > *')) do |xml|
         xml.GrpHdr {
           xml.MsgId SecureRandom.hex(17)
           xml.CreDtTm Time.new.iso8601
@@ -48,6 +49,16 @@ module Sepa
               xml.Ctry @country
             }
           }
+        }
+      end
+
+      builder.doc
+    end
+
+    def build_payment_info(root_e)
+      Nokogiri::XML::Builder.with(root_e.at('Document > *')) do |xml|
+        xml.PmtInf {
+          xml.PmtInfId SecureRandom.hex(17)
         }
       end
     end

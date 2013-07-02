@@ -6,7 +6,7 @@ class TestPayload < MiniTest::Test
     @params = {
       name: 'Testi Yhtio Oy',
       address: 'Testikatu 45',
-      country: 'Finland',
+      country: 'FI',
       postcode: '00100',
       town: 'Helsinki'
     }
