@@ -6,6 +6,7 @@ module Sepa
       @country = params.fetch(:country)
       @postcode = params.fetch(:postcode)
       @town = params.fetch(:town)
+      @payment_id = params.fetch(:payment_id)
     end
 
     def to_xml
@@ -58,7 +59,7 @@ module Sepa
     def build_payment_info(root_e)
       Nokogiri::XML::Builder.with(root_e.at('Document > *')) do |xml|
         xml.PmtInf {
-          xml.PmtInfId SecureRandom.hex(17)
+          xml.PmtInfId @payment_id
         }
       end
     end

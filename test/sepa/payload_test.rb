@@ -8,7 +8,8 @@ class TestPayload < MiniTest::Test
       address: 'Testikatu 45',
       country: 'FI',
       postcode: '00100',
-      town: 'Helsinki'
+      town: 'Helsinki',
+      payment_id: '123456789'
     }
     @payload = Sepa::Payload.new(@params)
   end
