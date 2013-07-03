@@ -62,7 +62,6 @@ Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
       target_id: '11111111A1',
       language: 'FI',
       file_type: 'TITO',
-      #wsdl: 'sepa/wsdl/wsdl_nordea.xml',
       content: Base64.encode64("haisuli"),
       file_reference: "11111111A12006030329501800000014"
     }

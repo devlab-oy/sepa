@@ -122,16 +122,16 @@ Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
     assert Sepa::SoapBuilder.new(@params)
   end
 
-  def test_should_get_error_if_private_key_missing
-    @params.delete(:private_key)
+  def test_should_get_error_if_private_key_plain_missing
+    @params.delete(:private_key_plain)
 
     assert_raises(ArgumentError) do
       Sepa::SoapBuilder.new(@params)
     end
   end
 
-  def test_should_get_error_if_cert_missing
-    @params.delete(:cert)
+  def test_should_get_error_if_cert_plain_missing
+    @params.delete(:cert_plain)
 
     assert_raises(ArgumentError) do
       Sepa::SoapBuilder.new(@params)

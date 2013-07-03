@@ -8,18 +8,6 @@ require 'sepa'
 # Test pin for nordea
 #pin = '1234567890'
 
-# Open Certificate Signing Request PKCS#10
-#csr = OpenSSL::X509::Request.new(File.read ('CSR.csr'))
-
-# Generate HMAC seal (SHA1 hash) with pin as key and PKCS#10 as message
-#hmacseal = OpenSSL::HMAC.digest('sha1',pin,csr.to_der)
-
-# Assign the generated PKCS#10 to as payload (goes to Content element)
-#payload = csr.to_der
-
-# Assign the calculated HMAC seal as hmac (goes to HMAC element)
-#hmac = hmacseal
-
 # The params hash is populated with the data that is needed for gem to function
 params = {
   # Test pin for nordea
@@ -36,9 +24,6 @@ params = {
 
   # Set the environment to be either PRODUCTION or TEST
   environment: 'TEST',
-
-  # The actual payload to send.
-  #content: payload,
 
   csr_path: 'CSR.csr',
   # HMAC seal

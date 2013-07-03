@@ -70,6 +70,7 @@ swU8X6yvbtqF+q4aAKPA6ZydnGZFQSoSzNJtcF28T1ItxEHN3+xyQqXpTgFviiuL
       private_key_plain: danskesigning,
       cert_plain: danskebankencryptplain,
       pin: '1234',
+      file_type: 'TITO',
     }
 
     @certrequest = Sepa::SoapBuilder.new(@danskecertparams)

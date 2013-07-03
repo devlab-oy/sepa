@@ -178,13 +178,13 @@ module Sepa
           check_content(params[:content])
         when :create_certificate
           if params[:bank] == :danske
-            check_request_id(params[:request_id])
+            #check_request_id(params[:request_id])
             check_keygen_type(params[:key_generator_type])
             check_pin(params[:pin])
           end
         when :get_bank_certificate
           if params[:bank] == :danske
-            check_request_id(params[:request_id])
+            #check_request_id(params[:request_id])
           end
         else
           fail ArgumentError, "Command not supported."
@@ -399,6 +399,7 @@ module Sepa
           elsif params[:cert_plain] != nil
             params[:cert] = OpenSSL::X509::Certificate.new(params.fetch(:cert_plain))
           end
+
           check_encryption_pkcs10(params[:encryption_cert_pkcs10])
           check_signing_pkcs10(params[:signing_cert_pkcs10])
           check_cert(params[:cert])

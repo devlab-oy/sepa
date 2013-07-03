@@ -73,24 +73,9 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
       target_id: '11111111A1',
       language: 'FI',
       file_type: 'TITO',
-      #wsdl: wsdl_path,
       content: Base64.encode64("Kurppa"),
       file_reference: "11111111A12006030329501800000014"
     }
-    # Test pin number for HMAC seal key
-    testpin = '1234567890'
-
-    # Open Certificate Signing Request PKCS#10
-    testcert = OpenSSL::X509::Request.new(File.read ("#{keys_path}/testcert.csr"))
-
-    # Generate HMAC seal (SHA1 hash) with pin as key and PKCS#10 as message
-    hmacseal = OpenSSL::HMAC.digest('sha1',testpin,testcert.to_der)
-
-    # Assign the generated PKCS#10 to as payload (goes to Content element)
-    payload = testcert.to_der
-
-    # Assign the calculated HMAC seal as hmac (goes to HMAC element)
-    hmac = hmacseal
 
     @certparams = {
       bank: :nordea,
@@ -99,13 +84,9 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
       environment: 'TEST',
       pin: '1234567890',
       csr_plain: csrplain,
-      #wsdl: File.expand_path('../../../lib/sepa/wsdl/wsdl_nordea_cert.xml',__FILE__),
-      #content: payload,
-      #hmac: hmac,
       service: 'service'
     }
 
-    reqid = SecureRandom.random_number(1000).to_s<<SecureRandom.random_number(1000).to_s
     encryptpkcsplain = "-----BEGIN CERTIFICATE REQUEST-----
 MIICZjCCAU4CAQAwITESMBAGA1UEAxMJRGV2bGFiIE95MQswCQYDVQQGEwJGSTCC
 ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKN2ceFGw+i4wAyg6WApu7/h
@@ -163,8 +144,6 @@ swU8X6yvbtqF+q4aAKPA6ZydnGZFQSoSzNJtcF28T1ItxEHN3+xyQqXpTgFviiuL
     @danskecertparams = {
       bank: :danske,
       command: :create_certificate,
-      #wsdl: File.expand_path('../../../lib/sepa/wsdl/wsdl_danske_cert.xml',__FILE__),
-      request_id: reqid,
       customer_id: 'ABC123',
       environment: 'customertest',
       key_generator_type: 'software',
@@ -223,22 +202,22 @@ swU8X6yvbtqF+q4aAKPA6ZydnGZFQSoSzNJtcF28T1ItxEHN3+xyQqXpTgFviiuL
     end
   end
 
-  def test_should_raise_error_if_private_key_in_wrong_format_or_missing
+  def test_should_raise_error_if_private_key_path_file_in_wrong_format
     # Fails until new way of testing is implemented for either pathed or plain text private key
     wrong_pks = ['Im not a key', 99, :leppakerttu, nil]
 
     wrong_pks.each do |wrong_pk|
-      @params[:private_key] = wrong_pk
+      @params[:private_key_path] = wrong_pk
       assert_raises(ArgumentError) { Sepa::Client.new(@params) }
     end
   end
 
-  def test_should_raise_error_if_cert_in_wrong_format_or_missing
+  def test_should_raise_error_if_cert_path_file_in_wrong_format
     # Fails until new way of testing is implemented for either pathed or plain text cert
     wrong_certs = ['Im not a cert', 99, :leppakerttu, nil]
 
     wrong_certs.each do |wrong_cert|
-      @params[:cert] = wrong_cert
+      @params[:cert_path] = wrong_cert
       assert_raises(ArgumentError) { Sepa::Client.new(@params) }
     end
   end
@@ -415,16 +394,18 @@ swU8X6yvbtqF+q4aAKPA6ZydnGZFQSoSzNJtcF28T1ItxEHN3+xyQqXpTgFviiuL
     assert_raises(ArgumentError) { Sepa::Client.new(@certparams) }
   end
 
-  def test_should_raise_error_if_signing_pkcs_missing_with_create_certificate
+  def test_should_raise_error_if_signing_pkcs_plain_and_path_missing_with_create_certificate
     @danskecertparams[:command] = :create_certificate
     @danskecertparams.delete(:signing_cert_pkcs10_plain)
+    @danskecertparams.delete(:signing_cert_pkcs10_path)
 
     assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
   end
 
-  def test_should_raise_error_if_encryption_pkcs_missing_with_create_certificate
+  def test_should_raise_error_if_encryption_pkcs_plain_and_path_missing_with_create_certificate
     @danskecertparams[:command] = :create_certificate
-    @danskecertparams.delete(:encryption_cert_pkcs10)
+    @danskecertparams.delete(:encryption_cert_pkcs10_plain)
+    @danskecertparams.delete(:encryption_cert_pkcs10_path)
 
     assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
   end
@@ -436,22 +417,10 @@ swU8X6yvbtqF+q4aAKPA6ZydnGZFQSoSzNJtcF28T1ItxEHN3+xyQqXpTgFviiuL
     assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
   end
 
-  def test_should_raise_error_if_cert_missing_with_create_certificate
+  def test_should_raise_error_if_cert_plain_and_cert_path_missing_with_create_certificate
     @danskecertparams[:command] = :create_certificate
-    @danskecertparams.delete(:cert)
-
-    assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
-  end
-
-  def test_should_raise_error_if_request_id_not_integer_with_create_certificate
-    @danskecertparams[:request_id] = "LOL I'm not a number"
-
-    assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
-  end
-
-  def test_should_raise_error_if_request_id_missing_with_create_certificate
-    @danskecertparams[:command] = :create_certificate
-    @danskecertparams.delete(:request_id)
+    @danskecertparams.delete(:cert_plain)
+    @danskecertparams.delete(:cert_path)
 
     assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
   end
