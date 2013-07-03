@@ -18,11 +18,6 @@ module Sepa
 
       # Builds : Generic
       # ------------------------------------------------------------------------
-      def generate_request_id
-        reqid = SecureRandom.random_number(1000).to_s<<SecureRandom.random_number(1000).to_s
-        reqid
-      end
-
       def encrypt_application_request(ar, cert, public_key)
         # NOTE : IF nothing changes here, collapse with encrypt_certificate_request
         formatted_cert = Base64.encode64(cert.to_der)
@@ -132,7 +127,7 @@ module Sepa
         ar = Base64.decode64 @ar
         command = params.fetch(:command)
         sender_id = params.fetch(:customer_id)
-        request_id = generate_request_id
+        request_id = params.fetch(:request_id)
         receiver_id = params.fetch(:target_id)
         lang = params.fetch(:language)
         cert = OpenSSL::X509::Certificate.new(params.fetch(:cert_plain))
@@ -180,7 +175,7 @@ module Sepa
       #   ar = Base64.decode64 @ar
       #   command = params.fetch(:command)
       #   sender_id = params.fetch(:customer_id)
-      #   request_id = generate_request_id
+      #   request_id = params.fetch(:request_id)
       #   receiver_id = params.fetch(:target_id)
       #   lang = params.fetch(:language)
       #   cert = params.fetch(:cert)
@@ -208,7 +203,7 @@ module Sepa
         ar = @ar
         command = params.fetch(:command)
         sender_id = params.fetch(:customer_id)
-        request_id = generate_request_id
+        request_id = params.fetch(:request_id)
         environment = params.fetch(:environment)
         cert = params.fetch(:cert)
 
@@ -244,7 +239,7 @@ module Sepa
         ar = Base64.decode64 @ar
         command = params.fetch(:command)
         sender_id = params.fetch(:customer_id)
-        request_id = generate_request_id
+        request_id = params.fetch(:request_id)
 
         body = load_body_template(command)
         puts ar
@@ -276,7 +271,7 @@ module Sepa
         ar = @ar
         command = params.fetch(:command)
         sender_id = params.fetch(:customer_id)
-        request_id = generate_request_id
+        request_id = params.fetch(:request_id)
         environment = params.fetch(:environment)
 
         body = load_body_template(command)
@@ -297,7 +292,7 @@ module Sepa
         ar = Base64.decode64 @ar
         command = params.fetch(:command)
         sender_id = params.fetch(:customer_id)
-        request_id = generate_request_id
+        request_id = params.fetch(:request_id)
         receiver_id = params.fetch(:target_id)
         lang = params.fetch(:language)
         cert = params.fetch(:cert)

@@ -4,6 +4,7 @@ module Sepa
     def initialize(params)
 
       check_params(params)
+      params[:request_id] = generate_request_id
       # Check if bank+command need keys/certificates/csr's and prepare them for use
       params = initialize_certificates_and_csr(params)
       @params = params
@@ -32,6 +33,11 @@ module Sepa
     # end
 
     private
+
+      def generate_request_id
+        reqid = SecureRandom.random_number(1000).to_s<<SecureRandom.random_number(1000).to_s
+        reqid
+      end
 
       def find_correct_bank_extension(bank)
         case bank
