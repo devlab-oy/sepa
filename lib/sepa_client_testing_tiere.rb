@@ -4,23 +4,11 @@ require 'sepa'
 # A test payload with no actual data
 payload = "test_payload"
 
-# Keys
-private_key = OpenSSL::PKey::RSA.new(
-  File.read("sepa/nordea_testing/keys/nordea.key")
-)
-cert = OpenSSL::X509::Certificate.new(
-  File.read("sepa/nordea_testing/keys/nordea.crt")
-)
-
 # The params hash is populated with the data that is needed for gem to function.
 params = {
 
   bank: :nordea,
-  # Path for your own private key
-  #private_key: private_key,
 
-  # Path to your certificate
-  #cert: cert,
   cert_path: "sepa/nordea_testing/keys/nordea.crt",
 
   private_key_path: "sepa/nordea_testing/keys/nordea.key",

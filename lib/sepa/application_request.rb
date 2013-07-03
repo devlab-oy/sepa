@@ -27,10 +27,13 @@ module Sepa
         @bank_root_cert_serial = params[:bank_root_cert_serial]
         # Nordea Bank
         @service = params[:service]
+      end
+      # Only for Nordea Get Certificate
+      if @command == :get_certificate
+        @pin = params[:pin]
         @csr = params[:csr]
         params[:hmac] = create_hmac_seal(@pin,@csr)
-        @hmac = params[:hmac] # FIX to call create_hmac_seal with pin and csr
-
+        @hmac = params[:hmac]
       end
     end
 

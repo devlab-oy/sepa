@@ -10,13 +10,51 @@ class TestApplicationRequest < MiniTest::Test
 
     @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)
 
-    private_key = OpenSSL::PKey::RSA.new(File.read("#{keys_path}/nordea.key"))
-    cert = OpenSSL::X509::Certificate.new(File.read("#{keys_path}/nordea.crt"))
-
+    @private_key = OpenSSL::PKey::RSA.new(File.read("#{keys_path}/nordea.key"))
+    @cert = OpenSSL::X509::Certificate.new(File.read("#{keys_path}/nordea.crt"))
+    certplain = "-----BEGIN CERTIFICATE-----
+MIIDwTCCAqmgAwIBAgIEAX1JuTANBgkqhkiG9w0BAQUFADBkMQswCQYDVQQGEwJT
+RTEeMBwGA1UEChMVTm9yZGVhIEJhbmsgQUIgKHB1YmwpMR8wHQYDVQQDExZOb3Jk
+ZWEgQ29ycG9yYXRlIENBIDAxMRQwEgYDVQQFEws1MTY0MDYtMDEyMDAeFw0xMzA1
+MDIxMjI2MzRaFw0xNTA1MDIxMjI2MzRaMEQxCzAJBgNVBAYTAkZJMSAwHgYDVQQD
+DBdOb3JkZWEgRGVtbyBDZXJ0aWZpY2F0ZTETMBEGA1UEBRMKNTc4MDg2MDIzODCB
+nzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAwtFEfAtbJuGzQwwRumZkvYh2BjGY
+VsAMUeiKtOne3bZSeisfCq+TXqL1gI9LofyeAQ9I/sDm6tL80yrD5iaSUqVm6A73
+9MsmpW/iyZcVf7ms8xAN51ESUgN6akwZCU9pH62ngJDj2gUsktY0fpsoVsARdrvO
+Fk0fTSUXKWd6LbcCAwEAAaOCAR0wggEZMAkGA1UdEwQCMAAwEQYDVR0OBAoECEBw
+2cj7+XMAMBMGA1UdIAQMMAowCAYGKoVwRwEDMBMGA1UdIwQMMAqACEALddbbzwun
+MDcGCCsGAQUFBwEBBCswKTAnBggrBgEFBQcwAYYbaHR0cDovL29jc3Aubm9yZGVh
+LnNlL0NDQTAxMA4GA1UdDwEB/wQEAwIFoDCBhQYDVR0fBH4wfDB6oHigdoZ0bGRh
+cCUzQS8vbGRhcC5uYi5zZS9jbiUzRE5vcmRlYStDb3Jwb3JhdGUrQ0ErMDElMkNv
+JTNETm9yZGVhK0JhbmsrQUIrJTI4cHVibCUyOSUyQ2MlM0RTRSUzRmNlcnRpZmlj
+YXRlcmV2b2NhdGlvbmxpc3QwDQYJKoZIhvcNAQEFBQADggEBACLUPB1Gmq6286/s
+ROADo7N+w3eViGJ2fuOTLMy4R0UHOznKZNsuk4zAbS2KycbZsE5py4L8o+IYoaS8
+8YHtEeckr2oqHnPpz/0Eg7wItj8Ad+AFWJqzbn6Hu/LQhlnl5JEzXzl3eZj9oiiJ
+1q/2CGXvFomY7S4tgpWRmYULtCK6jode0NhgNnAgOI9uy76pSS16aDoiQWUJqQgV
+ydowAnqS9h9aQ6gedwbOdtkWmwKMDVXU6aRz9Gvk+JeYJhtpuP3OPNGbbC5L7NVd
+no+B6AtwxmG3ozd+mPcMeVuz6kKLAmQyIiBSrRNa5OrTkq/CUzxO9WUgTnm/Sri7
+zReR6mU=
+-----END CERTIFICATE-----"
+pkeyplain = "-----BEGIN PRIVATE KEY-----
+MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAMLRRHwLWybhs0MM
+EbpmZL2IdgYxmFbADFHoirTp3t22UnorHwqvk16i9YCPS6H8ngEPSP7A5urS/NMq
+w+YmklKlZugO9/TLJqVv4smXFX+5rPMQDedRElIDempMGQlPaR+tp4CQ49oFLJLW
+NH6bKFbAEXa7zhZNH00lFylnei23AgMBAAECgYEAqt912/7x4jaQTrxlSELLFVp9
+eo1BesVTiPwXvPpsGbbyvGjZ/ztkXNs9zZbh1aCGzZMkiR2U7F5GlsiprlIif4cF
+6Xz7rCjaAs7iDRt9PjhjVuqNGR2I+VIIlbQ9XWFJ3lJFW3v7TIZ8JbLnn0XOFz+Z
+BBSSGTK1zTNh4TBQtjECQQDe5M3uu9m4RwSw9R6GaDw/IFQZgr0oWSv0WIjRwvwW
+nFnSX2lbkNAjulP0daGsmn7vxIpqZxPxwcrU4wFqTF5dAkEA38DnbCm3YfogzwLH
+Nre2hBmGqjWarhtxqtRarrkgnmOd8W0Z1Hb1dSHrliUSVSrINbK5ZdEV15Rpu7VD
+OePzIwJAPMslS+8alANyyR0iJUC65fDYX1jkZOPldDDNqIDJJxWf/hwd7WaTDpuc
+mHmZDi3ZX2Y45oqUywSzYNtFoIuR1QJAZYUZuyqmSK77SdGB36K1DfSi9AFEQDC1
+fwPAbTwTv6mFFPAiYxLiRZXxVPtW+QtjMXH4ymh2V4y/+GnCqbZyLwJBAJQSDAME
+Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
+45nhdfYxOjgYff0=
+-----END PRIVATE KEY-----"
     @params = {
       bank: :nordea,
-      private_key: private_key,
-      cert: cert,
+      private_key_plain: pkeyplain,
+      cert_plain: certplain,
       command: :download_file,
       customer_id: '11111111',
       environment: 'PRODUCTION',
@@ -24,26 +62,30 @@ class TestApplicationRequest < MiniTest::Test
       target_id: '11111111A1',
       language: 'FI',
       file_type: 'TITO',
-      wsdl: 'sepa/wsdl/wsdl_nordea.xml',
+      #wsdl: 'sepa/wsdl/wsdl_nordea.xml',
       content: Base64.encode64("haisuli"),
       file_reference: "11111111A12006030329501800000014"
     }
 
-    @ar_file = Sepa::ApplicationRequest.new(@params)
+    #@ar_file = Sepa::ApplicationRequest.new(@params)
+    @ar_file = Sepa::SoapBuilder.new(@params).get_ar_as_base64
 
     @params[:command] = :get_user_info
-    @ar_get = Sepa::ApplicationRequest.new(@params)
+    #@ar_get = Sepa::ApplicationRequest.new(@params)
+    @ar_get = Sepa::SoapBuilder.new(@params).get_ar_as_base64
 
     @params[:command] = :download_file_list
-    @ar_list = Sepa::ApplicationRequest.new(@params)
+    #@ar_list = Sepa::ApplicationRequest.new(@params)
+    @ar_list = Sepa::SoapBuilder.new(@params).get_ar_as_base64
 
     @params[:command] = :upload_file
-    @ar_up = Sepa::ApplicationRequest.new(@params)
+    #@ar_up = Sepa::ApplicationRequest.new(@params)
+    @ar_up = Sepa::SoapBuilder.new(@params).get_ar_as_base64
 
-    @doc_file = Nokogiri::XML(Base64.decode64(@ar_file.get_as_base64))
-    @doc_get = Nokogiri::XML(Base64.decode64(@ar_get.get_as_base64))
-    @doc_list = Nokogiri::XML(Base64.decode64(@ar_list.get_as_base64))
-    @doc_up = Nokogiri::XML(Base64.decode64(@ar_up.get_as_base64))
+    @doc_file = Nokogiri::XML(Base64.decode64(@ar_file))
+    @doc_get = Nokogiri::XML(Base64.decode64(@ar_get))
+    @doc_list = Nokogiri::XML(Base64.decode64(@ar_list))
+    @doc_up = Nokogiri::XML(Base64.decode64(@ar_up))
   end
 
   # Just to make sure that the xml templates are unmodified because
@@ -122,46 +164,46 @@ class TestApplicationRequest < MiniTest::Test
   end
 
   def test_ar_should_initialize_with_proper_params
-    assert Sepa::ApplicationRequest.new(@params)
+    assert Sepa::SoapBuilder.new(@params)
   end
 
-  def test_should_get_key_error_if_private_key_missing
-    @params.delete(:private_key)
+  def test_should_get_key_error_if_private_key_plain_missing
+    @params.delete(:private_key_plain)
 
-    assert_raises(KeyError) do
-      Sepa::ApplicationRequest.new(@params)
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
-  def test_should_get_key_error_if_cert_missing
-    @params.delete(:cert)
+  def test_should_get_key_error_if_cert_plain_missing
+    @params.delete(:cert_plain)
 
-    assert_raises(KeyError) do
-      Sepa::ApplicationRequest.new(@params)
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
   def test_should_get_key_error_if_command_missing
     @params.delete(:command)
 
-    assert_raises(KeyError) do
-      Sepa::ApplicationRequest.new(@params)
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
   def test_should_get_key_error_if_customer_id_missing
     @params.delete(:customer_id)
 
-    assert_raises(KeyError) do
-      Sepa::ApplicationRequest.new(@params)
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
   def test_should_get_key_error_if_environment_missing
     @params.delete(:environment)
 
-    assert_raises(KeyError) do
-      Sepa::ApplicationRequest.new(@params)
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
@@ -341,7 +383,7 @@ class TestApplicationRequest < MiniTest::Test
   end
 
   def test_signature_is_constructed_correctly
-    private_key = @params.fetch(:private_key)
+    #private_key = @params.fetch(:private_key)
 
     signed_info_node = @doc_file.at_css(
     "dsig|SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
@@ -353,7 +395,7 @@ class TestApplicationRequest < MiniTest::Test
 
     # Calculate the actual signature
     sha1 = OpenSSL::Digest::SHA1.new
-    actual_signature = Base64.encode64(private_key.sign(
+    actual_signature = Base64.encode64(@private_key.sign(
     sha1, signed_info_node.canonicalize))
 
     # And then of course assert the two are equal

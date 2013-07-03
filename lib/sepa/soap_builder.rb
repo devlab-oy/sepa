@@ -2,10 +2,10 @@ module Sepa
   class SoapBuilder
     # SoapBuilder checks and validates incoming params and creates the SOAP structure
     def initialize(params)
-      # Check if bank+command need keys/certificates/csr's and prepare them for use
-      params = initialize_certificates_and_csr(params)
 
       check_params(params)
+      # Check if bank+command need keys/certificates/csr's and prepare them for use
+      params = initialize_certificates_and_csr(params)
       @params = params
 
       check_if_bank_allows_command(params)
@@ -22,6 +22,14 @@ module Sepa
       # Returns a complete SOAP message in xml format
       find_correct_build(@params).to_xml
     end
+
+    def get_ar_as_base64
+      @ar
+    end
+
+    # def get_ar_as_unencoded
+    #   Base64.decode64 @ar
+    # end
 
     private
 
@@ -113,12 +121,6 @@ module Sepa
       end
 
       def load_header_template(template_path)
-        # case @bank
-        # when :nordea
-        #   header_template = File.open("#{template_path}/header.xml")
-        # when :danske
-        #   header_template = File.open("#{template_path}/danske_header.xml")
-        # end
         header_template = File.open("#{template_path}/header.xml")
         header = Nokogiri::XML(header_template)
         header_template.close
@@ -149,6 +151,7 @@ module Sepa
       def check_params(params)
         # Universally for all
         check_params_hash(params)
+        check_certificate_and_key_requirements(params)
         check_bank(params[:bank])
         check_env(params[:environment])
         check_customer_id(params[:customer_id])
@@ -161,31 +164,22 @@ module Sepa
         when :get_certificate
           check_pin(params[:pin])
           check_service(params[:service])
-          #check_hmac(params[:hmac])
-          #check_content(params[:content])
         when *generic_commands
           if params[:bank] == :nordea
-          check_private_key(params[:private_key])
-          check_cert(params[:cert])
           check_lang(params[:language])
           check_status(params[:status])
           check_target_id(params[:target_id])
           check_file_type(params[:file_type])
           end
         when :upload_file
-          check_private_key(params[:private_key])
-          check_cert(params[:cert])
           check_lang(params[:language])
           check_target_id(params[:target_id])
           check_file_type(params[:file_type])
           check_content(params[:content])
         when :create_certificate
           if params[:bank] == :danske
-            check_cert(params[:cert])
             check_request_id(params[:request_id])
             check_keygen_type(params[:key_generator_type])
-            check_encryption_pkcs10(params[:encryption_cert_pkcs10])
-            check_signing_pkcs10(params[:signing_cert_pkcs10])
             check_pin(params[:pin])
           end
         when :get_bank_certificate
@@ -332,6 +326,39 @@ module Sepa
         end
       end
 
+      def check_certificate_and_key_requirements(params)
+        command = params[:command]
+        require_private_and_cert = [:get_user_info,:download_file_list,:download_file,:upload_file]
+        require_nothing = [:get_bank_certificate]
+        require_pkcs = [:get_certificate]
+        require_dual_pkcs_and_cert = [:create_certificate]
+
+        case command
+        when *require_private_and_cert
+          if params[:cert_path] == nil && params[:cert_plain] == nil
+            fail ArgumentError, "You must provide a path to the certificate or certificate in plain text"
+          end
+          if params[:private_key_path] == nil && params[:private_key_plain] == nil
+            fail ArgumentError, "You must provide a path to your private key or private key in plain text"
+          end
+        when *require_nothing
+        when *require_pkcs
+          if params[:csr_path] == nil && params[:csr_plain] == nil
+            fail ArgumentError, "You must provide a path to the CSR or CSR in plain text"
+          end
+        when *require_dual_pkcs_and_cert
+          if params[:encryption_cert_pkcs10_path] == nil && params[:encryption_cert_pkcs10_plain] == nil
+            fail ArgumentError, "You must provide a path to Encryption CSR or Encryption CSR in plain text"
+          end
+          if params[:signing_cert_pkcs10_path] == nil && params[:signing_cert_pkcs10_plain] == nil
+            fail ArgumentError, "You must provide a path to Signing CSR or Signing CSR in plain text"
+          end
+          if params[:cert_path] == nil && params[:cert_plain] == nil
+            fail ArgumentError, "You must provide a path to the certificate or certificate in plain text"
+          end
+        end
+      end
+
       def initialize_certificates_and_csr(params)
         command = params[:command]
         require_private_and_cert = [:get_user_info,:download_file_list,:download_file,:upload_file]
@@ -345,12 +372,13 @@ module Sepa
           elsif params[:cert_plain] != nil
             params[:cert] = OpenSSL::X509::Certificate.new(params.fetch(:cert_plain))
           end
-
           if params[:private_key_path] != nil
              params[:private_key] = OpenSSL::PKey::RSA.new(File.read(params.fetch(:private_key_path)))
           elsif params[:private_key_plain] != nil
             params[:private_key] = OpenSSL::PKey::RSA.new(params.fetch(:private_key_plain))
           end
+          check_private_key(params[:private_key])
+          check_cert(params[:cert])
         when *require_nothing
         when *require_pkcs
           if params[:csr_path] != nil
@@ -371,6 +399,9 @@ module Sepa
           elsif params[:cert_plain] != nil
             params[:cert] = OpenSSL::X509::Certificate.new(params.fetch(:cert_plain))
           end
+          check_encryption_pkcs10(params[:encryption_cert_pkcs10])
+          check_signing_pkcs10(params[:signing_cert_pkcs10])
+          check_cert(params[:cert])
         else
           fail ArgumentError, "No matching cases for initialize_certificates_and_csr"
         end

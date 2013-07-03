@@ -3,9 +3,8 @@ module Sepa
     # Check that parameters are valid, initialize savon client with them and
     # construct soap message
     def initialize(params)
+      check_params_hash(params)
       wsdl = find_proper_wsdl(params.fetch(:bank), params.fetch(:command))
-      params[:wsdl] = wsdl
-      check_params(params)
 
       @client = Savon.client(wsdl: wsdl) #log_level: :info
       @command = params.fetch(:command)
@@ -37,13 +36,8 @@ module Sepa
             path = "#{wsdlpath}/wsdl_danske.xml"
           end
         end
-
+        check_wsdl(path)
         path
-      end
-
-      def check_params(params)
-        check_params_hash(params)
-        check_wsdl(params[:wsdl])
       end
 
       def check_params_hash(params)

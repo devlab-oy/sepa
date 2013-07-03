@@ -2,23 +2,23 @@
 require 'sepa'
 
 # Create 1024bit sha1 private key and generate Certificate Signing Request with it using parameters from cert_req.conf
-%x(openssl req -newkey rsa:1024 -keyout req_key.pem -keyform PEM -out CSR.csr -outform DER -config cert_req.conf -nodes)
+#%x(openssl req -newkey rsa:1024 -keyout req_key.pem -keyform PEM -out CSR.csr -outform DER -config cert_req.conf -nodes)
 #%x(rm signing_key.pem)
 
 # Test pin for nordea
-pin = '1234567890'
+#pin = '1234567890'
 
 # Open Certificate Signing Request PKCS#10
-csr = OpenSSL::X509::Request.new(File.read ('CSR.csr'))
+#csr = OpenSSL::X509::Request.new(File.read ('CSR.csr'))
 
 # Generate HMAC seal (SHA1 hash) with pin as key and PKCS#10 as message
-hmacseal = OpenSSL::HMAC.digest('sha1',pin,csr.to_der)
+#hmacseal = OpenSSL::HMAC.digest('sha1',pin,csr.to_der)
 
 # Assign the generated PKCS#10 to as payload (goes to Content element)
-payload = csr.to_der
+#payload = csr.to_der
 
 # Assign the calculated HMAC seal as hmac (goes to HMAC element)
-hmac = hmacseal
+#hmac = hmacseal
 
 # The params hash is populated with the data that is needed for gem to function
 params = {
