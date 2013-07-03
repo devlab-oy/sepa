@@ -4,7 +4,9 @@ module Sepa
     # construct soap message
     def initialize(params)
       check_params_hash(params)
-      bank = check_bank(params.fetch(:bank))
+      check_bank(params.fetch(:bank))
+      bank = params.fetch(:bank)
+      #command = check_command(params.fetch(:command))
       wsdl = find_proper_wsdl(bank, params.fetch(:command))
 
       @client = Savon.client(wsdl: wsdl) #log_level: :info
@@ -44,6 +46,7 @@ module Sepa
             path = "#{wsdlpath}/wsdl_danske.xml"
           end
         end
+        puts path
         check_wsdl(path)
         path
       end
