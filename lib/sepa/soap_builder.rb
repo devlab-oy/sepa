@@ -178,13 +178,11 @@ module Sepa
           check_content(params[:content])
         when :create_certificate
           if params[:bank] == :danske
-            #check_request_id(params[:request_id])
             check_keygen_type(params[:key_generator_type])
             check_pin(params[:pin])
           end
         when :get_bank_certificate
           if params[:bank] == :danske
-            #check_request_id(params[:request_id])
           end
         else
           fail ArgumentError, "Command not supported."

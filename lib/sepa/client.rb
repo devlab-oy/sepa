@@ -4,7 +4,8 @@ module Sepa
     # construct soap message
     def initialize(params)
       check_params_hash(params)
-      wsdl = find_proper_wsdl(params.fetch(:bank), params.fetch(:command))
+      bank = check_bank(params.fetch(:bank))
+      wsdl = find_proper_wsdl(bank, params.fetch(:command))
 
       @client = Savon.client(wsdl: wsdl) #log_level: :info
       @command = params.fetch(:command)
@@ -19,6 +20,13 @@ module Sepa
     end
 
     private
+
+      def check_bank(bank)
+          unless [:nordea, :danske].include?(bank)
+          fail ArgumentError, "You didn't provide a proper bank. " \
+            "Acceptable values are nordea OR danske."
+        end
+      end
 
       def find_proper_wsdl(bank, command)
         wsdlpath = File.expand_path('../../../lib/sepa/wsdl', __FILE__)
