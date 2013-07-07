@@ -1,19 +1,18 @@
 module Sepa
   class Payload
-    def initialize(payer, payee)
-      @payer_name = payer.fetch(:name)
-      @payer_address = payer.fetch(:address)
-      @payer_country = payer.fetch(:country)
-      @payer_postcode = payer.fetch(:postcode)
-      @payer_town = payer.fetch(:town)
+    def initialize(debtor, payment)
+      @debtor_name = debtor.fetch(:name)
+      @debtor_address = debtor.fetch(:address)
+      @debtor_country = debtor.fetch(:country)
+      @debtor_postcode = debtor.fetch(:postcode)
+      @debtor_town = debtor.fetch(:town)
+      @debtor_customer_id = debtor.fetch(:customer_id)
+      @debtor_y_tunnus = debtor.fetch(:y_tunnus)
+      @debtor_iban = debtor.fetch(:iban)
+      @debtor_bic = debtor.fetch(:bic)
 
-      @payment_id = payee.fetch(:payment_id)
-      @sepa_country = payee.fetch(:sepa_country)
-      @execution_date = payee.fetch(:execution_date)
-      @payee_customer_id = payee.fetch(:customer_id)
-      @payee_y_tunnus = payee.fetch(:y_tunnus)
-      @payee_iban = payee.fetch(:iban)
-      @payee_bic = payee.fetch(:bic)
+      @payment_id = payment.fetch(:payment_id)
+      @execution_date = payment.fetch(:execution_date)
     end
 
     def to_xml
@@ -48,14 +47,14 @@ module Sepa
           xml.NbOfTxs 0
           xml.Grpg 'MIXD'
           xml.InitgPty {
-            xml.Nm @payer_name
+            xml.Nm @debtor_name
             xml.PstlAdr {
-              xml.AdrLine @payer_address
-              xml.AdrLine "#{@payer_country}-#{@payer_postcode}"
-              xml.StrtNm @payer_address
-              xml.PstCd "#{@payer_country}-#{@payer_postcode}"
-              xml.TwnNm @payer_town
-              xml.Ctry @payer_country
+              xml.AdrLine @debtor_address
+              xml.AdrLine "#{@debtor_country}-#{@debtor_postcode}"
+              xml.StrtNm @debtor_address
+              xml.PstCd "#{@debtor_country}-#{@debtor_postcode}"
+              xml.TwnNm @debtor_town
+              xml.Ctry @debtor_country
             }
           }
         }
@@ -70,29 +69,27 @@ module Sepa
           xml.PmtInfId @payment_id
           xml.PmtMtd 'TRF'
 
-          if @sepa_country
-            xml.PmtTpInf {
-              xml.SvcLvl {
-                xml.Cd 'SEPA'
-              }
+          xml.PmtTpInf {
+            xml.SvcLvl {
+              xml.Cd 'SEPA'
             }
-          end
+          }
 
           xml.ReqdExctnDt @execution_date
           xml.Dbtr {
-            xml.Nm @payer_name
+            xml.Nm @debtor_name
             xml.PstlAdr {
-              xml.AdrLine @payer_address
-              xml.AdrLine "#{@payer_country}-#{@payer_postcode} #{@payer_town}"
-              xml.Ctry @payer_country
+              xml.AdrLine @debtor_address
+              xml.AdrLine "#{@debtor_country}-#{@debtor_postcode} #{@debtor_town}"
+              xml.Ctry @debtor_country
             }
 
             xml.Id {
               xml.OrgId {
-                if @payee_customer_id
-                  xml.BkPtyId @payee_customer_id
+                if @debtor_customer_id
+                  xml.BkPtyId @debtor_customer_id
                 else
-                  xml.BkPtyId @payee_y_tunnus
+                  xml.BkPtyId @debtor_y_tunnus
                 end
               }
             }
@@ -100,13 +97,13 @@ module Sepa
 
           xml.DbtrAcct {
             xml.Id {
-              xml.IBAN @payee_iban
+              xml.IBAN @debtor_iban
             }
           }
 
           xml.DbtrAgt {
             xml.FinInstnId {
-              xml.BIC @payee_bic
+              xml.BIC @debtor_bic
             }
           }
 
