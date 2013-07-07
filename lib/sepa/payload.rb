@@ -11,8 +11,10 @@ module Sepa
       @debtor_iban = debtor.fetch(:iban)
       @debtor_bic = debtor.fetch(:bic)
 
-      @payment_id = payment.fetch(:payment_id)
+      @payment_info_id = payment.fetch(:payment_info_id)
       @execution_date = payment.fetch(:execution_date)
+      @payment_id = payment.fetch(:payment_id)
+      @end_to_end_id = payment.fetch(:end_to_end_id)
     end
 
     def to_xml
@@ -66,7 +68,7 @@ module Sepa
     def build_payment_info(root_e)
       builder = Nokogiri::XML::Builder.with(root_e.at('Document > *')) do |xml|
         xml.PmtInf {
-          xml.PmtInfId @payment_id
+          xml.PmtInfId @payment_info_id
           xml.PmtMtd 'TRF'
 
           xml.PmtTpInf {
@@ -116,6 +118,12 @@ module Sepa
 
     def build_credit_transfer(root_e)
       Nokogiri::XML::Builder.with(root_e.at('PmtInf')) do |xml|
+        xml.CdtTrfTxInf {
+          xml.PmtId {
+            xml.InstrId @payment_id
+            xml.EndToEndId @end_to_end_id
+          }
+        }
       end
     end
   end
