@@ -19,7 +19,9 @@ class TestPayload < MiniTest::Test
       execution_date: Date.new.iso8601,
       payment_info_id: '123456789',
       payment_id: '987654321',
-      end_to_end_id: '1234'
+      end_to_end_id: '1234',
+      amount: '30',
+      currency: 'EUR'
     }
     @payload = Sepa::Payload.new(@debtor, @payment)
   end
