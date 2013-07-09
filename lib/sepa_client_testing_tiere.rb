@@ -81,7 +81,7 @@ params = {
   # - NDCORPAYS = Yrityksen maksut XML (lähtevä)
   # - NDCAMT53L = Konekielinen XML-tiliote (saapuva)
   # - NDCAMT54L = Saapuvat XML viitemaksu (saapuva)
-  file_type: 'TITO',
+  file_type: 'NDCORPAYS',
 
   # The WSDL file used by nordea. Is identical between banks except for the
   # address.
