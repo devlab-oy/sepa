@@ -17,6 +17,7 @@ module Sepa
       @end_to_end_id = payment.fetch(:end_to_end_id)
       @amount = payment.fetch(:amount)
       @currency = payment.fetch(:currency)
+      @payment_bic = payment.fetch(:bic)
     end
 
     def to_xml
@@ -128,6 +129,12 @@ module Sepa
 
           xml.Amt {
             xml.InstdAmt(@amount, :Ccy => @currency)
+          }
+
+          xml.CdtrAgt {
+            xml.FinInstnId {
+              xml.BIC @payment_bic
+            }
           }
         }
       end

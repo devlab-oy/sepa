@@ -21,7 +21,8 @@ class TestPayload < MiniTest::Test
       payment_id: '987654321',
       end_to_end_id: '1234',
       amount: '30',
-      currency: 'EUR'
+      currency: 'EUR',
+      bic: 'GENODEFF'
     }
     @payload = Sepa::Payload.new(@debtor, @payment)
   end
