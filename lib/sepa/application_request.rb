@@ -15,21 +15,20 @@ module Sepa
       if @command != :get_certificate && @command != :create_certificate && @command != :get_bank_certificate
         @private_key = params.fetch(:private_key)
         @cert = params.fetch(:cert)
-      elsif @command == :get_certificate || @command == :create_certificate || @command == :get_bank_certificate
+      elsif @command == :get_certificate || @command == :get_bank_certificate
         # Only for cert requests
         # Danske Bank Create Certificate
         @pin = params[:pin]
-        @key_generator_type = params[:key_generator_type]
-        @encryption_cert_pkcs10 = params[:encryption_cert_pkcs10]
-        @signing_cert_pkcs10 = params[:signing_cert_pkcs10]
+        # @key_generator_type = params[:key_generator_type]
+        # @encryption_cert_pkcs10 = params[:encryption_cert_pkcs10]
+        # @signing_cert_pkcs10 = params[:signing_cert_pkcs10]
         @request_id = params[:request_id] # For Danske Bank PKI
         # Danske Bank Get Bank Certificate
         @bank_root_cert_serial = params[:bank_root_cert_serial]
-        # Nordea Bank
-        @service = params[:service]
       end
       # Only for Nordea Get Certificate
       if @command == :get_certificate
+        @service = params[:service]
         @pin = params[:pin]
         @csr = params[:csr]
         params[:hmac] = create_hmac_seal(@pin,@csr)
@@ -41,21 +40,26 @@ module Sepa
       load_template(@command)
       set_nodes_contents
       # No signature for Certificate Requests
-      if @command != :get_certificate && @command != :create_certificate && @command != :get_bank_certificate
+      if @command != :get_certificate && @command != :get_bank_certificate
         process_signature
       end
-      # Danske Certificate Request is going to be encrypted and encoded afterwards
-      if @command == :create_certificate
-        @ar
-      else
-        Base64.encode64(@ar.to_xml)
-      end
+
+      Base64.encode64(@ar.to_xml)
     end
 
     private
 
+      def find_correct_bank_extension(bank)
+        case bank
+        when :danske
+          self.extend(DanskeApplicationRequest)
+        when :nordea
+          self.extend(NordeaApplicationRequest)
+        end
+      end
+
       def check_command(command)
-        valid_commands = [:get_certificate, :create_certificate, :download_file_list, :download_file, :get_user_info, :upload_file, :download_file, :get_bank_certificate]
+        valid_commands = [:get_certificate, :download_file_list, :download_file, :get_user_info, :upload_file, :download_file, :get_bank_certificate]
         unless valid_commands.include?(command)
           fail ArgumentError, "You didn't provide a proper command. " \
           "Acceptable values are #{valid_commands.inspect}"

@@ -6,7 +6,7 @@ module Sepa
       check_params_hash(params)
       check_bank(params.fetch(:bank))
       bank = params.fetch(:bank)
-      #command = check_command(params.fetch(:command))
+
       wsdl = find_proper_wsdl(bank, params.fetch(:command))
 
       @client = Savon.client(wsdl: wsdl) #log_level: :info
@@ -40,13 +40,12 @@ module Sepa
             path = "#{wsdlpath}/wsdl_nordea.xml"
           end
         when :danske
-          if command == :create_certificate || command == :get_bank_certificate
+          if command == :get_bank_certificate
             path = "#{wsdlpath}/wsdl_danske_cert.xml"
           else
             path = "#{wsdlpath}/wsdl_danske.xml"
           end
         end
-        puts path
         check_wsdl(path)
         path
       end

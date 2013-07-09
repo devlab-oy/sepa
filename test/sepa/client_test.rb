@@ -186,8 +186,8 @@ swU8X6yvbtqF+q4aAKPA6ZydnGZFQSoSzNJtcF28T1ItxEHN3+xyQqXpTgFviiuL
     assert_raises(ArgumentError) { Sepa::Client.new(@certparams) }
   end
 
-  def test_should_initialize_with_proper_params_danske_cert_params
-    assert Sepa::Client.new(@danskecertparams)
+  def test_should_not_initialize_with_unsupported_danske_params
+    assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
   end
 
   def test_should_initialize_with_proper_params
