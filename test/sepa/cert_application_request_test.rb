@@ -20,30 +20,15 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
   # The params hash is populated with the data that is needed for gem to function
   @params = {
     bank: :nordea,
-    # Command for CertificateService :get_certificate
     command: :get_certificate,
-
-    # Unique customer ID
     customer_id: '11111111',
-
-    # Set the environment to be either PRODUCTION or TEST
     environment: 'TEST',
-
     csr_plain: csrplain,
-
     pin: '1234567890',
-    # The actual payload to send.
-    #content: payload,
-
-    # HMAC seal
-    #hmac: hmac,
-
     # Selected service (For testing: service, For real: ISSUER)
     service: 'service'
-
   }
 
-  #@ar_cert = Sepa::ApplicationRequest.new(@params)
   @ar_cert = Sepa::SoapBuilder.new(@params).get_ar_as_base64
   @xml = Nokogiri::XML(Base64.decode64(@ar_cert))
   end

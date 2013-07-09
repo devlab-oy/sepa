@@ -20,20 +20,11 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
   # The params hash is populated with the data that is needed for gem to function
   @params = {
     bank: :nordea,
-    # Command for CertificateService :get_certificate
     command: :get_certificate,
-
-    # Customer PIN code
     pin: '1234567890',
-
-    # Unique customer ID
     customer_id: '11111111',
-
-    # Set the environment to be either PRODUCTION or TEST
     environment: 'TEST',
-
     csr_plain: csrplain,
-
     # Selected service (For testing: service, For real: ISSUER)
     service: 'service'
   }
