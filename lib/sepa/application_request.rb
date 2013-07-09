@@ -15,30 +15,6 @@ module Sepa
 
       # Set values for the previously defined attributes
       initialize_required_fields_per_request(params)
-
-      # For signed Nordea application requests
-      # if @command != :get_certificate && @command != :get_bank_certificate
-      #   @private_key = params.fetch(:private_key)
-      #   @cert = params.fetch(:cert)
-      # elsif @command == :get_certificate || @command == :get_bank_certificate
-      #   # Only for cert requests
-      #   # Danske Bank Create Certificate
-      #   @pin = params[:pin]
-      #   # @key_generator_type = params[:key_generator_type]
-      #   # @encryption_cert_pkcs10 = params[:encryption_cert_pkcs10]
-      #   # @signing_cert_pkcs10 = params[:signing_cert_pkcs10]
-      #   @request_id = params[:request_id] # For Danske Bank PKI
-      #   # Danske Bank Get Bank Certificate
-      #   @bank_root_cert_serial = params[:bank_root_cert_serial]
-      # end
-      # Only for Nordea Get Certificate
-      # if @command == :get_certificate
-      #   @service = params[:service]
-      #   @pin = params[:pin]
-      #   @csr = params[:csr]
-      #   params[:hmac] = create_hmac_seal(@pin,@csr)
-      #   @hmac = params[:hmac]
-      # end
     end
 
     def get_as_base64
@@ -88,8 +64,6 @@ module Sepa
 
         case command
 
-        # when :create_certificate
-        #   path = "#{template_dir}/create_certificate.xml"
         when :get_certificate
           path = "#{template_dir}/get_certificate.xml"
         when :download_file_list
@@ -124,15 +98,7 @@ module Sepa
         end
 
         case @command
-        # when :create_certificate
-        #   set_node("tns|CustomerId", @customer_id)
-        #   set_node("tns|KeyGeneratorType", @key_generator_type)
-        #   set_node("tns|EncryptionCertPKCS10", Base64.encode64(@encryption_cert_pkcs10.to_der))
-        #   set_node("tns|SigningCertPKCS10", Base64.encode64(@signing_cert_pkcs10.to_der))
-        #   set_node("tns|Timestamp", Time.now.iso8601)
-        #   set_node("tns|RequestId", @request_id)
-        #   set_node("tns|Environment", @environment)
-        #   set_node("tns|PIN", @pin)
+
         when :get_certificate
           set_node("Service", @service)
           set_node("Content", Base64.encode64(@csr.to_der))

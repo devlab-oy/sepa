@@ -35,8 +35,9 @@ Or install it yourself as:
 2. Define the hash that will be passed to the gem when initializing it:
 
         params = {
-          private_key: OpenSSL::PKey::RSA.new(File.read("path/to/key")),
-          cert: OpenSSL::X509::Certificate.new(File.read("path/to/key")),
+          bank: :nordea,
+          private_key_path: "path/to/key", (OR private_key_plain : "Your private key in plain text form ")
+          cert_path: "path/to/key", (OR cert_plain : "Your certificate in plain text form ")
           command: :command_as_symbol,
           customer_id: '11111111',
           environment: 'PRODUCTION',
@@ -44,7 +45,6 @@ Or install it yourself as:
           target_id: '11111111A1',
           language: 'FI',
           file_type: 'TITO',
-          wsdl: 'path/to/wsdl(or url)',
           content: payload,
           file_reference: "11111111A12006030329501800000014"
         }
@@ -114,61 +114,43 @@ Or install it yourself as:
 
         require 'sepa'
 
-2. Create a request config file (cert_req.conf) with following contents (filled with values appropriate for testing)
-
-        [ req ]
-        default_bits            = 1024
-        default_keyfile         = defaultkeyfilename.pem
-        default_md              = sha1
-
-        prompt                  = no
-        distinguished_name      = distinguished_name
-
-        [ distinguished_name ]
-        CN                      = Company name
-        serialNumber            = 11111111
-        C                       = FI
-
-3. Create 1024bit SHA-1 Private Key and generate a Certificate Signing Request in DER format using your personal PIN as the key (using values appropriate for testing)
-
-        openssl req -newkey rsa:1024 -keyout signing_key.pem -keyform PEM -out CSR.csr -outform DER -config cert_req.conf -nodes
-
-        pin = '1234567890'
-
-        csr = OpenSSL::X509::Request.new(File.read ('CSR.csr'))
-
-        hmac = OpenSSL::HMAC.digest('sha1',pin,csr.to_der)
-
-        payload = csr.to_der
-
-4. Define the hash that will be passed to the gem when initializing it:
+2. Define the hash that will be passed to the gem when initializing it:
 
         params = {
+          bank: :nordea,
           command: :get_certificate,
           customer_id: '11111111',
           environment: 'TEST',
-          wsdl: 'sepa/wsdl/wsdl_nordea_cert.xml(or url)',
-          content: payload,
-          hmac: hmac,
+          csr_path: "path_to_your_local_csr_file", (OR csr_plain: "your csr in plain text format")
           service: 'service'
         }
 
-5. Initialize a new instance of the client and pass the params hash
+3. Initialize a new instance of the client and pass the params hash
 
         sepa_client = Sepa::Client.new(params)
         sepa_client.call
 
-6. Save the certificate from the response into a local file
+4. Save the certificate from the response into a local file
 
 ***
 
 ### Parameter breakdown
 
-* private_key: Your private key in OpenSSL PKey RSA format
+* bank : The bank you want to send the request to as a symbol. Either :nordea or :danske
 
-* cert: Your certificate in OpenSSL X509 Certificate format.
+* private_key_plain: Your private key in plain text format
 
-* command: Either :download_file_list, :upload_file, :download_file, :get_user_info or :get_certificate, depending on what you want to do.
+* private_key_path: Path to your local private key file
+
+* cert_plain: Your certificate in plain text format.
+
+* cert_path: Path to your local certificate file
+
+* csr_plain: Your certificate signing request in plain text format
+
+* csr_path: Path to your local certificate signing request file
+
+* command: Either :download_file_list, :upload_file, :download_file, :get_user_info, :get_certificate or :get_bank_certificate, depending on what you want to do.
 
 * customer_id: Your personal id with the bank.
 
@@ -196,13 +178,11 @@ Or install it yourself as:
 
   * NDCAMT54L = Saapuvat XML viitemaksu (saapuva)
 
-  * wsdl: Path to the WSDL file. Is identical at least between finnish banks except for the address.
+* content: The actual payload to send. The creation of this file may be supported by the client at some point.
 
-  * content: The actual payload to send. The creation of this file may be supported by the client at some point.
+* file_reference: File reference for :download_file command
 
-  * file_reference: File reference for :download_file command
-
-* hmac: SHA-1 hmac seal generated with personal pin as key, certificate signing request as value
+* pin: Your personal pin-code provided by the bank
 
 * service: For testing value is service, otherwise ISSUER
 

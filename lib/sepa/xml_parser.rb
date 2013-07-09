@@ -286,17 +286,6 @@ module Sepa
         # Add userfiletype to container
         self.add_userfiletype(uftype)
       end
-
-      #Optional for debugging signature attribute values
-      #DEBUG
-      #sig = Signature.new
-      #sig.digestValue = xml.at_css("DigestValue").content
-      #sig.signatureValue = xml.at_css("SignatureValue").content
-      #sig.X509Certificate = xml.at_css("X509Certificate").content
-      #sig.X509IssuerName = xml.at_css("X509IssuerName").content
-      #signature = sig
-      #END DEBUG
-
     end
   end
 end

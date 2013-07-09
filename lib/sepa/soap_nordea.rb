@@ -64,32 +64,5 @@ module Sepa
                  "Sepa Transfer Library version " + VERSION)
         set_node(body, 'bxd|ReceiverId', receiver_id)
       end
-
-        # def process_header(header, body, private_key, cert)
-        #   set_node(header, 'wsu|Created', Time.now.iso8601)
-
-        #   set_node(header, 'wsu|Expires', (Time.now + 3600).iso8601)
-
-        #   timestamp_digest = calculate_digest(header,'wsu|Timestamp')
-        #   set_node(header,'dsig|Reference[URI="#dsfg8sdg87dsf678g6dsg6ds7fg"]' \
-        #            ' dsig|DigestValue', timestamp_digest)
-
-        #   body_digest = calculate_digest(body, 'env|Body')
-        #   set_node(header,'dsig|Reference[URI="#sdf6sa7d86f87s6df786sd87f6s8fsd'\
-        #            'a"] dsig|DigestValue', body_digest)
-
-        #   signature = calculate_signature(header, 'dsig|SignedInfo', private_key)
-        #   set_node(header, 'dsig|SignatureValue', signature)
-
-        #   formatted_cert = format_cert(cert)
-        #   set_node(header, 'wsse|BinarySecurityToken', formatted_cert)
-        # end
-
-      # def add_body_to_header(header, body)
-      #   body = body.at_css('env|Body')
-      #   header.root.add_child(body)
-      #   header
-      # end
-      # ------------------------------------------------------------------------
   end
 end
