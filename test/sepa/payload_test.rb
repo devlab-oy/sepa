@@ -22,13 +22,18 @@ class TestPayload < MiniTest::Test
       end_to_end_id: '1234',
       amount: '30',
       currency: 'EUR',
-      bic: 'GENODEFF'
+      clearing: ''
     }
-    @payload = Sepa::Payload.new(@debtor, @payment)
+
+    @creditor = {
+      bic: 'GENODEFF',
+      name: 'Testi Saaja Oy'
+    }
+    @payload = Sepa::Payload.new(@debtor, @payment, @creditor)
   end
 
   def test_should_initialize_with_hash
-    assert Sepa::Payload.new(@debtor, @payment)
+    assert Sepa::Payload.new(@debtor, @payment, @creditor)
   end
 
   def test_validates_against_schema

@@ -1,6 +1,6 @@
 module Sepa
   class Payload
-    def initialize(debtor, payment)
+    def initialize(debtor, payment, creditor)
       @debtor_name = debtor.fetch(:name)
       @debtor_address = debtor.fetch(:address)
       @debtor_country = debtor.fetch(:country)
@@ -17,7 +17,9 @@ module Sepa
       @end_to_end_id = payment.fetch(:end_to_end_id)
       @amount = payment.fetch(:amount)
       @currency = payment.fetch(:currency)
-      @payment_bic = payment.fetch(:bic)
+
+      @creditor_bic = creditor.fetch(:bic)
+      @creditor_name = creditor.fetch(:name)
     end
 
     def to_xml
@@ -133,8 +135,12 @@ module Sepa
 
           xml.CdtrAgt {
             xml.FinInstnId {
-              xml.BIC @payment_bic
+              xml.BIC @creditor_bic
             }
+          }
+
+          xml.Cdtr {
+            xml.Nm @creditor_name
           }
         }
       end
