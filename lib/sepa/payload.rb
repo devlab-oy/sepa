@@ -17,6 +17,8 @@ module Sepa
       @end_to_end_id = payment.fetch(:end_to_end_id)
       @amount = payment.fetch(:amount)
       @currency = payment.fetch(:currency)
+      @payment_ref = payment[:ref]
+      @payment_message = payment[:message]
 
       @creditor_bic = creditor.fetch(:bic)
       @creditor_name = creditor.fetch(:name)
@@ -161,6 +163,23 @@ module Sepa
             xml.Id {
               xml.IBAN @creditor_iban
             }
+          }
+
+          xml.RmtInf {
+            if @payment_ref
+              xml.Strd {
+                xml.CdtrRefInf {
+                  xml.CdtrRefTp {
+                    xml.Cd 'SCOR'
+                  }
+
+                  xml.CdtrRef @payment_ref
+                }
+              }
+
+            else
+              xml.Ustrd @payment_message
+            end
           }
         }
       end

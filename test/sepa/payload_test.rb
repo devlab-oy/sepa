@@ -22,7 +22,9 @@ class TestPayload < MiniTest::Test
       end_to_end_id: '1234',
       amount: '30',
       currency: 'EUR',
-      clearing: ''
+      clearing: '',
+      ref: '123',
+      message: 'Moikka'
     }
 
     @creditor = {
