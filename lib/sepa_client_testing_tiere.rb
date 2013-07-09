@@ -1,8 +1,42 @@
 # First the sepa gem is loaded by requiring it
 require 'sepa'
 
-# A test payload with no actual data
-payload = "test_payload"
+debtor = {
+  name: 'Testi Maksaja Oy',
+  address: 'Testikatu 45',
+  country: 'FI',
+  postcode: '00100',
+  town: 'Helsinki',
+  customer_id: '111111111',
+  y_tunnus: '1234',
+  iban: 'FI4819503000000010',
+  bic: 'NDEAFIHH'
+}
+
+payment = {
+  execution_date: Date.new.iso8601,
+  payment_info_id: '123456789',
+  payment_id: '987654321',
+  end_to_end_id: '1234',
+  amount: '30',
+  currency: 'EUR',
+  clearing: '',
+  ref: '123',
+  message: 'Moikka'
+}
+
+creditor = {
+  bic: 'NDEAFIHH',
+  name: 'Testi Saaja Oy',
+  address: 'Kokeilukatu 66',
+  country: 'FI',
+  postcode: '00200',
+  town: 'Helsinki',
+  iban: 'FI7429501800000014'
+}
+
+payload = Sepa::Payload.new(debtor, payment, creditor)
+payload = payload.to_xml
 
 # Keys
 private_key = OpenSSL::PKey::RSA.new(
@@ -21,7 +55,7 @@ params = {
   cert: cert,
 
   # Command :download_file_list, :upload_file, :download_file or :get_user_info.
-  command: :get_user_info,
+  command: :upload_file,
 
   # Unique customer ID.
   customer_id: '11111111',

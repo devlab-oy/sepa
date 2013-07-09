@@ -58,7 +58,7 @@ module Sepa
           xml.MsgId SecureRandom.hex(17)
           xml.CreDtTm Time.new.iso8601
           xml.BtchBookg 'true'
-          xml.NbOfTxs 0
+          xml.NbOfTxs 1
           xml.Grpg 'MIXD'
           xml.InitgPty {
             xml.Nm @debtor_name
