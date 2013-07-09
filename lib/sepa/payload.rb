@@ -20,6 +20,10 @@ module Sepa
 
       @creditor_bic = creditor.fetch(:bic)
       @creditor_name = creditor.fetch(:name)
+      @creditor_address = creditor.fetch(:address)
+      @creditor_country = creditor.fetch(:country)
+      @creditor_postcode = creditor.fetch(:postcode)
+      @creditor_town = creditor.fetch(:town)
     end
 
     def to_xml
@@ -141,6 +145,15 @@ module Sepa
 
           xml.Cdtr {
             xml.Nm @creditor_name
+            xml.PstlAdr {
+              xml.AdrLine @creditor_address
+              xml.AdrLine("#{@creditor_country}-#{@creditor_postcode} " \
+                          "#{@creditor_town}")
+              xml.StrtNm @creditor_address
+              xml.PstCd "#{@creditor_country}-#{@creditor_postcode}"
+              xml.TwnNm @creditor_town
+              xml.Ctry @creditor_country
+            }
           }
         }
       end

@@ -27,7 +27,11 @@ class TestPayload < MiniTest::Test
 
     @creditor = {
       bic: 'GENODEFF',
-      name: 'Testi Saaja Oy'
+      name: 'Testi Saaja Oy',
+      address: 'Kokeilukatu 66',
+      country: 'FI',
+      postcode: '00200',
+      town: 'Helsinki'
     }
     @payload = Sepa::Payload.new(@debtor, @payment, @creditor)
   end
