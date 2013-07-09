@@ -31,7 +31,8 @@ class TestPayload < MiniTest::Test
       address: 'Kokeilukatu 66',
       country: 'FI',
       postcode: '00200',
-      town: 'Helsinki'
+      town: 'Helsinki',
+      iban: 'EE382200221020145685'
     }
     @payload = Sepa::Payload.new(@debtor, @payment, @creditor)
   end

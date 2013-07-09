@@ -24,6 +24,7 @@ module Sepa
       @creditor_country = creditor.fetch(:country)
       @creditor_postcode = creditor.fetch(:postcode)
       @creditor_town = creditor.fetch(:town)
+      @creditor_iban = creditor.fetch(:iban)
     end
 
     def to_xml
@@ -153,6 +154,12 @@ module Sepa
               xml.PstCd "#{@creditor_country}-#{@creditor_postcode}"
               xml.TwnNm @creditor_town
               xml.Ctry @creditor_country
+            }
+          }
+
+          xml.CdtrAcct {
+            xml.Id {
+              xml.IBAN @creditor_iban
             }
           }
         }
