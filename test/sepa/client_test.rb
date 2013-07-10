@@ -202,22 +202,22 @@ swU8X6yvbtqF+q4aAKPA6ZydnGZFQSoSzNJtcF28T1ItxEHN3+xyQqXpTgFviiuL
     end
   end
 
-  def test_should_raise_error_if_private_key_path_file_in_wrong_format
+  def test_should_raise_error_if_private_key_plain_is_wrong
     # Fails until new way of testing is implemented for either pathed or plain text private key
     wrong_pks = ['Im not a key', 99, :leppakerttu, nil]
 
     wrong_pks.each do |wrong_pk|
-      @params[:private_key_path] = wrong_pk
+      @params[:private_key_plain] = wrong_pk
       assert_raises(ArgumentError) { Sepa::Client.new(@params) }
     end
   end
 
-  def test_should_raise_error_if_cert_path_file_in_wrong_format
+  def test_should_raise_error_if_cert_plain_file_is_wrong
     # Fails until new way of testing is implemented for either pathed or plain text cert
     wrong_certs = ['Im not a cert', 99, :leppakerttu, nil]
 
     wrong_certs.each do |wrong_cert|
-      @params[:cert_path] = wrong_cert
+      @params[:cert_plain] = wrong_cert
       assert_raises(ArgumentError) { Sepa::Client.new(@params) }
     end
   end

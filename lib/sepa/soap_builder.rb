@@ -4,10 +4,10 @@ module Sepa
     def initialize(params)
 
       check_params(params)
-      # Generate a request ID for the request (Further on Danske Bank uses this for Soap Requests also)
+      # Generate a request ID for the request
       params[:request_id] = generate_request_id
 
-      # Check if bank+command need keys/certificates/csr's and prepare them for use
+      # Check if the bank&command need keys/certificates/csr's
       @params = initialize_certificates_and_csr(params)
 
       check_if_bank_allows_command(@params)
@@ -167,10 +167,10 @@ module Sepa
           check_service(params[:service])
         when *generic_commands
           if params[:bank] == :nordea
-          check_lang(params[:language])
-          check_status(params[:status])
-          check_target_id(params[:target_id])
-          check_file_type(params[:file_type])
+            check_lang(params[:language])
+            check_status(params[:status])
+            check_target_id(params[:target_id])
+            check_file_type(params[:file_type])
           end
         when :upload_file
           check_lang(params[:language])
@@ -193,7 +193,7 @@ module Sepa
       end
 
       def check_bank(bank)
-          unless [:nordea, :danske].include?(bank)
+        unless [:nordea, :danske].include?(bank)
           fail ArgumentError, "You didn't provide a proper bank. " \
             "Acceptable values are nordea OR danske."
         end
@@ -309,7 +309,8 @@ module Sepa
         command = params.fetch(:command)
         case bank
         when :nordea
-          allowed_commands = [:get_certificate,:get_user_info,:download_file_list,:download_file,:upload_file]
+          allowed_commands = [:get_certificate,:get_user_info,
+                              :download_file_list,:download_file,:upload_file]
           unless allowed_commands.include?(command)
             fail ArgumentError, "You didn't provide a matching bank and service."
           end
@@ -323,17 +324,21 @@ module Sepa
 
       def check_certificate_and_key_requirements(params)
         command = params[:command]
-        require_private_and_cert = [:get_user_info,:download_file_list,:download_file,:upload_file]
+        require_private_and_cert = [:get_user_info,:download_file_list,
+                                    :download_file,:upload_file]
         require_nothing = [:get_bank_certificate]
         require_pkcs = [:get_certificate]
 
         case command
         when *require_private_and_cert
           if params[:cert_path] == nil && params[:cert_plain] == nil
-            fail ArgumentError, "You must provide a path to the certificate or certificate in plain text"
+            fail ArgumentError, "You must provide a path to the certificate " \
+              "or certificate in plain text"
           end
-          if params[:private_key_path] == nil && params[:private_key_plain] == nil
-            fail ArgumentError, "You must provide a path to your private key or private key in plain text"
+          if params[:private_key_path] == nil &&
+              params[:private_key_plain] == nil
+            fail ArgumentError, "You must provide a path to your private key " \
+              "or private key in plain text"
           end
         when *require_nothing
         when *require_pkcs
@@ -344,8 +349,10 @@ module Sepa
       end
 
       def initialize_certificates_and_csr(params)
+        begin
         command = params[:command]
-        require_private_and_cert = [:get_user_info,:download_file_list,:download_file,:upload_file]
+        require_private_and_cert = [:get_user_info,:download_file_list,
+                                    :download_file,:upload_file]
         require_nothing = [:get_bank_certificate]
         require_pkcs = [:get_certificate]
 
@@ -357,7 +364,7 @@ module Sepa
             params[:cert] = OpenSSL::X509::Certificate.new(params.fetch(:cert_plain))
           end
           if params[:private_key_path] != nil
-             params[:private_key] = OpenSSL::PKey::RSA.new(File.read(params.fetch(:private_key_path)))
+            params[:private_key] = OpenSSL::PKey::RSA.new(File.read(params.fetch(:private_key_path)))
           elsif params[:private_key_plain] != nil
             params[:private_key] = OpenSSL::PKey::RSA.new(params.fetch(:private_key_plain))
           end
@@ -373,7 +380,17 @@ module Sepa
         else
           fail ArgumentError, "No matching cases for initialize_certificates_and_csr"
         end
-        params
+        # puts "CSR"
+        # puts params[:csr]
+        # puts "CERT"
+        # puts params[:cert]
+        # puts "PRIVATE KEY"
+        # puts params[:private_key]
+         params
+      rescue Exception => e
+        #e.message
+        fail ArgumentError, "Parameter failed to initialize"
+      end
       end
   end
 end

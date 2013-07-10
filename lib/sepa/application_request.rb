@@ -11,7 +11,8 @@ module Sepa
       @content = params[:content]
       @file_reference = params[:file_reference]
 
-      @private_key, @cert, @pin, @service, @csr, @hmac, @bank_root_cert_serial,@request_id = ''
+      @private_key, @cert, @pin, @service, @csr, @hmac,
+        @bank_root_cert_serial,@request_id = ''
 
       # Set values for the previously defined attributes
       initialize_required_fields_per_request(params)
@@ -31,7 +32,8 @@ module Sepa
     private
 
       def initialize_required_fields_per_request(params)
-        generic_commands = [:get_user_info, :upload_file, :download_file, :download_file_list]
+        generic_commands = [:get_user_info, :upload_file, :download_file,
+                            :download_file_list]
 
         case @command
         when *generic_commands
@@ -50,17 +52,20 @@ module Sepa
       end
 
       def check_command(command)
-        valid_commands = [:get_certificate, :download_file_list, :download_file, :get_user_info, :upload_file, :download_file, :get_bank_certificate]
+        valid_commands = [:get_certificate, :download_file_list, :download_file,
+                          :get_user_info, :upload_file, :download_file,
+                          :get_bank_certificate]
         unless valid_commands.include?(command)
           fail ArgumentError, "You didn't provide a proper command. " \
-          "Acceptable values are #{valid_commands.inspect}"
+            "Acceptable values are #{valid_commands.inspect}"
         else
           command
         end
       end
       # Loads the application request template according to the command
       def load_template(command)
-        template_dir = File.expand_path('../xml_templates/application_request', __FILE__)
+        template_dir = File.expand_path('../xml_templates/application_request',
+                                        __FILE__)
 
         case command
 
@@ -94,7 +99,7 @@ module Sepa
           set_node("Environment", @environment)
           set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
           set_node("Command",
-                 @command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join)
+                   @command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join)
         end
 
         case @command

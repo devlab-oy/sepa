@@ -11,7 +11,7 @@ module Sepa
 
       @client = Savon.client(wsdl: wsdl) #log_level: :info
       @command = params.fetch(:command)
-      # SoapBuilder creates a complete SOAP message structure and returns it (.to_xml -format)
+      # SoapBuilder creates a complete SOAP message structure
       @soap = SoapBuilder.new(params).to_xml
     end
 
@@ -24,7 +24,7 @@ module Sepa
     private
 
       def check_bank(bank)
-          unless [:nordea, :danske].include?(bank)
+        unless [:nordea, :danske].include?(bank)
           fail ArgumentError, "You didn't provide a proper bank. " \
             "Acceptable values are nordea OR danske."
         end
