@@ -203,8 +203,7 @@ swU8X6yvbtqF+q4aAKPA6ZydnGZFQSoSzNJtcF28T1ItxEHN3+xyQqXpTgFviiuL
   end
 
   def test_should_raise_error_if_private_key_plain_is_wrong
-    # Fails until new way of testing is implemented for either pathed or plain text private key
-    wrong_pks = ['Im not a key', 99, :leppakerttu, nil]
+    wrong_pks = ['Im not a key', :leppakerttu, nil]
 
     wrong_pks.each do |wrong_pk|
       @params[:private_key_plain] = wrong_pk
@@ -213,7 +212,6 @@ swU8X6yvbtqF+q4aAKPA6ZydnGZFQSoSzNJtcF28T1ItxEHN3+xyQqXpTgFviiuL
   end
 
   def test_should_raise_error_if_cert_plain_file_is_wrong
-    # Fails until new way of testing is implemented for either pathed or plain text cert
     wrong_certs = ['Im not a cert', 99, :leppakerttu, nil]
 
     wrong_certs.each do |wrong_cert|

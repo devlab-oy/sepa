@@ -179,10 +179,16 @@ module Sepa
           check_content(params[:content])
         when :get_bank_certificate
           if params[:bank] == :danske
-            #check_cs
+            # Nothing here
           end
         else
           fail ArgumentError, "Command not supported."
+        end
+      end
+
+      def check_csr(csr)
+        unless csr
+          fail ArgumentError, "You didn't provide a certificate signing request"
         end
       end
 
@@ -335,8 +341,7 @@ module Sepa
             fail ArgumentError, "You must provide a path to the certificate " \
               "or certificate in plain text"
           end
-          if params[:private_key_path] == nil &&
-              params[:private_key_plain] == nil
+          if params[:private_key_path] == nil && params[:private_key_plain] == nil
             fail ArgumentError, "You must provide a path to your private key " \
               "or private key in plain text"
           end
@@ -377,19 +382,13 @@ module Sepa
           elsif params[:csr_plain] != nil
             params[:csr] = OpenSSL::X509::Request.new(params.fetch(:csr_plain))
           end
+          check_csr(params[:csr])
         else
           fail ArgumentError, "No matching cases for initialize_certificates_and_csr"
         end
-        # puts "CSR"
-        # puts params[:csr]
-        # puts "CERT"
-        # puts params[:cert]
-        # puts "PRIVATE KEY"
-        # puts params[:private_key]
          params
       rescue Exception => e
-        #e.message
-        fail ArgumentError, "Parameter failed to initialize"
+        fail ArgumentError, "Parameter failed to initialize, check private key and cert path/plain"
       end
       end
   end
