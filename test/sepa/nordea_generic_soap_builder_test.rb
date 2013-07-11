@@ -1,6 +1,6 @@
 require File.expand_path('../../test_helper.rb', __FILE__)
 
-class SoapRequestTest < MiniTest::Test
+class NordeaGenericSoapBuilderTest < MiniTest::Test
   def setup
     @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)
 
@@ -13,10 +13,49 @@ class SoapRequestTest < MiniTest::Test
 
     private_key = OpenSSL::PKey::RSA.new File.read "#{keys_path}/nordea.key"
     cert = OpenSSL::X509::Certificate.new File.read "#{keys_path}/nordea.crt"
-
+    certplain = "-----BEGIN CERTIFICATE-----
+MIIDwTCCAqmgAwIBAgIEAX1JuTANBgkqhkiG9w0BAQUFADBkMQswCQYDVQQGEwJT
+RTEeMBwGA1UEChMVTm9yZGVhIEJhbmsgQUIgKHB1YmwpMR8wHQYDVQQDExZOb3Jk
+ZWEgQ29ycG9yYXRlIENBIDAxMRQwEgYDVQQFEws1MTY0MDYtMDEyMDAeFw0xMzA1
+MDIxMjI2MzRaFw0xNTA1MDIxMjI2MzRaMEQxCzAJBgNVBAYTAkZJMSAwHgYDVQQD
+DBdOb3JkZWEgRGVtbyBDZXJ0aWZpY2F0ZTETMBEGA1UEBRMKNTc4MDg2MDIzODCB
+nzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAwtFEfAtbJuGzQwwRumZkvYh2BjGY
+VsAMUeiKtOne3bZSeisfCq+TXqL1gI9LofyeAQ9I/sDm6tL80yrD5iaSUqVm6A73
+9MsmpW/iyZcVf7ms8xAN51ESUgN6akwZCU9pH62ngJDj2gUsktY0fpsoVsARdrvO
+Fk0fTSUXKWd6LbcCAwEAAaOCAR0wggEZMAkGA1UdEwQCMAAwEQYDVR0OBAoECEBw
+2cj7+XMAMBMGA1UdIAQMMAowCAYGKoVwRwEDMBMGA1UdIwQMMAqACEALddbbzwun
+MDcGCCsGAQUFBwEBBCswKTAnBggrBgEFBQcwAYYbaHR0cDovL29jc3Aubm9yZGVh
+LnNlL0NDQTAxMA4GA1UdDwEB/wQEAwIFoDCBhQYDVR0fBH4wfDB6oHigdoZ0bGRh
+cCUzQS8vbGRhcC5uYi5zZS9jbiUzRE5vcmRlYStDb3Jwb3JhdGUrQ0ErMDElMkNv
+JTNETm9yZGVhK0JhbmsrQUIrJTI4cHVibCUyOSUyQ2MlM0RTRSUzRmNlcnRpZmlj
+YXRlcmV2b2NhdGlvbmxpc3QwDQYJKoZIhvcNAQEFBQADggEBACLUPB1Gmq6286/s
+ROADo7N+w3eViGJ2fuOTLMy4R0UHOznKZNsuk4zAbS2KycbZsE5py4L8o+IYoaS8
+8YHtEeckr2oqHnPpz/0Eg7wItj8Ad+AFWJqzbn6Hu/LQhlnl5JEzXzl3eZj9oiiJ
+1q/2CGXvFomY7S4tgpWRmYULtCK6jode0NhgNnAgOI9uy76pSS16aDoiQWUJqQgV
+ydowAnqS9h9aQ6gedwbOdtkWmwKMDVXU6aRz9Gvk+JeYJhtpuP3OPNGbbC5L7NVd
+no+B6AtwxmG3ozd+mPcMeVuz6kKLAmQyIiBSrRNa5OrTkq/CUzxO9WUgTnm/Sri7
+zReR6mU=
+-----END CERTIFICATE-----"
+    pkeyplain = "-----BEGIN PRIVATE KEY-----
+MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAMLRRHwLWybhs0MM
+EbpmZL2IdgYxmFbADFHoirTp3t22UnorHwqvk16i9YCPS6H8ngEPSP7A5urS/NMq
+w+YmklKlZugO9/TLJqVv4smXFX+5rPMQDedRElIDempMGQlPaR+tp4CQ49oFLJLW
+NH6bKFbAEXa7zhZNH00lFylnei23AgMBAAECgYEAqt912/7x4jaQTrxlSELLFVp9
+eo1BesVTiPwXvPpsGbbyvGjZ/ztkXNs9zZbh1aCGzZMkiR2U7F5GlsiprlIif4cF
+6Xz7rCjaAs7iDRt9PjhjVuqNGR2I+VIIlbQ9XWFJ3lJFW3v7TIZ8JbLnn0XOFz+Z
+BBSSGTK1zTNh4TBQtjECQQDe5M3uu9m4RwSw9R6GaDw/IFQZgr0oWSv0WIjRwvwW
+nFnSX2lbkNAjulP0daGsmn7vxIpqZxPxwcrU4wFqTF5dAkEA38DnbCm3YfogzwLH
+Nre2hBmGqjWarhtxqtRarrkgnmOd8W0Z1Hb1dSHrliUSVSrINbK5ZdEV15Rpu7VD
+OePzIwJAPMslS+8alANyyR0iJUC65fDYX1jkZOPldDDNqIDJJxWf/hwd7WaTDpuc
+mHmZDi3ZX2Y45oqUywSzYNtFoIuR1QJAZYUZuyqmSK77SdGB36K1DfSi9AFEQDC1
+fwPAbTwTv6mFFPAiYxLiRZXxVPtW+QtjMXH4ymh2V4y/+GnCqbZyLwJBAJQSDAME
+Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
+45nhdfYxOjgYff0=
+-----END PRIVATE KEY-----"
     @params = {
-      private_key: private_key,
-      cert: cert,
+      bank: :nordea,
+      private_key_plain: pkeyplain,
+      cert_plain: certplain,
       command: :get_user_info,
       customer_id: '11111111',
       environment: 'PRODUCTION',
@@ -24,12 +63,11 @@ class SoapRequestTest < MiniTest::Test
       target_id: '11111111A1',
       language: 'FI',
       file_type: 'TITO',
-      wsdl: 'sepa/wsdl/wsdl_nordea.xml',
       content: Base64.encode64("Kurppa"),
       file_reference: "11111111A12006030329501800000014"
     }
 
-    @soap_request = Sepa::SoapRequest.new(@params)
+    @soap_request = Sepa::SoapBuilder.new(@params)
 
     @doc = Nokogiri::XML(@soap_request.to_xml)
   end
@@ -58,6 +96,12 @@ class SoapRequestTest < MiniTest::Test
     assert_equal digest, "HSWQCmwOsMdPJP3erjksi/Sz7hE="
   end
 
+  def test_should_not_initialize_with_unproper_params
+    @params = "kissa"
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
+    end
+  end
   def test_upload_file_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
     template = File.read("#{@xml_templates_path}/upload_file.xml")
@@ -75,60 +119,60 @@ class SoapRequestTest < MiniTest::Test
   end
 
   def test_should_initialize_with_proper_params
-    assert Sepa::SoapRequest.new(@params)
+    assert Sepa::SoapBuilder.new(@params)
   end
 
-  def test_should_get_error_if_private_key_missing
-    @params.delete(:private_key)
+  def test_should_get_error_if_private_key_plain_missing
+    @params.delete(:private_key_plain)
 
-    assert_raises(KeyError) do
-      Sepa::SoapRequest.new(@params)
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
-  def test_should_get_error_if_cert_missing
-    @params.delete(:cert)
+  def test_should_get_error_if_cert_plain_missing
+    @params.delete(:cert_plain)
 
-    assert_raises(KeyError) do
-      Sepa::SoapRequest.new(@params)
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
   def test_should_get_error_if_command_missing
     @params.delete(:command)
 
-    assert_raises(KeyError) do
-      Sepa::SoapRequest.new(@params)
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
   def test_should_get_error_if_customer_id_missing
     @params.delete(:customer_id)
 
-    assert_raises(KeyError) do
-      Sepa::SoapRequest.new(@params)
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
   def test_should_get_error_if_target_id_missing
     @params.delete(:target_id)
 
-    assert_raises(KeyError) do
-      Sepa::SoapRequest.new(@params)
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
   def test_should_get_error_if_language_missing
     @params.delete(:language)
 
-    assert_raises(KeyError) do
-      Sepa::SoapRequest.new(@params)
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
   def test_should_load_correct_template_with_download_file_list
     @params[:command] = :download_file_list
-    doc = Nokogiri::XML(Sepa::SoapRequest.new(@params).to_xml)
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
 
     assert doc.xpath(
       '//cor:downloadFileListin', 'cor' => 'http://bxd.fi/CorporateFileService'
@@ -137,7 +181,7 @@ class SoapRequestTest < MiniTest::Test
 
   def test_should_load_correct_template_with_get_user_info
     @params[:command] = :get_user_info
-    doc = Nokogiri::XML(Sepa::SoapRequest.new(@params).to_xml)
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
 
     assert doc.xpath(
       '//cor:getUserInfoin', 'cor' => 'http://bxd.fi/CorporateFileService'
@@ -146,7 +190,7 @@ class SoapRequestTest < MiniTest::Test
 
   def test_should_load_correct_template_with_download_file
     @params[:command] = :download_file
-    doc = Nokogiri::XML(Sepa::SoapRequest.new(@params).to_xml)
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
 
     assert doc.xpath(
       '//cor:downloadFilein', 'cor' => 'http://bxd.fi/CorporateFileService'
@@ -155,7 +199,7 @@ class SoapRequestTest < MiniTest::Test
 
   def test_should_load_correct_template_with_upload_file
     @params[:command] = :upload_file
-    doc = Nokogiri::XML(Sepa::SoapRequest.new(@params).to_xml)
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
 
     assert doc.xpath(
       '//cor:uploadFilein', 'cor' => 'http://bxd.fi/CorporateFileService'
@@ -166,7 +210,7 @@ class SoapRequestTest < MiniTest::Test
     @params[:command] = :wrong_command
 
     assert_raises(ArgumentError) do
-      soap = Sepa::SoapRequest.new(@params)
+      soap = Sepa::SoapBuilder.new(@params)
     end
   end
 

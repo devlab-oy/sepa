@@ -1,9 +1,8 @@
 require "base64"
 require "nokogiri"
 require "savon"
-require "sepa/app_response"
+require "sepa/xml_parser"
 require "sepa/client"
-require "sepa/soap_request"
 require "sepa/version"
 require 'base64'
 require 'nokogiri'
@@ -16,5 +15,7 @@ require 'sepa/signature'
 require 'sepa/userfiletype'
 require 'time'
 require 'sepa/response'
-require 'sepa/cert_request'
 require 'sepa/application_response'
+require 'sepa/soap_builder'
+require 'sepa/soap_danske'
+require 'sepa/soap_nordea'
