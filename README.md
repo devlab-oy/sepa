@@ -132,6 +132,31 @@ Or install it yourself as:
 
 4. Save the certificate from the response into a local file
 
+### For downloading Danske bank certificates
+
+1. Require the gem:
+
+        require 'sepa'
+
+2. Define the hash that will be passed to the gem when initializing it:
+
+        params = {
+          bank: :danske,
+          target_id: 'Danske FI',
+          language: 'EN',
+          command: :get_bank_certificate,
+          bank_root_cert_serial: '1111110002',
+          customer_id: '360817',
+          environment: 'TEST',
+        }
+
+3. Initialize a new instance of the client and pass the params hash
+
+        sepa_client = Sepa::Client.new(params)
+        sepa_client.call
+
+4. Save the certificates from the response into a local file
+
 ***
 
 ### Parameter breakdown
@@ -185,6 +210,8 @@ Or install it yourself as:
 * pin: Your personal pin-code provided by the bank
 
 * service: For testing value is service, otherwise ISSUER
+
+* bank_root_cert_serial: Serial number for Danske bank certificate download (1111110002)
 
 ***
 
