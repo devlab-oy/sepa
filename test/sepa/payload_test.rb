@@ -37,6 +37,7 @@ class TestPayload < MiniTest::Test
       iban: 'EE382200221020145685'
     }
     @payload = Sepa::Payload.new(@debtor, @payment, @creditor)
+    @pay_noko = Nokogiri::XML(@payload.to_xml)
   end
 
   def test_should_initialize_with_hash
@@ -49,5 +50,12 @@ class TestPayload < MiniTest::Test
     )
     doc = Nokogiri::XML(@payload.to_xml)
     assert xsd.valid?(doc)
+  end
+
+  def test_debtor_name_is_added_correctly_to_group_header
+    assert_equal @pay_noko.at_css(
+      "InitgPty > Nm",
+      'xmlns' => 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.02'
+    ).content, @debtor[:name]
   end
 end
