@@ -38,21 +38,14 @@ creditor = {
 payload = Sepa::Payload.new(debtor, payment, creditor)
 payload = payload.to_xml
 
-# Keys
-private_key = OpenSSL::PKey::RSA.new(
-  File.read("sepa/nordea_testing/keys/nordea.key")
-)
-cert = OpenSSL::X509::Certificate.new(
-  File.read("sepa/nordea_testing/keys/nordea.crt")
-)
-
 # The params hash is populated with the data that is needed for gem to function.
 params = {
-  # Path for your own private key.
-  private_key: private_key,
 
-  # Path to your certificate
-  cert: cert,
+  bank: :nordea,
+
+  cert_path: "sepa/nordea_testing/keys/nordea.crt",
+
+  private_key_path: "sepa/nordea_testing/keys/nordea.key",
 
   # Command :download_file_list, :upload_file, :download_file or :get_user_info.
   command: :upload_file,
@@ -110,11 +103,12 @@ puts "\nHashes match in the application response: #{ar.hashes_match?}"
 puts "Signature is valid in the application response: #{ar.signature_is_valid?}"
 
 puts "\nSome info about response's certificate:\n" \
+
   "Issuer: #{response.certificate.issuer}\n" \
   "First day to use this certificate: #{response.certificate.not_before}\n" \
   "Expires: #{response.certificate.not_after}"
 
-  puts "\nSome info about application response's certificate:\n" \
+puts "\nSome info about application response's certificate:\n" \
   "Issuer: #{ar.certificate.issuer}\n" \
   "First day to use this certificate: #{ar.certificate.not_before}\n" \
   "Expires: #{ar.certificate.not_after}"
