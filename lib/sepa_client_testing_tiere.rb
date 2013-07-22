@@ -78,3 +78,5 @@ puts "\nSome info about application response's certificate:\n" \
   "Issuer: #{ar.certificate.issuer}\n" \
   "First day to use this certificate: #{ar.certificate.not_before}\n" \
   "Expires: #{ar.certificate.not_after}"
+
+puts response.application_response_to_json

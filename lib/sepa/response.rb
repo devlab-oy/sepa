@@ -100,6 +100,13 @@ module Sepa
       Nokogiri::XML(ar)
     end
 
+    # Spins the application response from the response to json
+    def application_response_to_json
+      in_xml = application_response
+      as_hash = Hash.from_xml(in_xml)
+      as_hash.to_json
+    end
+
     private
 
       # Finds all reference nodes with digest values in the document and returns
