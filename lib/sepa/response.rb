@@ -10,6 +10,9 @@ module Sepa
         fail ArgumentError,
           "The response you provided doesn't validate against soap schema."
       end
+      unless signature_is_valid?
+        fail SecurityError, "Signature failed to verify, response rejected"
+      end
     end
 
     # Returns the x509 certificate embedded in the soap as an
@@ -29,7 +32,7 @@ module Sepa
         fail OpenSSL::X509::CertificateError,
           "The certificate embedded to the soap response could not be process" \
           "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
-          end
+      end
     end
 
     # Verifies that the soap's certificate is trusted.
@@ -102,7 +105,7 @@ module Sepa
 
     # Spins the application response from the response to json
     def application_response_to_json
-      in_xml = application_response
+      in_xml = application_response.to_xml
       as_hash = Hash.from_xml(in_xml)
       as_hash.to_json
     end
