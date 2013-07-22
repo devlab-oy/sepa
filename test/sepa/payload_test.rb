@@ -11,7 +11,7 @@ class TestPayload < MiniTest::Test
       town: 'Helsinki',
       customer_id: '1234',
       y_tunnus: '1234',
-      iban: 'GB29NWBK60161331926819',
+      iban: 'FI4819503000000010',
       bic: 'NDEAFIHH'
     }
 
@@ -28,13 +28,13 @@ class TestPayload < MiniTest::Test
     }
 
     @creditor = {
-      bic: 'GENODEFF',
+      bic: 'NDEAFIHH',
       name: 'Testi Saaja Oy',
       address: 'Kokeilukatu 66',
       country: 'FI',
       postcode: '00200',
       town: 'Helsinki',
-      iban: 'EE382200221020145685'
+      iban: 'FI7429501800000014'
     }
     @payload = Sepa::Payload.new(@debtor, @payment, @creditor)
     @pay_noko = Nokogiri::XML(@payload.to_xml)
