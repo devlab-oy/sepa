@@ -265,7 +265,7 @@ module Sepa
       end
       # ------------------------------------------------------------------------
 
-      # Builds : Create Certificate Unencrypted FOR UNIT TESTS
+      # Builds : Create Certificate Unencrypted for TESTING
       # ------------------------------------------------------------------------
       def debug_certificate_request_without_encryption(params)
         ar = @ar

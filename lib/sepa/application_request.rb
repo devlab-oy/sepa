@@ -32,6 +32,7 @@ module Sepa
       if @command == :get_certificate
         @pin = params[:pin]
         @csr = params[:csr]
+        # Creates a hmac seal with the CSR and PIN-code
         params[:hmac] = create_hmac_seal(@pin,@csr)
         @hmac = params[:hmac]
       end

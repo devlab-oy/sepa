@@ -177,6 +177,9 @@ module Sepa
           check_target_id(params[:target_id])
           check_file_type(params[:file_type])
           end
+          if params[:command] == :download_file
+            check_file_reference(params[:file_reference])
+          end
         when :upload_file
           check_lang(params[:language])
           check_target_id(params[:target_id])
@@ -189,9 +192,23 @@ module Sepa
           end
         when :get_bank_certificate
           if params[:bank] == :danske
+            check_target_id(params[:target_id])
+            check_bank_root_cert_serial(params[:bank_root_cert_serial])
           end
         else
           fail ArgumentError, "Command not supported."
+        end
+      end
+
+      def check_bank_root_cert_serial(brootcertser)
+        unless brootcertser.to_i == 1111110002
+          fail ArgumentError, "You didn't provide a bank root cert serial "\
+          " which is currently '1111110002'"
+        end
+      end
+      def check_file_reference(fileref)
+        unless fileref
+          fail ArgumentError, "You didn't provide a file reference"
         end
       end
 

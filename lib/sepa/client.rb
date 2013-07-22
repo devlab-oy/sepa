@@ -46,7 +46,6 @@ module Sepa
             path = "#{wsdlpath}/wsdl_danske.xml"
           end
         end
-        puts path
         check_wsdl(path)
         path
       end
