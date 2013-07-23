@@ -19,7 +19,7 @@ class TestTransaction < MiniTest::Test
     }
 
     @transaction = Sepa::Transaction.new(@params)
-    @transaction_xml = Nokogiri::XML(@transaction.to_xml)
+    @transaction_node = @transaction.to_node
   end
 
   def test_should_initialize_with_proper_params
@@ -28,6 +28,6 @@ class TestTransaction < MiniTest::Test
 
   def test_instruction_id_is_set_correctly
     assert_equal @params[:instruction_id],
-      @transaction_xml.at_css("InstrId").content
+      @transaction_node.at_css("InstrId").content
   end
 end
