@@ -172,10 +172,10 @@ module Sepa
           check_service(params[:service])
         when *generic_commands
           if params[:bank] == :nordea
-          check_lang(params[:language])
-          check_status(params[:status])
-          check_target_id(params[:target_id])
-          check_file_type(params[:file_type])
+            check_lang(params[:language])
+            check_status(params[:status])
+            check_target_id(params[:target_id])
+            check_file_type(params[:file_type])
           end
           if params[:command] == :download_file
             check_file_reference(params[:file_reference])
@@ -203,7 +203,7 @@ module Sepa
       def check_bank_root_cert_serial(brootcertser)
         unless brootcertser.to_i == 1111110002
           fail ArgumentError, "You didn't provide a bank root cert serial "\
-          " which is currently '1111110002'"
+            " which is currently '1111110002'"
         end
       end
       def check_file_reference(fileref)
@@ -219,7 +219,7 @@ module Sepa
       end
 
       def check_bank(bank)
-          unless [:nordea, :danske].include?(bank)
+        unless [:nordea, :danske].include?(bank)
           fail ArgumentError, "You didn't provide a proper bank. " \
             "Acceptable values are nordea OR danske."
         end
@@ -381,53 +381,58 @@ module Sepa
       end
 
       def initialize_certificates_and_csr(params)
-        command = params[:command]
-        require_private_and_cert = [:get_user_info,:download_file_list,:download_file,:upload_file]
-        require_nothing = [:get_bank_certificate]
-        require_pkcs = [:get_certificate]
-        require_dual_pkcs_and_cert = [:create_certificate]
-        case command
-        when *require_private_and_cert
-          if params[:cert_path] != nil
-            params[:cert] = OpenSSL::X509::Certificate.new(File.read(params.fetch(:cert_path)))
-          elsif params[:cert_plain] != nil
-            params[:cert] = OpenSSL::X509::Certificate.new(params.fetch(:cert_plain))
-          end
-          if params[:private_key_path] != nil
-             params[:private_key] = OpenSSL::PKey::RSA.new(File.read(params.fetch(:private_key_path)))
-          elsif params[:private_key_plain] != nil
-            params[:private_key] = OpenSSL::PKey::RSA.new(params.fetch(:private_key_plain))
-          end
-          check_private_key(params[:private_key])
-          check_cert(params[:cert])
-        when *require_nothing
-        when *require_pkcs
-          if params[:csr_path] != nil
-            params[:csr] = OpenSSL::X509::Request.new(File.read(params.fetch(:csr_path)))
-          elsif params[:csr_plain] != nil
-            params[:csr] = OpenSSL::X509::Request.new(params.fetch(:csr_plain))
-          end
-        when *require_dual_pkcs_and_cert
-          if params[:encryption_cert_pkcs10_path] != nil && params[:signing_cert_pkcs10_path] != nil
-            params[:encryption_cert_pkcs10] = OpenSSL::X509::Request.new(File.read(params.fetch(:encryption_cert_pkcs10_path)))
-            params[:signing_cert_pkcs10] = OpenSSL::X509::Request.new(File.read(params.fetch(:signing_cert_pkcs10_path)))
-          elsif params[:encryption_cert_pkcs10_plain] != nil && params[:signing_cert_pkcs10_plain] != nil
-            params[:encryption_cert_pkcs10] = OpenSSL::X509::Request.new(params.fetch(:encryption_cert_pkcs10_plain))
-            params[:signing_cert_pkcs10] = OpenSSL::X509::Request.new(params.fetch(:signing_cert_pkcs10_plain))
-          end
-          if params[:cert_path] != nil
-            params[:cert] = OpenSSL::X509::Certificate.new(File.read(params.fetch(:cert_path)))
-          elsif params[:cert_plain] != nil
-            params[:cert] = OpenSSL::X509::Certificate.new(params.fetch(:cert_plain))
-          end
+        begin
+          command = params[:command]
+          require_private_and_cert = [:get_user_info,:download_file_list,:download_file,:upload_file]
+          require_nothing = [:get_bank_certificate]
+          require_pkcs = [:get_certificate]
+          require_dual_pkcs_and_cert = [:create_certificate]
+          case command
+          when *require_private_and_cert
+            if params[:cert_path] != nil
+              params[:cert] = OpenSSL::X509::Certificate.new(File.read(params.fetch(:cert_path)))
+            elsif params[:cert_plain] != nil
+              params[:cert] = OpenSSL::X509::Certificate.new(params.fetch(:cert_plain))
+            end
+            if params[:private_key_path] != nil
+              params[:private_key] = OpenSSL::PKey::RSA.new(File.read(params.fetch(:private_key_path)))
+            elsif params[:private_key_plain] != nil
+              params[:private_key] = OpenSSL::PKey::RSA.new(params.fetch(:private_key_plain))
+            end
+            check_private_key(params[:private_key])
+            check_cert(params[:cert])
+          when *require_nothing
+          when *require_pkcs
+            if params[:csr_path] != nil
+              params[:csr] = OpenSSL::X509::Request.new(File.read(params.fetch(:csr_path)))
+            elsif params[:csr_plain] != nil
+              params[:csr] = OpenSSL::X509::Request.new(params.fetch(:csr_plain))
+            end
+          when *require_dual_pkcs_and_cert
+            if params[:encryption_cert_pkcs10_path] != nil && params[:signing_cert_pkcs10_path] != nil
+              params[:encryption_cert_pkcs10] = OpenSSL::X509::Request.new(File.read(params.fetch(:encryption_cert_pkcs10_path)))
+              params[:signing_cert_pkcs10] = OpenSSL::X509::Request.new(File.read(params.fetch(:signing_cert_pkcs10_path)))
+            elsif params[:encryption_cert_pkcs10_plain] != nil && params[:signing_cert_pkcs10_plain] != nil
+              params[:encryption_cert_pkcs10] = OpenSSL::X509::Request.new(params.fetch(:encryption_cert_pkcs10_plain))
+              params[:signing_cert_pkcs10] = OpenSSL::X509::Request.new(params.fetch(:signing_cert_pkcs10_plain))
+            end
+            if params[:cert_path] != nil
+              params[:cert] = OpenSSL::X509::Certificate.new(File.read(params.fetch(:cert_path)))
+            elsif params[:cert_plain] != nil
+              params[:cert] = OpenSSL::X509::Certificate.new(params.fetch(:cert_plain))
+            end
 
-          check_encryption_pkcs10(params[:encryption_cert_pkcs10])
-          check_signing_pkcs10(params[:signing_cert_pkcs10])
-          check_cert(params[:cert])
-        else
-          fail ArgumentError, "No matching cases for initialize_certificates_and_csr"
+            check_encryption_pkcs10(params[:encryption_cert_pkcs10])
+            check_signing_pkcs10(params[:signing_cert_pkcs10])
+            check_cert(params[:cert])
+          else
+            fail ArgumentError, "No matching cases for initialize_certificates_and_csr"
+          end
+          params
+        rescue Exception => e
+          e.message
+          #fail ArgumentError, "Parameter failed to initialize, check private key and cert path/plain"
         end
-        params
       end
   end
 end

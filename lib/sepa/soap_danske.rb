@@ -28,9 +28,9 @@ module Sepa
         # )
 
         # DEBUG
-        puts "---------------------------DEBUG PRE-ENCRYPTED AR---------------------------"
-        puts ar
-        puts "---------------------------DEBUG PRE-ENCRYPTED AR---------------------------"
+        # puts "---------------------------DEBUG PRE-ENCRYPTED AR---------------------------"
+        # puts ar
+        # puts "---------------------------DEBUG PRE-ENCRYPTED AR---------------------------"
 
         # Encrypt ApplicationRequest and set key
         cipher = OpenSSL::Cipher.new('DES-EDE3-CBC')

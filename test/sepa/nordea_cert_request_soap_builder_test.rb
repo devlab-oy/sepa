@@ -6,41 +6,12 @@ class NordeaCertRequestSoapBuilderTest < MiniTest::Test
     @templatepath = File.expand_path('../../../lib/sepa/xml_templates/soap',__FILE__)
     @keyspath = File.expand_path('../nordea_test_keys', __FILE__)
 
-  csrplain = "-----BEGIN CERTIFICATE REQUEST-----
-MIIBczCB3QIBADA0MRIwEAYDVQQDEwlEZXZsYWIgT3kxETAPBgNVBAUTCDExMTEx
-MTExMQswCQYDVQQGEwJGSTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAo9wU
-c2Ys5hSso4nEanbc+RIhL71aS6GBGiWAegXjhlyb6dpwigrZBFPw4u6UZV/Vq7Y7
-Ku3uBq5rfZwk+lA+c/B634Eu0zWdI+EYfQxKVRrBrmhiGplKEtglHXbNmmMOn07e
-LPUaB0Ipx/6h/UczJGBINdtcuIbYVu0r7ZfyWbUCAwEAAaAAMA0GCSqGSIb3DQEB
-BQUAA4GBAIhh2o8mN4Byn+w1jdbhq6lxEXYqdqdh1F6GCajt2lQMUBgYP23I5cS/
-Z+SYNhu8vbj52cGQPAwEDN6mm5yLpcXu40wYzgWyfStLXV9d/b4hMy9qLMW00Dzb
-jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
------END CERTIFICATE REQUEST-----"
 
-  # The params hash is populated with the data that is needed for gem to function
-  @params = {
-    bank: :nordea,
-    # Command for CertificateService :get_certificate
-    command: :get_certificate,
+    @params = get_cert_params
 
-    # Customer PIN code
-    pin: '1234567890',
+    @certrequest = Sepa::SoapBuilder.new(@params)
 
-    # Unique customer ID
-    customer_id: '11111111',
-
-    # Set the environment to be either PRODUCTION or TEST
-    environment: 'TEST',
-
-    csr_plain: csrplain,
-
-    # Selected service (For testing: service, For real: ISSUER)
-    service: 'service'
-  }
-
-  @certrequest = Sepa::SoapBuilder.new(@params)
-
-  @xml = Nokogiri::XML(@certrequest.to_xml)
+    @xml = Nokogiri::XML(@certrequest.to_xml)
   end
 
   def test_should_fail_if_bank_doesnt_support_command

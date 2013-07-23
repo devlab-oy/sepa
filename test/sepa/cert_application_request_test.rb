@@ -6,46 +6,11 @@ class CertApplicationRequestTest < MiniTest::Test
     @templatepath = File.expand_path('../../../lib/sepa/xml_templates/application_request',__FILE__)
     @keyspath = File.expand_path('../nordea_test_keys', __FILE__)
 
-  csrplain = "-----BEGIN CERTIFICATE REQUEST-----
-MIIBczCB3QIBADA0MRIwEAYDVQQDEwlEZXZsYWIgT3kxETAPBgNVBAUTCDExMTEx
-MTExMQswCQYDVQQGEwJGSTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAo9wU
-c2Ys5hSso4nEanbc+RIhL71aS6GBGiWAegXjhlyb6dpwigrZBFPw4u6UZV/Vq7Y7
-Ku3uBq5rfZwk+lA+c/B634Eu0zWdI+EYfQxKVRrBrmhiGplKEtglHXbNmmMOn07e
-LPUaB0Ipx/6h/UczJGBINdtcuIbYVu0r7ZfyWbUCAwEAAaAAMA0GCSqGSIb3DQEB
-BQUAA4GBAIhh2o8mN4Byn+w1jdbhq6lxEXYqdqdh1F6GCajt2lQMUBgYP23I5cS/
-Z+SYNhu8vbj52cGQPAwEDN6mm5yLpcXu40wYzgWyfStLXV9d/b4hMy9qLMW00Dzb
-jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
------END CERTIFICATE REQUEST-----"
+    @params = get_cert_params
 
-  # The params hash is populated with the data that is needed for gem to function
-  @params = {
-    bank: :nordea,
-    # Command for CertificateService :get_certificate
-    command: :get_certificate,
-
-    # Unique customer ID
-    customer_id: '11111111',
-
-    # Set the environment to be either PRODUCTION or TEST
-    environment: 'TEST',
-
-    csr_plain: csrplain,
-
-    pin: '1234567890',
-    # The actual payload to send.
-    #content: payload,
-
-    # HMAC seal
-    #hmac: hmac,
-
-    # Selected service (For testing: service, For real: ISSUER)
-    service: 'service'
-
-  }
-
-  #@ar_cert = Sepa::ApplicationRequest.new(@params)
-  @ar_cert = Sepa::SoapBuilder.new(@params).get_ar_as_base64
-  @xml = Nokogiri::XML(Base64.decode64(@ar_cert))
+    #@ar_cert = Sepa::ApplicationRequest.new(@params)
+    @ar_cert = Sepa::SoapBuilder.new(@params).get_ar_as_base64
+    @xml = Nokogiri::XML(Base64.decode64(@ar_cert))
   end
 
   def test_that_xml_template_is_unmodified
@@ -87,10 +52,10 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
 
   def test_should_have_timestamp_set_properly
     timestamp = Time.strptime(@xml.at_css("Timestamp").content,
-    '%Y-%m-%dT%H:%M:%S%z')
+                              '%Y-%m-%dT%H:%M:%S%z')
 
     assert timestamp <= Time.now && timestamp > (Time.now - 60),
-    "Timestamp was not set correctly"
+      "Timestamp was not set correctly"
   end
 
   def test_should_have_command_set_when_get_certificate
