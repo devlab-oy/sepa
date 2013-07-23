@@ -16,8 +16,8 @@ module Sepa
       @message = params[:message]
     end
 
-    def to_xml
-      build.to_xml
+    def to_node
+      build.doc.root
     end
 
     private

@@ -1,6 +1,6 @@
 module Sepa
   class Payload
-    def initialize(debtor, payment, creditor)
+    def initialize(debtor, payment, transactions)
       @debtor_name = debtor.fetch(:name)
       @debtor_address = debtor.fetch(:address)
       @debtor_country = debtor.fetch(:country)
@@ -13,27 +13,15 @@ module Sepa
 
       @payment_info_id = payment.fetch(:payment_info_id)
       @execution_date = payment.fetch(:execution_date)
-      @payment_id = payment.fetch(:payment_id)
-      @end_to_end_id = payment.fetch(:end_to_end_id)
-      @amount = payment.fetch(:amount)
-      @currency = payment.fetch(:currency)
-      @payment_ref = payment[:ref]
-      @payment_message = payment[:message]
 
-      @creditor_bic = creditor.fetch(:bic)
-      @creditor_name = creditor.fetch(:name)
-      @creditor_address = creditor.fetch(:address)
-      @creditor_country = creditor.fetch(:country)
-      @creditor_postcode = creditor.fetch(:postcode)
-      @creditor_town = creditor.fetch(:town)
-      @creditor_iban = creditor.fetch(:iban)
+      @transactions = transactions
     end
 
     def to_xml
       doc = build_root
       doc = build_group_header(doc)
       doc = build_payment_info(doc)
-      doc = build_credit_transfer(doc)
+      doc = build_credit_transfers(doc, @transactions)
       doc.to_xml
     end
 
@@ -94,7 +82,8 @@ module Sepa
             xml.Nm @debtor_name
             xml.PstlAdr {
               xml.AdrLine @debtor_address
-              xml.AdrLine "#{@debtor_country}-#{@debtor_postcode} #{@debtor_town}"
+              xml.AdrLine "#{@debtor_country}-#{@debtor_postcode} " \
+              "#{@debtor_town}"
               xml.Ctry @debtor_country
             }
 
@@ -128,61 +117,12 @@ module Sepa
       builder.doc
     end
 
-    def build_credit_transfer(root_e)
-      Nokogiri::XML::Builder.with(root_e.at('PmtInf')) do |xml|
-        xml.CdtTrfTxInf {
-          xml.PmtId {
-            xml.InstrId @payment_id
-            xml.EndToEndId @end_to_end_id
-          }
-
-          xml.Amt {
-            xml.InstdAmt(@amount, :Ccy => @currency)
-          }
-
-          xml.CdtrAgt {
-            xml.FinInstnId {
-              xml.BIC @creditor_bic
-            }
-          }
-
-          xml.Cdtr {
-            xml.Nm @creditor_name
-            xml.PstlAdr {
-              xml.AdrLine @creditor_address
-              xml.AdrLine("#{@creditor_country}-#{@creditor_postcode} " \
-                          "#{@creditor_town}")
-              xml.StrtNm @creditor_address
-              xml.PstCd "#{@creditor_country}-#{@creditor_postcode}"
-              xml.TwnNm @creditor_town
-              xml.Ctry @creditor_country
-            }
-          }
-
-          xml.CdtrAcct {
-            xml.Id {
-              xml.IBAN @creditor_iban
-            }
-          }
-
-          xml.RmtInf {
-            if @payment_ref
-              xml.Strd {
-                xml.CdtrRefInf {
-                  xml.CdtrRefTp {
-                    xml.Cd 'SCOR'
-                  }
-
-                  xml.CdtrRef @payment_ref
-                }
-              }
-
-            else
-              xml.Ustrd @payment_message
-            end
-          }
-        }
+    def build_credit_transfers(root_e, transactions)
+      transactions.each do |transaction|
+        root_e.at_css('PmtInf').add_child(transaction.to_node)
       end
+
+      root_e
     end
   end
 end

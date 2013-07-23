@@ -3,6 +3,7 @@ require File.expand_path('../../test_helper.rb', __FILE__)
 class TestPayload < MiniTest::Test
   def setup
     @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas', __FILE__)
+
     @debtor = {
       name: 'Testi Maksaja Oy',
       address: 'Testikatu 45',
@@ -18,30 +19,51 @@ class TestPayload < MiniTest::Test
     @payment = {
       execution_date: Date.new.iso8601,
       payment_info_id: '123456789',
-      payment_id: '987654321',
-      end_to_end_id: '1234',
-      amount: '30',
-      currency: 'EUR',
-      clearing: '',
-      ref: '123',
-      message: 'Moikka'
     }
 
-    @creditor = {
+    @trans_1_params = {
+      instruction_id: '987654321',
+      end_to_end_id: '20130722-E000001',
+      amount: '30',
+      currency: 'EUR',
       bic: 'NDEAFIHH',
       name: 'Testi Saaja Oy',
       address: 'Kokeilukatu 66',
       country: 'FI',
       postcode: '00200',
       town: 'Helsinki',
-      iban: 'FI7429501800000014'
+      iban: 'FI7429501800000014',
+      reference: '123',
+      message: 'Moikka'
     }
-    @payload = Sepa::Payload.new(@debtor, @payment, @creditor)
+
+    @trans_2_params = {
+      instruction_id: '18716416',
+      end_to_end_id: '20130722-E000003',
+      amount: '75',
+      currency: 'EUR',
+      bic: 'NDEAFIHH',
+      name: 'Test Receiver Ltd.',
+      address: 'Kokeilukatu 14',
+      country: 'FI',
+      postcode: '00500',
+      town: 'Helsinki',
+      iban: 'FI7429502500000085',
+      reference: '681766',
+      message: 'Heippa'
+    }
+
+    @transaction_1 = Sepa::Transaction.new(@trans_1_params)
+    @transaction_2 = Sepa::Transaction.new(@trans_2_params)
+
+    @transactions = [@transaction_1, @transaction_2]
+
+    @payload = Sepa::Payload.new(@debtor, @payment, @transactions)
     @pay_noko = Nokogiri::XML(@payload.to_xml)
   end
 
-  def test_should_initialize_with_hash
-    assert Sepa::Payload.new(@debtor, @payment, @creditor)
+  def test_should_initialize_with_proper_params
+    assert Sepa::Payload.new(@debtor, @payment, @transactions)
   end
 
   def test_validates_against_schema
