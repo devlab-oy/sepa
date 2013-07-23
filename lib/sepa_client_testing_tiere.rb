@@ -14,7 +14,7 @@ params = {
   private_key_path: "sepa/nordea_testing/keys/nordea.key",
 
   # Command :download_file_list, :upload_file, :download_file or :get_user_info.
-  command: :get_user_info,
+  command: :download_file_list,
 
   # Unique customer ID.
   customer_id: '11111111',
@@ -41,10 +41,6 @@ params = {
   # - NDCAMT53L = Konekielinen XML-tiliote (saapuva)
   # - NDCAMT54L = Saapuvat XML viitemaksu (saapuva)
   file_type: 'TITO',
-
-  # The WSDL file used by nordea. Is identical between banks except for the
-  # address.
-  #wsdl: 'sepa/wsdl/wsdl_nordea.xml',
 
   # The actual payload to send.
   content: payload,
@@ -79,4 +75,6 @@ puts "\nSome info about application response's certificate:\n" \
   "First day to use this certificate: #{ar.certificate.not_before}\n" \
   "Expires: #{ar.certificate.not_after}"
 
-puts response.application_response_to_json
+
+data = response.get_important_data(:download_file_list)
+puts data
