@@ -38,7 +38,7 @@ fwPAbTwTv6mFFPAiYxLiRZXxVPtW+QtjMXH4ymh2V4y/+GnCqbZyLwJBAJQSDAME
 Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
 45nhdfYxOjgYff0=
 -----END PRIVATE KEY-----"
-  @params = {
+  params = {
     bank: :nordea,
     private_key_plain: pkeyplain,
     cert_plain: certplain,
@@ -52,7 +52,7 @@ Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
     content: Base64.encode64("haisuli"),
     file_reference: "11111111A12006030329501800000014"
   }
-  @params
+  params
 end
 
 def get_cert_params
@@ -67,8 +67,7 @@ Z+SYNhu8vbj52cGQPAwEDN6mm5yLpcXu40wYzgWyfStLXV9d/b4hMy9qLMW00Dzb
 jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
 -----END CERTIFICATE REQUEST-----"
 
-  # The params hash is populated with the data that is needed for gem to function
-  @certparams = {
+  certparams = {
     bank: :nordea,
     command: :get_certificate,
     customer_id: '11111111',
@@ -77,7 +76,7 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
     pin: '1234567890',
     service: 'service'
   }
-  @certparams
+  certparams
 end
 
 def get_danske_cert_params
@@ -163,7 +162,7 @@ gnUi1U8K+UAVu7JQJG1VUBEDcKFN2p/47KdpBx3calcurRmNL8Ual2ANPMC55RUD
 11qQJynyu37oWB74v3VByP38tYy6tWmHUg55fMbjUtKW2AHdIXV5
 -----END RSA PRIVATE KEY-----"
 
-  @danskecertparams = {
+  danskecertparams = {
     bank: :danske,
     command: :create_certificate,
     customer_id: 'ABC123',
@@ -179,5 +178,5 @@ gnUi1U8K+UAVu7JQJG1VUBEDcKFN2p/47KdpBx3calcurRmNL8Ual2ANPMC55RUD
     file_reference: '12314',
     target_id: 'Danske FI',
   }
-  @danskecertparams
+  danskecertparams
 end
