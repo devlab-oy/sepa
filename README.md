@@ -14,7 +14,7 @@ This project aims to create an open source implementation of SEPA Financial Mess
 
 Add this line to your application's Gemfile:
 
-    gem 'sepa'
+    gem 'sepafm'
 
 And then execute:
 
@@ -22,7 +22,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install sepa
+    $ gem install sepafm
 
 ## Usage
 
@@ -30,7 +30,7 @@ Or install it yourself as:
 
 1. Require the gem:
 
-        require 'sepa'
+        require 'sepafm'
 
 2. Define the hash that will be passed to the gem when initializing it:
 
@@ -112,7 +112,7 @@ Or install it yourself as:
 
 1. Require the gem:
 
-        require 'sepa'
+        require 'sepafm'
 
 2. Define the hash that will be passed to the gem when initializing it:
 
@@ -136,7 +136,7 @@ Or install it yourself as:
 
 1. Require the gem:
 
-        require 'sepa'
+        require 'sepafm'
 
 2. Define the hash that will be passed to the gem when initializing it:
 
