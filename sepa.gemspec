@@ -3,7 +3,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'sepa/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'sepa'
+  spec.name          = 'sepafm'
   spec.version       = Sepa::VERSION
   spec.summary       = 'SEPA Financial Messages'
   spec.description   = 'SEPA Financial Messages using Web Services'
