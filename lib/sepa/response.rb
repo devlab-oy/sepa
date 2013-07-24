@@ -10,9 +10,6 @@ module Sepa
         fail ArgumentError,
           "The response you provided doesn't validate against soap schema."
       end
-      # unless signature_is_valid?
-      #   fail SecurityError, "Signature failed to verify, response rejected"
-      # end
     end
 
     # Returns the x509 certificate embedded in the soap as an
