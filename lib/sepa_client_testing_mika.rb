@@ -18,7 +18,20 @@ params = {
   # Set the environment to be either PRODUCTION or TEST
   environment: 'TEST',
 
+<<<<<<< HEAD
   csr_path: 'sepa/nordea_testing/keys/CSR.csr',
+=======
+  csr_plain: "-----BEGIN CERTIFICATE REQUEST-----
+MIIBczCB3QIBADA0MRIwEAYDVQQDEwlEZXZsYWIgT3kxETAPBgNVBAUTCDExMTEx
+MTExMQswCQYDVQQGEwJGSTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAo9wU
+c2Ys5hSso4nEanbc+RIhL71aS6GBGiWAegXjhlyb6dpwigrZBFPw4u6UZV/Vq7Y7
+Ku3uBq5rfZwk+lA+c/B634Eu0zWdI+EYfQxKVRrBrmhiGplKEtglHXbNmmMOn07e
+LPUaB0Ipx/6h/UczJGBINdtcuIbYVu0r7ZfyWbUCAwEAAaAAMA0GCSqGSIb3DQEB
+BQUAA4GBAIhh2o8mN4Byn+w1jdbhq6lxEXYqdqdh1F6GCajt2lQMUBgYP23I5cS/
+Z+SYNhu8vbj52cGQPAwEDN6mm5yLpcXu40wYzgWyfStLXV9d/b4hMy9qLMW00Dzb
+jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
+-----END CERTIFICATE REQUEST-----",
+>>>>>>> mika/sampo
 
   # Selected service (For testing: service, For real: ISSUER)
   service: 'service'
@@ -28,5 +41,31 @@ params = {
 # You just create the client with the parameters described above.
 sepa_client = Sepa::Client.new(params)
 
-sepa_client.send
+response = sepa_client.send
+response = Nokogiri::XML(response.to_xml)
+response = Sepa::Response.new(response)
 
+# ar = Sepa::ApplicationResponse.new(response.application_response)
+
+# puts "\n\nHashes match in the response: #{response.hashes_match?}"
+# puts "Signature is valid in the response: #{response.signature_is_valid?}"
+
+# puts "\nHashes match in the application response: #{ar.hashes_match?}"
+# puts "Signature is valid in the application response: #{ar.signature_is_valid?}"
+
+# puts "\nSome info about response's certificate:\n" \
+
+#   "Issuer: #{response.certificate.issuer}\n" \
+#   "First day to use this certificate: #{response.certificate.not_before}\n" \
+#   "Expires: #{response.certificate.not_after}"
+
+# puts "\nSome info about application response's certificate:\n" \
+#   "Issuer: #{ar.certificate.issuer}\n" \
+#   "First day to use this certificate: #{ar.certificate.not_before}\n" \
+#   "Expires: #{ar.certificate.not_after}"
+
+<<<<<<< HEAD
+=======
+data = response.get_important_data(:get_certificate)
+puts data
+>>>>>>> mika/sampo

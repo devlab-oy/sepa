@@ -38,7 +38,7 @@ class ResponseTest < MiniTest::Test
   end
 
   def test_should_complain_if_initialized_with_something_not_nokogiri_xml
-    assert_raises(ArgumentError) { Sepa::Response.new("Sammakko") }
+    assert_raises(NoMethodError) { Sepa::Response.new("Sammakko") }
   end
 
   def test_should_complain_if_response_not_valid_against_schema

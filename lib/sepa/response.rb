@@ -1,7 +1,7 @@
 module Sepa
   class Response
     def initialize(response)
-      @response = response
+      @response = Nokogiri::XML(response.to_xml)
 
       if !@response.respond_to?(:canonicalize)
         fail ArgumentError,
@@ -29,7 +29,7 @@ module Sepa
         fail OpenSSL::X509::CertificateError,
           "The certificate embedded to the soap response could not be process" \
           "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
-          end
+      end
     end
 
     # Verifies that the soap's certificate is trusted.
@@ -98,6 +98,55 @@ module Sepa
       ar = @response.at_css('mod|ApplicationResponse').content
       ar = Base64.decode64(ar)
       Nokogiri::XML(ar)
+    end
+
+    # Spins the application response from the response to json
+    def application_response_to_json
+      in_xml = application_response.to_xml
+      as_hash = Hash.from_xml(in_xml)
+      as_stringed_json = as_hash.to_json
+      JSON.parse(as_stringed_json)
+    end
+
+    # Mainly for sepa-api output, returns only the important part of the response
+    def get_important_data(command)
+      if command == :get_certificate
+        ar = @response.at_css('cer|ApplicationResponse').content
+        ar = Base64.decode64(ar)
+        ar = Hash.from_xml(ar)
+        ar = ar.to_json
+        ar = JSON.parse(ar)
+      elsif command == :get_bank_certificate
+        ar = @response
+        ar = Hash.from_xml(ar.to_xml)
+        ar = ar.to_json
+        ar = JSON.parse(ar)
+      else
+        ar = application_response_to_json
+      end
+
+      data = {}
+      case command
+      when :download_file
+        data = Base64.decode64(ar['ApplicationResponse']['Content'])
+      when :download_file_list
+        data = ar['ApplicationResponse']['FileDescriptors']
+      when :upload_file
+        # This still needs to be tested with hard data for an actual response
+        data = ar
+      when :get_user_info
+        data = ar['ApplicationResponse']['UserFileTypes']
+      when :get_certificate
+        data = ar['CertApplicationResponse']['Certificates']
+      when :get_bank_certificate
+        data["BankEncryptionCert"] = ar['Envelope']['Body']['GetBankCertificateOut']['GetBankCertificateResponse']['BankEncryptionCert']
+        data["BankSigningCert"] = ar['Envelope']['Body']['GetBankCertificateOut']['GetBankCertificateResponse']['BankSigningCert']
+        data["BankRootCert"] = ar['Envelope']['Body']['GetBankCertificateOut']['GetBankCertificateResponse']['BankRootCert']
+      else
+        fail ArgumentError, "The command you provided does not exist or " \
+        "is not supported"
+      end
+      data
     end
 
     private
