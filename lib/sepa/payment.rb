@@ -1,6 +1,6 @@
 module Sepa
   class Payment
-    def initialize(debtor, params, transactions)
+    def initialize(params)
       @payment_info_id = params.fetch(:payment_info_id)
       @execution_date = params.fetch(:execution_date)
 
