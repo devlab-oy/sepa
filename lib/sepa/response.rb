@@ -1,7 +1,11 @@
 module Sepa
   class Response
     def initialize(response)
-      @response = Nokogiri::XML(response.to_xml)
+      unless response.respond_to?(:canonicalize)
+        @response = Nokogiri::XML(response.to_xml)
+      else
+        @response = response
+      end
 
       if !@response.respond_to?(:canonicalize)
         fail ArgumentError,

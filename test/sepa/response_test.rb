@@ -26,12 +26,59 @@ class ResponseTest < MiniTest::Test
     # Response that was requested with :get_user_info command
     @gui = Nokogiri::XML(File.read("#{responses_path}/gui.xml"))
 
+    # Response that was requested with :get_certificate command
+    @gc = Nokogiri::XML(File.read("#{responses_path}/gc.xml"))
+
+    # Response that was requested with :get_bank_certificate
+    @gbc = Nokogiri::XML(File.read("#{responses_path}/gbc.xml"))
+
     # Actual response objects for testing.
     @dfl_response = Sepa::Response.new(@dfl)
     @uf_response = Sepa::Response.new(@uf)
     @df_response = Sepa::Response.new(@df)
     @gui_response = Sepa::Response.new(@gui)
+    @gc_response = Sepa::Response.new(@gc)
+    @gbc_response = Sepa::Response.new(@gbc)
   end
+
+  # Tests for API compliance - Start
+  def test_should_return_hash_with_api_method_get_important_data_with_get_command_gbc
+    k = @gbc_response.get_important_data(:get_bank_certificate)
+    assert k.kind_of?(Hash)
+    assert k.has_key?('BankEncryptionCert'), "Key 'BankEncryptionCert' not found from hash"
+    assert k.has_key?('BankSigningCert'), "Key 'BankSigningCert' not found from hash"
+    assert k.has_key?('BankRootCert'), "Key 'BankRootCert' not found from hash"
+  end
+
+  def test_should_return_hash_with_api_method_get_important_data_with_get_command_gc
+    k = @gc_response.get_important_data(:get_certificate)
+    assert k.kind_of?(Hash)
+    assert k.has_key?('Certificate'), "Key not found from hash"
+  end
+
+  def test_should_return_hash_with_api_method_get_important_data_with_command_dfl
+    k = @dfl_response.get_important_data(:download_file_list)
+    assert k.kind_of?(Hash)
+    assert k.has_key?('FileDescriptor'), "Key not found from hash"
+  end
+
+  def test_should_return_hash_with_api_method_get_important_data_with_command_uf
+    k = @uf_response.get_important_data(:upload_file)
+    assert k.kind_of?(Hash)
+    assert k.has_key?('ApplicationResponse'), "Key not found from hash"
+  end
+
+  def test_should_return_string_with_api_method_get_important_data_with_command_df
+    k = @df_response.get_important_data(:download_file)
+    assert k.kind_of?(String), "Result is not a string"
+  end
+
+  def test_should_return_hash_with_api_method_get_important_data_with_command_gui
+    k = @gui_response.get_important_data(:get_user_info)
+    assert k.kind_of?(Hash)
+    assert k.has_key?('UserFileType'), "Key not found from hash"
+  end
+  # Tests for API compliance - End
 
   def test_should_initialize_with_proper_response
     assert Sepa::Response.new(@dfl)

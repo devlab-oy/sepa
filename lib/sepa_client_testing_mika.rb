@@ -18,9 +18,6 @@ params = {
   # Set the environment to be either PRODUCTION or TEST
   environment: 'TEST',
 
-<<<<<<< HEAD
-  csr_path: 'sepa/nordea_testing/keys/CSR.csr',
-=======
   csr_plain: "-----BEGIN CERTIFICATE REQUEST-----
 MIIBczCB3QIBADA0MRIwEAYDVQQDEwlEZXZsYWIgT3kxETAPBgNVBAUTCDExMTEx
 MTExMQswCQYDVQQGEwJGSTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAo9wU
@@ -31,7 +28,6 @@ BQUAA4GBAIhh2o8mN4Byn+w1jdbhq6lxEXYqdqdh1F6GCajt2lQMUBgYP23I5cS/
 Z+SYNhu8vbj52cGQPAwEDN6mm5yLpcXu40wYzgWyfStLXV9d/b4hMy9qLMW00Dzb
 jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
 -----END CERTIFICATE REQUEST-----",
->>>>>>> mika/sampo
 
   # Selected service (For testing: service, For real: ISSUER)
   service: 'service'
@@ -64,8 +60,5 @@ response = Sepa::Response.new(response)
 #   "First day to use this certificate: #{ar.certificate.not_before}\n" \
 #   "Expires: #{ar.certificate.not_after}"
 
-<<<<<<< HEAD
-=======
 data = response.get_important_data(:get_certificate)
 puts data
->>>>>>> mika/sampo
