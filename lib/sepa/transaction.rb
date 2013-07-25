@@ -1,7 +1,7 @@
 module Sepa
   class Transaction
     def initialize(params)
-      @instruction_id = params.fetch(:instruction_id)
+      @instruction_id = params[:instruction_id]
       @end_to_end_id = params.fetch(:end_to_end_id)
       @amount = params.fetch(:amount)
       @currency = params.fetch(:currency)
@@ -26,7 +26,9 @@ module Sepa
         Nokogiri::XML::Builder.new do |xml|
           xml.CdtTrfTxInf {
             xml.PmtId {
-              xml.InstrId @instruction_id
+              if @instruction_id
+                xml.InstrId @instruction_id
+              end
               xml.EndToEndId @end_to_end_id
             }
 
@@ -60,7 +62,7 @@ module Sepa
             }
 
             xml.RmtInf {
-              if @payment_ref
+              if @reference
                 xml.Strd {
                   xml.CdtrRefInf {
                     xml.CdtrRefTp {

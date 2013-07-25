@@ -3,9 +3,9 @@ require File.expand_path('../../test_helper.rb', __FILE__)
 class TestTransaction < MiniTest::Test
   def setup
     @params = {
-      instruction_id: '987654321',
-      end_to_end_id: '20130722-E000001',
-      amount: '30',
+      instruction_id: '70CEF29BEBA8396A1F806005EDA51DEE4CE',
+      end_to_end_id: '629CADFDAD5246AD915BA24A3C8E9FC3313',
+      amount: '30.75',
       currency: 'EUR',
       bic: 'NDEAFIHH',
       name: 'Testi Saaja Oy',
@@ -14,8 +14,8 @@ class TestTransaction < MiniTest::Test
       postcode: '00200',
       town: 'Helsinki',
       iban: 'FI7429501800000014',
-      reference: '123',
-      message: 'Moikka'
+      reference: '00000000000000001245',
+      message: 'Maksu'
     }
 
     @transaction = Sepa::Transaction.new(@params)
@@ -28,6 +28,87 @@ class TestTransaction < MiniTest::Test
 
   def test_instruction_id_is_set_correctly
     assert_equal @params[:instruction_id],
-      @transaction_node.at_css("InstrId").content
+      @transaction_node.at('/CdtTrfTxInf/PmtId/InstrId').content
+  end
+
+  def test_end_to_end_id_is_set_correctly
+    assert_equal @params[:end_to_end_id],
+      @transaction_node.at('/CdtTrfTxInf/PmtId/EndToEndId').content
+  end
+
+  def test_amount_is_set_correctly
+    assert_equal @params[:amount],
+      @transaction_node.at('/CdtTrfTxInf/Amt/InstdAmt').content
+  end
+
+  def test_currency_is_set_correctly
+    assert_equal @params[:currency],
+      @transaction_node.at('/CdtTrfTxInf/Amt/InstdAmt/@Ccy').content
+  end
+
+  def test_bic_is_set_correctly
+    assert_equal @params[:bic],
+      @transaction_node.at('/CdtTrfTxInf/CdtrAgt/FinInstnId/BIC').content
+  end
+
+  def test_name_is_set_correctly
+    assert_equal @params[:name],
+      @transaction_node.at('/CdtTrfTxInf/Cdtr/Nm').content
+  end
+
+  def test_first_address_line_is_set_correctly
+    assert_equal @params[:address],
+      @transaction_node.at('/CdtTrfTxInf/Cdtr/PstlAdr/AdrLine[1]').content
+  end
+
+  def test_second_address_line_is_set_correctly
+    assert_equal "#{@params[:country]}-#{@params[:postcode]} #{@params[:town]}",
+      @transaction_node.at('/CdtTrfTxInf/Cdtr/PstlAdr/AdrLine[2]').content
+  end
+
+  def test_street_name_is_set_correctly
+    assert_equal @params[:address],
+      @transaction_node.at('/CdtTrfTxInf/Cdtr/PstlAdr/StrtNm').content
+  end
+
+  def test_postcode_is_set_correctly
+    assert_equal "#{@params[:country]}-#{@params[:postcode]}",
+      @transaction_node.at('/CdtTrfTxInf/Cdtr/PstlAdr/PstCd').content
+  end
+
+  def test_town_is_set_correctly
+    assert_equal @params[:town],
+      @transaction_node.at('/CdtTrfTxInf/Cdtr/PstlAdr/TwnNm').content
+  end
+
+  def test_country_is_set_correctly
+    assert_equal @params[:country],
+      @transaction_node.at('/CdtTrfTxInf/Cdtr/PstlAdr/Ctry').content
+  end
+
+  def test_iban_is_set_correctly
+    assert_equal @params[:iban],
+      @transaction_node.at('/CdtTrfTxInf/CdtrAcct/Id/IBAN').content
+  end
+
+  def test_reference_is_set_if_present
+    assert_equal @params[:reference],
+    @transaction_node.at(
+      '/CdtTrfTxInf/RmtInf/Strd/CdtrRefInf/CdtrRef'
+    ).content
+  end
+
+  def test_message_is_not_set_when_reference_is_present
+    refute @transaction_node.at('/CdtTrfTxInf/RmtInf/Ustrd')
+  end
+
+  def test_message_is_set_when_reference_not_present
+    @params.delete(:reference)
+
+    transaction = Sepa::Transaction.new(@params)
+    transaction_node = transaction.to_node
+
+    assert_equal @params[:message],
+      transaction_node.at('/CdtTrfTxInf/RmtInf/Ustrd').content
   end
 end
