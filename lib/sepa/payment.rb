@@ -1,6 +1,6 @@
 module Sepa
   class Payment
-    def initialize(params)
+    def initialize(debtor, params)
       @payment_info_id = params.fetch(:payment_info_id)
       @execution_date = params.fetch(:execution_date)
 
@@ -9,16 +9,17 @@ module Sepa
       @debtor_country = debtor.fetch(:country)
       @debtor_postcode = debtor.fetch(:postcode)
       @debtor_town = debtor.fetch(:town)
-      @debtor_customer_id = debtor.fetch(:customer_id)
-      @debtor_y_tunnus = debtor.fetch(:y_tunnus)
+      @debtor_customer_id = debtor[:customer_id]
+      @debtor_y_tunnus = debtor[:y_tunnus]
       @debtor_iban = debtor.fetch(:iban)
       @debtor_bic = debtor.fetch(:bic)
 
-      @transactions = transactions
+      @transactions = params.fetch(:transactions)
     end
 
     def to_node
-      build.doc.root
+      node = build.doc.root
+      add_transactions(node)
     end
 
     private
@@ -71,6 +72,14 @@ module Sepa
             xml.ChrgBr 'SLEV'
           }
         end
+      end
+
+      def add_transactions(node)
+        @transactions.each do |transaction|
+          node.add_child(transaction.to_node)
+        end
+
+        node
       end
   end
 end
