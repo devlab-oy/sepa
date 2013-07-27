@@ -22,6 +22,10 @@ module Sepa
       add_transactions(node)
     end
 
+    def number_of_transactions
+      @transactions.count
+    end
+
     private
 
       def build
