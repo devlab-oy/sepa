@@ -155,9 +155,8 @@ class TestPayload < MiniTest::Test
       File.read("#{@schemas_path}/pain.001.001.02.xsd")
     )
     doc = Nokogiri::XML(@payload.to_xml)
-    xsd.validate(doc).each do |error|
-      puts error.message
-    end
+
+    assert xsd.valid?(doc)
   end
 
   def test_debtor_name_is_added_correctly_to_group_header

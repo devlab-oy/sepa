@@ -103,8 +103,8 @@ debtor = {
   country: 'FI',
   postcode: '00100',
   town: 'Helsinki',
-  customer_id: '0987654321',
-  y_tunnus: '7391834327',
+  customer_id: '111111111',
+  y_tunnus: '111111111',
   iban: 'FI4819503000000010',
   bic: 'NDEAFIHH'
 }
@@ -138,6 +138,7 @@ payments.push(Sepa::Payment.new(debtor, payment_1_params))
 payments.push(Sepa::Payment.new(debtor, payment_2_params))
 
 payload = Sepa::Payload.new(debtor, payments)
+payload = payload.to_xml
 
 # The params hash is populated with the data that is needed for gem to function.
 params = {

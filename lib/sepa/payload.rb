@@ -69,58 +69,6 @@ module Sepa
         builder.doc
       end
 
-      def build_payment_info(root_e)
-        builder = Nokogiri::XML::Builder.with(root_e.at('Document > *')) do |xml|
-          xml.PmtInf {
-            xml.PmtInfId @payment_info_id
-            xml.PmtMtd 'TRF'
-
-            xml.PmtTpInf {
-              xml.SvcLvl {
-                xml.Cd 'SEPA'
-              }
-            }
-
-            xml.ReqdExctnDt @execution_date
-            xml.Dbtr {
-              xml.Nm @debtor_name
-              xml.PstlAdr {
-                xml.AdrLine @debtor_address
-                xml.AdrLine "#{@debtor_country}-#{@debtor_postcode} " \
-                "#{@debtor_town}"
-                xml.Ctry @debtor_country
-              }
-
-              xml.Id {
-                xml.OrgId {
-                  if @debtor_customer_id
-                    xml.BkPtyId @debtor_customer_id
-                  else
-                    xml.BkPtyId @debtor_y_tunnus
-                  end
-                }
-              }
-            }
-
-            xml.DbtrAcct {
-              xml.Id {
-                xml.IBAN @debtor_iban
-              }
-            }
-
-            xml.DbtrAgt {
-              xml.FinInstnId {
-                xml.BIC @debtor_bic
-              }
-            }
-
-            xml.ChrgBr 'SLEV'
-          }
-        end
-
-        builder.doc
-      end
-
       def add_payments(root_e)
         @payments.each do |payment|
           root_e.at(
