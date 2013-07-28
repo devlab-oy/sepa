@@ -7,7 +7,7 @@ module Sepa
       if params[:invoice_bundle]
         @amount = 0
         params[:invoice_bundle].each do |invoice|
-          @amount += invoice[:amount].to_f
+          @amount += invoice.fetch(:amount).to_f
         end
       else
         @amount = params.fetch(:amount)
@@ -42,6 +42,7 @@ module Sepa
               if @instruction_id
                 xml.InstrId @instruction_id
               end
+
               xml.EndToEndId @end_to_end_id
             }
 
@@ -98,12 +99,14 @@ module Sepa
                     message += "INVOICE/#{invoice[:invoice_number]}/"
                   end
                 end
+
                 xml.Ustrd message
+
                 @invoice_bundle.each do |invoice|
                   xml.Strd {
                     xml.RfrdDocInf {
                       xml.RfrdDocTp {
-                        xml.Cd invoice[:type]
+                        xml.Cd invoice.fetch(:type)
                       }
 
                       if invoice[:invoice_number]
@@ -111,10 +114,12 @@ module Sepa
                       end
                     }
                     xml.RfrdDocAmt {
-                      if invoice[:amount].to_f > 0
-                        xml.RmtdAmt(invoice[:amount], :Ccy => invoice[:currency])
+                      if invoice.fetch(:amount).to_f > 0
+                        xml.RmtdAmt(invoice[:amount],
+                                    :Ccy => invoice[:currency])
                       else
-                        xml.CdtNoteAmt(invoice[:amount].to_f.abs, :Ccy => invoice[:currency])
+                        xml.CdtNoteAmt(invoice[:amount].to_f.abs,
+                                       :Ccy => invoice[:currency])
                       end
                     }
 
@@ -129,6 +134,7 @@ module Sepa
                     end
                   }
                 end
+
               elsif @reference
                 xml.Strd {
                   xml.CdtrRefInf {

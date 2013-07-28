@@ -174,4 +174,69 @@ class TestTransaction < MiniTest::Test
     assert_equal @invoice_bundle.count,
       transaction_node.xpath('/CdtTrfTxInf/RmtInf/Strd').count
   end
+
+  def test_raises_key_error_if_end_to_end_id_missing
+    @params.delete(:end_to_end_id)
+    assert_raises(KeyError) { transaction = Sepa::Transaction.new(@params) }
+  end
+
+  def test_raises_key_error_if_invoice_amount_missing
+    @invoice_bundle[0].delete(:amount)
+    @params[:invoice_bundle] = @invoice_bundle
+
+    assert_raises(KeyError) { transaction = Sepa::Transaction.new(@params) }
+  end
+
+  def test_raises_key_error_if_invoice_type_missing
+    @invoice_bundle[1].delete(:type)
+    @params[:invoice_bundle] = @invoice_bundle
+    transaction = Sepa::Transaction.new(@params)
+
+    assert_raises(KeyError) { transaction.to_node }
+  end
+
+  def test_raises_key_error_if_amount_missing_when_not_invoice_bundle
+    @params.delete(:amount)
+    assert_raises(KeyError) { transaction = Sepa::Transaction.new(@params) }
+  end
+
+  def test_raises_key_error_if_currency_missing
+    @params.delete(:currency)
+    assert_raises(KeyError) { transaction = Sepa::Transaction.new(@params) }
+  end
+
+  def test_raises_key_error_if_bic_missing
+    @params.delete(:bic)
+    assert_raises(KeyError) { transaction = Sepa::Transaction.new(@params) }
+  end
+
+  def test_raises_key_error_if_name_missing
+    @params.delete(:name)
+    assert_raises(KeyError) { transaction = Sepa::Transaction.new(@params) }
+  end
+
+  def test_raises_key_error_if_address_missing
+    @params.delete(:address)
+    assert_raises(KeyError) { transaction = Sepa::Transaction.new(@params) }
+  end
+
+  def test_raises_key_error_if_country_missing
+    @params.delete(:country)
+    assert_raises(KeyError) { transaction = Sepa::Transaction.new(@params) }
+  end
+
+  def test_raises_key_error_if_postcode_missing
+    @params.delete(:postcode)
+    assert_raises(KeyError) { transaction = Sepa::Transaction.new(@params) }
+  end
+
+  def test_raises_key_error_if_town_missing
+    @params.delete(:town)
+    assert_raises(KeyError) { transaction = Sepa::Transaction.new(@params) }
+  end
+
+  def test_raises_key_error_if_iban_missing
+    @params.delete(:iban)
+    assert_raises(KeyError) { transaction = Sepa::Transaction.new(@params) }
+  end
 end
