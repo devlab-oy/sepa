@@ -26,6 +26,65 @@ Or install it yourself as:
 
 ## Usage
 
+### Building the payload
+
+1. Define parameters for the transactions. You need at least one and one payment can have multiple. It is also worth noting that one payload can also have multiple payments. Here's how the parameters are defined:
+
+        transactions_params = {
+          instruction_id: '70CEF29BEBA8396A1F806005EDA51DEE4CE',
+          end_to_end_id: '629CADFDAD5246AD915BA24A3C8E9FC3313',
+          amount: '30.75',
+          currency: 'EUR',
+          bic: 'NDEAFIHH',
+          name: 'Testi Saaja Oy',
+          address: 'Kokeilukatu 66',
+          country: 'FI',
+          postcode: '00200',
+          town: 'Helsinki',
+          iban: 'FI7429501800000014',
+          reference: '00000000000000001245',
+          message: 'Maksu'
+        }
+
+2. Create an array of Sepa::Transaction objects in which you put all the transactions of a given payment. You need to create an array for each payment separately.
+
+        payment_transactions = []
+
+        payment_transactions.push(Sepa::Transaction.new(transaction_params))
+
+3. Define the parameters for the payment/payments:
+
+        payment_params = {
+          payment_info_id: 'F56D46DDA136A981F58C05999479E768C92',
+          execution_date: '2013-08-10',
+          transactions: payment_transactions
+        }
+
+4. Define parameters for the debtor as follows:
+
+        debtor_params = {
+          name: 'Testi Maksaja Oy',
+          address: 'Testing Street 12',
+          country: 'FI',
+          postcode: '00100',
+          town: 'Helsinki',
+          customer_id: '111111111',
+          iban: 'FI4819503000000010',
+          bic: 'NDEAFIHH'
+        }
+
+5. Create an array of Sepa::Payment objects in which you put all the payments that are going to be in the payload.
+
+        payments = []
+
+        payments.push(Sepa::Payment.new(debtor_params, payment_params))
+
+6. Create the actual payload object:
+
+        payload = Sepa::Payload.new(debtor_params, payments)
+
+        payload.to_xml # Will return the payload as an xml document.
+
 ### Communicating with the bank
 
 1. Require the gem:
@@ -45,7 +104,7 @@ Or install it yourself as:
           target_id: '11111111A1',
           language: 'FI',
           file_type: 'TITO',
-          content: payload,
+          content: payload, # You can use the payload you may have constructed earlier. I.e. payload.to_xml
           file_reference: "11111111A12006030329501800000014"
         }
 

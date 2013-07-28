@@ -145,7 +145,6 @@ debtor = {
   postcode: '00100',
   town: 'Helsinki',
   customer_id: '111111111',
-  y_tunnus: '111111111',
   iban: 'FI4819503000000010',
   bic: 'NDEAFIHH'
 }

@@ -148,7 +148,6 @@ class TestPayload < MiniTest::Test
       postcode: '00100',
       town: 'Helsinki',
       customer_id: '0987654321',
-      y_tunnus: '7391834327',
       iban: 'FI4819503000000010',
       bic: 'NDEAFIHH'
     }
