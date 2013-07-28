@@ -212,4 +212,10 @@ class TestPayload < MiniTest::Test
       "//xmlns:GrpHdr/xmlns:NbOfTxs", 'xmlns' => @xmlns
     ).content
   end
+
+  def test_should_raise_schema_error_if_doesnt_validate_against_schema
+    @debtor[:name] = 'a'*71
+    payload = Sepa::Payload.new(@debtor, @payments)
+    assert_raises(SchemaError) { payload.to_xml }
+  end
 end

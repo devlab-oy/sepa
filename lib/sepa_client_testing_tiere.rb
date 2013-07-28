@@ -2,8 +2,8 @@
 require 'sepa'
 
 trans_1_params = {
-  instruction_id: '70CEF29BEBA8396A1F806005EDA51DEE4CE',
-  end_to_end_id: '629CADFDAD5246AD915BA24A3C8E9FC3313',
+  instruction_id: SecureRandom.hex,
+  end_to_end_id: SecureRandom.hex,
   amount: '30.75',
   currency: 'EUR',
   bic: 'NDEAFIHH',
@@ -18,8 +18,8 @@ trans_1_params = {
 }
 
 trans_2_params = {
-  instruction_id: 'A552D3EBB207B4AC17DF97C7D548A0571B0',
-  end_to_end_id: 'CDE1206C8745D6FBDCD2BBB02DB6CB6D3BE',
+  instruction_id: SecureRandom.hex,
+  end_to_end_id: SecureRandom.hex,
   amount: '1075.20',
   currency: 'EUR',
   bic: 'NDEAFIHH',
@@ -34,8 +34,8 @@ trans_2_params = {
 }
 
 trans_3_params = {
-  instruction_id: '44DB2850ABDFBEF2A32D0EE511BE5AB0B79',
-  end_to_end_id: 'A107CF858A22116D0C8EC1E78B078794B8C',
+  instruction_id: SecureRandom.hex,
+  end_to_end_id: SecureRandom.hex,
   amount: '10000',
   currency: 'EUR',
   bic: 'NDEAFIHH',
@@ -50,8 +50,8 @@ trans_3_params = {
 }
 
 trans_4_params = {
-  instruction_id: '16A0C311AF72F3F5E8B6704EB3B6086047C',
-  end_to_end_id: 'B10CE2EC71DB76114DDA68C9DAAA77A59DB',
+  instruction_id: SecureRandom.hex,
+  end_to_end_id: SecureRandom.hex,
   amount: '12',
   currency: 'EUR',
   bic: 'NDEAFIHH',
@@ -66,8 +66,8 @@ trans_4_params = {
 }
 
 trans_5_params = {
-  instruction_id: 'E0C01A8D65EA0BAB7CF1D4337FBCC3D33D7',
-  end_to_end_id: 'B10CE2EC71DB76114DDA68C9DAAA77A59DB',
+  instruction_id: SecureRandom.hex,
+  end_to_end_id: SecureRandom.hex,
   amount: '99.20',
   currency: 'EUR',
   bic: 'NDEAFIHH',
@@ -82,8 +82,8 @@ trans_5_params = {
 }
 
 trans_6_params = {
-  instruction_id: 'FD19CD1844B20B0E65E66EA307668B1C3F8',
-  end_to_end_id: 'CE9FF7E7CE5961AA1207C828DBFE467182F',
+  instruction_id: SecureRandom.hex,
+  end_to_end_id: SecureRandom.hex,
   amount: '15000',
   currency: 'EUR',
   bic: 'NDEAFIHH',
@@ -92,7 +92,7 @@ trans_6_params = {
   country: 'FI',
   postcode: '00900',
   town: 'Helsinki',
-  iban: 'FI7429501800000014',
+  iban: '0',
   reference: '000000000000000013247',
   message: 'Valuutan siirto toiselle tilille'
 }
@@ -121,13 +121,13 @@ payment_2_transactions.push(Sepa::Transaction.new(trans_5_params))
 payment_2_transactions.push(Sepa::Transaction.new(trans_6_params))
 
 payment_1_params = {
-  payment_info_id: 'F56D46DDA136A981F58C05999479E768C92',
+  payment_info_id: SecureRandom.hex,
   execution_date: '2013-08-10',
   transactions: payment_1_transactions
 }
 
 payment_2_params = {
-  payment_info_id: 'B60EECC432C306876FE3E23999DF7F43254',
+  payment_info_id: SecureRandom.hex,
   execution_date: '2013-08-15',
   transactions: payment_2_transactions
 }

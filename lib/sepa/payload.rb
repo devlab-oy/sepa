@@ -18,7 +18,15 @@ module Sepa
       doc = build_root
       doc = build_group_header(doc)
       add_payments(doc)
-      doc.to_xml
+
+      if valid_against_schema?(doc)
+        doc.to_xml
+      else
+        show_schema_errors(doc)
+
+        fail SchemaError, "The payload didn't validate against schema because of the " \
+          "errors above."
+      end
     end
 
     private
@@ -78,6 +86,26 @@ module Sepa
         end
 
         root_e
+      end
+
+      def valid_against_schema?(doc)
+        schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',
+                                        __FILE__)
+        xsd = Nokogiri::XML::Schema(
+          File.read("#{schemas_path}/pain.001.001.02.xsd")
+        )
+        xsd.valid?(doc)
+      end
+
+      def show_schema_errors(doc)
+        schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',
+                                        __FILE__)
+        xsd = Nokogiri::XML::Schema(
+          File.read("#{schemas_path}/pain.001.001.02.xsd")
+        )
+        xsd.validate(doc).each do |error|
+          puts error.message
+        end
       end
   end
 end
