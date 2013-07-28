@@ -3,7 +3,16 @@ module Sepa
     def initialize(params)
       @instruction_id = params[:instruction_id]
       @end_to_end_id = params.fetch(:end_to_end_id)
-      @amount = params.fetch(:amount)
+
+      if params[:invoice_bundle]
+        @amount = 0
+        params[:invoice_bundle].each do |invoice|
+          @amount += invoice[:amount].to_f
+        end
+      else
+        @amount = params.fetch(:amount)
+      end
+
       @currency = params.fetch(:currency)
       @bic = params.fetch(:bic)
       @name = params.fetch(:name)
@@ -17,6 +26,7 @@ module Sepa
       @salary = params[:salary]
       @pension = params[:pension]
       @social_security_number = params[:social_security_number]
+      @invoice_bundle = params[:invoice_bundle]
     end
 
     def to_node
@@ -79,7 +89,47 @@ module Sepa
             end
 
             xml.RmtInf {
-              if @reference
+              if @invoice_bundle
+                message = ''
+                @invoice_bundle.each do |invoice|
+                  if invoice[:reference]
+                    message += "RFS/#{invoice[:reference]}/"
+                  elsif invoice[:invoice_number]
+                    message += "INVOICE/#{invoice[:invoice_number]}/"
+                  end
+                end
+                xml.Ustrd message
+                @invoice_bundle.each do |invoice|
+                  xml.Strd {
+                    xml.RfrdDocInf {
+                      xml.RfrdDocTp {
+                        xml.Cd invoice[:type]
+                      }
+
+                      if invoice[:invoice_number]
+                        xml.RfrdDocNb invoice[:invoice_number]
+                      end
+                    }
+                    xml.RfrdDocAmt {
+                      if invoice[:amount].to_f > 0
+                        xml.RmtdAmt(invoice[:amount], :Ccy => invoice[:currency])
+                      else
+                        xml.CdtNoteAmt(invoice[:amount].to_f.abs, :Ccy => invoice[:currency])
+                      end
+                    }
+
+                    if invoice[:reference]
+                      xml.CdtrRefInf {
+                        xml.CdtrRefTp {
+                          xml.Cd 'SCOR'
+                        }
+
+                        xml.CdtrRef invoice[:reference]
+                      }
+                    end
+                  }
+                end
+              elsif @reference
                 xml.Strd {
                   xml.CdtrRefInf {
                     xml.CdtrRefTp {

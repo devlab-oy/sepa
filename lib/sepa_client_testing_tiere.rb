@@ -1,6 +1,41 @@
 # First the sepa gem is loaded by requiring it
 require 'sepa'
 
+@invoice_bundle = []
+
+invoice_1 = {
+  type: 'CINV',
+  amount: '700',
+  currency: 'EUR',
+  invoice_number: '123456'
+}
+
+invoice_2 = {
+  type: 'CINV',
+  amount: '300',
+  currency: 'EUR',
+  reference: '123456789',
+}
+
+invoice_3 = {
+  type: 'CREN',
+  amount: '-100',
+  currency: 'EUR',
+  invoice_number: '654321'
+}
+
+invoice_4 = {
+  type: 'CREN',
+  amount: '-500',
+  currency: 'EUR',
+  reference: '987654321'
+}
+
+@invoice_bundle.push(invoice_1)
+@invoice_bundle.push(invoice_2)
+@invoice_bundle.push(invoice_3)
+@invoice_bundle.push(invoice_4)
+
 trans_1_params = {
   instruction_id: SecureRandom.hex,
   end_to_end_id: SecureRandom.hex,
@@ -30,7 +65,8 @@ trans_2_params = {
   town: 'Helsinki',
   iban: 'FI7429501800000014',
   reference: '000000000000000034795',
-  message: 'Siirto'
+  message: 'Siirto',
+  invoice_bundle: @invoice_bundle
 }
 
 trans_3_params = {

@@ -2,6 +2,41 @@ require File.expand_path('../../test_helper.rb', __FILE__)
 
 class TestTransaction < MiniTest::Test
   def setup
+    @invoice_bundle = []
+
+    invoice_1 = {
+      type: 'CINV',
+      amount: '700',
+      currency: 'EUR',
+      invoice_number: '123456'
+    }
+
+    invoice_2 = {
+      type: 'CINV',
+      amount: '300',
+      currency: 'EUR',
+      reference: '123456789',
+    }
+
+    invoice_3 = {
+      type: 'CREN',
+      amount: '-100',
+      currency: 'EUR',
+      invoice_number: '654321'
+    }
+
+    invoice_4 = {
+      type: 'CREN',
+      amount: '-500',
+      currency: 'EUR',
+      reference: '987654321'
+    }
+
+    @invoice_bundle.push(invoice_1)
+    @invoice_bundle.push(invoice_2)
+    @invoice_bundle.push(invoice_3)
+    @invoice_bundle.push(invoice_4)
+
     @params = {
       instruction_id: '70CEF29BEBA8396A1F806005EDA51DEE4CE',
       end_to_end_id: '629CADFDAD5246AD915BA24A3C8E9FC3313',
@@ -129,5 +164,14 @@ class TestTransaction < MiniTest::Test
 
     assert_equal transaction_node.at('/CdtTrfTxInf/Purp/Cd').content,
       'PENS'
+  end
+
+  def test_invoice_bundle_is_added_correctly
+    @params[:invoice_bundle] = @invoice_bundle
+    transaction = Sepa::Transaction.new(@params)
+    transaction_node = transaction.to_node
+
+    assert_equal @invoice_bundle.count,
+      transaction_node.xpath('/CdtTrfTxInf/RmtInf/Strd').count
   end
 end
