@@ -65,7 +65,9 @@ class TestPayload < MiniTest::Test
       town: 'Helsinki',
       iban: 'FI7429501800000014',
       reference: '00000000000000001245',
-      message: 'Maksu'
+      message: 'Palkka heinakuulta',
+      salary: true,
+      social_security_number: '112233-0000'
     }
 
     trans_5_params = {
@@ -81,7 +83,8 @@ class TestPayload < MiniTest::Test
       town: 'Helsinki',
       iban: 'FI7429501800000014',
       reference: '000000000000000034795',
-      message: 'Siirto'
+      message: 'Elake',
+      pension: true
     }
 
     trans_6_params = {
@@ -97,7 +100,9 @@ class TestPayload < MiniTest::Test
       town: 'Helsinki',
       iban: 'FI7429501800000014',
       reference: '000000000000000013247',
-      message: 'Valuutan siirto toiselle tilille'
+      message: 'Palkka ajalta 15.6.2013 - 30.6.2013',
+      salary: true,
+      social_security_number: '112233-0001'
     }
 
     @debtor = {
@@ -132,6 +137,7 @@ class TestPayload < MiniTest::Test
     payment_2_params = {
       payment_info_id: 'B60EECC432C306876FE3E23999DF7F43254',
       execution_date: '2013-08-15',
+      salary_or_pension: true,
       transactions: payment_2_transactions
     }
 

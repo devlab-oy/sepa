@@ -62,7 +62,9 @@ trans_4_params = {
   town: 'Helsinki',
   iban: 'FI7429501800000014',
   reference: '00000000000000001245',
-  message: 'Maksu'
+  message: 'Palkka heinakuulta',
+  salary: true,
+  social_security_number: '112233-0010'
 }
 
 trans_5_params = {
@@ -78,7 +80,8 @@ trans_5_params = {
   town: 'Helsinki',
   iban: 'FI7429501800000014',
   reference: '000000000000000034795',
-  message: 'Siirto'
+  message: 'Elake',
+  pension: true
 }
 
 trans_6_params = {
@@ -92,9 +95,11 @@ trans_6_params = {
   country: 'FI',
   postcode: '00900',
   town: 'Helsinki',
-  iban: '0',
+  iban: 'FI7429501800000014',
   reference: '000000000000000013247',
-  message: 'Valuutan siirto toiselle tilille'
+  message: 'Palkka ajalta 15.6.2013 - 30.6.2013',
+  salary: true,
+  social_security_number: '112233-0096'
 }
 
 debtor = {
@@ -129,6 +134,7 @@ payment_1_params = {
 payment_2_params = {
   payment_info_id: SecureRandom.hex,
   execution_date: '2013-08-15',
+  salary_or_pension: true,
   transactions: payment_2_transactions
 }
 

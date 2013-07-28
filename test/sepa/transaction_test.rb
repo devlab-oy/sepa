@@ -15,7 +15,8 @@ class TestTransaction < MiniTest::Test
       town: 'Helsinki',
       iban: 'FI7429501800000014',
       reference: '00000000000000001245',
-      message: 'Maksu'
+      message: 'Maksu',
+      social_security_number: '112233-0005'
     }
 
     @transaction = Sepa::Transaction.new(@params)
@@ -110,5 +111,23 @@ class TestTransaction < MiniTest::Test
 
     assert_equal @params[:message],
       transaction_node.at('/CdtTrfTxInf/RmtInf/Ustrd').content
+  end
+
+  def test_social_security_number_is_set_correctly_when_salary
+    @params[:salary] = true
+    transaction = Sepa::Transaction.new(@params)
+    transaction_node = transaction.to_node
+
+    assert_equal @params[:social_security_number],
+      transaction_node.at('/CdtTrfTxInf/Cdtr/Id/PrvtId/SclSctyNb').content
+  end
+
+  def test_purpose_is_set_correctly_when_pension
+    @params[:pension] = true
+    transaction = Sepa::Transaction.new(@params)
+    transaction_node = transaction.to_node
+
+    assert_equal transaction_node.at('/CdtTrfTxInf/Purp/Cd').content,
+      'PENS'
   end
 end

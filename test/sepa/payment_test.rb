@@ -142,4 +142,13 @@ class TestPayment < MiniTest::Test
     assert_equal @params[:transactions].count,
       @payment_node.xpath('/PmtInf/CdtTrfTxInf').count
   end
+
+  def test_category_purpose_is_set_when_salary_or_pension
+    @params[:salary_or_pension] = true
+    payment = Sepa::Payment.new(@debtor, @params)
+    payment_node = payment.to_node
+
+    assert_equal 'SALA',
+      payment_node.at('/PmtInf/PmtTpInf/CtgyPurp').content
+  end
 end

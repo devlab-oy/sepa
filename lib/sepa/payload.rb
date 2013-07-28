@@ -24,8 +24,8 @@ module Sepa
       else
         show_schema_errors(doc)
 
-        fail SchemaError, "The payload didn't validate against schema because of the " \
-          "errors above."
+        fail SchemaError, "The payload didn't validate against schema " \
+          "because of the errors above."
       end
     end
 

@@ -14,6 +14,9 @@ module Sepa
       @iban = params.fetch(:iban)
       @reference = params[:reference]
       @message = params[:message]
+      @salary = params[:salary]
+      @pension = params[:pension]
+      @social_security_number = params[:social_security_number]
     end
 
     def to_node
@@ -53,6 +56,14 @@ module Sepa
                 xml.TwnNm @town
                 xml.Ctry @country
               }
+
+              if @salary
+                xml.Id {
+                  xml.PrvtId {
+                    xml.SclSctyNb @social_security_number
+                  }
+                }
+              end
             }
 
             xml.CdtrAcct {
@@ -60,6 +71,12 @@ module Sepa
                 xml.IBAN @iban
               }
             }
+
+            if @pension
+              xml.Purp {
+                xml.Cd 'PENS'
+              }
+            end
 
             xml.RmtInf {
               if @reference

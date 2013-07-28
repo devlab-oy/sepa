@@ -3,6 +3,7 @@ module Sepa
     def initialize(debtor, params)
       @payment_info_id = params.fetch(:payment_info_id)
       @execution_date = params.fetch(:execution_date)
+      @salary_or_pension = params[:salary_or_pension]
 
       @debtor_name = debtor.fetch(:name)
       @debtor_address = debtor.fetch(:address)
@@ -38,6 +39,10 @@ module Sepa
               xml.SvcLvl {
                 xml.Cd 'SEPA'
               }
+
+              if @salary_or_pension
+                xml.CtgyPurp 'SALA'
+              end
             }
 
             xml.ReqdExctnDt @execution_date
