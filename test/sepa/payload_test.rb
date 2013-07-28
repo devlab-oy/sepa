@@ -260,4 +260,39 @@ class TestPayload < MiniTest::Test
     payload = Sepa::Payload.new(@debtor, @payments)
     assert_raises(SchemaError) { payload.to_xml }
   end
+
+  def test_raises_key_error_if_debtor_name_missing
+    @debtor.delete(:name)
+    assert_raises(KeyError) { Sepa::Payload.new(@debtor, @payments) }
+  end
+
+  def test_raises_key_error_if_debtor_address_missing
+    @debtor.delete(:address)
+    assert_raises(KeyError) { Sepa::Payload.new(@debtor, @payments) }
+  end
+
+  def test_raises_key_error_if_debtor_country_missing
+    @debtor.delete(:country)
+    assert_raises(KeyError) { Sepa::Payload.new(@debtor, @payments) }
+  end
+
+  def test_raises_key_error_if_debtor_postcode_missing
+    @debtor.delete(:postcode)
+    assert_raises(KeyError) { Sepa::Payload.new(@debtor, @payments) }
+  end
+
+  def test_raises_key_error_if_debtor_town_missing
+    @debtor.delete(:town)
+    assert_raises(KeyError) { Sepa::Payload.new(@debtor, @payments) }
+  end
+
+  def test_raises_key_error_if_debtor_customer_id_missing
+    @debtor.delete(:customer_id)
+    assert_raises(KeyError) { Sepa::Payload.new(@debtor, @payments) }
+  end
+
+  def test_raises_key_error_if_payments_missing
+    @payments = nil
+    assert_raises(KeyError) { Sepa::Payload.new(@debtor, @payments) }
+  end
 end

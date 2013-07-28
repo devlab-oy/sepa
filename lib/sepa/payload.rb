@@ -7,11 +7,10 @@ module Sepa
       @debtor_postcode = debtor.fetch(:postcode)
       @debtor_town = debtor.fetch(:town)
       @debtor_customer_id = debtor.fetch(:customer_id)
-      @debtor_y_tunnus = debtor.fetch(:y_tunnus)
-      @debtor_iban = debtor.fetch(:iban)
-      @debtor_bic = debtor.fetch(:bic)
 
-      @payments = payments
+      unless @payments = payments
+        fail KeyError, 'No payments provided for the payload.'
+      end
     end
 
     def to_xml

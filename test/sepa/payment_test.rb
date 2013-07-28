@@ -57,7 +57,6 @@ class TestPayment < MiniTest::Test
       postcode: '00100',
       town: 'Helsinki',
       customer_id: '0987654321',
-      y_tunnus: '7391834327',
       iban: 'FI4819503000000010',
       bic: 'NDEAFIHH'
     }
@@ -118,16 +117,6 @@ class TestPayment < MiniTest::Test
       @payment_node.at('/PmtInf/Dbtr/Id/OrgId').content
   end
 
-  def test_debtors_y_tunnus_is_set_when_customer_id_not_present
-    @debtor.delete(:customer_id)
-
-    payment = Sepa::Payment.new(@debtor, @params)
-    payment_node = payment.to_node
-
-    assert_equal @debtor[:y_tunnus],
-      payment_node.at('/PmtInf/Dbtr/Id/OrgId').content
-  end
-
   def test_debtors_iban_is_set_correctly
     assert_equal @debtor[:iban],
       @payment_node.at('/PmtInf/DbtrAcct/Id/IBAN').content
@@ -150,5 +139,60 @@ class TestPayment < MiniTest::Test
 
     assert_equal 'SALA',
       payment_node.at('/PmtInf/PmtTpInf/CtgyPurp').content
+  end
+
+  def test_raises_key_error_if_payment_info_id_missing
+    @params.delete(:payment_info_id)
+    assert_raises(KeyError) { Sepa::Payment.new(@debtor, @params) }
+  end
+
+  def test_raises_key_error_if_execution_date_missing
+    @params.delete(:execution_date)
+    assert_raises(KeyError) { Sepa::Payment.new(@debtor, @params) }
+  end
+
+  def test_raises_key_error_if_debtor_name_missing
+    @debtor.delete(:name)
+    assert_raises(KeyError) { Sepa::Payment.new(@debtor, @params) }
+  end
+
+  def test_raises_key_error_if_debtor_address_missing
+    @debtor.delete(:address)
+    assert_raises(KeyError) { Sepa::Payment.new(@debtor, @params) }
+  end
+
+  def test_raises_key_error_if_debtor_country_missing
+    @debtor.delete(:country)
+    assert_raises(KeyError) { Sepa::Payment.new(@debtor, @params) }
+  end
+
+  def test_raises_key_error_if_debtor_postcode_missing
+    @debtor.delete(:postcode)
+    assert_raises(KeyError) { Sepa::Payment.new(@debtor, @params) }
+  end
+
+  def test_raises_key_error_if_debtor_town_missing
+    @debtor.delete(:town)
+    assert_raises(KeyError) { Sepa::Payment.new(@debtor, @params) }
+  end
+
+  def test_raises_key_error_if_debtor_customer_id_missing
+    @debtor.delete(:customer_id)
+    assert_raises(KeyError) { Sepa::Payment.new(@debtor, @params) }
+  end
+
+  def test_raises_key_error_if_debtor_iban_missing
+    @debtor.delete(:iban)
+    assert_raises(KeyError) { Sepa::Payment.new(@debtor, @params) }
+  end
+
+  def test_raises_key_error_if_debtor_bic_missing
+    @debtor.delete(:bic)
+    assert_raises(KeyError) { Sepa::Payment.new(@debtor, @params) }
+  end
+
+  def test_raises_key_error_if_transactions_missing
+    @params.delete(:transactions)
+    assert_raises(KeyError) { Sepa::Payment.new(@debtor, @params) }
   end
 end

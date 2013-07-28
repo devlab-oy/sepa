@@ -10,8 +10,7 @@ module Sepa
       @debtor_country = debtor.fetch(:country)
       @debtor_postcode = debtor.fetch(:postcode)
       @debtor_town = debtor.fetch(:town)
-      @debtor_customer_id = debtor[:customer_id]
-      @debtor_y_tunnus = debtor[:y_tunnus]
+      @debtor_customer_id = debtor.fetch(:customer_id)
       @debtor_iban = debtor.fetch(:iban)
       @debtor_bic = debtor.fetch(:bic)
 
