@@ -63,8 +63,6 @@ module Sepa
                 xml.OrgId {
                   if @debtor_customer_id
                     xml.BkPtyId @debtor_customer_id
-                  else
-                    xml.BkPtyId @debtor_y_tunnus
                   end
                 }
               }
