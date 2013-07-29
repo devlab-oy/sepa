@@ -13,6 +13,8 @@ module Sepa
       end
     end
 
+    # Returns a Nokogiri::XML document if the document validates against the
+    # schema.
     def to_xml
       doc = build_root
       doc = build_group_header(doc)
@@ -30,12 +32,14 @@ module Sepa
 
     private
 
+      # Gets the number of transactions in this payload.
       def number_of_transactions
         count = 0
         @payments.each { |payment| count += payment.number_of_transactions }
         count
       end
 
+      # Builds the root and pain elements with namespace and schema definitions.
       def build_root
         builder = Nokogiri::XML::Builder.new do |xml|
           xml.Document(
@@ -51,6 +55,7 @@ module Sepa
         builder.doc
       end
 
+      # Builds the group header.
       def build_group_header(root_e)
         builder = Nokogiri::XML::Builder.with(root_e.at('Document > *')) do |xml|
           xml.GrpHdr {
@@ -76,6 +81,7 @@ module Sepa
         builder.doc
       end
 
+      # Adds all the payments specified in the parameters to the payload.
       def add_payments(root_e)
         @payments.each do |payment|
           root_e.at(
@@ -87,6 +93,7 @@ module Sepa
         root_e
       end
 
+      # Checks whether the payload validates against the schema.
       def valid_against_schema?(doc)
         schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',
                                         __FILE__)
@@ -96,6 +103,7 @@ module Sepa
         xsd.valid?(doc)
       end
 
+      # Shows all the errors that a schema validation of the document produces.
       def show_schema_errors(doc)
         schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',
                                         __FILE__)

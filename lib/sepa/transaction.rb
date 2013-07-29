@@ -4,6 +4,8 @@ module Sepa
       @instruction_id = params[:instruction_id]
       @end_to_end_id = params.fetch(:end_to_end_id)
 
+      # If the parameters contains an invoice bundle, the amount is taken from
+      # them.
       if params[:invoice_bundle]
         @amount = 0
         params[:invoice_bundle].each do |invoice|
@@ -29,12 +31,14 @@ module Sepa
       @invoice_bundle = params[:invoice_bundle]
     end
 
+    # Returns a Nokogiri::XML::Node of the transaction.
     def to_node
       build.doc.root
     end
 
     private
 
+      # Builds the transaction
       def build
         Nokogiri::XML::Builder.new do |xml|
           xml.CdtTrfTxInf {
@@ -68,6 +72,8 @@ module Sepa
                 xml.Ctry @country
               }
 
+              # Social security number needs to be added in case the transaction
+              # contains a salary.
               if @salary
                 xml.Id {
                   xml.PrvtId {
@@ -83,6 +89,8 @@ module Sepa
               }
             }
 
+            # If the transaction contains a pension, this element needs to be
+            # specified.
             if @pension
               xml.Purp {
                 xml.Cd 'PENS'
@@ -90,6 +98,10 @@ module Sepa
             end
 
             xml.RmtInf {
+
+              # In case this transaction contains an invoice bundle, a Strd
+              # element is added for each invoice either with an invoice number
+              # or a reference.
               if @invoice_bundle
                 message = ''
                 @invoice_bundle.each do |invoice|

@@ -28,16 +28,21 @@ Or install it yourself as:
 
 ### Building the payload
 
-Optional step:
-
-* You can also have an invoice bundle included in a given transaction. If that is the case, you first have to define the invoices as follows:
+* You can optionally have an invoice bundle included in a given transaction. If that is the case, you first have to define the invoices i.e. as follows:
 
         invoice_bundle = []
     
         invoice_1 = {
+
+          # Has to be either CINV for normal invoice or CREN for credit note.
           type: 'CINV',
+
+          # Positive for invoices and negative for credits.
           amount: '700',
+
           currency: 'EUR',
+
+          # You either have to specify an invoice number or a reference.
           invoice_number: '123456'
         }
         
@@ -62,6 +67,8 @@ Optional step:
           reference: '987654321'
         }
         
+        # All the invoices are pushed to an array which is later included in the
+        # transaction's params.
         invoice_bundle.push(invoice_1)
         invoice_bundle.push(invoice_2)
         invoice_bundle.push(invoice_3)

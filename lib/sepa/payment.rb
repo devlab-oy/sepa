@@ -17,17 +17,20 @@ module Sepa
       @transactions = params.fetch(:transactions)
     end
 
+    # Returns a Nokogiri::XML::Node of the payment.
     def to_node
       node = build.doc.root
       add_transactions(node)
     end
 
+    # Returns the number of transactions in this payment.
     def number_of_transactions
       @transactions.count
     end
 
     private
 
+      # Builds the payment.
       def build
         Nokogiri::XML::Builder.new do |xml|
           xml.PmtInf {
@@ -39,6 +42,8 @@ module Sepa
                 xml.Cd 'SEPA'
               }
 
+              # Needs to be specified in case the payment contains salaris or
+              # pensions.
               if @salary_or_pension
                 xml.CtgyPurp 'SALA'
               end
@@ -82,6 +87,7 @@ module Sepa
         end
       end
 
+      # Adds the transactions specified in the params hash to the payment.
       def add_transactions(node)
         @transactions.each do |transaction|
           node.add_child(transaction.to_node)
