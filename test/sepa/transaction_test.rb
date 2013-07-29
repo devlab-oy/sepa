@@ -239,4 +239,124 @@ class TestTransaction < MiniTest::Test
     @params.delete(:iban)
     assert_raises(KeyError) { transaction = Sepa::Transaction.new(@params) }
   end
+
+  def test_amount_is_set_correctly_when_invoice_bundle
+    @params[:invoice_bundle] = @invoice_bundle
+    transaction = Sepa::Transaction.new(@params)
+    transaction_node = transaction.to_node
+
+    amount = 0
+    @invoice_bundle.each { |i| amount += i[:amount].to_f }
+
+    assert_equal amount.to_s,
+      transaction_node.at('/CdtTrfTxInf/Amt/InstdAmt').content
+  end
+
+  def test_invoice_type_is_set_correctly_when_invoice_bundle
+    @params[:invoice_bundle] = @invoice_bundle
+    transaction = Sepa::Transaction.new(@params)
+    transaction_node = transaction.to_node
+
+    type_nodes = transaction_node.xpath('//Strd/RfrdDocInf/RfrdDocTp/Cd')
+
+    types_in_doc = []
+
+    type_nodes.each { |t| types_in_doc.push(t.content) }
+
+    types_in_params = []
+
+    @invoice_bundle.each { |i| types_in_params.push(i[:type]) }
+
+    type_hash = types_in_doc.zip(types_in_params)
+
+    type_hash.each { |key, value| assert_equal key, value }
+  end
+
+  def test_invoice_number_is_set_correctly_when_invoice_bundle
+    @params[:invoice_bundle] = @invoice_bundle
+    transaction = Sepa::Transaction.new(@params)
+    transaction_node = transaction.to_node
+
+    number_nodes = transaction_node.xpath('//Strd/RfrdDocInf/RfrdDocNb')
+
+    numbers_in_doc = []
+
+    number_nodes.each { |t| numbers_in_doc.push(t.content) }
+
+    numbers_in_params = []
+
+    @invoice_bundle.each do |i|
+      numbers_in_params.push(i[:invoice_number]) unless i[:invoice_number].nil?
+    end
+
+    number_hash = numbers_in_doc.zip(numbers_in_params)
+
+    number_hash.each { |key, value| assert_equal key, value }
+  end
+
+  def test_invoice_reference_is_set_correctly_when_invoice_bundle
+    @params[:invoice_bundle] = @invoice_bundle
+    transaction = Sepa::Transaction.new(@params)
+    transaction_node = transaction.to_node
+
+    reference_nodes = transaction_node.xpath('//Strd/CdtrRefInf/CdtrRef')
+
+    references_in_doc = []
+
+    reference_nodes.each { |t| references_in_doc.push(t.content) }
+
+    references_in_params = []
+
+    @invoice_bundle.each do |i|
+      references_in_params.push(i[:reference]) unless i[:reference].nil?
+    end
+
+    reference_hash = references_in_doc.zip(references_in_params)
+
+    reference_hash.each { |key, value| assert_equal key, value }
+  end
+
+  def test_invoice_amount_is_set_correctly_when_invoice_bundle_and_not_credit
+    @params[:invoice_bundle] = @invoice_bundle
+    transaction = Sepa::Transaction.new(@params)
+    transaction_node = transaction.to_node
+
+    amount_nodes = transaction_node.xpath('//Strd/RfrdDocAmt/RmtdAmt')
+
+    amounts_in_doc = []
+
+    amount_nodes.each { |a| amounts_in_doc.push(a.content) }
+
+    amounts_in_params = []
+
+    @invoice_bundle.each do |i|
+      amounts_in_params.push(i[:amount]) unless i[:amount].to_f < 0
+    end
+
+    amount_hash = amounts_in_doc.zip(amounts_in_params)
+
+    amount_hash.each { |key, value| assert_equal key, value }
+  end
+
+  def test_invoice_amount_is_set_correctly_when_invoice_bundle_and_credit
+    @params[:invoice_bundle] = @invoice_bundle
+    transaction = Sepa::Transaction.new(@params)
+    transaction_node = transaction.to_node
+
+    amount_nodes = transaction_node.xpath('//Strd/RfrdDocAmt/CdtNoteAmt')
+
+    amounts_in_doc = []
+
+    amount_nodes.each { |a| amounts_in_doc.push(a.content) }
+
+    amounts_in_params = []
+
+    @invoice_bundle.each do |i|
+      amounts_in_params.push(i[:amount].to_f.abs.to_s) unless i[:amount].to_f > 0
+    end
+
+    amount_hash = amounts_in_doc.zip(amounts_in_params)
+
+    amount_hash.each { |key, value| assert_equal key, value }
+  end
 end
