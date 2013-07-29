@@ -105,10 +105,19 @@ module Sepa
               if @invoice_bundle
                 message = ''
                 @invoice_bundle.each do |invoice|
+
+                  if invoice[:amount].to_f < 0
+                    amount = "#{invoice[:amount].to_f.abs}-"
+                  else
+                    amount = invoice[:amount]
+                  end
+
                   if invoice[:reference]
-                    message += "RFS/#{invoice[:reference]}/"
+                    message += "RFS/#{invoice[:reference]}/" \
+                      "#{invoice[:currency]}#{amount}/"
                   elsif invoice[:invoice_number]
-                    message += "INVOICE/#{invoice[:invoice_number]}/"
+                    message += "#{invoice[:type]}/#{invoice[:invoice_number]}/" \
+                      "#{invoice[:currency]}#{amount}/"
                   end
                 end
 
