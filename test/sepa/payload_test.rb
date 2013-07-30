@@ -257,7 +257,7 @@ class TestPayload < MiniTest::Test
   def test_should_raise_schema_error_if_doesnt_validate_against_schema
     @debtor[:name] = 'a'*71
     payload = Sepa::Payload.new(@debtor, @payments)
-    assert_raises(SchemaError) { payload.to_xml }
+    refute payload.valid?, payload.errors.join("\n")
   end
 
   def test_raises_key_error_if_debtor_name_missing

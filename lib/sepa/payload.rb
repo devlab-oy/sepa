@@ -11,26 +11,33 @@ module Sepa
       unless @payments = payments
         fail KeyError, 'No payments provided for the payload.'
       end
+
+      @doc = build
     end
 
-    # Returns a Nokogiri::XML document if the document validates against the
-    # schema.
     def to_xml
-      doc = build_root
-      doc = build_group_header(doc)
-      add_payments(doc)
+       @doc.to_xml
+    end
 
-      if valid_against_schema?(doc)
-        doc.to_xml
-      else
-        show_schema_errors(doc)
+    # Checks whether the payload validates against the schema.
+    def valid?
+      @xsd ||= load_schema
+      @xsd.valid?(@doc)
+    end
 
-        fail SchemaError, "The payload didn't validate against schema " \
-          "because of the errors above."
-      end
+    # Errors that a schema validation of the document produces.
+    def errors
+      @xsd ||= load_schema
+      @xsd.validate(@doc).collect { |e| e.message }
     end
 
     private
+
+      def build
+        doc = build_root
+        doc = build_group_header(doc)
+        add_payments(doc)
+      end
 
       # Gets the number of transactions in this payload.
       def number_of_transactions
@@ -93,26 +100,10 @@ module Sepa
         root_e
       end
 
-      # Checks whether the payload validates against the schema.
-      def valid_against_schema?(doc)
-        schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',
-                                        __FILE__)
-        xsd = Nokogiri::XML::Schema(
-          File.read("#{schemas_path}/pain.001.001.02.xsd")
-        )
-        xsd.valid?(doc)
+      def load_schema
+        schemas_path = File.expand_path('../../../lib/sepa/xml_schemas', __FILE__)
+        xsd = Nokogiri::XML::Schema(File.read("#{schemas_path}/pain.001.001.02.xsd"))
       end
 
-      # Shows all the errors that a schema validation of the document produces.
-      def show_schema_errors(doc)
-        schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',
-                                        __FILE__)
-        xsd = Nokogiri::XML::Schema(
-          File.read("#{schemas_path}/pain.001.001.02.xsd")
-        )
-        xsd.validate(doc).each do |error|
-          puts error.message
-        end
-      end
   end
 end
