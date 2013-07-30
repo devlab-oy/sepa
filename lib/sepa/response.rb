@@ -1,7 +1,11 @@
 module Sepa
   class Response
     def initialize(response)
-      @response = response
+      unless response.respond_to?(:canonicalize)
+        @response = Nokogiri::XML(response.to_xml)
+      else
+        @response = response
+      end
 
       if !@response.respond_to?(:canonicalize)
         fail ArgumentError,
@@ -29,7 +33,7 @@ module Sepa
         fail OpenSSL::X509::CertificateError,
           "The certificate embedded to the soap response could not be process" \
           "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
-          end
+      end
     end
 
     # Verifies that the soap's certificate is trusted.

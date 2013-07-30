@@ -219,10 +219,6 @@ params = {
   # - NDCAMT54L = Saapuvat XML viitemaksu (saapuva)
   file_type: 'NDCORPAYS',
 
-  # The WSDL file used by nordea. Is identical between banks except for the
-  # address.
-  wsdl: 'sepa/wsdl/wsdl_nordea.xml',
-
   # The actual payload to send.
   content: payload,
 
@@ -255,3 +251,7 @@ puts "\nSome info about response's certificate:\n" \
   "Issuer: #{ar.certificate.issuer}\n" \
   "First day to use this certificate: #{ar.certificate.not_before}\n" \
   "Expires: #{ar.certificate.not_after}"
+
+
+data = response.get_important_data(:download_file_list)
+puts data

@@ -88,6 +88,8 @@ module Sepa
           path = "#{@template_path}/get_certificate.xml"
         when :get_bank_certificate
           path = "#{@template_path}/danske_get_bank_certificate.xml"
+        when :create_certificate
+          path = "#{@template_path}/create_certificate.xml"
         end
 
         body_template = File.open(path)
@@ -166,11 +168,14 @@ module Sepa
           check_pin(params[:pin])
           check_service(params[:service])
         when *generic_commands
-          if params[:bank] == :nordea
+          #if params[:bank] == :nordea
             check_lang(params[:language])
             check_status(params[:status])
             check_target_id(params[:target_id])
             check_file_type(params[:file_type])
+          #    end
+          if params[:command] == :download_file
+            check_file_reference(params[:file_reference])
           end
         when :upload_file
           check_lang(params[:language])
@@ -179,217 +184,263 @@ module Sepa
           check_content(params[:content])
         when :get_bank_certificate
           if params[:bank] == :danske
-            # Nothing here
+            check_target_id(params[:target_id])
+            check_bank_root_cert_serial(params[:bank_root_cert_serial])
           end
+        when :create_certificate
+          check_pin(params[:pin])
+          check_keygen_type(params[:key_generator_type])
         else
           fail ArgumentError, "Command not supported."
         end
       end
 
-      def check_csr(csr)
-        unless csr
-          fail ArgumentError, "You didn't provide a certificate signing request"
-        end
-      end
-
-      def check_params_hash(params)
-        unless params.respond_to?(:each_pair)
-          fail ArgumentError, "You didn't provide a proper hash"
-        end
-      end
-
-      def check_bank(bank)
-        unless [:nordea, :danske].include?(bank)
-          fail ArgumentError, "You didn't provide a proper bank. " \
-            "Acceptable values are nordea OR danske."
-        end
-      end
-
-      def check_request_id(request_id)
-        if request_id.to_i == 0
-          fail ArgumentError, "Request ID must be a number and not 0"
-        end
-      end
-
-      def check_keygen_type(keygen)
-        unless keygen
-          fail ArgumentError, "You didn't provide any Key Generator Type"
-        end
-      end
-
-      def check_encryption_pkcs10(enc_cert)
-        unless enc_cert
-          fail ArgumentError, "You didn't provide Encrypting certificate PKCS10"
-        end
-      end
-
-      def check_signing_pkcs10(sig_cert)
-        unless sig_cert
-          fail ArgumentError, "You didn't provide Signing certificate PKCS10"
-        end
-      end
-
-      def check_pin(pin)
-        unless pin
-          fail ArgumentError, "You didn't provide a secret PIN"
-        end
-      end
-
-      def check_private_key(private_key)
-        unless private_key.respond_to?(:sign)
-          fail ArgumentError, "You didn't provide a proper private key. The " \
-            "key has to be in OpenSSL::PKey::RSA - format."
-        end
-      end
-
-      def check_cert(cert)
-        unless cert.respond_to?(:check_private_key)
-          fail ArgumentError, "You didn't provide a proper certificate. The " \
-            "certificate has to be in OpenSSL::X509::Certificate - format."
-        end
-      end
-
-      def check_customer_id(customer_id)
-        unless customer_id && customer_id.respond_to?(:to_s) &&
-            customer_id.length <= 16
-          fail ArgumentError, "You didn't provide a proper customer id"
-        end
-      end
-
-      def check_env(env)
-        unless ['PRODUCTION', 'TEST', 'customertest'].include?(env)
-          fail ArgumentError, "You didn't provide a proper environment. " \
-            "Acceptable values are PRODUCTION or TEST or customertest."
-        end
-      end
-
-      def check_status(status)
-        unless ['NEW', 'DOWNLOADED', 'ALL'].include?(status)
-          fail ArgumentError, "You didn't provide a proper status. " \
-            "Acceptable values are NEW, DOWNLOADED or ALL."
-        end
-      end
-
-      def check_target_id(target_id)
-        unless target_id && target_id.respond_to?(:to_s) &&
-            target_id.length <= 80
-          fail ArgumentError, "You didn't provide a proper target id"
-        end
-      end
-
-      def check_lang(lang)
-        unless ['FI', 'SE', 'EN'].include?(lang)
-          fail ArgumentError, "You didn't provide a proper language. " \
-            "Acceptable values are FI, SE or EN."
-        end
-      end
-
-      def check_file_type(file_type)
-        unless file_type && file_type.respond_to?(:to_s) &&
-            file_type.length <= 20
-          fail ArgumentError, "You didn't provide a proper file type. Check " \
-            "Your bank's documentation for available file types."
-        end
-      end
-
-      def check_content(content)
-        unless content
-          fail ArgumentError, "You didn't provide any content."
-        end
-      end
-
-      def check_service(service)
-        unless ['service', 'ISSUER', 'MATU'].include?(service)
-          fail ArgumentError, "You didn't provide a proper service."
-        end
-      end
-
-      def check_hmac(hmac)
-        unless hmac
-          fail ArgumentError, "You didn't provide any HMAC."
-        end
-      end
-
-      def check_if_bank_allows_command(params)
-        bank = params.fetch(:bank)
-        command = params.fetch(:command)
-        case bank
-        when :nordea
-          allowed_commands = [:get_certificate,:get_user_info,
-                              :download_file_list,:download_file,:upload_file]
-          unless allowed_commands.include?(command)
-            fail ArgumentError, "You didn't provide a matching bank and service."
+          def check_bank_root_cert_serial(brootcertser)
+            unless brootcertser.to_i == 1111110002
+              fail ArgumentError, "You didn't provide a bank root cert serial "\
+                " which is currently '1111110002'"
+            end
           end
-        when :danske
-          allowed_commands = [:get_bank_certificate]
-          unless allowed_commands.include?(command)
-            fail ArgumentError, "You didn't provide a matching bank and service."
+          def check_file_reference(fileref)
+            unless fileref
+              fail ArgumentError, "You didn't provide a file reference"
+            end
+          end
+
+          def check_params_hash(params)
+            unless params.respond_to?(:each_pair)
+              fail ArgumentError, "You didn't provide a proper hash"
+            end
+          end
+
+          def check_bank(bank)
+            unless [:nordea, :danske].include?(bank)
+              fail ArgumentError, "You didn't provide a proper bank. " \
+                "Acceptable values are nordea OR danske."
+            end
+          end
+
+          def check_request_id(request_id)
+            if request_id.to_i == 0
+              fail ArgumentError, "Request ID must be a number and not 0"
+            end
+          end
+
+          def check_keygen_type(keygen)
+            unless keygen
+              fail ArgumentError, "You didn't provide any Key Generator Type"
+            end
+          end
+
+          def check_encryption_pkcs10(enc_cert)
+            unless enc_cert
+              fail ArgumentError, "You didn't provide Encrypting certificate PKCS10"
+            end
+          end
+
+          def check_signing_pkcs10(sig_cert)
+            unless sig_cert
+              fail ArgumentError, "You didn't provide Signing certificate PKCS10"
+            end
+          end
+
+          def check_pin(pin)
+            unless pin
+              fail ArgumentError, "You didn't provide a secret PIN"
+            end
+          end
+
+          def check_private_key(private_key)
+            unless private_key.respond_to?(:sign)
+              fail ArgumentError, "You didn't provide a proper private key. The " \
+                "key has to be in OpenSSL::PKey::RSA - format."
+            end
+          end
+
+          def check_cert(cert)
+            unless cert.respond_to?(:check_private_key)
+              fail ArgumentError, "You didn't provide a proper certificate. The " \
+                "certificate has to be in OpenSSL::X509::Certificate - format."
+            end
+          end
+
+          def check_customer_id(customer_id)
+            unless customer_id && customer_id.respond_to?(:to_s) &&
+                customer_id.length <= 16
+              fail ArgumentError, "You didn't provide a proper customer id"
+            end
+          end
+
+          def check_env(env)
+            unless ['PRODUCTION', 'TEST', 'customertest'].include?(env)
+              fail ArgumentError, "You didn't provide a proper environment. " \
+                "Acceptable values are PRODUCTION or TEST or customertest."
+            end
+          end
+
+          def check_status(status)
+            unless ['NEW', 'DOWNLOADED', 'ALL'].include?(status)
+              fail ArgumentError, "You didn't provide a proper status. " \
+                "Acceptable values are NEW, DOWNLOADED or ALL."
+            end
+          end
+
+          def check_target_id(target_id)
+            unless target_id && target_id.respond_to?(:to_s) &&
+                target_id.length <= 80
+              fail ArgumentError, "You didn't provide a proper target id"
+            end
+          end
+
+          def check_lang(lang)
+            unless ['FI', 'SE', 'EN'].include?(lang)
+              fail ArgumentError, "You didn't provide a proper language. " \
+                "Acceptable values are FI, SE or EN."
+            end
+          end
+
+          def check_file_type(file_type)
+            unless file_type && file_type.respond_to?(:to_s) &&
+                file_type.length <= 20
+              fail ArgumentError, "You didn't provide a proper file type. Check " \
+                "Your bank's documentation for available file types."
+            end
+          end
+
+          def check_content(content)
+            unless content
+              fail ArgumentError, "You didn't provide any content."
+            end
+          end
+
+          def check_service(service)
+            unless ['service', 'ISSUER', 'MATU'].include?(service)
+              fail ArgumentError, "You didn't provide a proper service."
+            end
+          end
+
+          def check_hmac(hmac)
+            unless hmac
+              fail ArgumentError, "You didn't provide any HMAC."
+            end
+          end
+
+          def check_if_bank_allows_command(params)
+            begin
+            bank = params.fetch(:bank)
+            command = params.fetch(:command)
+            case bank
+            when :nordea
+              allowed_commands = [:get_certificate,:get_user_info,
+                                  :download_file_list,:download_file,:upload_file]
+              unless allowed_commands.include?(command)
+                fail ArgumentError, "You didn't provide a matching bank and service."
+              end
+            when :danske
+              allowed_commands = [:get_bank_certificate, :get_user_info,
+                                  :download_file_list,:download_file,:upload_file,
+                                  :create_certificate]
+              unless allowed_commands.include?(command)
+                fail ArgumentError, "You didn't provide a matching bank and service."
+              end
+            end
+            rescue
+              fail ArgumentError, "RUN YOU FOOLS"
+            end
+          end
+
+          def check_certificate_and_key_requirements(params)
+            command = params[:command]
+            require_private_and_cert = [:get_user_info,:download_file_list,
+                                        :download_file,:upload_file]
+            require_nothing = [:get_bank_certificate]
+            require_pkcs = [:get_certificate]
+            require_dual_pkcs_and_cert = [:create_certificate]
+
+            case command
+            when *require_private_and_cert
+              if params[:cert_path] == nil && params[:cert_plain] == nil
+                fail ArgumentError, "You must provide a path to the certificate " \
+                  "or certificate in plain text"
+              end
+              if params[:private_key_path] == nil && params[:private_key_plain] == nil
+                fail ArgumentError, "You must provide a path to your private key " \
+                  "or private key in plain text"
+              end
+            when *require_nothing
+            when *require_pkcs
+              if params[:csr_path] == nil && params[:csr_plain] == nil
+                fail ArgumentError, "You must provide a path to the CSR or CSR in plain text"
+              end
+            when *require_dual_pkcs_and_cert
+              if params[:encryption_cert_pkcs10_path] == nil && params[:encryption_cert_pkcs10_plain] == nil
+                fail ArgumentError, "You must provide a path to the encryption CSR " \
+                  "or encryption CSR in plain text"
+              end
+              if params[:signing_cert_pkcs10_path] == nil && params[:signing_cert_pkcs10_plain] == nil
+                fail ArgumentError, "You must provide a path to the signing CSR " \
+                  "or signing CSR in plain text"
+              end
+              if params[:cert_path] == nil && params[:cert_plain] == nil
+                fail ArgumentError, "You must provide a path to the certificate " \
+                  "or certificate in plain text"
+              end
+            end
+          end
+
+          def initialize_certificates_and_csr(params)
+            begin
+              command = params[:command]
+              require_private_and_cert = [:get_user_info,:download_file_list,:download_file,:upload_file]
+              require_nothing = [:get_bank_certificate]
+              require_pkcs = [:get_certificate]
+              require_dual_pkcs_and_cert = [:create_certificate]
+              case command
+              when *require_private_and_cert
+                if params[:cert_path] != nil
+                  params[:cert] = OpenSSL::X509::Certificate.new(File.read(params.fetch(:cert_path)))
+                elsif params[:cert_plain] != nil
+                  params[:cert] = OpenSSL::X509::Certificate.new(params.fetch(:cert_plain))
+                end
+                if params[:private_key_path] != nil
+                  params[:private_key] = OpenSSL::PKey::RSA.new(File.read(params.fetch(:private_key_path)))
+                elsif params[:private_key_plain] != nil
+                  params[:private_key] = OpenSSL::PKey::RSA.new(params.fetch(:private_key_plain))
+                end
+                check_private_key(params[:private_key])
+                check_cert(params[:cert])
+              when *require_nothing
+              when *require_pkcs
+                if params[:csr_path] != nil
+                  params[:csr] = OpenSSL::X509::Request.new(File.read(params.fetch(:csr_path)))
+                elsif params[:csr_plain] != nil
+                  params[:csr] = OpenSSL::X509::Request.new(params.fetch(:csr_plain))
+                end
+              when *require_dual_pkcs_and_cert
+                if params[:encryption_cert_pkcs10_path] != nil && params[:signing_cert_pkcs10_path] != nil
+                  params[:encryption_cert_pkcs10] = OpenSSL::X509::Request.new(File.read(params.fetch(:encryption_cert_pkcs10_path)))
+                  params[:signing_cert_pkcs10] = OpenSSL::X509::Request.new(File.read(params.fetch(:signing_cert_pkcs10_path)))
+                elsif params[:encryption_cert_pkcs10_plain] != nil && params[:signing_cert_pkcs10_plain] != nil
+                  params[:encryption_cert_pkcs10] = OpenSSL::X509::Request.new(params.fetch(:encryption_cert_pkcs10_plain))
+                  params[:signing_cert_pkcs10] = OpenSSL::X509::Request.new(params.fetch(:signing_cert_pkcs10_plain))
+                end
+                if params[:cert_path] != nil
+                  params[:cert] = OpenSSL::X509::Certificate.new(File.read(params.fetch(:cert_path)))
+                elsif params[:cert_plain] != nil
+                  params[:cert] = OpenSSL::X509::Certificate.new(params.fetch(:cert_plain))
+                end
+
+                check_encryption_pkcs10(params[:encryption_cert_pkcs10])
+                check_signing_pkcs10(params[:signing_cert_pkcs10])
+                check_cert(params[:cert])
+              else
+                fail ArgumentError, "No matching cases for initialize_certificates_and_csr"
+              end
+              params
+            rescue Exception => e
+              e.message
+              #fail ArgumentError, "Parameter failed to initialize, check private key and cert path/plain"
+            end
           end
         end
       end
-
-      def check_certificate_and_key_requirements(params)
-        command = params[:command]
-        require_private_and_cert = [:get_user_info,:download_file_list,
-                                    :download_file,:upload_file]
-        require_nothing = [:get_bank_certificate]
-        require_pkcs = [:get_certificate]
-
-        case command
-        when *require_private_and_cert
-          if params[:cert_path] == nil && params[:cert_plain] == nil
-            fail ArgumentError, "You must provide a path to the certificate " \
-              "or certificate in plain text"
-          end
-          if params[:private_key_path] == nil && params[:private_key_plain] == nil
-            fail ArgumentError, "You must provide a path to your private key " \
-              "or private key in plain text"
-          end
-        when *require_nothing
-        when *require_pkcs
-          if params[:csr_path] == nil && params[:csr_plain] == nil
-            fail ArgumentError, "You must provide a path to the CSR or CSR in plain text"
-          end
-        end
-      end
-
-      def initialize_certificates_and_csr(params)
-        begin
-        command = params[:command]
-        require_private_and_cert = [:get_user_info,:download_file_list,
-                                    :download_file,:upload_file]
-        require_nothing = [:get_bank_certificate]
-        require_pkcs = [:get_certificate]
-
-        case command
-        when *require_private_and_cert
-          if params[:cert_path] != nil
-            params[:cert] = OpenSSL::X509::Certificate.new(File.read(params.fetch(:cert_path)))
-          elsif params[:cert_plain] != nil
-            params[:cert] = OpenSSL::X509::Certificate.new(params.fetch(:cert_plain))
-          end
-          if params[:private_key_path] != nil
-            params[:private_key] = OpenSSL::PKey::RSA.new(File.read(params.fetch(:private_key_path)))
-          elsif params[:private_key_plain] != nil
-            params[:private_key] = OpenSSL::PKey::RSA.new(params.fetch(:private_key_plain))
-          end
-          check_private_key(params[:private_key])
-          check_cert(params[:cert])
-        when *require_nothing
-        when *require_pkcs
-          if params[:csr_path] != nil
-            params[:csr] = OpenSSL::X509::Request.new(File.read(params.fetch(:csr_path)))
-          elsif params[:csr_plain] != nil
-            params[:csr] = OpenSSL::X509::Request.new(params.fetch(:csr_plain))
-          end
-          check_csr(params[:csr])
-        else
-          fail ArgumentError, "No matching cases for initialize_certificates_and_csr"
-        end
-         params
-      rescue Exception => e
-        fail ArgumentError, "Parameter failed to initialize, check private key and cert path/plain"
-      end
-      end
-  end
-end
