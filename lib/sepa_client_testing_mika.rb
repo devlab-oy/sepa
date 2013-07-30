@@ -1,5 +1,5 @@
 # First the sepa gem is loaded by requiring it
-require 'sepa'
+require 'sepafm'
 
 # The params hash is populated with the data that is needed for gem to function
 params = {

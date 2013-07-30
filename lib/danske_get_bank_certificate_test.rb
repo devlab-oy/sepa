@@ -1,4 +1,4 @@
-require 'sepa'
+require 'sepafm'
 
 params = {
           bank: :danske,
