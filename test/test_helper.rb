@@ -5,4 +5,4 @@ SimpleCov.start do
 end
 
 require 'minitest/autorun'
-require File.expand_path('../../lib/sepa.rb', __FILE__)
+require File.expand_path('../../lib/sepafm.rb', __FILE__)
