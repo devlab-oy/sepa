@@ -29,8 +29,11 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
     service: 'service'
   }
 
-  @ar_cert = Sepa::SoapBuilder.new(@params).get_ar_as_base64
-  @xml = Nokogiri::XML(Base64.decode64(@ar_cert))
+    @params = get_cert_params
+
+    #@ar_cert = Sepa::ApplicationRequest.new(@params)
+    @ar_cert = Sepa::SoapBuilder.new(@params).get_ar_as_base64
+    @xml = Nokogiri::XML(Base64.decode64(@ar_cert))
   end
 
   def test_that_xml_template_is_unmodified
@@ -72,10 +75,10 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
 
   def test_should_have_timestamp_set_properly
     timestamp = Time.strptime(@xml.at_css("Timestamp").content,
-    '%Y-%m-%dT%H:%M:%S%z')
+                              '%Y-%m-%dT%H:%M:%S%z')
 
     assert timestamp <= Time.now && timestamp > (Time.now - 60),
-    "Timestamp was not set correctly"
+      "Timestamp was not set correctly"
   end
 
   def test_should_have_command_set_when_get_certificate

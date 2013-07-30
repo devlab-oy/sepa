@@ -26,11 +26,19 @@ class ResponseTest < MiniTest::Test
     # Response that was requested with :get_user_info command
     @gui = Nokogiri::XML(File.read("#{responses_path}/gui.xml"))
 
+    # Response that was requested with :get_certificate command
+    @gc = Nokogiri::XML(File.read("#{responses_path}/gc.xml"))
+
+    # Response that was requested with :get_bank_certificate
+    @gbc = Nokogiri::XML(File.read("#{responses_path}/gbc.xml"))
+
     # Actual response objects for testing.
     @dfl_response = Sepa::Response.new(@dfl)
     @uf_response = Sepa::Response.new(@uf)
     @df_response = Sepa::Response.new(@df)
     @gui_response = Sepa::Response.new(@gui)
+    @gc_response = Sepa::Response.new(@gc)
+    @gbc_response = Sepa::Response.new(@gbc)
   end
 
   def test_should_initialize_with_proper_response
@@ -38,7 +46,7 @@ class ResponseTest < MiniTest::Test
   end
 
   def test_should_complain_if_initialized_with_something_not_nokogiri_xml
-    assert_raises(ArgumentError) { Sepa::Response.new("Sammakko") }
+    assert_raises(NoMethodError) { Sepa::Response.new("Sammakko") }
   end
 
   def test_should_complain_if_response_not_valid_against_schema
