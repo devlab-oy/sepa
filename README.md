@@ -26,6 +26,156 @@ Or install it yourself as:
 
 ## Usage
 
+### Building the payload
+
+* You can optionally have an invoice bundle included in a given transaction. If that is the case, you first have to define the invoices i.e. as follows:
+
+        invoice_bundle = []
+    
+        invoice_1 = {
+
+          # Has to be either CINV for normal invoice or CREN for credit note.
+          type: 'CINV',
+
+          # Positive for invoices and negative for credits.
+          amount: '700',
+
+          currency: 'EUR',
+
+          # You either have to specify an invoice number or a reference.
+          invoice_number: '123456'
+        }
+        
+        invoice_2 = {
+          type: 'CINV',
+          amount: '300',
+          currency: 'EUR',
+          reference: '123456789',
+        }
+        
+        invoice_3 = {
+          type: 'CREN',
+          amount: '-100',
+          currency: 'EUR',
+          invoice_number: '654321'
+        }
+        
+        invoice_4 = {
+          type: 'CREN',
+          amount: '-500',
+          currency: 'EUR',
+          reference: '987654321'
+        }
+        
+        # All the invoices are pushed to an array which is later included in the
+        # transaction's params.
+        invoice_bundle.push(invoice_1)
+        invoice_bundle.push(invoice_2)
+        invoice_bundle.push(invoice_3)
+        invoice_bundle.push(invoice_4)
+
+1. Define parameters for the transactions. You need at least one and one payment can have multiple. It is also worth noting that one payload can also have multiple payments. Here's how the parameters are defined:
+
+        transactions_params = {
+
+          # Optional id for the transaction. This is returned to the payer only.
+          # Max length is 35 characters.
+          instruction_id: '70CEF29BEBA8396A1F806005EDA51DEE4CE',
+
+          # Mandatory id for the transaction. This id is also passed on the the
+          # beneficiary. Max length is 35 characters.
+          end_to_end_id: '629CADFDAD5246AD915BA24A3C8E9FC3313',
+
+          # Amount to be transferred. Decimals separated by a period.
+          amount: '30.75',
+
+          # Currency. For Euros EUR etc.
+          currency: 'EUR',
+
+          # Bank's unique BIC.
+          bic: 'NDEAFIHH',
+
+          # Name of the creditor company or person
+          name: 'Testi Saaja Oy',
+
+          # Street and street number of the creditor.
+          address: 'Kokeilukatu 66',
+
+          # Creditor's county code.
+          country: 'FI',
+
+          # Creditor's postcode.
+          postcode: '00200',
+
+          # Creditor's town
+          town: 'Helsinki',
+
+          # Creditor's IBAN.
+          iban: 'FI7429501800000014',
+
+          # Reference number for the transaction. Mandatory if message not given.
+          reference: '00000000000000001245',
+
+          # Message for the transaction. Mandatory if reference not given.
+          message: 'Maksu',
+
+          # Optional set of invoices to be bundled in this transaction. If a bundle
+          # is provided amount, currency and reference will be automatically taken
+          # from that bundle.
+          invoice_bundle: invoice_bundle
+        }
+
+2. Create an array of Sepa::Transaction objects in which you put all the transactions of a given payment. You need to create an array for each payment separately.
+
+        payment_transactions = []
+
+        payment_transactions.push(Sepa::Transaction.new(transaction_params))
+
+3. Define the parameters for the payment/payments:
+
+        payment_params = {
+
+          # Unique id the payment. Max length is 35 characters.
+          payment_info_id: 'F56D46DDA136A981F58C05999479E768C92',
+
+          # Requested executin date for the payment in form YYY-MM-DD.
+          execution_date: '2013-08-10',
+
+          # The array of transactions for this payment
+          transactions: payment_transactions
+
+          # If this is a payment consisting of salary of pension transactions, you
+          # need to provide the following flag.
+          salary_or_pension: true
+        }
+
+4. Define parameters for the debtor as follows:
+
+        debtor_params = {
+          name: 'Testi Maksaja Oy',
+          address: 'Testing Street 12',
+          country: 'FI',
+          postcode: '00100',
+          town: 'Helsinki',
+          customer_id: '111111111',
+          iban: 'FI4819503000000010',
+          bic: 'NDEAFIHH'
+        }
+
+5. Create an array of Sepa::Payment objects in which you put all the payments that are going to be in the payload.
+
+        payments = []
+
+        payments.push(Sepa::Payment.new(debtor_params, payment_params))
+
+6. Create the actual payload object:
+
+        payload = Sepa::Payload.new(debtor_params, payments)
+        
+        # Will return the payload as an xml document which can be included in the
+        # construction of the SOAP message.
+        payload.to_xml
+
 ### Communicating with the bank
 
 1. Require the gem:
@@ -45,7 +195,7 @@ Or install it yourself as:
           target_id: '11111111A1',
           language: 'FI',
           file_type: 'TITO',
-          content: payload,
+          content: payload, # You can use the payload you may have constructed earlier. I.e. payload.to_xml
           file_reference: "11111111A12006030329501800000014"
         }
 
