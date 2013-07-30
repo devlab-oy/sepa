@@ -1,5 +1,5 @@
 # First the sepa gem is loaded by requiring it
-require 'sepa'
+require 'sepafm'
 
 @invoice_bundle = []
 
