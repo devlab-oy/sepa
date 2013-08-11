@@ -251,7 +251,3 @@ puts "\nSome info about response's certificate:\n" \
   "Issuer: #{ar.certificate.issuer}\n" \
   "First day to use this certificate: #{ar.certificate.not_before}\n" \
   "Expires: #{ar.certificate.not_after}"
-
-
-data = response.get_important_data(:download_file_list)
-puts data
