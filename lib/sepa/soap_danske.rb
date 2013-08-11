@@ -1,6 +1,5 @@
 module Sepa
   module DanskeSoapRequest
-    # Holding methods needed only for Danske Services SOAP
     private
 
     def find_correct_build(params)
@@ -16,8 +15,6 @@ module Sepa
       end
     end
 
-    # Builds : Generic
-    # ------------------------------------------------------------------------
     def encrypt_application_request(ar, cert)
       cert = OpenSSL::X509::Certificate.new(cert)
 
@@ -52,7 +49,7 @@ module Sepa
           }
           xml['dsig'].KeyInfo('xmlns:dsig' => "http://www.w3.org/2000/09" \
           "/xmldsig#"){
-            xml['xenc'].EncryptedKey('Recipient' =>"name:DanskeBankCryptCERT"){
+            xml['xenc'].EncryptedKey('Recipient' =>"name:DanskeBankCryptCERT") {
               xml.EncryptionMethod('Algorithm' => "http://www.w3.org/2001" \
                                    "/04/xmlenc#rsa-1_5")
               xml['dsig'].KeyInfo {
@@ -122,7 +119,7 @@ module Sepa
       request_id = params.fetch(:request_id)
       receiver_id = params.fetch(:target_id)
       lang = params.fetch(:language)
-      cert = OpenSSL::X509::Certificate.new(params.fetch(:cert_plain))
+      cert = OpenSSL::X509::Certificate.new(params.fetch(:cert))
       private_key = params.fetch(:private_key)
 
       body = load_body_template(command)
@@ -226,10 +223,7 @@ module Sepa
 
       body
     end
-    # ------------------------------------------------------------------------
 
-    # Builds : Get Bank Certificate
-    # ------------------------------------------------------------------------
     def build_get_bank_certificate_request(params)
       ar = Base64.decode64 @ar
       command = params.fetch(:command)
@@ -320,6 +314,5 @@ module Sepa
     def to_xml_unencrypted_generic
       debug_application_request_without_encryption(@params).to_xml
     end
-    # ------------------------------------------------------------------------
   end
 end

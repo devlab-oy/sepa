@@ -344,8 +344,6 @@ module Sepa
                 fail ArgumentError, "You didn't provide a matching bank and service."
               end
             end
-            rescue
-              fail ArgumentError, "RUN YOU FOOLS"
             end
           end
 

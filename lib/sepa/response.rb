@@ -87,6 +87,40 @@ module Sepa
           end
     end
 
+    def own_encryption_cert
+      cert = @response.at(
+        'EncryptionCert',
+        'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
+      ).content.gsub(/\s+/, "")
+
+      cert = process_cert_value(cert)
+
+      begin
+        cert = OpenSSL::X509::Certificate.new(cert)
+      rescue => e
+        fail OpenSSL::X509::CertificateError,
+          "The certificate embedded to the soap response could not be process" \
+          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
+          end
+    end
+
+    def own_signing_cert
+      cert = @response.at(
+        'SigningCert',
+        'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
+      ).content.gsub(/\s+/, "")
+
+      cert = process_cert_value(cert)
+
+      begin
+        cert = OpenSSL::X509::Certificate.new(cert)
+      rescue => e
+        fail OpenSSL::X509::CertificateError,
+          "The certificate embedded to the soap response could not be process" \
+          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
+          end
+    end
+
     # Verifies that the soap's certificate is trusted.
     def cert_is_trusted?(root_cert)
       if root_cert.subject == certificate.issuer
