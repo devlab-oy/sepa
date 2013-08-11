@@ -17,7 +17,7 @@ class DanskeCertSoapBuilderTest < MiniTest::Test
     sha1 = OpenSSL::Digest::SHA1.new
     template = File.read("#{@templatepath}/create_certificate.xml")
     digest = Base64.encode64(sha1.digest(template)).strip
-    assert_equal digest, "OpPHtB1oqAmj2N7R0iD31MrApy0="
+    assert_equal digest, "7xfCxrQo+BxrOYVmY/EV9lkhY7Y="
   end
 
   def test_should_initialize_with_proper_params

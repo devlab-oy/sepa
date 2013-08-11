@@ -18,13 +18,9 @@ module Sepa
 
     # Builds : Generic
     # ------------------------------------------------------------------------
-    def encrypt_application_request(ar, cert, public_key)
+    def encrypt_application_request(ar, cert)
 
-      cert = OpenSSL::X509::Certificate.new(
-        File.read(File.expand_path('../danske_testing/keys/bank_encryption_' \
-                                   'cert.pem',
-                                   __FILE__))
-      )
+      cert = OpenSSL::X509::Certificate.new(cert)
 
       formatted_cert = format_cert(cert)
 
@@ -37,9 +33,7 @@ module Sepa
       iv = cipher.random_iv
 
       output = cipher.update(ar.to_xml)
-      puts ar
       output << cipher.final
-
       output = iv + output
 
       encryptedkey = public_key.public_encrypt(key)
@@ -118,7 +112,7 @@ module Sepa
     end
 
     def build_danske_generic_request(params)
-      ar = Base64.decode64 @ar
+      ar = Nokogiri::XML(@ar)
       command = params.fetch(:command)
       sender_id = params.fetch(:customer_id)
       request_id = params.fetch(:request_id)
@@ -127,12 +121,11 @@ module Sepa
       cert = OpenSSL::X509::Certificate.new(params.fetch(:cert_plain))
       private_key = params.fetch(:private_key)
 
-      public_key = extract_public_key(cert)
       body = load_body_template(command)
       header = load_header_template(@template_path)
 
       set_request_body_contents(body, sender_id, request_id, lang, receiver_id)
-      encrypted_request = encrypt_application_request(ar, cert, public_key)
+      encrypted_request = encrypt_application_request(ar, cert)
       add_encrypted_generic_request_to_soap(encrypted_request, body)
 
       process_header(header,body,private_key,cert)
@@ -206,11 +199,10 @@ module Sepa
       environment = params.fetch(:environment)
       cert = params.fetch(:cert)
 
-      public_key = extract_public_key(cert)
       body = load_body_template(command)
 
       set_body_contents(body, sender_id, request_id, environment)
-      encrypted_request = encrypt_application_request(ar, cert, public_key)
+      encrypted_request = encrypt_application_request(ar, cert)
       add_encrypted_request_to_soap(encrypted_request, body)
     end
 
