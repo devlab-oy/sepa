@@ -19,7 +19,6 @@ module Sepa
     # Builds : Generic
     # ------------------------------------------------------------------------
     def encrypt_application_request(ar, cert)
-
       cert = OpenSSL::X509::Certificate.new(cert)
 
       formatted_cert = format_cert(cert)
@@ -45,12 +44,17 @@ module Sepa
       ciphervalue2.gsub!(/\s+/, "")
 
       builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
-        xml['xenc'].EncryptedData('xmlns:xenc' => "http://www.w3.org/2001/04/xmlenc#", 'Type' => "http://www.w3.org/2001/04/xmlenc#Element") {
-          xml.EncryptionMethod('Algorithm' => "http://www.w3.org/2001/04/xmlenc#tripledes-cbc") {
+        xml['xenc'].EncryptedData('xmlns:xenc' => "http://www.w3.org/2001/" \
+                                  "04/xmlenc#",
+        'Type' => "http://www.w3.org/2001/04/xmlenc#Element") {
+          xml.EncryptionMethod('Algorithm' => "http://www.w3.org/2001" \
+          "/04/xmlenc#tripledes-cbc") {
           }
-          xml['dsig'].KeyInfo('xmlns:dsig' => "http://www.w3.org/2000/09/xmldsig#"){
+          xml['dsig'].KeyInfo('xmlns:dsig' => "http://www.w3.org/2000/09" \
+          "/xmldsig#"){
             xml['xenc'].EncryptedKey('Recipient' =>"name:DanskeBankCryptCERT"){
-              xml.EncryptionMethod('Algorithm' => "http://www.w3.org/2001/04/xmlenc#rsa-1_5")
+              xml.EncryptionMethod('Algorithm' => "http://www.w3.org/2001" \
+                                   "/04/xmlenc#rsa-1_5")
               xml['dsig'].KeyInfo {
                 xml.X509Data {
                   xml.X509Certificate formatted_cert
