@@ -140,7 +140,7 @@ module Sepa
           set_node("tns|KeyGeneratorType", @key_generator_type)
           set_node("tns|EncryptionCertPKCS10", Base64.encode64(@encryption_cert_pkcs10.to_der))
           set_node("tns|SigningCertPKCS10", Base64.encode64(@signing_cert_pkcs10.to_der))
-          set_node("tns|Timestamp", Time.now.iso8601)
+          set_node("tns|Timestamp", Time.now.utc.iso8601)
           set_node("tns|RequestId", @request_id)
           set_node("tns|Environment", @environment)
           set_node("tns|PIN", @pin)

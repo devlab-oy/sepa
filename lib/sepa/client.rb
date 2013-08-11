@@ -40,7 +40,7 @@ module Sepa
             path = "#{wsdlpath}/wsdl_nordea.xml"
           end
         when :danske
-          if command == :get_bank_certificate
+          if command == :get_bank_certificate || command == :create_certificate
             path = "#{wsdlpath}/wsdl_danske_cert.xml"
           else
             path = "#{wsdlpath}/wsdl_danske.xml"

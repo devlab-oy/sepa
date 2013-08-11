@@ -1,4 +1,4 @@
-require 'sepa'
+require 'sepafm'
 
 encryptpkcsplain = "-----BEGIN CERTIFICATE REQUEST-----
 MIICZjCCAU4CAQAwITESMBAGA1UEAxMJRGV2bGFiIE95MQswCQYDVQQGEwJGSTCC
@@ -15,6 +15,7 @@ M62i5c2v3sNJlDlT4GidRtoGW9KAID2oCdOL94krWpwLAZDP4wLwG7ACCbOx3rST
 f9gDE6jFUn7ONuiiYvOBAqjwckDpyOH+vx3WkZH4cwdcp4KVeLnjJzlJZaw7yTIo
 z8BKfQ26LmOO/S4CFe3Vzq6FRNKl3D4nvCu06WoMi5tAAEi57tk05B32
 -----END CERTIFICATE REQUEST-----"
+
 signingpkcsplain = "-----BEGIN CERTIFICATE REQUEST-----
 MIICZjCCAU4CAQAwITESMBAGA1UEAxMJRGV2bGFiIE95MQswCQYDVQQGEwJGSTCC
 ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK3yym5CztvmJCxbzhy6tOph
@@ -30,6 +31,7 @@ H6Xhm3JG9g7AScHhFcM8r6PhmzcL1FubYBPTcUBuotDBYc4lbql7sbww/u8OyWvl
 aIFd+oiwXGSYB7L8Fqg469jeIf0QtOZUtUEGOJWjM4JjTy+NnVmsj0jszMbuBZBW
 7wOrp+GMBUZ9/vaY/zr7nvJTfvKz7CJQOgADeh/0imZqhIYfVKIpJxR5
 -----END CERTIFICATE REQUEST-----"
+
 danskebankencryptplain = "-----BEGIN CERTIFICATE-----
 MIIEATCCAumgAwIBAgIFAQjv8bMwDQYJKoZIhvcNAQELBQAwgZgxEDAOBgNVBAMT
 B0RCR1JPT1QxCzAJBgNVBAYTAkRLMRMwEQYDVQQHEwpDb3BlbmhhZ2VuMRAwDgYD
@@ -63,7 +65,7 @@ params = {
 
   command: :create_certificate,
 
-  customer_id: 'ABC123',
+  customer_id: '360817',
 
   environment: 'customertest',
 
