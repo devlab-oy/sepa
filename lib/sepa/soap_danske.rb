@@ -69,13 +69,34 @@ module Sepa
       builder
     end
 
-    def set_request_body_contents(body, sender_id, request_id, lang, receiver_id)
+    def set_generic_request_contents(body,
+                                     sender_id,
+                                     request_id,
+                                     lang,
+                                     receiver_id)
       set_node(body, 'bxd|SenderId', sender_id)
       set_node(body, 'bxd|RequestId', request_id)
       set_node(body, 'bxd|Timestamp', Time.now.iso8601)
       set_node(body, 'bxd|Language', lang)
       set_node(body, 'bxd|UserAgent',"Sepa Transfer Library version " + VERSION)
       set_node(body, 'bxd|ReceiverId', receiver_id)
+    end
+
+    def set_create_cert_contents(body, sender_id, request_id, environment)
+      set_node(body, 'pkif|SenderId', sender_id)
+      set_node(body, 'pkif|CustomerId', sender_id)
+      set_node(body, 'pkif|RequestId', request_id)
+      set_node(body, 'pkif|Timestamp', Time.now.utc.iso8601)
+      set_node(body, 'pkif|InterfaceVersion', 1)
+      set_node(body, 'pkif|Environment', environment)
+    end
+
+    def set_bank_certificate_contents(body, sender_id, request_id)
+      set_node(body, 'pkif|SenderId', sender_id)
+      set_node(body, 'pkif|CustomerId', sender_id)
+      set_node(body, 'pkif|RequestId', request_id)
+      set_node(body, 'pkif|Timestamp', Time.now.iso8601)
+      set_node(body, 'pkif|InterfaceVersion', 1)
     end
 
     def add_encrypted_generic_request_to_soap(encrypted_request, body)
@@ -100,7 +121,7 @@ module Sepa
       body = load_body_template(command)
       header = load_header_template(@template_path)
 
-      set_request_body_contents(body, sender_id, request_id, lang, receiver_id)
+      set_generic_request_contents(body, sender_id, request_id, lang, receiver_id)
       encrypted_request = encrypt_application_request(ar, cert)
       add_encrypted_generic_request_to_soap(encrypted_request, body)
 
@@ -118,18 +139,9 @@ module Sepa
 
       body = load_body_template(command)
 
-      set_body_contents(body, sender_id, request_id, environment)
+      set_create_cert_contents(body, sender_id, request_id, environment)
       encrypted_request = encrypt_application_request(ar, cert)
       add_encrypted_request_to_soap(encrypted_request, body)
-    end
-
-    def set_body_contents(body, sender_id, request_id, environment)
-      set_node(body, 'pkif|SenderId', sender_id)
-      set_node(body, 'pkif|CustomerId', sender_id)
-      set_node(body, 'pkif|RequestId', request_id)
-      set_node(body, 'pkif|Timestamp', Time.now.utc.iso8601)
-      set_node(body, 'pkif|InterfaceVersion', 1)
-      set_node(body, 'pkif|Environment', environment)
     end
 
     def add_encrypted_request_to_soap(encrypted_request, body)
@@ -148,16 +160,8 @@ module Sepa
 
       body = load_body_template(command)
 
-      set_bank_certificate_body_contents(body, sender_id, request_id)
+      set_bank_certificate_contents(body, sender_id, request_id)
       add_bank_certificate_body_to_soap(ar, body)
-    end
-
-    def set_bank_certificate_body_contents(body, sender_id, request_id)
-      set_node(body, 'pkif|SenderId', sender_id)
-      set_node(body, 'pkif|CustomerId', sender_id)
-      set_node(body, 'pkif|RequestId', request_id)
-      set_node(body, 'pkif|Timestamp', Time.now.iso8601)
-      set_node(body, 'pkif|InterfaceVersion', 1)
     end
 
     def add_bank_certificate_body_to_soap(ar, body)
