@@ -11,7 +11,7 @@ class DanskeGenericSoapBuilderTest < MiniTest::Test
 
     @certrequest = Sepa::SoapBuilder.new(@danskecertparams)
 
-    @xml = Nokogiri::XML(@certrequest.to_xml_unencrypted_generic)
+    @xml = Nokogiri::XML(@certrequest.to_xml)
   end
 
   def test_should_initialize_request_with_proper_params
@@ -31,5 +31,4 @@ class DanskeGenericSoapBuilderTest < MiniTest::Test
       Sepa::SoapBuilder.new(@danskecertparams).to_xml
     end
   end
-
 end

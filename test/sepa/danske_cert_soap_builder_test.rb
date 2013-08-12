@@ -10,7 +10,7 @@ class DanskeCertSoapBuilderTest < MiniTest::Test
 
     @certrequest = Sepa::SoapBuilder.new(@danskecertparams)
 
-    @xml = Nokogiri::XML(@certrequest.to_xml_unencrypted)
+    @request_xml = Nokogiri::XML(@certrequest.to_xml)
   end
 
   def test_that_get_certificate_soap_template_is_unmodified
@@ -58,9 +58,10 @@ class DanskeCertSoapBuilderTest < MiniTest::Test
 
   def test_should_load_correct_template_with_get_certificate
     @danskecertparams[:command] = :create_certificate
-    xml = Nokogiri::XML(Sepa::SoapBuilder.new(@danskecertparams).to_xml_unencrypted)
+    xml = Nokogiri::XML(Sepa::SoapBuilder.new(@danskecertparams).to_xml)
 
-    assert xml.xpath('//tns:CreateCertificateRequest', 'tns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements').first, "Path/namespace not found"
+    assert xml.at('CreateCertificateIn', 'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService'),
+      "Path/namespace not found"
   end
 
   def test_should_raise_error_if_command_not_correct
@@ -71,19 +72,18 @@ class DanskeCertSoapBuilderTest < MiniTest::Test
   end
 
   def test_timestamp_is_set_correctly
-    timestamp_node = @xml.xpath(
-      "//tns:Timestamp", 'tns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
-    ).first
-
+    timestamp_node = @request_xml.at(
+      "Timestamp", 'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService'
+    )
     timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
 
     assert timestamp <= Time.now && timestamp > (Time.now - 60)
   end
 
   def test_request_id_is_set_correctly
-    request_id_node = @xml.xpath(
-      "//tns:RequestId", 'tns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
-    ).first
+    request_id_node = @request_xml.at(
+      "RequestId", 'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService'
+    )
 
     request_id = request_id_node.content.to_i
 
@@ -94,7 +94,7 @@ class DanskeCertSoapBuilderTest < MiniTest::Test
   def test_should_validate_against_schema
     Dir.chdir(@schemapath) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(@xml)
+      assert xsd.valid?(@request_xml)
     end
   end
 end

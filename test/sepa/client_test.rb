@@ -87,7 +87,7 @@ class ClientTest < MiniTest::Test
     end
   end
 
-  def test_should_raise_error_if_private_key_path_file_in_wrong_format
+  def test_should_raise_error_if_private_key_path_wrong
     wrong_pks = ['Im not a key']
 
     wrong_pks.each do |wrong_pk|
@@ -96,7 +96,7 @@ class ClientTest < MiniTest::Test
     end
   end
 
-  def test_should_raise_error_if_cert_path_file_in_wrong_format
+  def test_should_raise_error_if_cert_path_wrong
     wrong_certs = ['Im not a cert', :leppakerttu]
 
     wrong_certs.each do |wrong_cert|

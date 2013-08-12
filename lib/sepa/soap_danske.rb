@@ -1,7 +1,5 @@
 module Sepa
   module DanskeSoapRequest
-    private
-
     def find_correct_build(params)
       command = params.fetch(:command)
 
@@ -71,29 +69,6 @@ module Sepa
       builder
     end
 
-    # def load_danske_body_template(command)
-    #   case command
-    #   when :download_file_list
-    #     path = "#{@template_path}/download_file_list.xml"
-    #   when :get_user_info
-    #     path = "#{@template_path}/get_user_info.xml"
-    #   when :upload_file
-    #     path = "#{@template_path}/upload_file.xml"
-    #   when :download_file
-    #     path = "#{@template_path}/download_file.xml"
-    #   when :create_certificate
-    #     path = "#{@template_path}/create_certificate.xml"
-    #   when :get_certificate
-    #     #path = "#{@template_path}/get_certificate.xml"
-    #   end
-
-    #   body_template = File.open(path)
-    #   body = Nokogiri::XML(body_template)
-    #   body_template.close
-
-    #   body
-    # end
-
     def set_request_body_contents(body, sender_id, request_id, lang, receiver_id)
       set_node(body, 'bxd|SenderId', sender_id)
       set_node(body, 'bxd|RequestId', request_id)
@@ -133,65 +108,6 @@ module Sepa
       add_body_to_header(header,body)
     end
 
-    # def process_header(header, body, private_key, cert)
-    #   set_node(header, 'wsu|Created', Time.now.iso8601)
-
-    #   set_node(header, 'wsu|Expires', (Time.now + 3600).iso8601)
-
-    #   timestamp_digest = calculate_digest(header,'wsu|Timestamp')
-    #   set_node(header,'Reference[URI="#dsfg8sdg87dsf678g6dsg6ds7fg"]' \
-    #            ' DigestValue', timestamp_digest)
-
-    #   body_digest = calculate_digest(body, 'env|Body')
-    #   set_node(header,'Reference[URI="#sdf6sa7d86f87s6df786sd87f6s8fsd'\
-    #            'a"] DigestValue', body_digest)
-
-    #   signature = calculate_signature(header, 'dsig|SignedInfo', private_key)
-    #   set_node(header, 'SignatureValue', signature)
-
-    #   formatted_cert = format_cert(cert)
-    #   set_node(header, 'wsse|BinarySecurityToken', formatted_cert)
-    #   puts "HEADER---------------"
-    #   puts header
-    #   puts "BORYYYYR---------------"
-    #   puts body
-    # end
-    # ------------------------------------------------------------------------
-
-    # Builds : Upload File
-    # ------------------------------------------------------------------------
-    # ------------------------------------------------------------------------
-
-    # Builds : Download File
-    # ------------------------------------------------------------------------
-    # def build_download_file_request(params)
-    #   ar = Base64.decode64 @ar
-    #   command = params.fetch(:command)
-    #   sender_id = params.fetch(:customer_id)
-    #   request_id = params.fetch(:request_id)
-    #   receiver_id = params.fetch(:target_id)
-    #   lang = params.fetch(:language)
-    #   cert = params.fetch(:cert)
-    #   private_key = params.fetch(:private_key)
-
-    #   public_key = extract_public_key(cert)
-    #   body = load_danske_body_template(command)
-    #   header = load_header_template(@template_path)
-
-    #   set_request_body_contents(body, sender_id, request_id, lang, receiver_id)
-    #   encrypted_request = encrypt_application_request(ar, cert, public_key)
-    #   add_encrypted_generic_request_to_soap(encrypted_request, body)
-
-    #   process_header(header,body, private_key, cert)
-    #   add_body_to_header(header,body)
-    # end
-
-    # def add_encrypted_download_file_request_to_soap(encrypted_request, body)
-    # end
-    # ------------------------------------------------------------------------
-
-    # Builds : Create Certificate
-    # ------------------------------------------------------------------------
     def build_certificate_request(params)
       ar = @ar
       command = params.fetch(:command)
@@ -251,68 +167,6 @@ module Sepa
       body.at_css('pkif|GetBankCertificateIn').add_child(ar)
 
       body
-    end
-    # ------------------------------------------------------------------------
-
-    # Builds : Create Certificate Unencrypted for TESTING
-    # ------------------------------------------------------------------------
-    def debug_certificate_request_without_encryption(params)
-      ar = @ar
-      command = params.fetch(:command)
-      sender_id = params.fetch(:customer_id)
-      request_id = params.fetch(:request_id)
-      environment = params.fetch(:environment)
-
-      body = load_body_template(command)
-
-      set_body_contents(body, sender_id, request_id, environment)
-      add_unencrypted_request_to_soap(ar, body)
-    end
-
-    def add_unencrypted_request_to_soap(ar, body)
-      ar = Nokogiri::XML(ar.to_xml)
-      ar = ar.at_css('tns|CreateCertificateRequest')
-      body.at_css('pkif|CreateCertificateIn').add_child(ar)
-
-      body
-    end
-
-    def debug_application_request_without_encryption(params)
-      ar = Base64.decode64 @ar
-      command = params.fetch(:command)
-      sender_id = params.fetch(:customer_id)
-      request_id = params.fetch(:request_id)
-      receiver_id = params.fetch(:target_id)
-      lang = params.fetch(:language)
-      cert = params.fetch(:cert)
-      private_key = params.fetch(:private_key)
-
-      public_key = extract_public_key(cert)
-      body = load_body_template(command)
-      header = load_header_template(@template_path)
-
-      set_request_body_contents(body, sender_id, request_id, lang, receiver_id)
-
-      add_unencrypted_generic_request_to_soap(ar, body)
-
-      process_header(header,body,private_key,cert)
-      add_body_to_header(header,body)
-    end
-
-    def add_unencrypted_generic_request_to_soap(ar, body)
-      ar = Nokogiri::XML(ar).to_xml
-      body.at_css('bxd|ApplicationRequest').add_child(ar)
-      body
-    end
-
-    public
-
-    def to_xml_unencrypted
-      debug_certificate_request_without_encryption(@params).to_xml
-    end
-
-    def to_xml_unencrypted_generic
-      debug_application_request_without_encryption(@params).to_xml
     end
   end
 end
