@@ -132,9 +132,9 @@ module Sepa
     end
 
     def process_header(header, body, private_key, cert)
-      set_node(header, 'wsu|Created', Time.now.iso8601)
+      set_node(header, 'wsu|Created', Time.now.utc.iso8601)
 
-      set_node(header, 'wsu|Expires', (Time.now + 3600).iso8601)
+      set_node(header, 'wsu|Expires', (Time.now.utc + 3600).iso8601)
 
       timestamp_digest = calculate_digest(header,'wsu|Timestamp')
       set_node(header,'dsig|Reference[URI="#dsfg8sdg87dsf678g6dsg6ds7fg"]' \

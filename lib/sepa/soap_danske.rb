@@ -76,7 +76,7 @@ module Sepa
                                      receiver_id)
       set_node(body, 'bxd|SenderId', sender_id)
       set_node(body, 'bxd|RequestId', request_id)
-      set_node(body, 'bxd|Timestamp', Time.now.iso8601)
+      set_node(body, 'bxd|Timestamp', Time.now.utc.iso8601)
       set_node(body, 'bxd|Language', lang)
       set_node(body, 'bxd|UserAgent',"Sepa Transfer Library version " + VERSION)
       set_node(body, 'bxd|ReceiverId', receiver_id)
@@ -95,7 +95,7 @@ module Sepa
       set_node(body, 'pkif|SenderId', sender_id)
       set_node(body, 'pkif|CustomerId', sender_id)
       set_node(body, 'pkif|RequestId', request_id)
-      set_node(body, 'pkif|Timestamp', Time.now.iso8601)
+      set_node(body, 'pkif|Timestamp', Time.now.utc.iso8601)
       set_node(body, 'pkif|InterfaceVersion', 1)
     end
 
