@@ -25,7 +25,7 @@ module Sepa
 
       key = cipher.random_key
       iv = cipher.random_iv
-
+      puts ar
       output = cipher.update(ar.to_xml)
       output << cipher.final
       output = iv + output
@@ -33,10 +33,8 @@ module Sepa
       encryptedkey = public_key.public_encrypt(key)
 
       ciphervalue1 = Base64.encode64(encryptedkey)
-      ciphervalue1.gsub!(/\s+/, "")
 
       ciphervalue2 = Base64.encode64(output)
-      ciphervalue2.gsub!(/\s+/, "")
 
       builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
         xml['xenc'].EncryptedData('xmlns:xenc' => "http://www.w3.org/2001/" \
@@ -99,22 +97,14 @@ module Sepa
       set_node(body, 'pkif|InterfaceVersion', 1)
     end
 
-    def add_encrypted_generic_request_to_soap(encrypted_request, body)
-      encrypted_request = Nokogiri::XML(encrypted_request.to_xml)
-      encrypted_request = encrypted_request.at_css('xenc|EncryptedData')
-      encrypted_request = Base64.encode64(encrypted_request)
-      body.at_css('bxd|ApplicationRequest').add_child(encrypted_request)
-
-      body
-    end
-
     def build_danske_generic_request(params)
-      ar = Nokogiri::XML(@ar)
+      ar = Nokogiri::XML(Base64.decode64(@ar))
       command = params.fetch(:command)
       sender_id = params.fetch(:customer_id)
       request_id = params.fetch(:request_id)
       receiver_id = params.fetch(:target_id)
       lang = params.fetch(:language)
+      enc_cert = OpenSSL::X509::Certificate.new(params.fetch(:enc_cert))
       cert = OpenSSL::X509::Certificate.new(params.fetch(:cert))
       private_key = params.fetch(:private_key)
 
@@ -122,7 +112,7 @@ module Sepa
       header = load_header_template(@template_path)
 
       set_generic_request_contents(body, sender_id, request_id, lang, receiver_id)
-      encrypted_request = encrypt_application_request(ar, cert)
+      encrypted_request = encrypt_application_request(ar, enc_cert)
       add_encrypted_generic_request_to_soap(encrypted_request, body)
 
       process_header(header,body,private_key,cert)
@@ -144,14 +134,6 @@ module Sepa
       add_encrypted_request_to_soap(encrypted_request, body)
     end
 
-    def add_encrypted_request_to_soap(encrypted_request, body)
-      encrypted_request = Nokogiri::XML(encrypted_request.to_xml)
-      encrypted_request = encrypted_request.root
-      body.at_css('pkif|CreateCertificateIn').add_child(encrypted_request)
-
-      body
-    end
-
     def build_get_bank_certificate_request(params)
       ar = Base64.decode64 @ar
       command = params.fetch(:command)
@@ -162,6 +144,23 @@ module Sepa
 
       set_bank_certificate_contents(body, sender_id, request_id)
       add_bank_certificate_body_to_soap(ar, body)
+    end
+
+    def add_encrypted_request_to_soap(encrypted_request, body)
+      encrypted_request = Nokogiri::XML(encrypted_request.to_xml)
+      encrypted_request = encrypted_request.root
+      body.at_css('pkif|CreateCertificateIn').add_child(encrypted_request)
+
+      body
+    end
+
+    def add_encrypted_generic_request_to_soap(encrypted_request, body)
+      encrypted_request = Nokogiri::XML(encrypted_request.to_xml)
+      encrypted_request = encrypted_request.root
+      encrypted_request = Base64.encode64(encrypted_request.to_xml)
+      body.at_css('bxd|ApplicationRequest').add_child(encrypted_request)
+
+      body
     end
 
     def add_bank_certificate_body_to_soap(ar, body)

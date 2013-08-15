@@ -419,6 +419,25 @@ module Sepa
               "certificate. Make sure its a proper X509 certificate."
           end
         end
+        if params[:enc_cert_path] != nil
+          begin
+            params[:enc_cert] = OpenSSL::X509::Certificate.new(
+              File.read(params.fetch(:enc_cert_path))
+            )
+          rescue
+            fail ArgumentError, 'There is something wrong with the path to ' \
+              'the certificate or the certificate itself.'
+          end
+        elsif params[:enc_cert_plain] != nil
+          begin
+            params[:enc_cert] = OpenSSL::X509::Certificate.new(
+              params.fetch(:enc_cert_plain)
+            )
+          rescue
+            fail ArgumentError, 'There is something wrong with the ' \
+              "certificate. Make sure its a proper X509 certificate."
+          end
+        end
         if params[:private_key_path] != nil
           begin
             params[:private_key] = OpenSSL::PKey::RSA.new(

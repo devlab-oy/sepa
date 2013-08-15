@@ -127,7 +127,7 @@ module Sepa
       def set_nodes_contents
         if @command != :get_bank_certificate && @command != :create_certificate
           set_node("CustomerId", @customer_id)
-          set_node("Timestamp", Time.now.iso8601)
+          set_node("Timestamp", Time.now.utc.iso8601)
           set_node("Environment", @environment)
           set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
           set_node("Command",
@@ -163,7 +163,7 @@ module Sepa
           set_node("TargetId", @target_id)
         when :get_bank_certificate
           set_node("elem|BankRootCertificateSerialNo", @bank_root_cert_serial)
-          set_node("elem|Timestamp", Time.now.iso8601)
+          set_node("elem|Timestamp", Time.now.utc.iso8601)
           set_node("elem|RequestId", @request_id)
         end
       end
