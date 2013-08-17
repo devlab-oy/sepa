@@ -4,7 +4,7 @@ private_key_path = File.expand_path(
   '../sepa/danske_testing/keys/signing_private_key.pem', __FILE__
 )
 
-cert_path = File.expand_path(
+signing_cert_path = File.expand_path(
   '../sepa/danske_testing/keys/own_signing_cert.pem', __FILE__
 )
 
@@ -19,7 +19,7 @@ params = {
   customer_id: '360817',
   environment: 'TEST',
   enc_cert_path: enc_cert_path,
-  cert_path: cert_path,
+  cert_path: signing_cert_path,
   language: 'EN',
   status: 'ALL',
   target_id: 'Danske FI',
