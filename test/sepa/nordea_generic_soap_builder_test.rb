@@ -64,7 +64,7 @@ class NordeaGenericSoapBuilderTest < MiniTest::Test
     template = File.read("#{@xml_templates_path}/header.xml")
     digest = Base64.encode64(sha1.digest(template)).strip
 
-    assert_equal digest, "W6TTO6gmlVDssKeZJYsxiJebs6Q="
+    assert_equal digest, "aPSrGOlBkyIf+Vkj205ysDbLIko="
   end
 
   def test_should_initialize_with_proper_params

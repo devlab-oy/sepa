@@ -25,7 +25,7 @@ module Sepa
 
       key = cipher.random_key
       iv = cipher.random_iv
-      puts ar
+
       output = cipher.update(ar.to_xml)
       output << cipher.final
       output = iv + output

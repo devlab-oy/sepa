@@ -3,12 +3,12 @@ module Sepa
     # SoapBuilder checks and validates incoming params and creates the
     # SOAP structure.
     def initialize(params)
-
       check_params(params)
+
       # Generate a request ID for the request
       params[:request_id] = generate_request_id
 
-      # Check if the bank&command need keys/certificates/csr's
+      # Check if the bank & command need keys/certificates/csr's
       @params = initialize_certificates_and_csr(params)
 
       check_if_bank_allows_command(@params)
@@ -46,7 +46,6 @@ module Sepa
       end
     end
 
-    # Generic building steps
     def calculate_digest(doc, node)
       sha1 = OpenSSL::Digest::SHA1.new
 
