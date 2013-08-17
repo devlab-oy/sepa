@@ -156,7 +156,6 @@ module Sepa
       check_params_hash(params)
       check_certificate_and_key_requirements(params)
       check_bank(params[:bank])
-      check_env(params[:environment])
       check_customer_id(params[:customer_id])
 
       # Generic commands
@@ -165,10 +164,12 @@ module Sepa
       # Depending on command
       case params[:command]
       when :get_certificate
+        check_env(params[:environment])
         check_pin(params[:pin])
         check_service(params[:service])
       when *generic_commands
         #if params[:bank] == :nordea
+        check_env(params[:environment])
         check_lang(params[:language])
         check_status(params[:status])
         check_target_id(params[:target_id])
@@ -178,6 +179,7 @@ module Sepa
           check_file_reference(params[:file_reference])
         end
       when :upload_file
+        check_env(params[:environment])
         check_lang(params[:language])
         check_target_id(params[:target_id])
         check_file_type(params[:file_type])
@@ -188,6 +190,7 @@ module Sepa
           check_bank_root_cert_serial(params[:bank_root_cert_serial])
         end
       when :create_certificate
+        check_env(params[:environment])
         check_pin(params[:pin])
         check_keygen_type(params[:key_generator_type])
       else

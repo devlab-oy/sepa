@@ -4,12 +4,15 @@ module Sepa
       # Used by most, both Nordea and Danske
       @command = check_command(params.fetch(:command))
       @customer_id = params.fetch(:customer_id)
-      @environment = params.fetch(:environment)
       @target_id = params[:target_id]
       @status = params[:status]
       @file_type = params[:file_type]
       @content = params[:content]
       @file_reference = params[:file_reference]
+
+      unless @command == :get_bank_certificate
+        @environment = params.fetch(:environment)
+      end
 
       @private_key, @cert, @pin, @service, @csr, @hmac,
         @bank_root_cert_serial,@request_id = ''
@@ -18,10 +21,12 @@ module Sepa
       initialize_required_fields_per_request(params)
 
       # For signed Nordea application requests
-      if @command != :get_certificate && @command != :create_certificate && @command != :get_bank_certificate
+      if @command != :get_certificate && @command != :create_certificate &&
+          @command != :get_bank_certificate
         @private_key = params.fetch(:private_key)
         @cert = params.fetch(:cert)
-      elsif @command == :get_certificate || @command == :create_certificate || @command == :get_bank_certificate
+      elsif @command == :get_certificate || @command == :create_certificate ||
+          @command == :get_bank_certificate
         # Only for cert requests
         # Danske Bank Create Certificate
         @pin = params[:pin]
@@ -48,7 +53,8 @@ module Sepa
       load_template(@command)
       set_nodes_contents
       # No signature for Certificate Requests
-      if @command != :get_certificate && @command != :get_bank_certificate && @command != :create_certificate
+      if @command != :get_certificate && @command != :get_bank_certificate &&
+          @command != :create_certificate
         process_signature
       end
 
@@ -61,162 +67,166 @@ module Sepa
 
     private
 
-      def initialize_required_fields_per_request(params)
-        generic_commands = [:get_user_info, :upload_file, :download_file,
-                            :download_file_list]
+    def initialize_required_fields_per_request(params)
+      generic_commands = [:get_user_info, :upload_file, :download_file,
+                          :download_file_list]
 
-        case @command
-        when *generic_commands
-          @private_key = params.fetch(:private_key)
-          @cert = params.fetch(:cert)
-        when :get_certificate
-          @service = params[:service]
-          @pin = params[:pin]
-          @csr = params[:csr]
-          @hmac = create_hmac_seal(@pin,@csr)
-        when :get_bank_certificate
-          @pin = params[:pin]
-          @request_id = params[:request_id]
-          @bank_root_cert_serial = params[:bank_root_cert_serial]
-        end
+      case @command
+      when *generic_commands
+        @private_key = params.fetch(:private_key)
+        @cert = params.fetch(:cert)
+      when :get_certificate
+        @service = params[:service]
+        @pin = params[:pin]
+        @csr = params[:csr]
+        @hmac = create_hmac_seal(@pin,@csr)
+      when :get_bank_certificate
+        @pin = params[:pin]
+        @request_id = params[:request_id]
+        @bank_root_cert_serial = params[:bank_root_cert_serial]
+      end
+    end
+
+    def check_command(command)
+      valid_commands = [:get_certificate, :download_file_list, :download_file,
+                        :get_user_info, :upload_file, :download_file,
+                        :get_bank_certificate, :create_certificate]
+      unless valid_commands.include?(command)
+        fail ArgumentError, "You didn't provide a proper command. " \
+          "Acceptable values are #{valid_commands.inspect}"
+      else
+        command
+      end
+    end
+    # Loads the application request template according to the command
+    def load_template(command)
+      template_dir = File.expand_path('../xml_templates/application_request',
+                                      __FILE__)
+
+      case command
+
+      when :get_certificate
+        path = "#{template_dir}/get_certificate.xml"
+      when :download_file_list
+        path = "#{template_dir}/download_file_list.xml"
+      when :get_user_info
+        path = "#{template_dir}/get_user_info.xml"
+      when :upload_file
+        path = "#{template_dir}/upload_file.xml"
+      when :download_file
+        path = "#{template_dir}/download_file.xml"
+      when :get_bank_certificate
+        path = "#{template_dir}/danske_get_bank_certificate.xml"
+      when :create_certificate
+        path = "#{template_dir}/create_certificate.xml"
       end
 
-      def check_command(command)
-        valid_commands = [:get_certificate, :download_file_list, :download_file,
-                          :get_user_info, :upload_file, :download_file,
-                          :get_bank_certificate, :create_certificate]
-        unless valid_commands.include?(command)
-          fail ArgumentError, "You didn't provide a proper command. " \
-            "Acceptable values are #{valid_commands.inspect}"
-        else
-          command
-        end
-      end
-      # Loads the application request template according to the command
-      def load_template(command)
-        template_dir = File.expand_path('../xml_templates/application_request',
-                                        __FILE__)
+      @ar = Nokogiri::XML(File.open(path))
+    end
 
-        case command
 
-        when :get_certificate
-          path = "#{template_dir}/get_certificate.xml"
-        when :download_file_list
-          path = "#{template_dir}/download_file_list.xml"
-        when :get_user_info
-          path = "#{template_dir}/get_user_info.xml"
-        when :upload_file
-          path = "#{template_dir}/upload_file.xml"
-        when :download_file
-          path = "#{template_dir}/download_file.xml"
-        when :get_bank_certificate
-          path = "#{template_dir}/danske_get_bank_certificate.xml"
-        when :create_certificate
-          path = "#{template_dir}/create_certificate.xml"
-        end
+    def set_node(node, value)
+      @ar.at_css(node).content = value
+    end
 
-        @ar = Nokogiri::XML(File.open(path))
+    # Set the nodes' contents according to the command
+    def set_nodes_contents
+      if @command != :get_bank_certificate && @command != :create_certificate
+        set_node("CustomerId", @customer_id)
+        set_node("Timestamp", Time.now.utc.iso8601)
+        set_node("Environment", @environment)
+        set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
+        set_node("Command",
+                 @command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join)
       end
 
-
-      def set_node(node, value)
-        @ar.at_css(node).content = value
+      case @command
+      when :create_certificate
+        set_node("tns|CustomerId", @customer_id)
+        set_node("tns|KeyGeneratorType", @key_generator_type)
+        set_node("tns|EncryptionCertPKCS10", Base64.encode64(
+                 @encryption_cert_pkcs10.to_der)
+                 )
+        set_node("tns|SigningCertPKCS10", Base64.encode64(
+                 @signing_cert_pkcs10.to_der)
+                 )
+        set_node("tns|Timestamp", Time.now.utc.iso8601)
+        set_node("tns|RequestId", @request_id)
+        set_node("tns|Environment", @environment)
+        set_node("tns|PIN", @pin)
+      when :get_certificate
+        set_node("Service", @service)
+        set_node("Content", Base64.encode64(@csr.to_der))
+        set_node("HMAC", Base64.encode64(@hmac).chop)
+      when :download_file_list
+        set_node("Status", @status)
+        set_node("TargetId", @target_id)
+        set_node("FileType", @file_type)
+      when :download_file
+        set_node("Status", @status)
+        set_node("TargetId", @target_id)
+        set_node("FileType", @file_type)
+        set_node("FileReference", @file_reference)
+      when :upload_file
+        set_node("Content", Base64.encode64(@content))
+        set_node("FileType", @file_type)
+        set_node("TargetId", @target_id)
+      when :get_bank_certificate
+        set_node("elem|BankRootCertificateSerialNo", @bank_root_cert_serial)
+        set_node("elem|Timestamp", Time.now.utc.iso8601)
+        set_node("elem|RequestId", @request_id)
       end
+    end
 
-      # Set the nodes' contents according to the command
-      def set_nodes_contents
-        if @command != :get_bank_certificate && @command != :create_certificate
-          set_node("CustomerId", @customer_id)
-          set_node("Timestamp", Time.now.utc.iso8601)
-          set_node("Environment", @environment)
-          set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
-          set_node("Command",
-                   @command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join)
-        end
+    def create_hmac_seal(pin, csr)
+      hmacseal = OpenSSL::HMAC.digest('sha1',pin,csr.to_der)
+      hmacseal
+    end
 
-        case @command
-        when :create_certificate
-          set_node("tns|CustomerId", @customer_id)
-          set_node("tns|KeyGeneratorType", @key_generator_type)
-          set_node("tns|EncryptionCertPKCS10", Base64.encode64(@encryption_cert_pkcs10.to_der))
-          set_node("tns|SigningCertPKCS10", Base64.encode64(@signing_cert_pkcs10.to_der))
-          set_node("tns|Timestamp", Time.now.utc.iso8601)
-          set_node("tns|RequestId", @request_id)
-          set_node("tns|Environment", @environment)
-          set_node("tns|PIN", @pin)
-        when :get_certificate
-          set_node("Service", @service)
-          set_node("Content", Base64.encode64(@csr.to_der))
-          set_node("HMAC", Base64.encode64(@hmac).chop)
-        when :download_file_list
-          set_node("Status", @status)
-          set_node("TargetId", @target_id)
-          set_node("FileType", @file_type)
-        when :download_file
-          set_node("Status", @status)
-          set_node("TargetId", @target_id)
-          set_node("FileType", @file_type)
-          set_node("FileReference", @file_reference)
-        when :upload_file
-          set_node("Content", Base64.encode64(@content))
-          set_node("FileType", @file_type)
-          set_node("TargetId", @target_id)
-        when :get_bank_certificate
-          set_node("elem|BankRootCertificateSerialNo", @bank_root_cert_serial)
-          set_node("elem|Timestamp", Time.now.utc.iso8601)
-          set_node("elem|RequestId", @request_id)
-        end
-      end
+    def remove_node(doc, node, xmlns)
+      doc.at_css("xmlns|#{node}", 'xmlns' => xmlns).remove
+    end
 
-      def create_hmac_seal(pin, csr)
-        hmacseal = OpenSSL::HMAC.digest('sha1',pin,csr.to_der)
-        hmacseal
-      end
+    def add_node_to_root(doc, node)
+      doc.root.add_child(node)
+    end
 
-      def remove_node(doc, node, xmlns)
-        doc.at_css("xmlns|#{node}", 'xmlns' => xmlns).remove
-      end
+    def calculate_digest(doc)
+      sha1 = OpenSSL::Digest::SHA1.new
+      Base64.encode64(sha1.digest(doc.canonicalize))
+    end
 
-      def add_node_to_root(doc, node)
-        doc.root.add_child(node)
-      end
+    def add_value_to_signature(node, value)
+      node = @ar.at_css("dsig|#{node}",
+                        'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
+      node.content = value
+    end
 
-      def calculate_digest(doc)
-        sha1 = OpenSSL::Digest::SHA1.new
-        Base64.encode64(sha1.digest(doc.canonicalize))
-      end
+    def calculate_signature(private_key)
+      sha1 = OpenSSL::Digest::SHA1.new
+      node = @ar.at_css("dsig|SignedInfo",
+                        'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
+      signature = private_key.sign(sha1, node.canonicalize)
+      Base64.encode64(signature)
+    end
 
-      def add_value_to_signature(node, value)
-        node = @ar.at_css("dsig|#{node}",
-                          'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
-        node.content = value
-      end
+    def format_cert(cert)
+      cert = cert.to_s
+      cert = cert.split('-----BEGIN CERTIFICATE-----')[1]
+      cert = cert.split('-----END CERTIFICATE-----')[0]
+      cert.gsub!(/\s+/, "")
+    end
 
-      def calculate_signature(private_key)
-        sha1 = OpenSSL::Digest::SHA1.new
-        node = @ar.at_css("dsig|SignedInfo",
-                          'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
-        signature = private_key.sign(sha1, node.canonicalize)
-        Base64.encode64(signature)
-      end
-
-      def format_cert(cert)
-        cert = cert.to_s
-        cert = cert.split('-----BEGIN CERTIFICATE-----')[1]
-        cert = cert.split('-----END CERTIFICATE-----')[0]
-        cert.gsub!(/\s+/, "")
-      end
-
-      def process_signature
-        signature_node = remove_node(@ar,
-                                     'Signature',
-                                     'http://www.w3.org/2000/09/xmldsig#')
-        digest = calculate_digest(@ar)
-        add_node_to_root(@ar, signature_node)
-        add_value_to_signature('DigestValue', digest)
-        signature = calculate_signature(@private_key)
-        add_value_to_signature('SignatureValue', signature)
-        add_value_to_signature('X509Certificate',format_cert(@cert))
-      end
+    def process_signature
+      signature_node = remove_node(@ar,
+                                   'Signature',
+                                   'http://www.w3.org/2000/09/xmldsig#')
+      digest = calculate_digest(@ar)
+      add_node_to_root(@ar, signature_node)
+      add_value_to_signature('DigestValue', digest)
+      signature = calculate_signature(@private_key)
+      add_value_to_signature('SignatureValue', signature)
+      add_value_to_signature('X509Certificate',format_cert(@cert))
+    end
   end
 end
