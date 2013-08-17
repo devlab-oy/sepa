@@ -19,7 +19,7 @@ module Sepa
     # Returns the x509 certificate embedded in the soap as an
     # OpenSSL::X509::Certificate
     def certificate
-      cert_value = @response.at_css(
+      cert_value = @response.at(
         'wsse|BinarySecurityToken',
         'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-ws' \
         'security-secext-1.0.xsd'

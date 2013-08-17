@@ -22,7 +22,8 @@ class DanskeGenericSoapBuilderTest < MiniTest::Test
       status: 'ALL',
       target_id: 'Danske FI',
       file_type: 'pain.001.001.02',
-      content: Base64.encode64('kissa')
+      content: Base64.encode64('kissa'),
+      file_reference: "11111111A12006030329501800000014"
     }
 
     @soap_request = Sepa::SoapBuilder.new(@params)
@@ -34,18 +35,121 @@ class DanskeGenericSoapBuilderTest < MiniTest::Test
     assert Sepa::SoapBuilder.new(@params).to_xml
   end
 
-  def test_should_fail_if_language_missing
-    @params.delete(:language)
+  def test_should_not_initialize_with_improper_params
+    @params = "kissa"
     assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params).to_xml
+      Sepa::SoapBuilder.new(@params)
     end
   end
 
-  def test_should_fail_if_target_id_missing
-    @params.delete(:target_id)
+  def test_should_get_error_if_command_missing
+    @params.delete(:command)
+
     assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params).to_xml
+      Sepa::SoapBuilder.new(@params)
     end
+  end
+
+  def test_should_get_error_if_customer_id_missing
+    @params.delete(:customer_id)
+
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
+    end
+  end
+
+  def test_should_get_error_if_target_id_missing
+    @params.delete(:target_id)
+
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
+    end
+  end
+
+  def test_should_get_error_if_language_missing
+    @params.delete(:language)
+
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
+    end
+  end
+
+  def test_should_load_correct_template_with_download_file_list
+    @params[:command] = :download_file_list
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
+
+    assert doc.at('//cor:downloadFileListin', 'cor' => 'http://bxd.fi/' \
+                  'CorporateFileService')
+  end
+
+  def test_should_load_correct_template_with_get_user_info
+    @params[:command] = :get_user_info
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
+
+    assert doc.at('//cor:getUserInfoin', 'cor' => 'http://bxd.fi/' \
+                  'CorporateFileService')
+  end
+
+  def test_should_load_correct_template_with_download_file
+    @params[:command] = :download_file
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
+
+    assert doc.at('//cor:downloadFilein', 'cor' => 'http://bxd.fi/' \
+                  'CorporateFileService')
+  end
+
+  def test_should_load_correct_template_with_upload_file
+    @params[:command] = :upload_file
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
+
+    assert doc.at('//cor:uploadFilein', 'cor' => 'http://bxd.fi/' \
+                  'CorporateFileService')
+  end
+
+  def test_should_raise_error_if_unrecognised_command
+    @params[:command] = :wrong_command
+
+    assert_raises(ArgumentError) do
+      soap = Sepa::SoapBuilder.new(@params)
+    end
+  end
+
+  def test_sender_id_is_properly_set
+    assert_equal @params[:customer_id],
+      @doc.at("//bxd:SenderId", 'bxd' => 'http://model.bxd.fi').content
+  end
+
+  def test_request_id_is_properly_set
+    request_id_node = @doc.at("//bxd:RequestId", 'bxd' => 'http://model.bxd.fi')
+
+    assert request_id_node.content.to_i > 0
+  end
+
+  def test_timestamp_is_set_correctly
+    timestamp_node = @doc.at("//bxd:Timestamp", 'bxd' => 'http://model.bxd.fi')
+    timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
+
+    assert timestamp <= Time.now && timestamp > (Time.now - 60)
+  end
+
+  def test_language_is_set_correctly
+    language_node = @doc.at("//bxd:Language", 'bxd' => 'http://model.bxd.fi')
+
+    assert_equal language_node.content, @params[:language]
+  end
+
+  def test_user_agent_is_set_correctly
+    user_agent_node = @doc.at("//bxd:UserAgent", 'bxd' => 'http://model.bxd.fi')
+
+    assert_equal user_agent_node.content,
+      "Sepa Transfer Library version " + Sepa::VERSION
+  end
+
+  def test_receiver_is_is_set_correctly
+    receiver_id_node = @doc.at("//bxd:ReceiverId", 'bxd' => 'http://' \
+                               'model.bxd.fi')
+
+    assert_equal receiver_id_node.content, @params[:target_id]
   end
 
   def test_cert_is_added_correctly

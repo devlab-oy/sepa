@@ -45,12 +45,6 @@ class NordeaGenericSoapBuilderTest < MiniTest::Test
     assert_equal digest, "HSWQCmwOsMdPJP3erjksi/Sz7hE="
   end
 
-  def test_should_not_initialize_with_unproper_params
-    @params = "kissa"
-    assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
-    end
-  end
   def test_upload_file_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
     template = File.read("#{@xml_templates_path}/upload_file.xml")
@@ -69,6 +63,13 @@ class NordeaGenericSoapBuilderTest < MiniTest::Test
 
   def test_should_initialize_with_proper_params
     assert Sepa::SoapBuilder.new(@params)
+  end
+
+  def test_should_not_initialize_with_improper_params
+    @params = "kissa"
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
+    end
   end
 
   def test_should_get_error_if_private_key_plain_missing
@@ -207,7 +208,6 @@ class NordeaGenericSoapBuilderTest < MiniTest::Test
       "Sepa Transfer Library version " + Sepa::VERSION
   end
 
-  # I'm quite sure that receiver id and target is are the same
   def test_receiver_is_is_set_correctly
     receiver_id_node = @doc.xpath(
       "//bxd:ReceiverId", 'bxd' => 'http://model.bxd.fi'

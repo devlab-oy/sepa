@@ -1,4 +1,4 @@
-# First the sepa gem is loaded by requiring it
+# First the sepafm gem is loaded by requiring it
 require 'sepafm'
 
 @invoice_bundle = []
@@ -184,10 +184,13 @@ payload = payload.to_xml
 # The params hash is populated with the data that is needed for gem to function.
 params = {
 
+  # Currently only nordea and danske are supported.
   bank: :nordea,
 
+  # Path to the certificate used for signing the request.
   cert_path: "sepa/nordea_testing/keys/nordea.crt",
 
+  # Path to the private key used to sign the request.
   private_key_path: "sepa/nordea_testing/keys/nordea.key",
 
   # Command :download_file_list, :upload_file, :download_file or :get_user_info.
@@ -242,7 +245,6 @@ puts "\nHashes match in the application response: #{ar.hashes_match?}"
 puts "Signature is valid in the application response: #{ar.signature_is_valid?}"
 
 puts "\nSome info about response's certificate:\n" \
-
   "Issuer: #{response.certificate.issuer}\n" \
   "First day to use this certificate: #{response.certificate.not_before}\n" \
   "Expires: #{response.certificate.not_after}"

@@ -24,7 +24,7 @@ module Sepa
     def to_xml
       # Returns a complete SOAP message in xml format
       find_correct_build(@params).to_xml
-    end
+  end
 
     def get_ar_as_base64
       @ar
