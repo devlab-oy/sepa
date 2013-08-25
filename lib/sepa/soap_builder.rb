@@ -24,7 +24,7 @@ module Sepa
     def to_xml
       # Returns a complete SOAP message in xml format
       find_correct_build(@params).to_xml
-  end
+    end
 
     def get_ar_as_base64
       @ar
@@ -33,8 +33,7 @@ module Sepa
     private
 
     def generate_request_id
-      reqid = SecureRandom.random_number(1000).to_s
-      reqid << SecureRandom.random_number(1000).to_s
+      SecureRandom.hex(5)
     end
 
     def find_correct_bank_extension(bank)
@@ -159,7 +158,10 @@ module Sepa
       check_customer_id(params[:customer_id])
 
       # Generic commands
-      generic_commands = [:download_file,:download_file_list,:get_user_info]
+      generic_commands = [:download_file,
+                          :download_file_list,
+                          :get_user_info
+                          ]
 
       # Depending on command
       case params[:command]
@@ -186,7 +188,6 @@ module Sepa
         check_content(params[:content])
       when :get_bank_certificate
         if params[:bank] == :danske
-          check_target_id(params[:target_id])
           check_bank_root_cert_serial(params[:bank_root_cert_serial])
         end
       when :create_certificate

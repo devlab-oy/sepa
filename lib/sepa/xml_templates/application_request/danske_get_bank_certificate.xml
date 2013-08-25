@@ -1,7 +1,7 @@
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:pkif="http://danskebank.dk/PKI/PKIFactoryService" xmlns:elem="http://danskebank.dk/PKI/PKIFactoryService/elements">
     <soapenv:Header/>
     <soapenv:Body>
-        <elem:GetBankCertificateRequest>
+        <elem:GetBankCertificateRequest xmlns:elem="http://danskebank.dk/PKI/PKIFactoryService/elements">
         <elem:BankRootCertificateSerialNo></elem:BankRootCertificateSerialNo>
         <elem:Timestamp></elem:Timestamp>
         <elem:RequestId></elem:RequestId>

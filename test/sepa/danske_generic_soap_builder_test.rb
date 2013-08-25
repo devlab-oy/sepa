@@ -29,6 +29,9 @@ class DanskeGenericSoapBuilderTest < MiniTest::Test
     @soap_request = Sepa::SoapBuilder.new(@params)
 
     @doc = Nokogiri::XML(@soap_request.to_xml)
+
+    # Namespaces
+    @bxd = 'http://model.bxd.fi'
   end
 
   def test_should_initialize_request_with_proper_params
@@ -120,9 +123,10 @@ class DanskeGenericSoapBuilderTest < MiniTest::Test
   end
 
   def test_request_id_is_properly_set
-    request_id_node = @doc.at("//bxd:RequestId", 'bxd' => 'http://model.bxd.fi')
+    request_id = @doc.at("RequestId", 'xmlns' => @bxd).content
 
-    assert request_id_node.content.to_i > 0
+    assert request_id =~ /^[0-9A-F]+$/i
+    assert_equal request_id.length, 10
   end
 
   def test_timestamp_is_set_correctly

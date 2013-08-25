@@ -11,6 +11,9 @@ class DanskeCertSoapBuilderTest < MiniTest::Test
     @certrequest = Sepa::SoapBuilder.new(@danskecertparams)
 
     @request_xml = Nokogiri::XML(@certrequest.to_xml)
+
+    # Namespaces
+    @pkif = 'http://danskebank.dk/PKI/PKIFactoryService'
   end
 
   def test_that_get_certificate_soap_template_is_unmodified
@@ -80,15 +83,11 @@ class DanskeCertSoapBuilderTest < MiniTest::Test
     assert timestamp <= Time.now && timestamp > (Time.now - 60)
   end
 
-  def test_request_id_is_set_correctly
-    request_id_node = @request_xml.at(
-      "RequestId", 'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService'
-    )
+  def test_request_id_is_properly_set
+    request_id = @request_xml.at("RequestId", 'xmlns' => @pkif).content
 
-    request_id = request_id_node.content.to_i
-
-    assert request_id.kind_of?(Integer), "Request id should be a number"
-    assert request_id != 0, "Request id can't be 0"
+    assert request_id =~ /^[0-9A-F]+$/i
+    assert_equal request_id.length, 10
   end
 
   def test_should_validate_against_schema
