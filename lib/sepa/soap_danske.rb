@@ -125,7 +125,7 @@ module Sepa
       sender_id = params.fetch(:customer_id)
       request_id = params.fetch(:request_id)
       environment = params.fetch(:environment)
-      cert = params.fetch(:cert)
+      cert = params.fetch(:enc_cert)
 
       body = load_body_template(command)
 

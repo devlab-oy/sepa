@@ -108,12 +108,12 @@ module Sepa
       header
     end
 
-    def extract_public_key(cert)
-      pkey = cert.public_key
-      pkey = OpenSSL::PKey::RSA.new(pkey)
+    # def extract_public_key(cert)
+    #   pkey = cert.public_key
+    #   pkey = OpenSSL::PKey::RSA.new(pkey)
 
-      pkey
-    end
+    #   pkey
+    # end
 
     def format_cert(cert)
       cert = cert.to_s
@@ -221,12 +221,6 @@ module Sepa
       unless [:nordea, :danske].include?(bank)
         fail ArgumentError, "You didn't provide a proper bank. " \
           "Acceptable values are nordea OR danske."
-      end
-    end
-
-    def check_request_id(request_id)
-      if request_id.to_i == 0
-        fail ArgumentError, "Request ID must be a number and not 0"
       end
     end
 
@@ -386,7 +380,7 @@ module Sepa
           fail ArgumentError, "You must provide a path to the signing CSR " \
             "or signing CSR in plain text"
         end
-        if params[:cert_path] == nil && params[:cert_plain] == nil
+        if params[:enc_cert_path] == nil && params[:enc_cert] == nil
           fail ArgumentError, "You must provide a path to the certificate " \
             "or certificate in plain text"
         end
@@ -491,19 +485,19 @@ module Sepa
             params.fetch(:signing_cert_pkcs10_plain)
           )
         end
-        if params[:cert_path] != nil
-          params[:cert] = OpenSSL::X509::Certificate.new(
-            File.read(params.fetch(:cert_path))
+        if params[:enc_cert_path] != nil
+          params[:enc_cert] = OpenSSL::X509::Certificate.new(
+            File.read(params.fetch(:enc_cert_path))
           )
-        elsif params[:cert_plain] != nil
-          params[:cert] = OpenSSL::X509::Certificate.new(
-            params.fetch(:cert_plain)
+        elsif params[:enc_cert] != nil
+          params[:enc_cert] = OpenSSL::X509::Certificate.new(
+            params.fetch(:enc_cert)
           )
         end
 
         check_encryption_pkcs10(params[:encryption_cert_pkcs10])
         check_signing_pkcs10(params[:signing_cert_pkcs10])
-        check_cert(params[:cert])
+        check_cert(params[:enc_cert])
       else
         fail ArgumentError, "No matching cases for initialize certificates " \
           "and csr"

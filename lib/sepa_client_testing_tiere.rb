@@ -162,13 +162,13 @@ payment_2_transactions.push(Sepa::Transaction.new(trans_6_params))
 
 payment_1_params = {
   payment_info_id: SecureRandom.hex,
-  execution_date: '2013-08-10',
+  execution_date: '2013-10-10',
   transactions: payment_1_transactions
 }
 
 payment_2_params = {
   payment_info_id: SecureRandom.hex,
-  execution_date: '2013-08-15',
+  execution_date: '2013-10-15',
   salary_or_pension: true,
   transactions: payment_2_transactions
 }
