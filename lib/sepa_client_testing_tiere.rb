@@ -194,7 +194,7 @@ params = {
   private_key_path: "sepa/nordea_testing/keys/nordea.key",
 
   # Command :download_file_list, :upload_file, :download_file or :get_user_info.
-  command: :upload_file,
+  command: :download_file_list,
 
   # Unique customer ID.
   customer_id: '11111111',
@@ -220,7 +220,7 @@ params = {
   # - NDCORPAYS = Yrityksen maksut XML (lähtevä)
   # - NDCAMT53L = Konekielinen XML-tiliote (saapuva)
   # - NDCAMT54L = Saapuvat XML viitemaksu (saapuva)
-  file_type: 'NDCORPAYS',
+  file_type: 'TITO',
 
   # The actual payload to send.
   content: payload,

@@ -285,8 +285,8 @@ class NordeaGenericSoapBuilderTest < MiniTest::Test
 
     timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
 
-    assert timestamp <= (Time.now + 3600) &&
-      timestamp > ((Time.now + 3600) - 60)
+    assert timestamp <= (Time.now + 300) &&
+      timestamp > ((Time.now + 300) - 60)
   end
 
   def test_header_timestamps_digest_is_calculated_correctly
