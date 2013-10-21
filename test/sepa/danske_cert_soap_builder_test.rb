@@ -2,7 +2,7 @@ require File.expand_path('../../test_helper.rb', __FILE__)
 
 class DanskeCertSoapBuilderTest < MiniTest::Test
   def setup
-    @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)
+    @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas', __FILE__)
 
     @templates_path = File.expand_path('../../../lib/sepa/xml_templates/soap',
                                        __FILE__)
@@ -65,7 +65,7 @@ CsajqZag/Aoxv/Y=
     @pkif = 'http://danskebank.dk/PKI/PKIFactoryService'
   end
 
-  def test_that_get_certificate_soap_template_is_unmodified
+  def test_get_certificate_soap_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
     template = File.read("#{@templates_path}/create_certificate.xml")
     digest = Base64.encode64(sha1.digest(template)).strip
@@ -82,7 +82,7 @@ CsajqZag/Aoxv/Y=
     assert_raises(ArgumentError) { Sepa::SoapBuilder.new(@danskecertparams) }
   end
 
-  def test_should_get_error_if_command_missing
+  def test_should_raise_error_if_command_missing
     @params.delete(:command)
 
     assert_raises(ArgumentError) do
@@ -90,7 +90,7 @@ CsajqZag/Aoxv/Y=
     end
   end
 
-  def test_should_get_error_if_customer_id_missing
+  def test_should_raise_error_if_customer_id_missing
     @params.delete(:customer_id)
 
     assert_raises(ArgumentError) do
@@ -98,16 +98,9 @@ CsajqZag/Aoxv/Y=
     end
   end
 
-  def test_should_raise_error_if_command_not_correct
-    @params[:command] = :wrong_command
-    assert_raises(ArgumentError) do
-      soap = Sepa::SoapBuilder.new(@params).to_xml
-    end
-  end
-
   def test_timestamp_is_set_correctly
     timestamp_node = @doc.at(
-      "Timestamp", 'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService'
+      "Timestamp", 'xmlns' => @pkif
     )
     timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
 
