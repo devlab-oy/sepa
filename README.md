@@ -1,5 +1,8 @@
 # Devlab / SEPA
 
+[![Code Climate](https://codeclimate.com/github/devlab-oy/sepa.png)](https://codeclimate.com/github/devlab-oy/sepa)
+[![Code Climate](https://codeclimate.com/github/devlab-oy/sepa/coverage.png)](https://codeclimate.com/github/devlab-oy/sepa)
+
 This project aims to create an open source implementation of SEPA Financial Messages using Web Services. Project implementation will be done in Ruby. We will also create a REST API for this module.
 
 ## First milestone
@@ -31,7 +34,7 @@ Or install it yourself as:
 * You can optionally have an invoice bundle included in a given transaction. If that is the case, you first have to define the invoices i.e. as follows:
 
         invoice_bundle = []
-    
+
         invoice_1 = {
 
           # Has to be either CINV for normal invoice or CREN for credit note.
@@ -45,28 +48,28 @@ Or install it yourself as:
           # You either have to specify an invoice number or a reference.
           invoice_number: '123456'
         }
-        
+
         invoice_2 = {
           type: 'CINV',
           amount: '300',
           currency: 'EUR',
           reference: '123456789',
         }
-        
+
         invoice_3 = {
           type: 'CREN',
           amount: '-100',
           currency: 'EUR',
           invoice_number: '654321'
         }
-        
+
         invoice_4 = {
           type: 'CREN',
           amount: '-500',
           currency: 'EUR',
           reference: '987654321'
         }
-        
+
         # All the invoices are pushed to an array which is later included in the
         # transaction's params.
         invoice_bundle.push(invoice_1)
@@ -171,7 +174,7 @@ Or install it yourself as:
 6. Create the actual payload object:
 
         payload = Sepa::Payload.new(debtor_params, payments)
-        
+
         # Will return the payload as an xml document which can be included in the
         # construction of the SOAP message.
         payload.to_xml
