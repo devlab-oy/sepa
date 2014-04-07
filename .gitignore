@@ -1,35 +1,19 @@
 *.gem
 *.rbc
-.bundle
-.config
-coverage
+/.config
+/coverage/
+/InstalledFiles
+/pkg/
+/spec/reports/
+/test/tmp/
+/test/version_tmp/
+/tmp/
+
+## Environment normalisation:
+/.bundle/
+/lib/bundler/man/
+
 Gemfile.lock
-InstalledFiles
-lib/bundler/man
-pkg
-rdoc
-spec/reports
-test/tmp
-test/version_tmp
-tmp
-vendor
-lib/debug.rb
-lib/CSR.csr
-lib/signing_key.pem
-lib/encrypting_key.pem
-lib/req_key.pem
-lib/danske
+.ruby-version
 
-# YARD artifacts
-.yardoc
-_yardoc
-doc/
-
-# ms-crap
-*~
-
-# osx-crap
-.DS_Store
-
-#Coverage
-coverage
+/.env
