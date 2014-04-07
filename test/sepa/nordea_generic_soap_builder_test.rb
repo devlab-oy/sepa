@@ -45,12 +45,6 @@ class NordeaGenericSoapBuilderTest < MiniTest::Test
     assert_equal digest, "HSWQCmwOsMdPJP3erjksi/Sz7hE="
   end
 
-  def test_should_not_initialize_with_unproper_params
-    @params = "kissa"
-    assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
-    end
-  end
   def test_upload_file_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
     template = File.read("#{@xml_templates_path}/upload_file.xml")
@@ -64,11 +58,18 @@ class NordeaGenericSoapBuilderTest < MiniTest::Test
     template = File.read("#{@xml_templates_path}/header.xml")
     digest = Base64.encode64(sha1.digest(template)).strip
 
-    assert_equal digest, "W6TTO6gmlVDssKeZJYsxiJebs6Q="
+    assert_equal digest, "aPSrGOlBkyIf+Vkj205ysDbLIko="
   end
 
   def test_should_initialize_with_proper_params
     assert Sepa::SoapBuilder.new(@params)
+  end
+
+  def test_should_not_initialize_with_improper_params
+    @params = "kissa"
+    assert_raises(ArgumentError) do
+      Sepa::SoapBuilder.new(@params)
+    end
   end
 
   def test_should_get_error_if_private_key_plain_missing
@@ -207,7 +208,6 @@ class NordeaGenericSoapBuilderTest < MiniTest::Test
       "Sepa Transfer Library version " + Sepa::VERSION
   end
 
-  # I'm quite sure that receiver id and target is are the same
   def test_receiver_is_is_set_correctly
     receiver_id_node = @doc.xpath(
       "//bxd:ReceiverId", 'bxd' => 'http://model.bxd.fi'
@@ -285,8 +285,8 @@ class NordeaGenericSoapBuilderTest < MiniTest::Test
 
     timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
 
-    assert timestamp <= (Time.now + 3600) &&
-      timestamp > ((Time.now + 3600) - 60)
+    assert timestamp <= (Time.now + 300) &&
+      timestamp > ((Time.now + 300) - 60)
   end
 
   def test_header_timestamps_digest_is_calculated_correctly

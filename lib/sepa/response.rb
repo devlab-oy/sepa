@@ -19,7 +19,7 @@ module Sepa
     # Returns the x509 certificate embedded in the soap as an
     # OpenSSL::X509::Certificate
     def certificate
-      cert_value = @response.at_css(
+      cert_value = @response.at(
         'wsse|BinarySecurityToken',
         'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-ws' \
         'security-secext-1.0.xsd'
@@ -33,7 +33,92 @@ module Sepa
         fail OpenSSL::X509::CertificateError,
           "The certificate embedded to the soap response could not be process" \
           "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
-      end
+          end
+    end
+
+    def danske_bank_encryption_cert
+      cert = @response.at(
+        'BankEncryptionCert',
+        'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
+      ).content.gsub(/\s+/, "")
+
+      cert = process_cert_value(cert)
+
+      begin
+        cert = OpenSSL::X509::Certificate.new(cert)
+      rescue => e
+        fail OpenSSL::X509::CertificateError,
+          "The certificate embedded to the soap response could not be process" \
+          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
+          end
+    end
+
+    def danske_bank_signing_cert
+      cert = @response.at(
+        'BankSigningCert',
+        'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
+      ).content.gsub(/\s+/, "")
+
+      cert = process_cert_value(cert)
+
+      begin
+        cert = OpenSSL::X509::Certificate.new(cert)
+      rescue => e
+        fail OpenSSL::X509::CertificateError,
+          "The certificate embedded to the soap response could not be process" \
+          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
+          end
+    end
+
+    def danske_bank_root_cert
+      cert = @response.at(
+        'BankRootCert',
+        'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
+      ).content.gsub(/\s+/, "")
+
+      cert = process_cert_value(cert)
+
+      begin
+        cert = OpenSSL::X509::Certificate.new(cert)
+      rescue => e
+        fail OpenSSL::X509::CertificateError,
+          "The certificate embedded to the soap response could not be process" \
+          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
+          end
+    end
+
+    def own_encryption_cert
+      cert = @response.at(
+        'EncryptionCert',
+        'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
+      ).content.gsub(/\s+/, "")
+
+      cert = process_cert_value(cert)
+
+      begin
+        cert = OpenSSL::X509::Certificate.new(cert)
+      rescue => e
+        fail OpenSSL::X509::CertificateError,
+          "The certificate embedded to the soap response could not be process" \
+          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
+          end
+    end
+
+    def own_signing_cert
+      cert = @response.at(
+        'SigningCert',
+        'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
+      ).content.gsub(/\s+/, "")
+
+      cert = process_cert_value(cert)
+
+      begin
+        cert = OpenSSL::X509::Certificate.new(cert)
+      rescue => e
+        fail OpenSSL::X509::CertificateError,
+          "The certificate embedded to the soap response could not be process" \
+          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
+          end
     end
 
     # Verifies that the soap's certificate is trusted.

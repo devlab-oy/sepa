@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+   Verbatim from http://www.w3.org/TR/2005/REC-xml-id-20050909/ section D.2
+
+   $Id: xmlid.xsd,v 1.1 2006/06/18 16:56:30 G. Ken Holman Exp $
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.w3.org/XML/1998/namespace">
+	<xs:attribute name="id" type="xs:ID"/>
+</xs:schema>

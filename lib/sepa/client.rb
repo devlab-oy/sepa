@@ -9,7 +9,7 @@ module Sepa
 
       wsdl = find_proper_wsdl(bank, params.fetch(:command))
 
-      @client = Savon.client(wsdl: wsdl) #log_level: :info
+      @client = Savon.client(wsdl: wsdl, pretty_print_xml: true) #log_level: :info
       @command = params.fetch(:command)
       # SoapBuilder creates a complete SOAP message structure
       @soap = SoapBuilder.new(params).to_xml
@@ -40,7 +40,7 @@ module Sepa
             path = "#{wsdlpath}/wsdl_nordea.xml"
           end
         when :danske
-          if command == :get_bank_certificate
+          if command == :get_bank_certificate || command == :create_certificate
             path = "#{wsdlpath}/wsdl_danske_cert.xml"
           else
             path = "#{wsdlpath}/wsdl_danske.xml"

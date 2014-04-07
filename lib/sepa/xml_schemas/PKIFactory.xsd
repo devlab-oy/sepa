@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2009 sp1 (http://www.altova.com) by Danske Bank (Danske Bank A/S) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:tns="http://danskebank.dk/PKI/PKIFactoryService/elements" xmlns:xml="http://www.w3.org/XML/1998/namespace" targetNamespace="http://danskebank.dk/PKI/PKIFactoryService/elements" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="xmldsig-core-schema.xsd"/>
+	<!--xs:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="store:///schemas/xmldsig-core-schema.xsd"/-->
+	<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml_id.xsd"/>
+	<!-- SHARED TYPES SECTION -->
+	<!-- GENERIC TYPES -->
+	<xs:simpleType name="string10">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="0"/>
+			<xs:maxLength value="10"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="string50">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="0"/>
+			<xs:maxLength value="50"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="RequestIdType">
+		<xs:restriction base="tns:string10"/>
+	</xs:simpleType>
+	<xs:simpleType name="ReturncodeType">
+		<xs:restriction base="tns:string10"/>
+	</xs:simpleType>
+	<xs:simpleType name="ReturnTextType">
+		<xs:restriction base="tns:string50"/>
+	</xs:simpleType>
+	<xs:simpleType name="AdditionalReturnTextType">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="0"/>
+			<xs:maxLength value="1000"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- SPECIFIC TYPES -->
+	<xs:simpleType name="InterfaceVersionType">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="10"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CRLReasonType">
+		<xs:restriction base="xs:integer">
+			<xs:enumeration value="0"/>
+			<xs:enumeration value="1"/>
+			<xs:enumeration value="2"/>
+			<xs:enumeration value="3"/>
+			<xs:enumeration value="4"/>
+			<xs:enumeration value="5"/>
+			<xs:enumeration value="9"/>
+			<!-- Values taken from X.509v3 specification -->
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CertificateIdType">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="64"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CertificateType">
+		<xs:restriction base="xs:base64Binary">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="10000"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Pkcs10requestType">
+		<xs:restriction base="xs:base64Binary">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="10000"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CustomerIdType">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="6"/>
+			<xs:maxLength value="6"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="KeyGeneratorTypeType">
+		<xs:annotation>
+			<xs:documentation>Indicates the machine (hardware or software) used to create the keys in a certificate request. The value 'HSM' indicates that a Hardware Security Module generated the keys, while the value 'software' indicates that the keys were generated in software.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="HSM"/>
+			<xs:enumeration value="software"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="EnvironmentType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="production"/>
+			<xs:enumeration value="customertest"/>
+			<xs:enumeration value="systemtest"/>
+			<xs:enumeration value="test"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CertificateTypeType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="signing"/>
+			<xs:enumeration value="encryption"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="CertificateStatusType">
+		<xs:sequence>
+			<xs:element name="CertificateSerialNo" type="tns:CertificateIdType"/>
+			<xs:element name="CertificateType" type="tns:CertificateTypeType"/>
+			<xs:element name="MatchingCertificateSerialNo" type="tns:CertificateIdType"/>
+			<xs:element name="Status">
+				<xs:complexType>
+					<xs:choice>
+						<xs:element name="good">
+							<xs:complexType>
+								<xs:attribute name="expiryDate" type="xs:dateTime" use="optional"/>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="expires_soon">
+							<xs:complexType>
+								<xs:attribute name="expiryDate" type="xs:dateTime" use="optional"/>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="expired">
+							<xs:complexType>
+								<xs:attribute name="expiryDate" type="xs:dateTime" use="optional"/>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="revoked">
+							<xs:complexType>
+								<xs:attribute name="revocationDate" type="xs:dateTime" use="optional"/>
+								<xs:attribute name="CRLReason" type="tns:CRLReasonType" use="optional"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- ELEMENTS SECTION -->
+	<xs:element name="CreateCertificateRequest">
+		<xs:annotation>
+			<xs:documentation>Request to create a signing certificate and an encryption certificate for the customer. The customer is identified by an agreement number and a CAID.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="CustomerId" type="tns:CustomerIdType"/>
+				<xs:element name="KeyGeneratorType" type="tns:KeyGeneratorTypeType"/>
+				<xs:element name="EncryptionCertPKCS10" type="tns:Pkcs10requestType"/>
+				<xs:element name="SigningCertPKCS10" type="tns:Pkcs10requestType"/>
+				<xs:element name="Timestamp" type="xs:dateTime"/>
+				<xs:element name="RequestId" type="tns:RequestIdType"/>
+				<xs:element name="Environment" type="tns:EnvironmentType" minOccurs="0"/>
+				<xs:element name="PIN" type="tns:string10"/>
+			</xs:sequence>
+			<xs:attribute ref="xml:id"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CreateCertificateResponse">
+		<xs:annotation>
+			<xs:documentation>Response to a CreateCertificateRequest.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="ReturnCode" type="tns:ReturncodeType"/>
+				<xs:element name="ReturnText" type="tns:ReturnTextType"/>
+				<xs:element name="EncryptionCert" type="tns:CertificateType"/>
+				<xs:element name="SigningCert" type="tns:CertificateType"/>
+				<xs:element name="CACert" type="tns:CertificateType"/>
+				<xs:element name="RequestId" type="tns:RequestIdType"/>
+				<xs:element name="Environment" type="tns:EnvironmentType" minOccurs="0"/>
+				<!-- Enveloped signature, signing the CreateCertificateResponse element -->
+				<xs:element ref="ds:Signature" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute ref="xml:id"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RenewCertificateRequest">
+		<xs:annotation>
+			<xs:documentation>Request to renew a signing certificate and an encryption certificate for the customer. The customer is identified by an agreement number and a name. The request is signed with the customers old signing certificate.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="CustomerId" type="tns:CustomerIdType"/>
+				<xs:element name="KeyGeneratorType" type="tns:KeyGeneratorTypeType"/>
+				<xs:element name="EncryptionCertPKCS10" type="tns:Pkcs10requestType"/>
+				<xs:element name="SigningCertPKCS10" type="tns:Pkcs10requestType"/>
+				<xs:element name="Timestamp" type="xs:dateTime"/>
+				<xs:element name="RequestId" type="tns:RequestIdType"/>
+				<xs:element name="Environment" type="tns:EnvironmentType" minOccurs="0"/>
+				<!-- Enveloped signature, signing the RenewCertificateRequest element. The signature should be based on the old signing cert -->
+				<xs:element ref="ds:Signature" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute ref="xml:id"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RenewCertificateResponse">
+		<xs:annotation>
+			<xs:documentation>Response to a RenewCertificateRequest.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="ReturnCode" type="tns:ReturncodeType"/>
+				<xs:element name="ReturnText" type="tns:ReturnTextType"/>
+				<xs:element name="EncryptionCert" type="tns:CertificateType"/>
+				<xs:element name="SigningCert" type="tns:CertificateType"/>
+				<xs:element name="CACert" type="tns:CertificateType"/>
+				<xs:element name="RequestId" type="tns:RequestIdType"/>
+				<xs:element name="Environment" type="tns:EnvironmentType" minOccurs="0"/>
+				<!-- Enveloped signature, signing the RenewCertificateResponse element. -->
+				<xs:element ref="ds:Signature" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute ref="xml:id"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RevokeCertificateRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="KeyGeneratorType" type="tns:KeyGeneratorTypeType"/>
+				<xs:element name="CustomerId" type="tns:CustomerIdType"/>
+				<xs:choice>
+					<xs:element name="RevokeAll">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="ExceptCertificateSerialNo" minOccurs="0" maxOccurs="10"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="CertificateSerialNo" type="tns:CertificateIdType" maxOccurs="10"/>
+				</xs:choice>
+				<xs:element name="CRLReason" type="tns:CRLReasonType" minOccurs="0"/>
+				<xs:element name="Timestamp" type="xs:dateTime"/>
+				<xs:element name="RequestId" type="tns:RequestIdType"/>
+				<xs:element name="Environment" type="tns:EnvironmentType" minOccurs="0"/>
+				<!-- Enveloped signature, signing the RevokeCertificateRequest element-->
+				<xs:element ref="ds:Signature" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute ref="xml:id"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RevokeCertificateResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="ReturnCode" type="tns:ReturncodeType"/>
+				<xs:element name="ReturnText" type="tns:ReturnTextType"/>
+				<xs:element name="CertificateSerialNo" type="tns:CertificateIdType" maxOccurs="unbounded"/>
+				<xs:element name="RevocationTime" type="xs:dateTime"/>
+				<xs:element name="RequestId" type="tns:RequestIdType"/>
+				<xs:element name="Environment" type="tns:EnvironmentType" minOccurs="0"/>
+				<!-- Enveloped signature, signing the RevokeCertificateResponse element-->
+				<xs:element ref="ds:Signature" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute ref="xml:id"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CertificateStatusRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="KeyGeneratorType" type="tns:KeyGeneratorTypeType"/>
+				<xs:element name="CertificateSerialNo" type="tns:CertificateIdType" maxOccurs="10"/>
+				<xs:element name="CustomerId" type="tns:CustomerIdType"/>
+				<xs:element name="Timestamp" type="xs:dateTime"/>
+				<xs:element name="RequestId" type="tns:RequestIdType"/>
+				<!-- Enveloped signature, signing the CertificateStatusRequest element-->
+				<xs:element ref="ds:Signature" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute ref="xml:id"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CertificateStatusResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="ReturnCode" type="tns:ReturncodeType"/>
+				<xs:element name="ReturnText" type="tns:ReturnTextType"/>
+				<xs:element name="CertificateStatus" type="tns:CertificateStatusType" maxOccurs="10"/>
+				<xs:element name="Timestamp" type="xs:dateTime"/>
+				<xs:element name="RequestId" type="tns:RequestIdType"/>
+				<!-- Enveloped signature, signing the CertificateStatusResponse element-->
+				<xs:element ref="ds:Signature" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute ref="xml:id"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="GetOwnCertificateListRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="KeyGeneratorType" type="tns:KeyGeneratorTypeType"/>
+				<xs:element name="CustomerId" type="tns:CustomerIdType"/>
+				<xs:element name="Timestamp" type="xs:dateTime"/>
+				<xs:element name="RequestId" type="tns:RequestIdType"/>
+				<!-- Enveloped signature, signing the GetCertificateListRequest element-->
+				<xs:element ref="ds:Signature" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute ref="xml:id"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="GetOwnCertificateListResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="ReturnCode" type="tns:ReturncodeType"/>
+				<xs:element name="ReturnText" type="tns:ReturnTextType"/>
+				<xs:element name="CertificateStatus" type="tns:CertificateStatusType" minOccurs="0" maxOccurs="unbounded"/>
+				<!-- Enveloped signature, signing the GetCertificateListResponse element-->
+				<xs:element name="RequestId" type="tns:RequestIdType"/>
+				<xs:element ref="ds:Signature" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute ref="xml:id"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="GetBankCertificateRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="BankRootCertificateSerialNo" type="tns:CertificateIdType"/>
+				<xs:element name="Timestamp" type="xs:dateTime"/>
+				<xs:element name="RequestId" type="tns:RequestIdType"/>
+			</xs:sequence>
+			<xs:attribute ref="xml:id"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="GetBankCertificateResponse">
+		<xs:annotation>
+			<xs:documentation>Response to a GetBankCertificate request. Contains the relevant bank certificates.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="ReturnCode" type="tns:ReturncodeType"/>
+				<xs:element name="ReturnText" type="tns:ReturnTextType"/>
+				<xs:element name="BankEncryptionCert" type="tns:CertificateType"/>
+				<xs:element name="BankSigningCert" type="tns:CertificateType"/>
+				<xs:element name="BankRootCert" type="tns:CertificateType"/>
+				<xs:element name="RequestId" type="tns:RequestIdType"/>
+				<!-- Enveloped signature, signing the GetBankCertificateResponse element-->
+				<xs:element ref="ds:Signature" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute ref="xml:id"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

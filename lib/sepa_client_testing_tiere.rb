@@ -1,4 +1,4 @@
-# First the sepa gem is loaded by requiring it
+# First the sepafm gem is loaded by requiring it
 require 'sepafm'
 
 @invoice_bundle = []
@@ -162,13 +162,13 @@ payment_2_transactions.push(Sepa::Transaction.new(trans_6_params))
 
 payment_1_params = {
   payment_info_id: SecureRandom.hex,
-  execution_date: '2013-08-10',
+  execution_date: '2013-10-10',
   transactions: payment_1_transactions
 }
 
 payment_2_params = {
   payment_info_id: SecureRandom.hex,
-  execution_date: '2013-08-15',
+  execution_date: '2013-10-15',
   salary_or_pension: true,
   transactions: payment_2_transactions
 }
@@ -184,14 +184,17 @@ payload = payload.to_xml
 # The params hash is populated with the data that is needed for gem to function.
 params = {
 
+  # Currently only nordea and danske are supported.
   bank: :nordea,
 
+  # Path to the certificate used for signing the request.
   cert_path: "sepa/nordea_testing/keys/nordea.crt",
 
+  # Path to the private key used to sign the request.
   private_key_path: "sepa/nordea_testing/keys/nordea.key",
 
   # Command :download_file_list, :upload_file, :download_file or :get_user_info.
-  command: :upload_file,
+  command: :download_file_list,
 
   # Unique customer ID.
   customer_id: '11111111',
@@ -217,7 +220,7 @@ params = {
   # - NDCORPAYS = Yrityksen maksut XML (lähtevä)
   # - NDCAMT53L = Konekielinen XML-tiliote (saapuva)
   # - NDCAMT54L = Saapuvat XML viitemaksu (saapuva)
-  file_type: 'NDCORPAYS',
+  file_type: 'TITO',
 
   # The actual payload to send.
   content: payload,
@@ -242,7 +245,6 @@ puts "\nHashes match in the application response: #{ar.hashes_match?}"
 puts "Signature is valid in the application response: #{ar.signature_is_valid?}"
 
 puts "\nSome info about response's certificate:\n" \
-
   "Issuer: #{response.certificate.issuer}\n" \
   "First day to use this certificate: #{response.certificate.not_before}\n" \
   "Expires: #{response.certificate.not_after}"
@@ -251,7 +253,3 @@ puts "\nSome info about response's certificate:\n" \
   "Issuer: #{ar.certificate.issuer}\n" \
   "First day to use this certificate: #{ar.certificate.not_before}\n" \
   "Expires: #{ar.certificate.not_after}"
-
-
-data = response.get_important_data(:download_file_list)
-puts data
