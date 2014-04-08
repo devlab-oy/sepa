@@ -1,0 +1,15 @@
+language: ruby
+rvm:
+- 2.0.0
+- 2.1.1
+notifications:
+  email: false
+  flowdock:
+    secure: CyhoMN8Ae7vEmhT1AJEA+ds6QwLGr0kEks1iiMizK6JcbTjAcDpXWbrAVd868f+UNV++goRlzMmx0pbiWr0d9lRMtwAXr1RJtglpL2jBWgyKRF0bTczhOLayMiNN02IvrBDZIsfstE0ZtOLS03+n+AVyVJw1rQ2NLDfaw0ILn3w=
+addons:
+  code_climate:
+    repo_token:
+      secure: "Wpl0vRyUgEfrvlF35U8LAgpvPttB/+r3lLJhpdGAtFrdDhCgtJJt/qFadWVLcyewGosYBd5XJWZvI6hTARTgmL3imlVdwoZRBu+flUQr3lv3nDVQPMPKnYj9iFi/zLKGR3nnM7k/d85Bm8rNIPw5w+iAE/Z8cTu5YrHqZ+XlxwI="
+script:
+- bundle install
+- bundle exec rake
