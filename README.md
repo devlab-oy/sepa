@@ -2,6 +2,7 @@
 
 [![Code Climate](https://codeclimate.com/github/devlab-oy/sepa.png)](https://codeclimate.com/github/devlab-oy/sepa)
 [![Code Climate](https://codeclimate.com/github/devlab-oy/sepa/coverage.png)](https://codeclimate.com/github/devlab-oy/sepa)
+[![Build Status](https://travis-ci.org/devlab-oy/sepa.svg?branch=master)](https://travis-ci.org/devlab-oy/sepa)
 
 This project aims to create an open source implementation of SEPA Financial Messages using Web Services. Project implementation will be done in Ruby. We will also create a REST API for this module.
 
