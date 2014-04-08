@@ -1,6 +1,7 @@
-require File.expand_path('../../test_helper.rb', __FILE__)
+require 'test_helper'
 
-class ClientTest < MiniTest::Test
+class ClientTest < ActiveSupport::TestCase
+
   def setup
     @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)
 
@@ -36,37 +37,30 @@ class ClientTest < MiniTest::Test
     Savon.observers << observer
   end
 
-  def test_should_get_error_if_key_gen_type_missing
+  test "should not be valid if required params are missing" do
     @danskecertparams.delete(:key_generator_type)
-    assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
+    sepa = Sepa::Client.new(@danskecertparams)
+    refute sepa.valid?
   end
 
   def test_should_raise_error_with_wrong_bank
     @params[:bank] = :royal_bank_of_skopje
-    assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+    refute Sepa::Client.new(@params).valid?
   end
 
   def test_should_raise_error_with_wrong_command_when_bank_doesnt_support_the_command
     @certparams[:bank] = :danske
     @certparams[:command] = :get_certificate
-    assert_raises(ArgumentError) { Sepa::Client.new(@certparams) }
+    refute Sepa::Client.new(@certparams).valid?
   end
 
   def test_should_not_initialize_with_unsupported_danske_params
     @danskecertparams[:command] = :twiddle_thumbs
-    assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
+    refute Sepa::Client.new(@danskecertparams).valid?
   end
 
   def test_should_initialize_with_proper_params
     assert Sepa::Client.new(@params)
-  end
-
-  def test_should_give_proper_error_if_initialized_with_something_not_hash_like
-    not_hashes = ['Merihevonsenkenka', 1, :verhokangas]
-
-    not_hashes.each do |not_hash|
-      assert_raises(ArgumentError) { Sepa::Client.new(not_hash) }
-    end
   end
 
   def test_should_raise_error_if_private_key_plain_is_wrong
@@ -74,7 +68,7 @@ class ClientTest < MiniTest::Test
 
     wrong_pks.each do |wrong_pk|
       @params[:private_key_plain] = wrong_pk
-      assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+      refute Sepa::Client.new(@params).valid?
     end
   end
 
@@ -83,7 +77,7 @@ class ClientTest < MiniTest::Test
 
     wrong_certs.each do |wrong_cert|
       @params[:cert_plain] = wrong_cert
-      assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+      refute Sepa::Client.new(@params).valid?
     end
   end
 
@@ -92,7 +86,7 @@ class ClientTest < MiniTest::Test
 
     wrong_pks.each do |wrong_pk|
       @params[:private_key_path] = wrong_pk
-      assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+      refute Sepa::Client.new(@params).valid?
     end
   end
 
@@ -101,7 +95,7 @@ class ClientTest < MiniTest::Test
 
     wrong_certs.each do |wrong_cert|
       @params[:cert_path] = wrong_cert
-      assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+      refute Sepa::Client.new(@params).valid?
     end
   end
 
@@ -112,7 +106,7 @@ class ClientTest < MiniTest::Test
     wrong_commands.each do |wrong_command|
       @params[:command] = wrong_command
 
-      assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+      refute Sepa::Client.new(@params).valid?
     end
   end
 
@@ -122,7 +116,7 @@ class ClientTest < MiniTest::Test
     wrong_ids.each do |wrong_id|
       @params[:customer_id] = wrong_id
 
-      assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+      refute Sepa::Client.new(@params).valid?
     end
   end
 
@@ -132,7 +126,7 @@ class ClientTest < MiniTest::Test
     wrong_envs.each do |wrong_env|
       @params[:environment] = wrong_env
 
-      assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+      refute Sepa::Client.new(@params).valid?
     end
   end
 
@@ -147,7 +141,7 @@ class ClientTest < MiniTest::Test
       wrong_statuses.each do |wrong_status|
         @params[:status] = wrong_status
 
-        assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+        refute Sepa::Client.new(@params).valid?
       end
     end
   end
@@ -163,7 +157,7 @@ class ClientTest < MiniTest::Test
       wrong_ids.each do |wrong_id|
         @params[:target_id] = wrong_id
 
-        assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+        refute Sepa::Client.new(@params).valid?
       end
     end
   end
@@ -174,7 +168,7 @@ class ClientTest < MiniTest::Test
     wrong_langs.each do |wrong_lang|
       @params[:language] = wrong_lang
 
-      assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+      refute Sepa::Client.new(@params).valid?
     end
   end
 
@@ -189,7 +183,7 @@ class ClientTest < MiniTest::Test
       wrong_types.each do |wrong_type|
         @params[:file_type] = wrong_type
 
-        assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+        refute Sepa::Client.new(@params).valid?
       end
     end
   end
@@ -198,7 +192,7 @@ class ClientTest < MiniTest::Test
     @params[:command] = :upload_file
     @params.delete(:content)
 
-    assert_raises(ArgumentError) { Sepa::Client.new(@params) }
+    refute Sepa::Client.new(@params).valid?
   end
 
   # The response from savon will be the request to check that a proper request
@@ -275,7 +269,7 @@ class ClientTest < MiniTest::Test
     @certparams[:command] = :get_certificate
     @certparams.delete(:service)
 
-    assert_raises(ArgumentError) { Sepa::Client.new(@certparams) }
+    refute Sepa::Client.new(@certparams).valid?
   end
 
   def test_should_raise_error_if_signing_pkcs_plain_and_path_missing_with_create_certificate
@@ -283,7 +277,7 @@ class ClientTest < MiniTest::Test
     @danskecertparams.delete(:signing_cert_pkcs10_plain)
     @danskecertparams.delete(:signing_cert_pkcs10_path)
 
-    assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
+    refute Sepa::Client.new(@danskecertparams).valid?
   end
 
   def test_should_raise_error_if_encryption_pkcs_plain_and_path_missing_with_create_certificate
@@ -291,14 +285,14 @@ class ClientTest < MiniTest::Test
     @danskecertparams.delete(:encryption_cert_pkcs10_plain)
     @danskecertparams.delete(:encryption_cert_pkcs10_path)
 
-    assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
+    refute Sepa::Client.new(@danskecertparams).valid?
   end
 
   def test_should_raise_error_if_pin_missing_with_create_certificate
     @danskecertparams[:command] = :create_certificate
     @danskecertparams.delete(:pin)
 
-    assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
+    refute Sepa::Client.new(@danskecertparams).valid?
   end
 
   def test_should_raise_error_if_cert_plain_and_cert_path_missing_with_create_certificate
@@ -306,6 +300,6 @@ class ClientTest < MiniTest::Test
     @danskecertparams.delete(:cert_plain)
     @danskecertparams.delete(:cert_path)
 
-    assert_raises(ArgumentError) { Sepa::Client.new(@danskecertparams) }
+    refute Sepa::Client.new(@danskecertparams).valid?
   end
 end

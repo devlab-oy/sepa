@@ -1,78 +1,66 @@
 module Sepa
   class Client
-    # Check that parameters are valid, initialize savon client with them and
-    # construct soap message
-    def initialize(params)
-      check_params_hash(params)
-      check_bank(params.fetch(:bank))
-      bank = params.fetch(:bank)
+    include ActiveModel::Validations
 
-      wsdl = find_proper_wsdl(bank, params.fetch(:command))
+    attr_accessor :bank, :cert_plain, :command, :content, :customer_id,
+                  :encryption_cert_pkcs10_plain, :environment, :file_reference,
+                  :file_type, :key_generator_type, :language, :pin, :private_key_plain,
+                  :signing_cert_pkcs10_plain, :status, :target_id, :csr_plain, :cert_path,
+                  :service, :private_key_path
 
-      @client = Savon.client(wsdl: wsdl, pretty_print_xml: true) #log_level: :info
-      @command = params.fetch(:command)
-      # SoapBuilder creates a complete SOAP message structure
-      @soap = SoapBuilder.new(params).to_xml
+    validates :bank, inclusion: { in: [ :nordea, :danske ] }
+    validates :command, presence: true
+    validates :key_generator_type, presence: true
+
+    def initialize(hash = {})
+      self.attributes hash
     end
 
-    # Call savon to make the soap request with the correct command and the
-    # the constructed soap. The returned object will be a savon response.
-    def send
-      @client.call(@command, xml: @soap)
+    def attributes(hash)
+      hash.each do |name, value|
+        send("#{name}=", value)
+      end
+    end
+
+    def send_request
+      raise ArgumentError unless valid?
+
+      wsdl = find_proper_wsdl(bank, command)
+      client = Savon.client(wsdl: wsdl, pretty_print_xml: true)
+      soap = SoapBuilder.new(bank: bank, command: command).to_xml
+      client.call(command, xml: soap)
     end
 
     private
 
-      def check_bank(bank)
-        unless [:nordea, :danske].include?(bank)
-          fail ArgumentError, "You didn't provide a proper bank. " \
-            "Acceptable values are nordea OR danske."
-        end
-      end
-
-      def find_proper_wsdl(bank, command)
-        wsdlpath = File.expand_path('../../../lib/sepa/wsdl', __FILE__)
+      def wsdl_path
         case bank
         when :nordea
           if command == :get_certificate
-            path = "#{wsdlpath}/wsdl_nordea_cert.xml"
+            file = "wsdl_nordea_cert.xml"
           else
-            path = "#{wsdlpath}/wsdl_nordea.xml"
+            file = "wsdl_nordea.xml"
           end
         when :danske
           if command == :get_bank_certificate || command == :create_certificate
-            path = "#{wsdlpath}/wsdl_danske_cert.xml"
+            file = "wsdl_danske_cert.xml"
           else
-            path = "#{wsdlpath}/wsdl_danske.xml"
+            file = "wsdl_danske.xml"
           end
         end
-        check_wsdl(path)
-        path
-      end
 
-      def check_params_hash(params)
-        unless params.respond_to?(:each_pair)
-          fail ArgumentError, "You didn't provide a proper hash"
-        end
+        wsdlpath = File.expand_path('../../../lib/sepa/wsdl', __FILE__)
+        check_wsdl "#{wsdlpath}/#{file}"
       end
 
       def check_wsdl(wsdl)
-        schema_file = File.expand_path('../../../lib/sepa/xml_schemas/wsdl.xml',
-                                       __FILE__)
+        schema_file = File.expand_path('../../../lib/sepa/xml_schemas/wsdl.xml', __FILE__)
         xsd = Nokogiri::XML::Schema(File.read(schema_file))
-
-        begin
-          wsdl_file = File.read(wsdl)
-        rescue
-          fail ArgumentError, "You didn't provide a wsdl file or the path is " \
-            "invalid"
-        end
-
+        wsdl_file = File.read(wsdl)
         wsdl = Nokogiri::XML(wsdl_file)
 
         unless xsd.valid?(wsdl)
-          fail ArgumentError, "The wsdl file provided doesn't validate " \
-            "against the wsdl schema and thus was rejected."
+          raise ArgumentError, "Invalid wsdl file"
         end
       end
   end
