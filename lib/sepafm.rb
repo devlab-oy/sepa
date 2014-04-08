@@ -1,3 +1,4 @@
+require 'active_model'
 require 'base64'
 require 'nokogiri'
 require 'openssl'
