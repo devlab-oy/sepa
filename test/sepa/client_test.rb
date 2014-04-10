@@ -3,13 +3,9 @@ require 'test_helper'
 class ClientTest < ActiveSupport::TestCase
 
   def setup
-    @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)
-
-    wsdl_path = File.expand_path('../../../lib/sepa/wsdl/wsdl_nordea.xml',
-                                 __FILE__)
-
+    @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas', __FILE__)
+    wsdl_path = File.expand_path('../../../lib/sepa/wsdl/wsdl_nordea.xml', __FILE__)
     keys_path = File.expand_path('../nordea_test_keys', __FILE__)
-
     danske_keys_path = File.expand_path('../danske_test_keys', __FILE__)
 
     private_key = OpenSSL::PKey::RSA.new File.read "#{keys_path}/nordea.key"
@@ -37,15 +33,28 @@ class ClientTest < ActiveSupport::TestCase
     Savon.observers << observer
   end
 
-  test "should not be valid if required params are missing" do
-    @danskecertparams.delete(:key_generator_type)
-    sepa = Sepa::Client.new(@danskecertparams)
-    refute sepa.valid?
+  test "should initialize class" do
+    assert Sepa::Client.new
   end
 
-  def test_should_raise_error_with_wrong_bank
+  test "should initialize with attributes" do
+    assert Sepa::Client.new @params
+  end
+
+  test "should set attributes" do
+    a = Sepa::Client.new
+    assert a.attributes @params
+  end
+
+  test "should be valid with required params" do
+    sepa = Sepa::Client.new @danskecertparams
+    assert sepa.valid?
+  end
+
+  test "not valid if invalid bank" do
     @params[:bank] = :royal_bank_of_skopje
-    refute Sepa::Client.new(@params).valid?
+    sepa = Sepa::Client.new @params
+    refute sepa.valid?, sepa.errors.messages
   end
 
   def test_should_raise_error_with_wrong_command_when_bank_doesnt_support_the_command

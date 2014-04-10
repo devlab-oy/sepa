@@ -10,7 +10,7 @@ module Sepa
 
     validates :bank, inclusion: { in: [ :nordea, :danske ] }
     validates :command, presence: true
-    validates :key_generator_type, presence: true
+    validate :check_wsdl
 
     def initialize(hash = {})
       self.attributes hash
@@ -33,7 +33,7 @@ module Sepa
 
     private
 
-      def wsdl_path
+      def wsdl
         case bank
         when :nordea
           if command == :get_certificate
@@ -49,19 +49,20 @@ module Sepa
           end
         end
 
-        wsdlpath = File.expand_path('../../../lib/sepa/wsdl', __FILE__)
-        check_wsdl "#{wsdlpath}/#{file}"
+        file
       end
 
-      def check_wsdl(wsdl)
-        schema_file = File.expand_path('../../../lib/sepa/xml_schemas/wsdl.xml', __FILE__)
-        xsd = Nokogiri::XML::Schema(File.read(schema_file))
-        wsdl_file = File.read(wsdl)
-        wsdl = Nokogiri::XML(wsdl_file)
+      def check_wsdl
+        return unless wsdl.present?
 
-        unless xsd.valid?(wsdl)
-          raise ArgumentError, "Invalid wsdl file"
+        xsd = Nokogiri::XML::Schema(File.read(SCHEMA_FILE))
+        wsdl_file = File.read("#{WSDL_PATH}/#{wsdl}")
+        xml = Nokogiri::XML(wsdl_file)
+
+        unless xsd.valid?(xml)
+          self.errors.add(:wsdl, "Invalid wsdl file")
         end
       end
+
   end
 end
