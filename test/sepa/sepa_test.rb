@@ -8,13 +8,3 @@ class TestSepa < ActiveSupport::TestCase
   end
 
 end
-
-class TestSepaClient < ActiveSupport::TestCase
-
-  def test_client_raises_an_exp_without_params
-    assert_raises ArgumentError do
-      Sepa::Client.new
-    end
-  end
-
-end
