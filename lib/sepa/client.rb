@@ -5,12 +5,19 @@ module Sepa
     attr_accessor :bank, :cert_plain, :command, :content, :customer_id,
                   :encryption_cert_pkcs10_plain, :environment, :file_reference,
                   :file_type, :key_generator_type, :language, :pin, :private_key_plain,
-                  :signing_cert_pkcs10_plain, :status, :target_id, :csr_plain, :cert_path,
-                  :service, :private_key_path
+                  :signing_cert_pkcs10_plain, :status, :target_id, :csr_plain, :service
 
     validates :bank, inclusion: { in: [ :nordea, :danske ] }
+    validates :content, presence: true, :if => lambda { command == :upload_file }
+    validates :customer_id, length: { maximum: 16 }, presence: true
+    validates :environment, inclusion: { in: ['PRODUCTION', 'TEST', 'customertest'] }
+    validates :file_type, length: { maximum: 40 }, presence: true
+    validates :language, inclusion: { in: ['FI', 'SE', 'EN'] }
+    validates :status, inclusion: { in: ['NEW', 'DOWNLOADED', 'ALL'] }
+    validates :target_id, length: { maximum: 80 }, presence: true
 
     validate :check_command
+    validate :check_keys
     validate :check_wsdl
 
     def initialize(hash = {})
@@ -26,8 +33,9 @@ module Sepa
     def send_request
       raise ArgumentError unless valid?
 
-      client = Savon.client(wsdl: wsdl, pretty_print_xml: true)
       soap = SoapBuilder.new(bank: bank, command: command).to_xml
+
+      client = Savon.client(wsdl: wsdl, pretty_print_xml: true)
       client.call(command, xml: soap)
     end
 
@@ -49,6 +57,20 @@ module Sepa
         errors.add(:command, "Invalid command") unless allowed_commands.include? command
       end
 
+      def check_keys
+        begin
+          OpenSSL::PKey::RSA.new private_key_plain
+        rescue
+          errors.add(:private_key_plain, "Invalid private key")
+        end
+
+        begin
+          OpenSSL::X509::Certificate.new cert_plain
+        rescue
+          errors.add(:cert_plain, "Invalid certificate")
+        end
+      end
+
       def wsdl
         case bank
         when :nordea
@@ -63,6 +85,8 @@ module Sepa
           else
             file = "wsdl_danske.xml"
           end
+        else
+          return nil
         end
 
         "#{WSDL_PATH}/#{file}"
