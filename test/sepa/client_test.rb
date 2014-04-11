@@ -57,19 +57,11 @@ class ClientTest < ActiveSupport::TestCase
     refute sepa.valid?, sepa.errors.messages
   end
 
-  def test_should_raise_error_with_wrong_command_when_bank_doesnt_support_the_command
+  test "banks supported commands" do
     @certparams[:bank] = :danske
     @certparams[:command] = :get_certificate
-    refute Sepa::Client.new(@certparams).valid?
-  end
-
-  def test_should_not_initialize_with_unsupported_danske_params
-    @danskecertparams[:command] = :twiddle_thumbs
-    refute Sepa::Client.new(@danskecertparams).valid?
-  end
-
-  def test_should_initialize_with_proper_params
-    assert Sepa::Client.new(@params)
+    sepa = Sepa::Client.new @certparams
+    refute sepa.valid?, sepa.errors.messages
   end
 
   def test_should_raise_error_if_private_key_plain_is_wrong

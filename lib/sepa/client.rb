@@ -9,7 +9,8 @@ module Sepa
                   :service, :private_key_path
 
     validates :bank, inclusion: { in: [ :nordea, :danske ] }
-    validates :command, presence: true
+
+    validate :check_command
     validate :check_wsdl
 
     def initialize(hash = {})
@@ -25,13 +26,28 @@ module Sepa
     def send_request
       raise ArgumentError unless valid?
 
-      wsdl = find_proper_wsdl(bank, command)
       client = Savon.client(wsdl: wsdl, pretty_print_xml: true)
       soap = SoapBuilder.new(bank: bank, command: command).to_xml
       client.call(command, xml: soap)
     end
 
     private
+
+      def allowed_commands
+        case bank
+        when :nordea
+          [ :get_certificate, :get_user_info, :download_file_list, :download_file, :upload_file ]
+        when :danske
+          [ :get_bank_certificate, :get_user_info, :download_file_list, :download_file,
+            :upload_file, :create_certificate ]
+        else
+          []
+        end
+      end
+
+      def check_command
+        errors.add(:command, "Invalid command") unless allowed_commands.include? command
+      end
 
       def wsdl
         case bank
@@ -49,18 +65,18 @@ module Sepa
           end
         end
 
-        file
+        "#{WSDL_PATH}/#{file}"
       end
 
       def check_wsdl
         return unless wsdl.present?
 
         xsd = Nokogiri::XML::Schema(File.read(SCHEMA_FILE))
-        wsdl_file = File.read("#{WSDL_PATH}/#{wsdl}")
+        wsdl_file = File.read(wsdl)
         xml = Nokogiri::XML(wsdl_file)
 
         unless xsd.valid?(xml)
-          self.errors.add(:wsdl, "Invalid wsdl file")
+          errors.add(:wsdl, "Invalid wsdl file")
         end
       end
 
