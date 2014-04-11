@@ -1,6 +1,6 @@
 require File.expand_path('../../test_helper.rb', __FILE__)
 
-class XmlParserTest < MiniTest::Test
+class XmlParserTest < ActiveSupport::TestCase
   def setup
     @exampleresponsepath = File.expand_path('../../../lib/sepa/nordea_testing/response',__FILE__)
 

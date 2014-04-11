@@ -1,6 +1,6 @@
 require File.expand_path('../../test_helper.rb', __FILE__)
 
-class UserFileTypeTest < MiniTest::Test
+class UserFileTypeTest < ActiveSupport::TestCase
   def setup
     @single = Sepa::Filetypeservice.new
     @fts = []

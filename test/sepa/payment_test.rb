@@ -1,6 +1,6 @@
 require File.expand_path('../../test_helper.rb', __FILE__)
 
-class TestPayment < MiniTest::Test
+class TestPayment < ActiveSupport::TestCase
   def setup
     trans_1_params = {
       instruction_id: '70CEF29BEBA8396A1F806005EDA51DEE4CE',

@@ -1,6 +1,6 @@
 require File.expand_path('../../test_helper.rb', __FILE__)
 
-class CertApplicationRequestTest < MiniTest::Test
+class CertApplicationRequestTest < ActiveSupport::TestCase
   def setup
     @schemapath = File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)
     @templatepath = File.expand_path('../../../lib/sepa/xml_templates/application_request',__FILE__)

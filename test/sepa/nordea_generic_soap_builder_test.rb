@@ -1,6 +1,6 @@
 require File.expand_path('../../test_helper.rb', __FILE__)
 
-class NordeaGenericSoapBuilderTest < MiniTest::Test
+class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
   def setup
     @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)
 

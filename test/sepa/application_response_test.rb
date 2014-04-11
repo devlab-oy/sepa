@@ -1,6 +1,6 @@
 require File.expand_path('../../test_helper.rb', __FILE__)
 
-class ApplicationResponseTest < MiniTest::Test
+class ApplicationResponseTest < ActiveSupport::TestCase
   def setup
     keys_path = File.expand_path('../nordea_test_keys', __FILE__)
 

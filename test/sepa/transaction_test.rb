@@ -1,6 +1,6 @@
 require File.expand_path('../../test_helper.rb', __FILE__)
 
-class TestTransaction < MiniTest::Test
+class TestTransaction < ActiveSupport::TestCase
   def setup
     @invoice_bundle = []
 
