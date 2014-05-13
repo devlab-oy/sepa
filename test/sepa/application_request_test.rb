@@ -4,10 +4,6 @@ class TestApplicationRequest < ActiveSupport::TestCase
   def setup
     keys_path = File.expand_path('../nordea_test_keys', __FILE__)
 
-    @xml_templates_path = File.expand_path(
-      '../../../lib/sepa/xml_templates/application_request', __FILE__
-    )
-
     @schemas_path = File.expand_path(SCHEMA_PATH,__FILE__)
 
     @private_key = OpenSSL::PKey::RSA.new(File.read("#{keys_path}/nordea.key"))
@@ -44,19 +40,19 @@ class TestApplicationRequest < ActiveSupport::TestCase
     sha1 = OpenSSL::Digest::SHA1.new
 
     get_user_info_template = File.read(
-      "#{@xml_templates_path}/get_user_info.xml"
+      "#{AR_TEMPLATE_PATH}/get_user_info.xml"
     )
 
     download_file_list_template = File.read(
-      "#{@xml_templates_path}/download_file_list.xml"
+      "#{AR_TEMPLATE_PATH}/download_file_list.xml"
     )
 
     download_file_template = File.read(
-      "#{@xml_templates_path}/download_file.xml"
+      "#{AR_TEMPLATE_PATH}/download_file.xml"
     )
 
     upload_file_template = File.read(
-      "#{@xml_templates_path}/upload_file.xml"
+      "#{AR_TEMPLATE_PATH}/upload_file.xml"
     )
 
     get_user_info_digest = Base64.encode64(

@@ -2,36 +2,31 @@ module Sepa
   class ApplicationResponse
     include ActiveModel::Validations
 
-    def initialize(ar)
-      @ar = ar
+    attr_accessor :ar
 
-      if !@ar.respond_to?(:canonicalize)
-        fail ArgumentError,
-          "The application response you provided is not a valid Nokogiri::XML" \
-          " file."
-      elsif !valid_against_ar_schema?(@ar)
-        fail ArgumentError,
-          "The application response you provided doesn't validate against" \
-          " application response schema."
-      end
+    validate :check_validity_against_schema
+    validate :validate_document_format
+
+    def initialize(app_resp)
+      self.ar = app_resp
     end
 
     # Checks that the hash value reported in the signature matches the actual
     # one.
     def hashes_match?
-      ar = @ar.clone
+      are = ar.clone
 
-      digest_value = ar.at_css(
+      digest_value = are.at_css(
         'xmlns|DigestValue',
         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
       ).content.strip
 
-      ar.at_css(
+      are.at_css(
         "xmlns|Signature",
         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
       ).remove
-
-      actual_digest = calculate_digest(ar)
+      errors.add(:base, "#{are.inspect}")
+      actual_digest = calculate_digest(are)
 
       if digest_value == actual_digest
         true
@@ -42,7 +37,7 @@ module Sepa
 
     # Extracts the X509 certificate from the application response.
     def certificate
-      cert_value = @ar.at_css(
+      cert_value = ar.at_css(
         'xmlns|X509Certificate',
         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
       ).content.gsub(/\s+/, "")
@@ -62,12 +57,12 @@ module Sepa
     # Checks that the signature is signed with the private key of the
     # certificate's public key.
     def signature_is_valid?
-      node = @ar.at_css('xmlns|SignedInfo',
+      node = ar.at_css('xmlns|SignedInfo',
                         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
 
       node = node.canonicalize
 
-      signature = @ar.at_css(
+      signature = ar.at_css(
         'xmlns|SignatureValue',
         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
       ).content
@@ -102,14 +97,21 @@ module Sepa
         Base64.encode64(sha1.digest(canon_node)).gsub(/\s+/, "")
       end
 
-      def valid_against_ar_schema?(doc)
+      def check_validity_against_schema
+        return false unless ar.respond_to?(:canonicalize)
         schemas_path = File.expand_path(SCHEMA_PATH,
                                         __FILE__)
 
         Dir.chdir(schemas_path) do
           xsd = Nokogiri::XML::Schema(IO.read('application_response.xsd'))
-          xsd.valid?(doc)
+          errors.add(:base, 'Application response must validate against the schema file') \
+          unless xsd.valid?(ar)
         end
+      end
+
+      def validate_document_format
+        errors.add(:base, 'Document must be a Nokogiri XML file') \
+          unless ar.respond_to?(:canonicalize)
       end
 
       # Takes the certificate from the application response, adds begin and end

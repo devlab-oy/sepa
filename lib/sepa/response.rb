@@ -242,7 +242,7 @@ module Sepa
 
       # Checks that the response is valid against soap schema.
       def check_validity_against_schema
-        return false if !document.respond_to?(:canonicalize)
+        return false unless document.respond_to?(:canonicalize)
         schemas_path = File.expand_path(SCHEMA_PATH, __FILE__)
         Dir.chdir(schemas_path) do
           xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))

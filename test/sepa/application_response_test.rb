@@ -12,18 +12,16 @@ class ApplicationResponseTest < ActiveSupport::TestCase
       "#{keys_path}/nordea.crt"
     )
 
-    responses_path = File.expand_path('../test_files/test_responses', __FILE__)
-
-    @dfl = Nokogiri::XML(File.read("#{responses_path}/dfl.xml"))
+    @dfl = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/dfl.xml"))
     @dfl = Sepa::Response.new(@dfl).application_response
 
-    @uf = Nokogiri::XML(File.read("#{responses_path}/uf.xml"))
+    @uf = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/uf.xml"))
     @uf = Sepa::Response.new(@uf).application_response
 
-    @df = Nokogiri::XML(File.read("#{responses_path}/df.xml"))
+    @df = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/df.xml"))
     @df = Sepa::Response.new(@df).application_response
 
-    @gui = Nokogiri::XML(File.read("#{responses_path}/gui.xml"))
+    @gui = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/gui.xml"))
     @gui = Sepa::Response.new(@gui).application_response
 
     @dfl_ar = Sepa::ApplicationResponse.new(@dfl)
@@ -32,21 +30,21 @@ class ApplicationResponseTest < ActiveSupport::TestCase
     @gui_ar = Sepa::ApplicationResponse.new(@gui)
   end
 
-  def test_should_initialize_with_proper_params
-    assert Sepa::ApplicationResponse.new(@dfl)
-    assert Sepa::ApplicationResponse.new(@uf)
-    assert Sepa::ApplicationResponse.new(@df)
-    assert Sepa::ApplicationResponse.new(@gui)
+  def test_templates_valid
+    assert @dfl_ar.valid?
+    assert @uf_ar.valid?
+    assert @df_ar.valid?
+    assert @gui_ar.valid?
   end
 
-  def test_should_complain_if_initialized_with_something_not_nokogiri_xml
-    assert_raises(ArgumentError) { Sepa::ApplicationResponse.new("Jees") }
+  def test_should_fail_if_initialized_with_not_nokogiri_xml
+    as = Sepa::ApplicationResponse.new("Jees")
+    refute as.valid?
   end
 
   def test_should_complain_if_ar_not_valid_against_schema
-    assert_raises(ArgumentError) do
-      Sepa::ApplicationResponse.new(Nokogiri::XML("<ar>text</ar>"))
-    end
+    as = Sepa::ApplicationResponse.new(Nokogiri::XML("<ar>text</ar>"))
+    refute as.valid?
   end
 
   def test_proper_dfl_hash_check_should_verify
