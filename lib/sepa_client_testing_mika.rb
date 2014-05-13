@@ -36,12 +36,14 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
 
 # You just create the client with the parameters described above.
 sepa_client = Sepa::Client.new(params)
-
-response = sepa_client.send
-response = Nokogiri::XML(response.to_xml)
-response = Sepa::Response.new(response)
-
-# ar = Sepa::ApplicationResponse.new(response.application_response)
+puts sepa_client.inspect
+#puts sepa_client.methods
+puts sepa_client.errors.full_messages
+# Response is created by triggering 'send_request' from client
+response = sepa_client.send_request
+puts response.inspect
+# Response contains methods valid? and payload
+# puts response.payload if response.valid?
 
 # puts "\n\nHashes match in the response: #{response.hashes_match?}"
 # puts "Signature is valid in the response: #{response.signature_is_valid?}"
@@ -60,5 +62,3 @@ response = Sepa::Response.new(response)
 #   "First day to use this certificate: #{ar.certificate.not_before}\n" \
 #   "Expires: #{ar.certificate.not_after}"
 
-data = response.get_important_data(:get_certificate)
-puts data

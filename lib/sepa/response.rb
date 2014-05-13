@@ -1,25 +1,22 @@
 module Sepa
   class Response
-    def initialize(response)
-      unless response.respond_to?(:canonicalize)
-        @response = Nokogiri::XML(response.to_xml)
-      else
-        @response = response
-      end
+    include ActiveModel::Validations
 
-      if !@response.respond_to?(:canonicalize)
-        fail ArgumentError,
-          "The response you provided is not a valid Nokogiri::XML file."
-      elsif !valid_against_schema?(@response)
-        fail ArgumentError,
-          "The response you provided doesn't validate against soap schema."
-      end
+    attr_accessor :document
+
+    validates :document, presence: true
+
+    validate :check_validity_against_schema
+    validate :validate_document_format
+
+    def initialize(response)
+      self.document = response
     end
 
     # Returns the x509 certificate embedded in the soap as an
     # OpenSSL::X509::Certificate
     def certificate
-      cert_value = @response.at(
+      cert_value = document.at(
         'wsse|BinarySecurityToken',
         'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-ws' \
         'security-secext-1.0.xsd'
@@ -37,7 +34,7 @@ module Sepa
     end
 
     def danske_bank_encryption_cert
-      cert = @response.at(
+      cert = document.at(
         'BankEncryptionCert',
         'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
       ).content.gsub(/\s+/, "")
@@ -54,7 +51,7 @@ module Sepa
     end
 
     def danske_bank_signing_cert
-      cert = @response.at(
+      cert = document.at(
         'BankSigningCert',
         'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
       ).content.gsub(/\s+/, "")
@@ -71,7 +68,7 @@ module Sepa
     end
 
     def danske_bank_root_cert
-      cert = @response.at(
+      cert = document.at(
         'BankRootCert',
         'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
       ).content.gsub(/\s+/, "")
@@ -88,7 +85,7 @@ module Sepa
     end
 
     def own_encryption_cert
-      cert = @response.at(
+      cert = document.at(
         'EncryptionCert',
         'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
       ).content.gsub(/\s+/, "")
@@ -99,13 +96,13 @@ module Sepa
         cert = OpenSSL::X509::Certificate.new(cert)
       rescue => e
         fail OpenSSL::X509::CertificateError,
-          "The certificate embedded to the soap response could not be process" \
+          "The certificate embedded to the soap document could not be process" \
           "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
           end
     end
 
     def own_signing_cert
-      cert = @response.at(
+      cert = document.at(
         'SigningCert',
         'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
       ).content.gsub(/\s+/, "")
@@ -136,8 +133,8 @@ module Sepa
     # Takes an optional verbose parameter to show which digests didn't match
     # i.e. verbose: true
     def hashes_match?(options = {})
-      digests = find_digest_values(@response)
-      nodes = find_nodes_to_verify(@response, digests)
+      digests = find_digest_values(document)
+      nodes = find_nodes_to_verify(document, digests)
 
       verified_digests = digests.select do |uri, digest|
         uri = uri.sub(/^#/, '')
@@ -163,7 +160,7 @@ module Sepa
     # Verifies the signature by extracting the public key from the certificate
     # embedded in the soap header and verifying the signature value with that.
     def signature_is_valid?
-      node = @response.at_css('xmlns|SignedInfo',
+      node = document.at_css('xmlns|SignedInfo',
                               'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
 
       node = node.canonicalize(
@@ -171,12 +168,13 @@ module Sepa
         inclusive_namespaces=nil,with_comments=false
       )
 
-      signature = @response.at_css(
+      signature = document.at_css(
         'xmlns|SignatureValue',
         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
       ).content
 
       signature = Base64.decode64(signature)
+
 
       certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
     end
@@ -184,7 +182,7 @@ module Sepa
     # Gets the application response from the response as an Nokogiri::XML
     # document
     def application_response
-      ar = @response.at_css('mod|ApplicationResponse').content
+      ar = document.at_css('mod|ApplicationResponse').content
       ar = Base64.decode64(ar)
       Nokogiri::XML(ar)
     end
@@ -195,7 +193,7 @@ module Sepa
       # a hash with uri as the key and digest as the value.
       def find_digest_values(doc)
         references = {}
-        reference_nodes = @response.css(
+        reference_nodes = response.css(
           'xmlns|Reference',
           'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
         )
@@ -243,13 +241,13 @@ module Sepa
       end
 
       # Checks that the response is valid against soap schema.
-      def valid_against_schema?(doc)
-        schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',
-                                        __FILE__)
-
+      def check_validity_against_schema
+        return false if !document.respond_to?(:canonicalize)
+        schemas_path = File.expand_path(SCHEMA_PATH, __FILE__)
         Dir.chdir(schemas_path) do
           xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-          xsd.valid?(doc)
+          errors.add(:base, 'Document must validate against the schema file') \
+          unless xsd.valid?(document)
         end
       end
 
@@ -261,6 +259,11 @@ module Sepa
         cert += cert_value.to_s.gsub(/\s+/, "").scan(/.{1,64}/).join("\n")
         cert += "\n"
         cert += "-----END CERTIFICATE-----"
+      end
+
+      def validate_document_format
+        errors.add(:base, 'Document must be a Nokogiri XML file') \
+          unless document.respond_to?(:canonicalize)
       end
   end
 end

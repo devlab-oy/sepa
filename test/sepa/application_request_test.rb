@@ -8,7 +8,7 @@ class TestApplicationRequest < ActiveSupport::TestCase
       '../../../lib/sepa/xml_templates/application_request', __FILE__
     )
 
-    @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)
+    @schemas_path = File.expand_path(SCHEMA_PATH,__FILE__)
 
     @private_key = OpenSSL::PKey::RSA.new(File.read("#{keys_path}/nordea.key"))
     @cert = OpenSSL::X509::Certificate.new(File.read("#{keys_path}/nordea.crt"))
@@ -34,6 +34,8 @@ class TestApplicationRequest < ActiveSupport::TestCase
     @doc_get = Nokogiri::XML(Base64.decode64(@ar_get))
     @doc_list = Nokogiri::XML(Base64.decode64(@ar_list))
     @doc_up = Nokogiri::XML(Base64.decode64(@ar_up))
+
+
   end
 
   # Just to make sure that the xml templates are unmodified because
@@ -369,4 +371,6 @@ class TestApplicationRequest < ActiveSupport::TestCase
       assert xsd.valid?(@doc_file)
     end
   end
+
+
 end

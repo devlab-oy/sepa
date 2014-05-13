@@ -20,4 +20,6 @@ require 'sepa/version'
 
 ROOT_PATH = File.absolute_path('.')
 WSDL_PATH = "#{ROOT_PATH}/lib/sepa/wsdl"
+SCHEMA_PATH = "#{ROOT_PATH}/lib/sepa/xml_schemas"
 SCHEMA_FILE = "#{ROOT_PATH}/lib/sepa/xml_schemas/wsdl.xml"
+

@@ -1,5 +1,7 @@
 module Sepa
   class ApplicationResponse
+    include ActiveModel::Validations
+
     def initialize(ar)
       @ar = ar
 
@@ -101,7 +103,7 @@ module Sepa
       end
 
       def valid_against_ar_schema?(doc)
-        schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',
+        schemas_path = File.expand_path(SCHEMA_PATH,
                                         __FILE__)
 
         Dir.chdir(schemas_path) do
