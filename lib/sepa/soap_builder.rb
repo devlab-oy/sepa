@@ -9,7 +9,7 @@ module Sepa
       params[:request_id] = generate_request_id
 
       # Check if the bank & command need keys/certificates/csr's
-      @params = initialize_certificates_and_csr(params)
+      #@params = initialize_certificates_and_csr(params)
 
       check_if_bank_allows_command(@params)
 

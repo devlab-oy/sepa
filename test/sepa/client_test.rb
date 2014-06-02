@@ -153,18 +153,18 @@ class ClientTest < ActiveSupport::TestCase
 
   # # The response from savon will be the request to check that a proper request
   # # was made in the following four tests
-  # def test_should_send_proper_request_with_get_user_info
-  #   @params[:command] = :get_user_info
-  #   client = Sepa::Client.new(@params)
-  #   response = client.send
+  def test_should_send_proper_request_with_get_user_info
+    @params[:command] = :get_user_info
+    client = Sepa::Client.new(@params)
+    response = client.send
 
-  #   assert_equal response.body.keys[0], :get_user_infoin
+    assert_equal response.body.keys[0], :get_user_infoin
 
-  #   Dir.chdir(@schemas_path) do
-  #     xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-  #     assert xsd.valid?(Nokogiri::XML(response.to_xml))
-  #   end
-  # end
+    Dir.chdir(@schemas_path) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(Nokogiri::XML(response.to_xml))
+    end
+  end
 
   # def test_should_send_proper_request_with_download_file_list
   #   @params[:command] = :download_file_list

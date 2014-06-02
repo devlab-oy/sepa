@@ -87,35 +87,49 @@ module Sepa
         ar.at_css(node).content = value
       end
 
+      def set_node_b(node, value)
+        set_node node, Base64.encode64(value)
+      end
+
+      def pretty_command
+        command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join
+      end
+
+      def pkcs10der
+        encryption_cert_pkcs10.to_der
+      end
+
+      def signingder
+        signing_cert_pkcs10.to_der
+      end
+
       # Set the nodes' contents according to the command
       def set_nodes_contents
+
+        time_now = Time.now.utc.iso8601
+
         if command != :get_bank_certificate && command != :create_certificate
           set_node("CustomerId", customer_id)
-          set_node("Timestamp", Time.now.utc.iso8601)
+          set_node("Timestamp", time_now)
           set_node("Environment", environment)
           set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
-          set_node("Command",
-                   command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join)
+          set_node("Command", pretty_command)
         end
 
         case command
         when :create_certificate
           set_node("tns|CustomerId", customer_id)
           set_node("tns|KeyGeneratorType", key_generator_type)
-          set_node("tns|EncryptionCertPKCS10", Base64.encode64(
-                   encryption_cert_pkcs10.to_der)
-                   )
-          set_node("tns|SigningCertPKCS10", Base64.encode64(
-                   signing_cert_pkcs10.to_der)
-                   )
-          set_node("tns|Timestamp", Time.now.utc.iso8601)
+          set_node_b("tns|EncryptionCertPKCS10", pkcs10der)
+          set_node_b("tns|SigningCertPKCS10", signingder)
+          set_node("tns|Timestamp", time_now)
           set_node("tns|RequestId", request_id)
           set_node("tns|Environment", environment)
           set_node("tns|PIN", pin)
         when :get_certificate
           set_node("Service", service)
-          set_node("Content", Base64.encode64(csr.to_der))
-          set_node("HMAC", Base64.encode64(hmac).chop)
+          set_node("Content", csr.to_der)
+          set_node("HMAC", hmac.chop)
         when :download_file_list
           set_node("Status", status)
           set_node("TargetId", target_id)
@@ -126,12 +140,12 @@ module Sepa
           set_node("FileType", file_type)
           set_node("FileReference", file_reference)
         when :upload_file
-          set_node("Content", Base64.encode64(content))
+          set_node("Content", content)
           set_node("FileType", file_type)
           set_node("TargetId", target_id)
         when :get_bank_certificate
           set_node("elem|BankRootCertificateSerialNo", bank_root_cert_serial)
-          set_node("elem|Timestamp", Time.now.utc.iso8601)
+          set_node("elem|Timestamp", time_now)
           set_node("elem|RequestId", request_id)
         end
       end
