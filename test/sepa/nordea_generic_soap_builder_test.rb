@@ -61,22 +61,6 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
     assert_equal digest, "aPSrGOlBkyIf+Vkj205ysDbLIko="
   end
 
-  def test_should_get_error_if_private_key_plain_missing
-    @params.delete(:private_key_plain)
-
-    assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
-    end
-  end
-
-  def test_should_get_error_if_cert_plain_missing
-    @params.delete(:cert_plain)
-
-    assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
-    end
-  end
-
   def test_should_get_error_if_command_missing
     @params.delete(:command)
 

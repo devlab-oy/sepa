@@ -188,10 +188,10 @@ params = {
   bank: :nordea,
 
   # Path to the certificate used for signing the request.
-  cert_path: "sepa/nordea_testing/keys/nordea.crt",
+  cert: OpenSSL::X509::Certificate.new(File.read("lib/sepa/nordea_testing/keys/nordea.crt")),
 
   # Path to the private key used to sign the request.
-  private_key_path: "sepa/nordea_testing/keys/nordea.key",
+  private_key: OpenSSL::PKey::RSA.new(File.read("lib/sepa/nordea_testing/keys/nordea.key")),
 
   # Command :download_file_list, :upload_file, :download_file or :get_user_info.
   command: :download_file_list,
@@ -223,7 +223,7 @@ params = {
   file_type: 'TITO',
 
   # The actual payload to send.
-  content: payload,
+  content: 'kissa',
 
   # File reference for :download_file command.
   file_reference: "11111111A12006030329501800000014"
@@ -232,7 +232,7 @@ params = {
 # You just create the client with the parameters described above.
 sepa_client = Sepa::Client.new(params)
 
-response = sepa_client.send
+response = sepa_client.send_request
 response = Nokogiri::XML(response.to_xml)
 response = Sepa::Response.new(response)
 

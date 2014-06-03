@@ -138,7 +138,7 @@ module Sepa
           set_node("FileType", file_type)
           set_node("FileReference", file_reference)
         when :upload_file
-          set_node("Content", content)
+          set_node("Content", Base64.encode64(content))
           set_node("FileType", file_type)
           set_node("TargetId", target_id)
         when :get_bank_certificate

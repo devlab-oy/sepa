@@ -59,15 +59,15 @@ module Sepa
 
       def check_keys
         begin
-          OpenSSL::PKey::RSA.new private_key_plain
+          OpenSSL::PKey::RSA.new private_key
         rescue
-          errors.add(:private_key_plain, "Invalid private key")
+          errors.add(:private_key, "Invalid private key")
         end
 
         begin
-          OpenSSL::X509::Certificate.new cert_plain
+          OpenSSL::X509::Certificate.new cert
         rescue
-          errors.add(:cert_plain, "Invalid certificate")
+          errors.add(:cert, "Invalid certificate")
         end
       end
 

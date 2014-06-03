@@ -175,7 +175,6 @@ module Sepa
         check_lang(params[:language])
         check_status(params[:status])
         check_target_id(params[:target_id])
-        check_file_type(params[:file_type])
         #    end
         if params[:command] == :download_file
           check_file_reference(params[:file_reference])
@@ -184,7 +183,6 @@ module Sepa
         check_env(params[:environment])
         check_lang(params[:language])
         check_target_id(params[:target_id])
-        check_file_type(params[:file_type])
         check_content(params[:content])
       when :get_bank_certificate
         if params[:bank] == :danske
@@ -288,14 +286,6 @@ module Sepa
       unless ['FI', 'SE', 'EN'].include?(lang)
         fail ArgumentError, "You didn't provide a proper language. " \
           "Acceptable values are FI, SE or EN."
-      end
-    end
-
-    def check_file_type(file_type)
-      unless file_type && file_type.respond_to?(:to_s) &&
-          file_type.length <= 20
-        fail ArgumentError, "You didn't provide a proper file type. Check " \
-          "Your bank's documentation for available file types."
       end
     end
 
