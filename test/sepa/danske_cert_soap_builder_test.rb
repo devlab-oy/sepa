@@ -9,7 +9,7 @@ class DanskeCertSoapBuilderTest < ActiveSupport::TestCase
 
     keys_path = File.expand_path('../danske_test_keys', __FILE__)
 
-    encryptpkcsplain = "-----BEGIN CERTIFICATE REQUEST-----
+    encryptpkcs = "-----BEGIN CERTIFICATE REQUEST-----
 MIICdzCCAV8CAQEwMjEPMA0GA1UEAwwGaGVtdWxpMR8wHQYKCZImiZPyLGQBGRYP
 bnV1c2thbXVpa2t1bmVuMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
 5aHmVXcfogDqJ3kUfK8ARzdkQ/dm9j4rHbGNh4xmlKCMUwCmmo2LOKMKvviD7qwz
@@ -26,7 +26,7 @@ db1f0XsYTW1NUYoL8O8uxzoNcysyBW/VGP01e2LXB8whWn4xtDtaLpyt/v4ow04V
 9v3lfL5ZDl1gIEY=
 -----END CERTIFICATE REQUEST-----"
 
-    signingpkcsplain = "-----BEGIN CERTIFICATE REQUEST-----
+    signingpkcs = "-----BEGIN CERTIFICATE REQUEST-----
 MIICdzCCAV8CAQEwMjEPMA0GA1UEAwwGaGVtdWxpMR8wHQYKCZImiZPyLGQBGRYP
 bnV1c2thbXVpa2t1bmVuMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
 y4zgajeMzFrBR4zsJ50qo4fxHWfjdCmI5nwLbKqKhSKB15JBdRmh/Wz0Gi1qOvER
@@ -43,20 +43,20 @@ bx1hmt5Eihy1lORQR4PE4xaOP5TCqtxP0+snuGqRuBHhrDk4mowWEJbvFWlONT5H
 CsajqZag/Aoxv/Y=
 -----END CERTIFICATE REQUEST-----"
 
-    @enc_cert = "#{keys_path}/own_enc_cert.pem"
+    @enc_cert = File.read "#{keys_path}/own_enc_cert.pem"
     @enc_private_key = OpenSSL::PKey::RSA.new File.read(
       "#{keys_path}/enc_private_key.pem"
     )
 
     @params = {
       bank: :danske,
-      enc_cert_path: @enc_cert,
+      enc_cert: OpenSSL::X509::Certificate.new(@enc_cert),
       command: :create_certificate,
       customer_id: '360817',
       environment: 'customertest',
       key_generator_type: 'software',
-      encryption_cert_pkcs10_plain: encryptpkcsplain,
-      signing_cert_pkcs10_plain: signingpkcsplain,
+      encryption_cert_pkcs10: OpenSSL::X509::Request.new(encryptpkcs),
+      signing_cert_pkcs10: OpenSSL::X509::Request.new(signingpkcs),
       pin: '1234'
     }
 
@@ -75,16 +75,6 @@ CsajqZag/Aoxv/Y=
     template = File.read("#{@templates_path}/create_certificate.xml")
     digest = Base64.encode64(sha1.digest(template)).strip
     assert_equal digest, "7xfCxrQo+BxrOYVmY/EV9lkhY7Y="
-  end
-
-  def test_should_initialize_with_proper_params
-    assert Sepa::SoapBuilder.new(@params)
-  end
-
-  def test_should_fail_with_wrong_command
-    @params[:command] = :muumio
-
-    assert_raises(ArgumentError) { Sepa::SoapBuilder.new(@danskecertparams) }
   end
 
   def test_should_raise_error_if_command_missing
@@ -138,7 +128,7 @@ CsajqZag/Aoxv/Y=
     embedded_cert = @doc.at("X509Certificate",
                             'xmlns' => @dsig).content.gsub(/\s+/, "")
 
-    actual_cert = File.read(@enc_cert)
+    actual_cert = @enc_cert
     actual_cert = actual_cert.split('-----BEGIN CERTIFICATE-----')[1]
     actual_cert = actual_cert.split('-----END CERTIFICATE-----')[0]
     actual_cert.gsub!(/\s+/, "")

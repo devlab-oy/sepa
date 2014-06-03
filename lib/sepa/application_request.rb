@@ -6,9 +6,7 @@ module Sepa
                   :file_reference, :command, :private_key, :cert, :environment, :csr,
                   :hmac, :bank_root_cert_serial, :request_id, :pin, :key_generator_type,
                   :encryption_cert_pkcs10, :signing_cert_pkcs10, :request_id, :ar, :bank,
-                  :csr_plain, :service, :private_key_plain, :cert_plain, :language,
-                  :private_key_path, :enc_cert_path, :cert_path, :enc_cert,
-                  :encryption_cert_pkcs10_plain, :signing_cert_pkcs10_plain
+                  :csr, :service, :cert, :language, :enc_cert
 
     validates :command, inclusion: { in: [ :get_certificate, :download_file_list, :download_file,
                                            :get_user_info, :upload_file, :download_file,
@@ -128,7 +126,7 @@ module Sepa
           set_node("tns|PIN", pin)
         when :get_certificate
           set_node("Service", service)
-          set_node("Content", csr.to_der)
+          set_node("Content", csr)
           set_node("HMAC", hmac.chop)
         when :download_file_list
           set_node("Status", status)
@@ -152,7 +150,7 @@ module Sepa
 
       def create_hmac_seal(pin, csr)
         return "" if pin.nil? || csr.nil?
-        OpenSSL::HMAC.digest('sha1',pin,csr.to_der)
+        OpenSSL::HMAC.digest('sha1',pin,csr)
       end
 
       def remove_node(doc, node, xmlns)
@@ -174,11 +172,11 @@ module Sepa
         node.content = value
       end
 
-      def calculate_signature(private_key)
+      def calculate_signature
         sha1 = OpenSSL::Digest::SHA1.new
         node = ar.at_css("dsig|SignedInfo",
                           'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
-        signature = private_key.sign(sha1, node.canonicalize)
+        signature = @private_key.sign(sha1, node.canonicalize)
         Base64.encode64(signature)
       end
 
@@ -196,7 +194,7 @@ module Sepa
         digest = calculate_digest(ar)
         add_node_to_root(ar, signature_node)
         add_value_to_signature('DigestValue', digest)
-        signature = calculate_signature(private_key)
+        signature = calculate_signature
         add_value_to_signature('SignatureValue', signature)
         add_value_to_signature('X509Certificate',format_cert(cert))
       end

@@ -1,5 +1,5 @@
 def get_params
-  certplain = "-----BEGIN CERTIFICATE-----
+  cert = "-----BEGIN CERTIFICATE-----
 MIIDwTCCAqmgAwIBAgIEAX1JuTANBgkqhkiG9w0BAQUFADBkMQswCQYDVQQGEwJT
 RTEeMBwGA1UEChMVTm9yZGVhIEJhbmsgQUIgKHB1YmwpMR8wHQYDVQQDExZOb3Jk
 ZWEgQ29ycG9yYXRlIENBIDAxMRQwEgYDVQQFEws1MTY0MDYtMDEyMDAeFw0xMzA1
@@ -22,7 +22,7 @@ ydowAnqS9h9aQ6gedwbOdtkWmwKMDVXU6aRz9Gvk+JeYJhtpuP3OPNGbbC5L7NVd
 no+B6AtwxmG3ozd+mPcMeVuz6kKLAmQyIiBSrRNa5OrTkq/CUzxO9WUgTnm/Sri7
 zReR6mU=
 -----END CERTIFICATE-----"
-  pkeyplain = "-----BEGIN PRIVATE KEY-----
+  pkey = "-----BEGIN PRIVATE KEY-----
 MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAMLRRHwLWybhs0MM
 EbpmZL2IdgYxmFbADFHoirTp3t22UnorHwqvk16i9YCPS6H8ngEPSP7A5urS/NMq
 w+YmklKlZugO9/TLJqVv4smXFX+5rPMQDedRElIDempMGQlPaR+tp4CQ49oFLJLW
@@ -38,10 +38,11 @@ fwPAbTwTv6mFFPAiYxLiRZXxVPtW+QtjMXH4ymh2V4y/+GnCqbZyLwJBAJQSDAME
 Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
 45nhdfYxOjgYff0=
 -----END PRIVATE KEY-----"
-  params = {
+
+  {
     bank: :nordea,
-    private_key_plain: pkeyplain,
-    cert_plain: certplain,
+    private_key: OpenSSL::PKey::RSA.new(pkey),
+    cert: cert,
     command: :download_file,
     customer_id: '11111111',
     environment: 'PRODUCTION',
@@ -52,11 +53,10 @@ Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
     content: Base64.encode64("haisuli"),
     file_reference: "11111111A12006030329501800000014"
   }
-  params
 end
 
 def get_cert_params
-  csrplain = "-----BEGIN CERTIFICATE REQUEST-----
+  csr = "-----BEGIN CERTIFICATE REQUEST-----
 MIIBczCB3QIBADA0MRIwEAYDVQQDEwlEZXZsYWIgT3kxETAPBgNVBAUTCDExMTEx
 MTExMQswCQYDVQQGEwJGSTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAo9wU
 c2Ys5hSso4nEanbc+RIhL71aS6GBGiWAegXjhlyb6dpwigrZBFPw4u6UZV/Vq7Y7
@@ -67,20 +67,19 @@ Z+SYNhu8vbj52cGQPAwEDN6mm5yLpcXu40wYzgWyfStLXV9d/b4hMy9qLMW00Dzb
 jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
 -----END CERTIFICATE REQUEST-----"
 
-  certparams = {
+  {
     bank: :nordea,
     command: :get_certificate,
     customer_id: '11111111',
     environment: 'TEST',
-    csr_plain: csrplain,
+    csr: csr,
     pin: '1234567890',
     service: 'service'
   }
-  certparams
 end
 
 def get_danske_cert_params
-  encryptpkcsplain = "-----BEGIN CERTIFICATE REQUEST-----
+  encryptpkcs = "-----BEGIN CERTIFICATE REQUEST-----
 MIICZjCCAU4CAQAwITESMBAGA1UEAxMJRGV2bGFiIE95MQswCQYDVQQGEwJGSTCC
 ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKN2ceFGw+i4wAyg6WApu7/h
 5Rpl8tp+QRX1eLbmftYpf6bbzj+JwspWNST/s8p8enGBRrK+HkNT8ayj7ZSubJwx
@@ -95,7 +94,7 @@ M62i5c2v3sNJlDlT4GidRtoGW9KAID2oCdOL94krWpwLAZDP4wLwG7ACCbOx3rST
 f9gDE6jFUn7ONuiiYvOBAqjwckDpyOH+vx3WkZH4cwdcp4KVeLnjJzlJZaw7yTIo
 z8BKfQ26LmOO/S4CFe3Vzq6FRNKl3D4nvCu06WoMi5tAAEi57tk05B32
 -----END CERTIFICATE REQUEST-----"
-  signingpkcsplain = "-----BEGIN CERTIFICATE REQUEST-----
+  signingpkcs = "-----BEGIN CERTIFICATE REQUEST-----
 MIICZjCCAU4CAQAwITESMBAGA1UEAxMJRGV2bGFiIE95MQswCQYDVQQGEwJGSTCC
 ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK3yym5CztvmJCxbzhy6tOph
 wzamimFKlJt88cG0VLzwAh0EiAhFz9Yj/39n1HywL+4xOLizIAup794MzLBDs3TH
@@ -110,7 +109,7 @@ H6Xhm3JG9g7AScHhFcM8r6PhmzcL1FubYBPTcUBuotDBYc4lbql7sbww/u8OyWvl
 aIFd+oiwXGSYB7L8Fqg469jeIf0QtOZUtUEGOJWjM4JjTy+NnVmsj0jszMbuBZBW
 7wOrp+GMBUZ9/vaY/zr7nvJTfvKz7CJQOgADeh/0imZqhIYfVKIpJxR5
 -----END CERTIFICATE REQUEST-----"
-  danskebankencryptplain = "-----BEGIN CERTIFICATE-----
+  danskebankencrypt = "-----BEGIN CERTIFICATE-----
 MIIEATCCAumgAwIBAgIFAQjv8bMwDQYJKoZIhvcNAQELBQAwgZgxEDAOBgNVBAMT
 B0RCR1JPT1QxCzAJBgNVBAYTAkRLMRMwEQYDVQQHEwpDb3BlbmhhZ2VuMRAwDgYD
 VQQIEwdEZW5tYXJrMRowGAYDVQQKExFEYW5za2UgQmFuayBHcm91cDEaMBgGA1UE
@@ -162,16 +161,16 @@ gnUi1U8K+UAVu7JQJG1VUBEDcKFN2p/47KdpBx3calcurRmNL8Ual2ANPMC55RUD
 11qQJynyu37oWB74v3VByP38tYy6tWmHUg55fMbjUtKW2AHdIXV5
 -----END RSA PRIVATE KEY-----"
 
-  danskecertparams = {
+  {
     bank: :danske,
     command: :create_certificate,
     customer_id: 'ABC123',
     environment: 'customertest',
     key_generator_type: 'software',
-    private_key_plain: danskesigning,
-    encryption_cert_pkcs10_plain: encryptpkcsplain,
-    signing_cert_pkcs10_plain: signingpkcsplain,
-    cert_plain: danskebankencryptplain,
+    private_key: danskesigning,
+    encryption_cert_pkcs10: encryptpkcs,
+    signing_cert_pkcs10: signingpkcs,
+    cert: danskebankencrypt,
     pin: '1234',
     language: 'EN',
     file_type: 'TITO',
@@ -179,5 +178,4 @@ gnUi1U8K+UAVu7JQJG1VUBEDcKFN2p/47KdpBx3calcurRmNL8Ual2ANPMC55RUD
     target_id: 'Danske FI',
     status: 'NEW',
   }
-  danskecertparams
 end

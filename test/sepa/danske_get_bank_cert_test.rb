@@ -23,13 +23,6 @@ class DanskeGetBankCertTest < ActiveSupport::TestCase
     assert Sepa::SoapBuilder.new(@params).to_xml
   end
 
-  def test_should_not_initialize_with_improper_params
-    @params = "kissa"
-    assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
-    end
-  end
-
   def test_should_get_error_if_bank_missing
     @params.delete(:bank)
 

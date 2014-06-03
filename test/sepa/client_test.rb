@@ -68,7 +68,7 @@ class ClientTest < ActiveSupport::TestCase
     wrong_pks = ['Im not a key', :leppakerttu, nil]
 
     wrong_pks.each do |wrong_pk|
-      @params[:private_key_plain] = wrong_pk
+      @params[:private_key] = wrong_pk
       sepa = Sepa::Client.new @params
       refute sepa.valid?, sepa.errors.messages
     end
@@ -78,7 +78,7 @@ class ClientTest < ActiveSupport::TestCase
     wrong_certs = ['Im not a cert', 99, :leppakerttu, nil]
 
     wrong_certs.each do |wrong_cert|
-      @params[:cert_plain] = wrong_cert
+      @params[:cert] = wrong_cert
       sepa = Sepa::Client.new @params
       refute sepa.valid?, sepa.errors.messages
     end
@@ -156,7 +156,7 @@ class ClientTest < ActiveSupport::TestCase
   def test_should_send_proper_request_with_get_user_info
     @params[:command] = :get_user_info
     client = Sepa::Client.new(@params)
-    response = client.send
+    response = client.send_request
 
     assert_equal response.body.keys[0], :get_user_infoin
 

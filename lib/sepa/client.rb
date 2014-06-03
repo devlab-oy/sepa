@@ -2,10 +2,10 @@ module Sepa
   class Client
     include ActiveModel::Validations
 
-    attr_accessor :bank, :cert_plain, :command, :content, :customer_id,
-                  :encryption_cert_pkcs10_plain, :environment, :file_reference,
-                  :file_type, :key_generator_type, :language, :pin, :private_key_plain,
-                  :signing_cert_pkcs10_plain, :status, :target_id, :csr_plain, :service
+    attr_accessor :bank, :cert, :command, :content, :customer_id,
+                  :encryption_cert_pkcs10, :environment, :file_reference,
+                  :file_type, :key_generator_type, :language, :pin, :private_key,
+                  :signing_cert_pkcs10, :status, :target_id, :csr, :service
 
     validates :bank, inclusion: { in: [ :nordea, :danske ] }
     validates :content, presence: true, :if => lambda { command == :upload_file }
@@ -22,6 +22,7 @@ module Sepa
 
     def initialize(hash = {})
       self.attributes hash
+      @hash = hash
     end
 
     def attributes(hash)
@@ -31,9 +32,8 @@ module Sepa
     end
 
     def send_request
-      raise ArgumentError unless valid?
-
-      soap = SoapBuilder.new(bank: bank, command: command).to_xml
+      # raise ArgumentError unless valid?
+      soap = SoapBuilder.new(@hash).to_xml
 
       client = Savon.client(wsdl: wsdl, pretty_print_xml: true)
       client.call(command, xml: soap)

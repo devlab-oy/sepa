@@ -7,17 +7,22 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
     keys_path = File.expand_path('../danske_test_keys', __FILE__)
 
     private_key_path = "#{keys_path}/signing_private_key.pem"
+    private_key = File.read private_key_path
+
     signing_cert_path = "#{keys_path}/own_signing_cert.pem"
+    signing_cert = File.read signing_cert_path
+
     enc_cert_path = "#{keys_path}/bank_encryption_cert.pem"
+    enc_cert = File.read enc_cert_path
 
     @params = {
       bank: :danske,
-      private_key_path: private_key_path,
+      private_key: OpenSSL::PKey::RSA.new(private_key),
       command: :upload_file,
       customer_id: '360817',
       environment: 'TEST',
-      enc_cert_path: enc_cert_path,
-      cert_path: signing_cert_path,
+      enc_cert: enc_cert,
+      cert: signing_cert,
       language: 'EN',
       status: 'ALL',
       target_id: 'Danske FI',
@@ -36,13 +41,6 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
 
   def test_should_initialize_request_with_proper_params
     assert Sepa::SoapBuilder.new(@params).to_xml
-  end
-
-  def test_should_not_initialize_with_improper_params
-    @params = "kissa"
-    assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
-    end
   end
 
   def test_should_get_error_if_command_missing
@@ -163,7 +161,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
     ).content
 
     actual_cert = OpenSSL::X509::Certificate.new(
-      File.read(@params.fetch(:cert_path))
+      @params.fetch(:cert)
     ).to_s
 
     actual_cert = actual_cert.split('-----BEGIN CERTIFICATE-----')[1]
@@ -245,9 +243,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   def test_signature_is_calculated_correctly
     sha1 = OpenSSL::Digest::SHA1.new
 
-    private_key = OpenSSL::PKey::RSA.new(
-      File.read(@params.fetch(:private_key_path))
-    )
+    private_key = OpenSSL::PKey::RSA.new(@params.fetch(:private_key))
 
     added_signature = @doc.at("//dsig:SignatureValue", 'dsig' => 'http://' \
                               'www.w3.org/2000/09/xmldsig#').content

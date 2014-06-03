@@ -4,6 +4,7 @@ module Sepa
     # SOAP structure.
     def initialize(params)
       check_params(params)
+      @params = params
 
       # Generate a request ID for the request
       params[:request_id] = generate_request_id
@@ -11,11 +12,11 @@ module Sepa
       # Check if the bank & command need keys/certificates/csr's
       #@params = initialize_certificates_and_csr(params)
 
-      check_if_bank_allows_command(@params)
+      check_if_bank_allows_command(params)
 
-      @ar = ApplicationRequest.new(@params).get_as_base64
+      @ar = ApplicationRequest.new(params).get_as_base64
 
-      @bank = @params.fetch(:bank)
+      @bank = params.fetch(:bank)
       find_correct_bank_extension(@bank)
 
       @template_path = File.expand_path('../xml_templates/soap/', __FILE__)
@@ -152,7 +153,6 @@ module Sepa
     # Tries to validate the parameters or their presence.
     def check_params(params)
       # Universally for all
-      check_params_hash(params)
       check_certificate_and_key_requirements(params)
       check_bank(params[:bank])
       check_customer_id(params[:customer_id])
@@ -208,12 +208,6 @@ module Sepa
     def check_file_reference(fileref)
       unless fileref
         fail ArgumentError, "You didn't provide a file reference"
-      end
-    end
-
-    def check_params_hash(params)
-      unless params.respond_to?(:each_pair)
-        fail ArgumentError, "You didn't provide a proper hash"
       end
     end
 
@@ -355,30 +349,23 @@ module Sepa
 
       case command
       when *require_private_and_cert
-        if params[:cert_path] == nil && params[:cert_plain] == nil
-          fail ArgumentError, "You must provide a path to the certificate " \
-            "or certificate in plain text"
+        if params[:cert] == nil
+          fail ArgumentError, "You must provide a certificate"
         end
-        if params[:private_key_path] == nil && params[:private_key_plain] == nil
-          fail ArgumentError, "You must provide a path to your private key " \
-            "or private key in plain text"
+        if params[:private_key] == nil
+          fail ArgumentError, "You must provide a private key"
         end
       when *require_nothing
       when *require_pkcs
-        if params[:csr_path] == nil && params[:csr_plain] == nil
-          fail ArgumentError, "You must provide a path to the CSR or CSR " \
-            "in plain text"
+        if params[:csr] == nil
+          fail ArgumentError, "You must provide a CSR"
         end
       when *require_dual_pkcs_and_cert
-        if params[:encryption_cert_pkcs10_path] == nil &&
-            params[:encryption_cert_pkcs10_plain] == nil
-          fail ArgumentError, "You must provide a path to the encryption CSR " \
-            "or encryption CSR in plain text"
+        if params[:encryption_cert_pkcs10] == nil
+          fail ArgumentError, "You must provide an encryption CSR "
         end
-        if params[:signing_cert_pkcs10_path] == nil &&
-            params[:signing_cert_pkcs10_plain] == nil
-          fail ArgumentError, "You must provide a path to the signing CSR " \
-            "or signing CSR in plain text"
+        if params[:signing_cert_pkcs10] == nil
+          fail ArgumentError, "You must provide a signing CSR "
         end
         if params[:enc_cert_path] == nil && params[:enc_cert] == nil
           fail ArgumentError, "You must provide a path to the certificate " \

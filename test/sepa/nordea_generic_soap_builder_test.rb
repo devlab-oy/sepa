@@ -61,17 +61,6 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
     assert_equal digest, "aPSrGOlBkyIf+Vkj205ysDbLIko="
   end
 
-  def test_should_initialize_with_proper_params
-    assert Sepa::SoapBuilder.new(@params)
-  end
-
-  def test_should_not_initialize_with_improper_params
-    @params = "kissa"
-    assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
-    end
-  end
-
   def test_should_get_error_if_private_key_plain_missing
     @params.delete(:private_key_plain)
 
