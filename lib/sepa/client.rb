@@ -22,7 +22,6 @@ module Sepa
 
     def initialize(hash = {})
       self.attributes hash
-      @hash = hash
     end
 
     def attributes(hash)
@@ -32,6 +31,7 @@ module Sepa
     end
 
     def send_request
+      create_hash
       # raise ArgumentError unless valid?
       soap = SoapBuilder.new(@hash).to_xml
 
@@ -40,6 +40,18 @@ module Sepa
     end
 
     private
+
+      def create_hash
+        @hash = {}
+
+        instance_variables.each do |var|
+          var = var[1..-1]
+
+          unless var == "hash"
+            @hash[var.to_sym] = send(var)
+            end
+        end
+      end
 
       def allowed_commands
         case bank
