@@ -116,6 +116,7 @@ class ClientTest < ActiveSupport::TestCase
 
   test "target id is valid" do
     wrong_ids = ["ready"*81, nil]
+    @params[:command] = :upload_file
 
     wrong_ids.each do |wrong_id|
       @params[:target_id] = wrong_id
@@ -138,9 +139,12 @@ class ClientTest < ActiveSupport::TestCase
     wrong_types = ["kalle"*41, nil]
 
     wrong_types.each do |wrong_type|
-      @params[:file_type] = wrong_type
-      sepa = Sepa::Client.new @params
-      refute sepa.valid?, sepa.errors.messages
+      [:upload_file, :download_file_list].each do |command|
+        @params[:command] = command
+        @params[:file_type] = wrong_type
+        sepa = Sepa::Client.new @params
+        refute sepa.valid?, sepa.errors.messages
+      end
     end
   end
 
@@ -166,96 +170,86 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
-  # def test_should_send_proper_request_with_download_file_list
-  #   @params[:command] = :download_file_list
-  #   client = Sepa::Client.new(@params)
-  #   response = client.send
+  def test_should_send_proper_request_with_download_file_list
+    @params[:command] = :download_file_list
+    client = Sepa::Client.new(@params)
+    response = client.send_request
 
-  #   assert_equal response.body.keys[0], :download_file_listin
+    assert_equal response.body.keys[0], :download_file_listin
 
-  #   Dir.chdir(@schemas_path) do
-  #     xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-  #     assert xsd.valid?(Nokogiri::XML(response.to_xml))
-  #   end
-  # end
+    Dir.chdir(@schemas_path) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(Nokogiri::XML(response.to_xml))
+    end
+  end
 
-  # def test_should_send_proper_request_with_download_file
-  #   @params[:command] = :download_file
-  #   client = Sepa::Client.new(@params)
-  #   response = client.send
+  def test_should_send_proper_request_with_download_file
+    @params[:command] = :download_file
+    client = Sepa::Client.new(@params)
+    response = client.send_request
 
-  #   assert_equal response.body.keys[0], :download_filein
+    assert_equal response.body.keys[0], :download_filein
 
-  #   Dir.chdir(@schemas_path) do
-  #     xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-  #     assert xsd.valid?(Nokogiri::XML(response.to_xml))
-  #   end
-  # end
+    Dir.chdir(@schemas_path) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(Nokogiri::XML(response.to_xml))
+    end
+  end
 
-  # def test_should_send_proper_request_with_upload_file
-  #   @params[:command] = :upload_file
-  #   client = Sepa::Client.new(@params)
-  #   response = client.send
+  def test_should_send_proper_request_with_upload_file
+    @params[:command] = :upload_file
+    client = Sepa::Client.new(@params)
+    response = client.send_request
 
-  #   assert_equal response.body.keys[0], :upload_filein
+    assert_equal response.body.keys[0], :upload_filein
 
-  #   Dir.chdir(@schemas_path) do
-  #     xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-  #     assert xsd.valid?(Nokogiri::XML(response.to_xml))
-  #   end
-  # end
+    Dir.chdir(@schemas_path) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(Nokogiri::XML(response.to_xml))
+    end
+  end
 
-  # def test_should_initialize_with_proper_cert_params
-  #   assert Sepa::Client.new(@certparams)
-  # end
+  def test_should_initialize_with_proper_cert_params
+    assert Sepa::Client.new(@certparams)
+  end
 
-  # def test_should_send_proper_request_with_get_certificate
-  #   client = Sepa::Client.new(@certparams)
-  #   response = client.send
+  def test_should_send_proper_request_with_get_certificate
+    client = Sepa::Client.new(@certparams)
+    response = client.send_request
 
-  #   assert_equal response.body.keys[0], :get_certificatein
+    assert_equal response.body.keys[0], :get_certificatein
 
-  #   Dir.chdir(@schemas_path) do
-  #     xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-  #     assert xsd.valid?(Nokogiri::XML(response.to_xml))
-  #   end
-  # end
+    Dir.chdir(@schemas_path) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(Nokogiri::XML(response.to_xml))
+    end
+  end
 
-  # def test_should_raise_error_if_cert_service_missing
-  #   @certparams[:command] = :get_certificate
-  #   @certparams.delete(:service)
+  def test_should_raise_error_if_signing_pkcs_plain_and_path_missing_with_create_certificate
+    @danskecertparams[:command] = :create_certificate
+    @danskecertparams.delete(:signing_cert_pkcs10)
 
-  #   refute Sepa::Client.new(@certparams).valid?
-  # end
+    refute Sepa::Client.new(@danskecertparams).valid?
+  end
 
-  # def test_should_raise_error_if_signing_pkcs_plain_and_path_missing_with_create_certificate
-  #   @danskecertparams[:command] = :create_certificate
-  #   @danskecertparams.delete(:signing_cert_pkcs10_plain)
-  #   @danskecertparams.delete(:signing_cert_pkcs10_path)
+  def test_should_raise_error_if_encryption_pkcs_missing_with_create_certificate
+    @danskecertparams[:command] = :create_certificate
+    @danskecertparams.delete(:encryption_cert_pkcs10)
 
-  #   refute Sepa::Client.new(@danskecertparams).valid?
-  # end
+    refute Sepa::Client.new(@danskecertparams).valid?
+  end
 
-  # def test_should_raise_error_if_encryption_pkcs_plain_and_path_missing_with_create_certificate
-  #   @danskecertparams[:command] = :create_certificate
-  #   @danskecertparams.delete(:encryption_cert_pkcs10_plain)
-  #   @danskecertparams.delete(:encryption_cert_pkcs10_path)
+  def test_should_raise_error_if_pin_missing_with_create_certificate
+    @danskecertparams[:command] = :create_certificate
+    @danskecertparams.delete(:pin)
 
-  #   refute Sepa::Client.new(@danskecertparams).valid?
-  # end
+    refute Sepa::Client.new(@danskecertparams).valid?
+  end
 
-  # def test_should_raise_error_if_pin_missing_with_create_certificate
-  #   @danskecertparams[:command] = :create_certificate
-  #   @danskecertparams.delete(:pin)
+  def test_should_raise_error_if_cert_plain_and_cert_path_missing_with_create_certificate
+    @danskecertparams[:command] = :create_certificate
+    @danskecertparams.delete(:cert)
 
-  #   refute Sepa::Client.new(@danskecertparams).valid?
-  # end
-
-  # def test_should_raise_error_if_cert_plain_and_cert_path_missing_with_create_certificate
-  #   @danskecertparams[:command] = :create_certificate
-  #   @danskecertparams.delete(:cert_plain)
-  #   @danskecertparams.delete(:cert_path)
-
-  #   refute Sepa::Client.new(@danskecertparams).valid?
-  # end
+    refute Sepa::Client.new(@danskecertparams).valid?
+  end
 end

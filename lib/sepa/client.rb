@@ -7,18 +7,21 @@ module Sepa
                   :file_type, :key_generator_type, :language, :pin, :private_key,
                   :signing_cert_pkcs10, :status, :target_id, :csr, :service
 
-    validates :bank, inclusion: { in: [ :nordea, :danske ] }
+    validates :bank, inclusion: {in: [:nordea, :danske]}
     validates :content, presence: true, :if => lambda { command == :upload_file }
-    validates :customer_id, length: { maximum: 16 }, presence: true
-    validates :environment, inclusion: { in: ['PRODUCTION', 'TEST', 'customertest'] }
-    validates :file_type, length: { maximum: 40 }, presence: true
-    validates :language, inclusion: { in: ['FI', 'SE', 'EN'] }
-    validates :status, inclusion: { in: ['NEW', 'DOWNLOADED', 'ALL'] }
-    validates :target_id, length: { maximum: 80 }, presence: true
+    validates :customer_id, length: {maximum: 16}, presence: true
+    validates :environment, inclusion: {in: ['PRODUCTION', 'TEST', 'customertest']}
+    validates :file_type, length: {maximum: 40}, presence: true, :if => lambda { [:upload_file, :download_file_list].include? command }
+    validates :language, inclusion: {in: ['FI', 'SE', 'EN']}, allow_nil: true
+    validates :status, inclusion: {in: ['NEW', 'DOWNLOADED', 'ALL']}, allow_nil: true
+    validates :target_id, length: {maximum: 80}, presence: true, :if => lambda { command == :upload_file }
+    validates :pin, presence: true, :if => lambda { command == :create_certificate }
 
     validate :check_command
-    validate :check_keys
+    validate :check_keys, :unless => lambda { command == :get_certificate }
     validate :check_wsdl
+    validate :check_encryption_cert, :if => lambda { command == :create_certificate }
+    validate :check_signing_cert, :if => lambda { command == :create_certificate }
 
     def initialize(hash = {})
       self.attributes hash
@@ -47,7 +50,7 @@ module Sepa
         instance_variables.each do |var|
           var = var[1..-1]
 
-          unless var == "hash"
+          unless var == "hash" || var == "errors"
             @hash[var.to_sym] = send(var)
             end
         end
@@ -83,7 +86,24 @@ module Sepa
         end
       end
 
-      def wsdl
+      def check_signing_cert
+        begin
+          OpenSSL::X509::Request.new signing_cert_pkcs10
+        rescue
+          errors.add(:signing_cert_pkcs10, "Invalid signing certificate request")
+        end
+      end
+
+    def check_encryption_cert
+      begin
+        OpenSSL::X509::Request.new encryption_cert_pkcs10
+      rescue
+        errors.add(:encryption_cert_pkcs10, "Invalid encryption certificate request")
+      end
+    end
+
+
+    def wsdl
         case bank
         when :nordea
           if command == :get_certificate
