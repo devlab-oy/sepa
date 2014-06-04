@@ -1,24 +1,10 @@
 module Sepa
   class ApplicationRequest
     def initialize(params)
-      @bank = params[:bank]
-      @private_key = params[:private_key]
-      @cert = params[:cert]
-      @command = params[:command]
-      @customer_id = params[:customer_id]
-      @environment = params[:environment]
-      @status = params[:status]
-      @target_id = params[:target_id]
-      @language = params[:language]
-      @file_type = params[:file_type]
-      @content = params[:content]
-      @file_reference = params[:file_reference]
-      @enc_cert = params[:enc_cert]
-      @request_id = params[:request_id]
-      @bank_root_cert_serial = params[:bank_root_cert_serial]
-      @key_generator_type = params[:key_generator_type]
-      @encryption_cert_pkcs10 = params[:encryption_cert_pkcs10]
-      @signing_cert_pkcs10 = params[:signing_cert_pkcs10]
+      params.each do |key, value|
+        instance_variable_set("@#{key}", value)
+        @time = Time.now.utc.iso8601
+      end
     end
 
     def get_as_base64
@@ -85,52 +71,74 @@ module Sepa
         @signing_cert_pkcs10.to_der
       end
 
-      # Set the nodes' contents according to the command
       def set_nodes_contents
-
-        time_now = Time.now.utc.iso8601
-
-        if @command != :get_bank_certificate && @command != :create_certificate
-          set_node("CustomerId", @customer_id)
-          set_node("Timestamp", time_now)
-          set_node("Environment", @environment)
-          set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
-          set_node("Command", pretty_command)
+        unless @command == :get_bank_certificate || @command == :create_certificate
+          set_common_nodes
         end
 
         case @command
-        when :create_certificate
-          set_node("tns|CustomerId", @customer_id)
-          set_node("tns|KeyGeneratorType", @key_generator_type)
-          set_node_b("tns|EncryptionCertPKCS10", pkcs10der)
-          set_node_b("tns|SigningCertPKCS10", signingder)
-          set_node("tns|Timestamp", time_now)
-          set_node("tns|RequestId", @request_id)
-          set_node("tns|Environment", @environment)
-          set_node("tns|PIN", @pin)
-        when :get_certificate
-          set_node("Service", @service)
-          set_node("Content", @csr)
-          set_node("HMAC", hmac.chop)
-        when :download_file_list
-          set_node("Status", @status)
-          set_node("TargetId", @target_id)
-          set_node("FileType", @file_type)
-        when :download_file
-          set_node("Status", @status)
-          set_node("TargetId", @target_id)
-          set_node("FileType", @file_type)
-          set_node("FileReference", @file_reference)
-        when :upload_file
-          set_node("Content", Base64.encode64(@content))
-          set_node("FileType", @file_type)
-          set_node("TargetId", @target_id)
-        when :get_bank_certificate
-          set_node("elem|BankRootCertificateSerialNo", @bank_root_cert_serial)
-          set_node("elem|Timestamp", time_now)
-          set_node("elem|RequestId", @request_id)
+          when :create_certificate
+            set_create_certificate_nodes
+          when :get_certificate
+            set_get_certificate_nodes
+          when :download_file_list
+            set_download_file_list_nodes
+          when :download_file
+            set_download_file_nodes
+          when :upload_file
+            set_upload_file_nodes
+          when :get_bank_certificate
+            set_get_bank_certificate_nodes
         end
       end
+
+    def set_download_file_nodes
+      set_download_file_list_nodes
+      set_node("FileReference", @file_reference)
+    end
+
+    def set_get_bank_certificate_nodes
+      set_node("elem|BankRootCertificateSerialNo", @bank_root_cert_serial)
+      set_node("elem|Timestamp", @time)
+      set_node("elem|RequestId", @request_id)
+    end
+
+      def set_upload_file_nodes
+      set_node("Content", Base64.encode64(@content))
+      set_node("FileType", @file_type)
+      set_node("TargetId", @target_id)
+    end
+
+      def set_download_file_list_nodes
+      set_node("Status", @status)
+      set_node("TargetId", @target_id)
+      set_node("FileType", @file_type)
+    end
+
+      def set_get_certificate_nodes
+      set_node("Service", @service)
+      set_node("Content", @csr)
+      set_node("HMAC", hmac.chop)
+    end
+
+      def set_create_certificate_nodes
+      set_node("tns|CustomerId", @customer_id)
+      set_node("tns|KeyGeneratorType", @key_generator_type)
+      set_node_b("tns|EncryptionCertPKCS10", pkcs10der)
+      set_node_b("tns|SigningCertPKCS10", signingder)
+      set_node("tns|Timestamp", @time)
+      set_node("tns|RequestId", @request_id)
+      set_node("tns|Environment", @environment)
+      set_node("tns|PIN", @pin)
+    end
+
+      def set_common_nodes
+      set_node("CustomerId", @customer_id)
+      set_node("Timestamp", @time)
+      set_node("Environment", @environment)
+      set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
+      set_node("Command", pretty_command)
+    end
 
       def hmac
         return "" if @pin.nil? || @csr.nil?
