@@ -121,22 +121,6 @@ class TestApplicationRequest < ActiveSupport::TestCase
     end
   end
 
-  def test_should_get_key_error_if_customer_id_missing
-    @params.delete(:customer_id)
-
-    assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
-    end
-  end
-
-  def test_should_get_key_error_if_environment_missing
-    @params.delete(:environment)
-
-    assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
-    end
-  end
-
   def test_should_have_customer_id_set_in_with_all_commands
     assert_equal @doc_file.at_css("CustomerId").content, @params[:customer_id]
     assert_equal @doc_get.at_css("CustomerId").content, @params[:customer_id]

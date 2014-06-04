@@ -13,12 +13,6 @@ class NordeaCertRequestSoapBuilderTest < ActiveSupport::TestCase
     @xml = Nokogiri::XML(@certrequest.to_xml)
   end
 
-  def test_should_fail_if_bank_doesnt_support_command
-    @params[:command] = :create_certificate
-
-    assert_raises(ArgumentError) { Sepa::SoapBuilder.new(@params) }
-  end
-
   def test_that_get_certificate_soap_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
     template = File.read("#{@templatepath}/get_certificate.xml")
@@ -33,14 +27,6 @@ class NordeaCertRequestSoapBuilderTest < ActiveSupport::TestCase
 
   def test_should_get_error_if_command_missing
     @params.delete(:command)
-
-    assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
-    end
-  end
-
-  def test_should_get_error_if_customer_id_missing
-    @params.delete(:customer_id)
 
     assert_raises(ArgumentError) do
       Sepa::SoapBuilder.new(@params)

@@ -23,32 +23,8 @@ class DanskeGetBankCertTest < ActiveSupport::TestCase
     assert Sepa::SoapBuilder.new(@params).to_xml
   end
 
-  def test_should_get_error_if_bank_missing
-    @params.delete(:bank)
-
-    assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
-    end
-  end
-
   def test_should_get_error_if_command_missing
     @params.delete(:command)
-
-    assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
-    end
-  end
-
-  def test_should_get_error_if_customer_id_missing
-    @params.delete(:customer_id)
-
-    assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
-    end
-  end
-
-  def test_should_get_error_if_bank_root_cert_cerial_missing
-    @params.delete(:bank_root_cert_serial)
 
     assert_raises(ArgumentError) do
       Sepa::SoapBuilder.new(@params)

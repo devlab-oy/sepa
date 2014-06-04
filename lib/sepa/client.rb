@@ -32,7 +32,7 @@ module Sepa
 
     def send_request
       create_hash
-      # raise ArgumentError unless valid?
+      raise ArgumentError unless valid?
       soap = SoapBuilder.new(@hash).to_xml
 
       client = Savon.client(wsdl: wsdl, pretty_print_xml: true)

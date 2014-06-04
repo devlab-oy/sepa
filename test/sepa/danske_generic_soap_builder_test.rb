@@ -51,30 +51,6 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
     end
   end
 
-  def test_should_get_error_if_customer_id_missing
-    @params.delete(:customer_id)
-
-    assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
-    end
-  end
-
-  def test_should_get_error_if_target_id_missing
-    @params.delete(:target_id)
-
-    assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
-    end
-  end
-
-  def test_should_get_error_if_language_missing
-    @params.delete(:language)
-
-    assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
-    end
-  end
-
   def test_should_load_correct_template_with_download_file_list
     @params[:command] = :download_file_list
     doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)

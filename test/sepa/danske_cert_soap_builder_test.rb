@@ -85,14 +85,6 @@ CsajqZag/Aoxv/Y=
     end
   end
 
-  def test_should_raise_error_if_customer_id_missing
-    @params.delete(:customer_id)
-
-    assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
-    end
-  end
-
   def test_sender_id_is_properly_set
     sender_id = @doc.at("SenderId", "xmlns" => @pkif).content
     assert_equal sender_id, @params[:customer_id]
