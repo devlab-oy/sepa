@@ -98,19 +98,19 @@ module Sepa
     def build_danske_generic_request
       ar = Nokogiri::XML(Base64.decode64(@ar))
 
-      body = load_body_template(@command)
+      body = load_body_template
       header = load_header_template(@template_path)
 
       set_generic_request_contents(body, @customer_id, @request_id, @language, @target_id)
       encrypted_request = encrypt_application_request
       add_encrypted_generic_request_to_soap(encrypted_request, body)
 
-      process_header(header,body,@private_key,@cert)
+      process_header(header,body)
       add_body_to_header(header,body)
     end
 
     def build_certificate_request
-      body = load_body_template(@command)
+      body = load_body_template
 
       set_create_cert_contents(body, @customer_id, @request_id, @environment)
       encrypted_request = encrypt_application_request
@@ -118,7 +118,7 @@ module Sepa
     end
 
     def build_get_bank_certificate_request
-      body = load_body_template(@command)
+      body = load_body_template
 
       set_bank_certificate_contents(body, @customer_id, @request_id)
       add_bank_certificate_body_to_soap(body)

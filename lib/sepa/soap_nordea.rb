@@ -15,7 +15,7 @@ module Sepa
       # Builds : Get Certificate
       # ------------------------------------------------------------------------
       def build_certificate_request
-        body = load_body_template(@command)
+        body = load_body_template
         set_body_contents(body, @ar, @customer_id)
       end
 
@@ -33,10 +33,10 @@ module Sepa
       # ------------------------------------------------------------------------
       def build_common_request
         header = load_header_template(@template_path)
-        body = load_body_template(@command)
+        body = load_body_template
 
         common_set_body_contents(body, @ar, @sender_id, @language, @target_id)
-        process_header(header,body, @private_key, @cert)
+        process_header(header,body)
         add_body_to_header(header, body)
       end
 

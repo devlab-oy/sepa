@@ -18,14 +18,12 @@ module Sepa
 
       # Generate a request ID for the request
       @request_id = generate_request_id
+
+      # This will be handled more elegantly later
       params[:request_id] = @request_id
-
-      # Check if the bank & command need keys/certificates/csr's
-      #@params = initialize_certificates_and_csr(params)
-
       @ar = ApplicationRequest.new(params).get_as_base64
 
-      find_correct_bank_extension(@bank)
+      find_correct_bank_extension
 
       @template_path = File.expand_path('../xml_templates/soap/', __FILE__)
     end
@@ -45,8 +43,8 @@ module Sepa
       SecureRandom.hex(5)
     end
 
-    def find_correct_bank_extension(bank)
-      case bank
+    def find_correct_bank_extension
+      case @bank
       when :danske
         self.extend(DanskeSoapRequest)
       when :nordea
@@ -67,7 +65,7 @@ module Sepa
       Base64.encode64(sha1.digest(canon_node)).gsub(/\s+/, "")
     end
 
-    def calculate_signature(doc, node, private_key)
+    def calculate_signature(doc, node)
       sha1 = OpenSSL::Digest::SHA1.new
 
       node = doc.at_css(node)
@@ -77,13 +75,13 @@ module Sepa
         with_comments=false
       )
 
-      signature = private_key.sign(sha1, canon_signed_info_node)
+      signature = @private_key.sign(sha1, canon_signed_info_node)
 
       Base64.encode64(signature).gsub(/\s+/, "")
     end
 
-    def load_body_template(command)
-      case command
+    def load_body_template
+      case @command
       when :download_file_list
         path = "#{@template_path}/download_file_list.xml"
       when :get_user_info
@@ -117,13 +115,6 @@ module Sepa
       header
     end
 
-    # def extract_public_key(cert)
-    #   pkey = cert.public_key
-    #   pkey = OpenSSL::PKey::RSA.new(pkey)
-
-    #   pkey
-    # end
-
     def format_cert(cert)
       cert = cert.to_s
       cert = cert.split('-----BEGIN CERTIFICATE-----')[1]
@@ -138,7 +129,7 @@ module Sepa
       header
     end
 
-    def process_header(header, body, private_key, cert)
+    def process_header(header, body)
       set_node(header, 'wsu|Created', Time.now.utc.iso8601)
 
       set_node(header, 'wsu|Expires', (Time.now.utc + 300).iso8601)
@@ -151,129 +142,11 @@ module Sepa
       set_node(header,'dsig|Reference[URI="#sdf6sa7d86f87s6df786sd87f6s8fsd'\
                'a"] dsig|DigestValue', body_digest)
 
-      signature = calculate_signature(header, 'dsig|SignedInfo', private_key)
+      signature = calculate_signature(header, 'dsig|SignedInfo')
       set_node(header, 'dsig|SignatureValue', signature)
 
-      formatted_cert = format_cert(cert)
+      formatted_cert = format_cert(@cert)
       set_node(header, 'wsse|BinarySecurityToken', formatted_cert)
-    end
-
-    def initialize_certificates_and_csr(params)
-      command = params[:command]
-      require_private_and_cert = [:get_user_info,:download_file_list,
-                                  :download_file,:upload_file]
-      require_nothing = [:get_bank_certificate]
-      require_pkcs = [:get_certificate]
-      require_dual_pkcs_and_cert = [:create_certificate]
-
-      case command
-      when *require_private_and_cert
-        if params[:cert_path] != nil
-          begin
-            params[:cert] = OpenSSL::X509::Certificate.new(
-              File.read(params.fetch(:cert_path))
-            )
-          rescue
-            fail ArgumentError, 'There is something wrong with the path to ' \
-              'the certificate or the certificate itself.'
-          end
-        elsif params[:cert_plain] != nil
-          begin
-            params[:cert] = OpenSSL::X509::Certificate.new(
-              params.fetch(:cert_plain)
-            )
-          rescue
-            fail ArgumentError, 'There is something wrong with the ' \
-              "certificate. Make sure its a proper X509 certificate."
-          end
-        end
-        if params[:enc_cert_path] != nil
-          begin
-            params[:enc_cert] = OpenSSL::X509::Certificate.new(
-              File.read(params.fetch(:enc_cert_path))
-            )
-          rescue
-            fail ArgumentError, 'There is something wrong with the path to ' \
-              'the certificate or the certificate itself.'
-          end
-        elsif params[:enc_cert_plain] != nil
-          begin
-            params[:enc_cert] = OpenSSL::X509::Certificate.new(
-              params.fetch(:enc_cert_plain)
-            )
-          rescue
-            fail ArgumentError, 'There is something wrong with the ' \
-              "certificate. Make sure its a proper X509 certificate."
-          end
-        end
-        if params[:private_key_path] != nil
-          begin
-            params[:private_key] = OpenSSL::PKey::RSA.new(
-              File.read(params.fetch(:private_key_path))
-            )
-          rescue
-            fail ArgumentError, 'There is something wrong with the path to ' \
-              'the private key or the key itself.'
-          end
-        elsif params[:private_key_plain] != nil
-          begin
-            params[:private_key] = OpenSSL::PKey::RSA.new(
-              params.fetch(:private_key_plain)
-            )
-          rescue
-            fail ArgumentError, 'There is something wrong with the private ' \
-              'key. Make sure its a proper RSA key.'
-          end
-        end
-
-        check_private_key(params[:private_key])
-        check_cert(params[:cert])
-
-      when *require_nothing
-      when *require_pkcs
-        if params[:csr_path] != nil
-          params[:csr] = OpenSSL::X509::Request.new(
-            File.read(params.fetch(:csr_path))
-          )
-        elsif params[:csr_plain] != nil
-          params[:csr] = OpenSSL::X509::Request.new(params.fetch(:csr_plain))
-        end
-      when *require_dual_pkcs_and_cert
-        if params[:encryption_cert_pkcs10_path] != nil &&
-            params[:signing_cert_pkcs10_path] != nil
-          params[:encryption_cert_pkcs10] = OpenSSL::X509::Request.new(
-            File.read(params.fetch(:encryption_cert_pkcs10_path))
-          )
-          params[:signing_cert_pkcs10] = OpenSSL::X509::Request.new(
-            File.read(params.fetch(:signing_cert_pkcs10_path))
-          )
-        elsif params[:encryption_cert_pkcs10_plain] != nil &&
-            params[:signing_cert_pkcs10_plain] != nil
-          params[:encryption_cert_pkcs10] = OpenSSL::X509::Request.new(
-            params.fetch(:encryption_cert_pkcs10_plain)
-          )
-          params[:signing_cert_pkcs10] = OpenSSL::X509::Request.new(
-            params.fetch(:signing_cert_pkcs10_plain)
-          )
-        end
-        if params[:enc_cert_path] != nil
-          params[:enc_cert] = OpenSSL::X509::Certificate.new(
-            File.read(params.fetch(:enc_cert_path))
-          )
-        elsif params[:enc_cert] != nil
-          params[:enc_cert] = OpenSSL::X509::Certificate.new(
-            params.fetch(:enc_cert)
-          )
-        end
-
-        check_encryption_pkcs10(params[:encryption_cert_pkcs10])
-        check_signing_pkcs10(params[:signing_cert_pkcs10])
-        check_cert(params[:enc_cert])
-      else
-        fail ArgumentError, "No matching cases for initialize certificates " \
-          "and csr"
-      end
-      params
     end
   end
 end
