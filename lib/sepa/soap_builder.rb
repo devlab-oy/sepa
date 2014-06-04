@@ -1,19 +1,30 @@
 module Sepa
   class SoapBuilder
-    # SoapBuilder checks and validates incoming params and creates the
-    # SOAP structure.
+    # SoapBuilder creates the SOAP structure.
     def initialize(params)
-      @params = params
+      @bank = params[:bank]
+      @private_key = params[:private_key]
+      @cert = params[:cert]
+      @command = params[:command]
+      @customer_id = params[:customer_id]
+      @environment = params[:environment]
+      @status = params[:status]
+      @target_id = params[:target_id]
+      @language = params[:language]
+      @file_type = params[:file_type]
+      @content = params[:content]
+      @file_reference = params[:file_reference]
+      @enc_cert = params[:enc_cert]
 
       # Generate a request ID for the request
-      params[:request_id] = generate_request_id
+      @request_id = generate_request_id
+      params[:request_id] = @request_id
 
       # Check if the bank & command need keys/certificates/csr's
       #@params = initialize_certificates_and_csr(params)
 
       @ar = ApplicationRequest.new(params).get_as_base64
 
-      @bank = params.fetch(:bank)
       find_correct_bank_extension(@bank)
 
       @template_path = File.expand_path('../xml_templates/soap/', __FILE__)
@@ -21,7 +32,7 @@ module Sepa
 
     def to_xml
       # Returns a complete SOAP message in xml format
-      find_correct_build(@params).to_xml
+      find_correct_build.to_xml
     end
 
     def get_ar_as_base64

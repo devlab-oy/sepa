@@ -1,20 +1,18 @@
 module Sepa
   module DanskeSoapRequest
-    def find_correct_build(params)
-      command = params.fetch(:command)
-
-      case command
+    def find_correct_build
+      case @command
       when :create_certificate
-        build_certificate_request(params)
+        build_certificate_request
       when :upload_file, :download_file, :get_user_info, :download_file_list
-        build_danske_generic_request(params)
+        build_danske_generic_request
       when :get_bank_certificate
-        build_get_bank_certificate_request(params)
+        build_get_bank_certificate_request
       end
     end
 
-    def encrypt_application_request(ar, cert)
-      cert = OpenSSL::X509::Certificate.new(cert)
+    def encrypt_application_request
+      cert = OpenSSL::X509::Certificate.new(@enc_cert)
 
       formatted_cert = format_cert(cert)
 
@@ -26,7 +24,7 @@ module Sepa
       key = cipher.random_key
       iv = cipher.random_iv
 
-      output = cipher.update(ar.to_xml)
+      output = cipher.update(Nokogiri::XML(@ar).to_xml)
       output << cipher.final
       output = iv + output
 
@@ -97,53 +95,33 @@ module Sepa
       set_node(body, 'pkif|InterfaceVersion', 1)
     end
 
-    def build_danske_generic_request(params)
+    def build_danske_generic_request
       ar = Nokogiri::XML(Base64.decode64(@ar))
-      command = params.fetch(:command)
-      sender_id = params.fetch(:customer_id)
-      request_id = params.fetch(:request_id)
-      receiver_id = params.fetch(:target_id)
-      lang = params.fetch(:language)
-      enc_cert = OpenSSL::X509::Certificate.new(params.fetch(:enc_cert))
-      cert = OpenSSL::X509::Certificate.new(params.fetch(:cert))
-      private_key = params.fetch(:private_key)
 
-      body = load_body_template(command)
+      body = load_body_template(@command)
       header = load_header_template(@template_path)
 
-      set_generic_request_contents(body, sender_id, request_id, lang, receiver_id)
-      encrypted_request = encrypt_application_request(ar, enc_cert)
+      set_generic_request_contents(body, @customer_id, @request_id, @language, @target_id)
+      encrypted_request = encrypt_application_request
       add_encrypted_generic_request_to_soap(encrypted_request, body)
 
-      process_header(header,body,private_key,cert)
+      process_header(header,body,@private_key,@cert)
       add_body_to_header(header,body)
     end
 
-    def build_certificate_request(params)
-      ar = @ar
-      command = params.fetch(:command)
-      sender_id = params.fetch(:customer_id)
-      request_id = params.fetch(:request_id)
-      environment = params.fetch(:environment)
-      cert = params.fetch(:enc_cert)
+    def build_certificate_request
+      body = load_body_template(@command)
 
-      body = load_body_template(command)
-
-      set_create_cert_contents(body, sender_id, request_id, environment)
-      encrypted_request = encrypt_application_request(ar, cert)
+      set_create_cert_contents(body, @customer_id, @request_id, @environment)
+      encrypted_request = encrypt_application_request
       add_encrypted_request_to_soap(encrypted_request, body)
     end
 
-    def build_get_bank_certificate_request(params)
-      ar = Base64.decode64 @ar
-      command = params.fetch(:command)
-      sender_id = params.fetch(:customer_id)
-      request_id = params.fetch(:request_id)
+    def build_get_bank_certificate_request
+      body = load_body_template(@command)
 
-      body = load_body_template(command)
-
-      set_bank_certificate_contents(body, sender_id, request_id)
-      add_bank_certificate_body_to_soap(ar, body)
+      set_bank_certificate_contents(body, @customer_id, @request_id)
+      add_bank_certificate_body_to_soap(body)
     end
 
     def add_encrypted_request_to_soap(encrypted_request, body)
@@ -163,8 +141,8 @@ module Sepa
       body
     end
 
-    def add_bank_certificate_body_to_soap(ar, body)
-      ar = Nokogiri::XML(ar)
+    def add_bank_certificate_body_to_soap(body)
+      ar = Nokogiri::XML(Base64.decode64(@ar))
 
       ar = ar.at_css('elem|GetBankCertificateRequest')
       body.at_css('pkif|GetBankCertificateIn').add_child(ar)
