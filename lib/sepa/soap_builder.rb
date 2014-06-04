@@ -15,7 +15,7 @@ module Sepa
       @content = params[:content]
       @file_reference = params[:file_reference]
       @enc_cert = params[:enc_cert]
-      @request_id = params[:request_id]
+      @request_id = request_id
 
       @ar = ApplicationRequest.new(params).get_as_base64
 
@@ -141,5 +141,10 @@ module Sepa
       formatted_cert = format_cert(@cert)
       set_node(header, 'wsse|BinarySecurityToken', formatted_cert)
     end
+
+    def request_id
+      SecureRandom.hex(5)
+    end
+
   end
 end

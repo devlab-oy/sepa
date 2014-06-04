@@ -34,9 +34,9 @@ module Sepa
     end
 
     def send_request
-      create_hash
       raise ArgumentError unless valid?
-      soap = SoapBuilder.new(@hash).to_xml
+
+      soap = SoapBuilder.new(create_hash).to_xml
 
       client = Savon.client(wsdl: wsdl, pretty_print_xml: true)
       client.call(command, xml: soap)
@@ -45,20 +45,15 @@ module Sepa
     private
 
       def create_hash
-        @hash = {}
-
-        instance_variables.each do |var|
-          var = var[1..-1]
-
-          unless var == "hash" || var == "errors"
-            @hash[var.to_sym] = send(var)
-          end
+        # Create hash of all instance variables
+        iv = instance_variables.map do |name|
+          [ name[1..-1].to_sym, instance_variable_get(name) ]
         end
 
-        @hash[:request_id] = generate_request_id
+        iv.to_h
       end
 
-    def allowed_commands
+      def allowed_commands
         case bank
         when :nordea
           [ :get_certificate, :get_user_info, :download_file_list, :download_file, :upload_file ]
@@ -137,8 +132,5 @@ module Sepa
         end
       end
 
-      def generate_request_id
-        SecureRandom.hex(5)
-      end
   end
 end
