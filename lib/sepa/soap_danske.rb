@@ -78,26 +78,24 @@ module Sepa
       set_node(body, 'bxd|ReceiverId', receiver_id)
     end
 
-    def set_create_cert_contents(body, sender_id, request_id, environment)
-      set_node(body, 'pkif|SenderId', sender_id)
-      set_node(body, 'pkif|CustomerId', sender_id)
-      set_node(body, 'pkif|RequestId', request_id)
+    def set_create_cert_contents(body)
+      set_node(body, 'pkif|SenderId', @customer_id)
+      set_node(body, 'pkif|CustomerId', @customer_id)
+      set_node(body, 'pkif|RequestId', @request_id)
       set_node(body, 'pkif|Timestamp', Time.now.utc.iso8601)
       set_node(body, 'pkif|InterfaceVersion', 1)
-      set_node(body, 'pkif|Environment', environment)
+      set_node(body, 'pkif|Environment', @environment)
     end
 
-    def set_bank_certificate_contents(body, sender_id, request_id)
-      set_node(body, 'pkif|SenderId', sender_id)
-      set_node(body, 'pkif|CustomerId', sender_id)
-      set_node(body, 'pkif|RequestId', request_id)
+    def set_bank_certificate_contents(body)
+      set_node(body, 'pkif|SenderId', @customer_id)
+      set_node(body, 'pkif|CustomerId', @customer_id)
+      set_node(body, 'pkif|RequestId', @request_id)
       set_node(body, 'pkif|Timestamp', Time.now.utc.iso8601)
       set_node(body, 'pkif|InterfaceVersion', 1)
     end
 
     def build_danske_generic_request
-      ar = Nokogiri::XML(Base64.decode64(@ar))
-
       body = load_body_template
       header = load_header_template(@template_path)
 
@@ -112,7 +110,7 @@ module Sepa
     def build_certificate_request
       body = load_body_template
 
-      set_create_cert_contents(body, @customer_id, @request_id, @environment)
+      set_create_cert_contents(body)
       encrypted_request = encrypt_application_request
       add_encrypted_request_to_soap(encrypted_request, body)
     end
@@ -120,7 +118,7 @@ module Sepa
     def build_get_bank_certificate_request
       body = load_body_template
 
-      set_bank_certificate_contents(body, @customer_id, @request_id)
+      set_bank_certificate_contents(body)
       add_bank_certificate_body_to_soap(body)
     end
 

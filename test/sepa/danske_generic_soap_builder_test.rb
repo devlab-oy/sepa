@@ -28,7 +28,8 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
       target_id: 'Danske FI',
       file_type: 'pain.001.001.02',
       content: Base64.encode64('kissa'),
-      file_reference: "11111111A12006030329501800000014"
+      file_reference: "11111111A12006030329501800000014",
+      request_id: SecureRandom.hex(5)
     }
 
     @soap_request = Sepa::SoapBuilder.new(@params)

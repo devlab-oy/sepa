@@ -15,12 +15,8 @@ module Sepa
       @content = params[:content]
       @file_reference = params[:file_reference]
       @enc_cert = params[:enc_cert]
+      @request_id = params[:request_id]
 
-      # Generate a request ID for the request
-      @request_id = generate_request_id
-
-      # This will be handled more elegantly later
-      params[:request_id] = @request_id
       @ar = ApplicationRequest.new(params).get_as_base64
 
       find_correct_bank_extension
@@ -39,9 +35,6 @@ module Sepa
 
     private
 
-    def generate_request_id
-      SecureRandom.hex(5)
-    end
 
     def find_correct_bank_extension
       case @bank

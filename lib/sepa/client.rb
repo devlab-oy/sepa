@@ -52,11 +52,13 @@ module Sepa
 
           unless var == "hash" || var == "errors"
             @hash[var.to_sym] = send(var)
-            end
+          end
         end
+
+        @hash[:request_id] = generate_request_id
       end
 
-      def allowed_commands
+    def allowed_commands
         case bank
         when :nordea
           [ :get_certificate, :get_user_info, :download_file_list, :download_file, :upload_file ]
@@ -94,7 +96,7 @@ module Sepa
         end
       end
 
-    def check_encryption_cert
+      def check_encryption_cert
       begin
         OpenSSL::X509::Request.new encryption_cert_pkcs10
       rescue
@@ -102,8 +104,7 @@ module Sepa
       end
     end
 
-
-    def wsdl
+      def wsdl
         case bank
         when :nordea
           if command == :get_certificate
@@ -136,5 +137,8 @@ module Sepa
         end
       end
 
+      def generate_request_id
+        SecureRandom.hex(5)
+      end
   end
 end

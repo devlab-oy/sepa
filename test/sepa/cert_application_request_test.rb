@@ -89,10 +89,6 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
     assert_equal @xml.at_css("Environment").content, @params[:environment]
   end
 
-  def test_should_have_service_set
-    assert_equal @xml.at_css("Service").content, @params[:service]
-  end
-
   def test_should_validate_against_schema
     Dir.chdir(@schemapath) do
       xsd = Nokogiri::XML::Schema(IO.read('cert_application_request.xsd'))

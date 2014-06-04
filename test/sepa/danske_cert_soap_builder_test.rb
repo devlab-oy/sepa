@@ -57,7 +57,8 @@ CsajqZag/Aoxv/Y=
       key_generator_type: 'software',
       encryption_cert_pkcs10: OpenSSL::X509::Request.new(encryptpkcs),
       signing_cert_pkcs10: OpenSSL::X509::Request.new(signingpkcs),
-      pin: '1234'
+      pin: '1234',
+      request_id: SecureRandom.hex(5)
     }
 
     @cert_request = Sepa::SoapBuilder.new(@params)
