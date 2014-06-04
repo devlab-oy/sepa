@@ -20,5 +20,17 @@ module Sepa
       cert += "\n"
       cert + "-----END CERTIFICATE-----"
     end
+
+    def check_validity_against_schema(doc, schema)
+      return false unless doc.respond_to?(:canonicalize)
+      schemas_path = File.expand_path(SCHEMA_PATH,
+                                      __FILE__)
+
+      Dir.chdir(schemas_path) do
+        xsd = Nokogiri::XML::Schema(IO.read(schema))
+        errors.add(:base, 'The document did not validate against the schema file') \
+          unless xsd.valid?(doc)
+      end
+    end
   end
 end

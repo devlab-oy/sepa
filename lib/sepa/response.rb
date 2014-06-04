@@ -7,7 +7,7 @@ module Sepa
 
     validates :document, presence: true
 
-    validate :check_validity_against_schema
+    validate :document_must_validate_against_schema
     validate :validate_document_format
 
     def initialize(response)
@@ -230,20 +230,13 @@ module Sepa
         nodes
       end
 
-      # Checks that the response is valid against soap schema.
-      def check_validity_against_schema
-        return false unless document.respond_to?(:canonicalize)
-        schemas_path = File.expand_path(SCHEMA_PATH, __FILE__)
-        Dir.chdir(schemas_path) do
-          xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-          errors.add(:base, 'Document must validate against the schema file') \
-          unless xsd.valid?(document)
-        end
-      end
-
       def validate_document_format
         errors.add(:base, 'Document must be a Nokogiri XML file') \
           unless document.respond_to?(:canonicalize)
+      end
+
+      def document_must_validate_against_schema
+        check_validity_against_schema(document, 'soap.xsd')
       end
   end
 end

@@ -5,7 +5,7 @@ module Sepa
 
     attr_accessor :ar
 
-    validate :check_validity_against_schema
+    validate :response_must_validate_against_schema
     validate :validate_document_format
 
     def initialize(app_resp)
@@ -87,21 +87,13 @@ module Sepa
 
     private
 
-      def check_validity_against_schema
-        return false unless ar.respond_to?(:canonicalize)
-        schemas_path = File.expand_path(SCHEMA_PATH,
-                                        __FILE__)
-
-        Dir.chdir(schemas_path) do
-          xsd = Nokogiri::XML::Schema(IO.read('application_response.xsd'))
-          errors.add(:base, 'Application response must validate against the schema file') \
-          unless xsd.valid?(ar)
-        end
-      end
-
       def validate_document_format
         errors.add(:base, 'Document must be a Nokogiri XML file') \
           unless ar.respond_to?(:canonicalize)
+      end
+
+      def response_must_validate_against_schema
+        check_validity_against_schema(ar, 'application_response.xsd')
       end
   end
 end
