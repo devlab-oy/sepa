@@ -1,6 +1,7 @@
 module Sepa
   class Response
     include ActiveModel::Validations
+    include Utilities
 
     attr_accessor :document
 
@@ -229,17 +230,6 @@ module Sepa
         nodes
       end
 
-      def calculate_digest(node)
-        sha1 = OpenSSL::Digest::SHA1.new
-
-        canon_node = node.canonicalize(
-          mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
-          inclusive_namespaces=nil,with_comments=false
-        )
-
-        Base64.encode64(sha1.digest(canon_node)).gsub(/\s+/, "")
-      end
-
       # Checks that the response is valid against soap schema.
       def check_validity_against_schema
         return false unless document.respond_to?(:canonicalize)
@@ -249,16 +239,6 @@ module Sepa
           errors.add(:base, 'Document must validate against the schema file') \
           unless xsd.valid?(document)
         end
-      end
-
-      # Takes the certificate from the response, adds begin and end
-      # certificate texts and splits it into multiple lines so that OpenSSL
-      # can read it.
-      def process_cert_value(cert_value)
-        cert = "-----BEGIN CERTIFICATE-----\n"
-        cert += cert_value.to_s.gsub(/\s+/, "").scan(/.{1,64}/).join("\n")
-        cert += "\n"
-        cert += "-----END CERTIFICATE-----"
       end
 
       def validate_document_format
