@@ -101,7 +101,7 @@ module Sepa
     end
 
     def build_danske_generic_request
-      header = load_header_template(@template_path)
+      header = @header_template
 
       set_generic_request_contents
       encrypted_request = encrypt_application_request

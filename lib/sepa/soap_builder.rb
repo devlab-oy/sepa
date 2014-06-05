@@ -1,5 +1,7 @@
 module Sepa
   class SoapBuilder
+    include Utilities
+
     # SoapBuilder creates the SOAP structure.
     def initialize(params)
       @bank = params[:bank]
@@ -16,7 +18,7 @@ module Sepa
       @file_reference = params[:file_reference]
       @enc_cert = params[:enc_cert]
       @request_id = request_id
-      @template_path = File.expand_path('../xml_templates/soap/', __FILE__)
+      @header_template = load_header_template
       @template = load_body_template
       @ar = ApplicationRequest.new(params).get_as_base64
 
@@ -72,30 +74,34 @@ module Sepa
       Base64.encode64(signature).gsub(/\s+/, "")
     end
 
+    def load_header_template
+      header_template = File.open("#{SOAP_TEMPLATE_PATH}/header.xml")
+      Nokogiri::XML(header_template)
+    end
+
     def load_body_template
+      path = "#{SOAP_TEMPLATE_PATH}/"
+
       case @command
       when :download_file_list
-        path = "#{@template_path}/download_file_list.xml"
+        path << "download_file_list.xml"
       when :get_user_info
-        path = "#{@template_path}/get_user_info.xml"
+        path << "get_user_info.xml"
       when :upload_file
-        path = "#{@template_path}/upload_file.xml"
+        path << "upload_file.xml"
       when :download_file
-        path = "#{@template_path}/download_file.xml"
+        path << "download_file.xml"
       when :get_certificate
-        path = "#{@template_path}/get_certificate.xml"
+        path << "get_certificate.xml"
       when :get_bank_certificate
-        path = "#{@template_path}/danske_get_bank_certificate.xml"
+        path << "danske_get_bank_certificate.xml"
       when :create_certificate
-        path = "#{@template_path}/create_certificate.xml"
+        path << "create_certificate.xml"
+      else
+        fail ArgumentError
       end
 
-      return if path.nil?
-      body_template = File.open(path)
-      body = Nokogiri::XML(body_template)
-      body_template.close
-
-      body
+      Nokogiri::XML(File.open(path))
     end
 
     def set_node(doc, node, value)
@@ -105,20 +111,6 @@ module Sepa
     def add_body_to_header(header)
       body = @template.at_css('env|Body')
       header.root.add_child(body)
-      header
-    end
-
-    def format_cert(cert)
-      cert = cert.to_s
-      cert = cert.split('-----BEGIN CERTIFICATE-----')[1]
-      cert = cert.split('-----END CERTIFICATE-----')[0]
-      cert.gsub!(/\s+/, "")
-    end
-
-    def load_header_template(template_path)
-      header_template = File.open("#{template_path}/header.xml")
-      header = Nokogiri::XML(header_template)
-      header_template.close
       header
     end
 
