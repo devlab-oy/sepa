@@ -32,5 +32,26 @@ module Sepa
           unless xsd.valid?(doc)
       end
     end
+
+    # Extracts a certificate from a document and return it as an OpenSSL X509 certificate
+    # Return nil is the node cannot be found
+    def extract_cert(doc, node, namespace)
+      return nil unless doc.respond_to? :at
+
+      cert_raw = doc.at("xmlns|#{node}", 'xmlns' => namespace)
+
+      return nil if cert_raw.nil?
+
+      cert_raw = cert_raw.content.gsub(/\s+/, "")
+
+      cert = process_cert_value(cert_raw)
+
+      begin
+        OpenSSL::X509::Certificate.new(cert)
+      rescue => e
+        fail OpenSSL::X509::CertificateError,
+             "The certificate could not be processed. It's most likely corrupted. OpenSSL had this to say: #{e}."
+      end
+    end
   end
 end

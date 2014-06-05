@@ -3,120 +3,21 @@ module Sepa
     include ActiveModel::Validations
     include Utilities
 
-    attr_accessor :document
+    attr_reader :document, :certificate, :danske_encryption_cert, :danske_bank_signing_cert,
+                :danske_bank_root_cert, :own_encryption_cert, :own_signing_cert
 
     validates :document, presence: true
-
-    validate :document_must_validate_against_schema
     validate :validate_document_format
+    validate :document_must_validate_against_schema
 
     def initialize(response)
-      self.document = response
-    end
-
-    # Returns the x509 certificate embedded in the soap as an
-    # OpenSSL::X509::Certificate
-    def certificate
-      cert_value = document.at(
-        'wsse|BinarySecurityToken',
-        'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-ws' \
-        'security-secext-1.0.xsd'
-      ).content.gsub(/\s+/, "")
-
-      cert = process_cert_value(cert_value)
-
-      begin
-        cert = OpenSSL::X509::Certificate.new(cert)
-      rescue => e
-        fail OpenSSL::X509::CertificateError,
-          "The certificate embedded to the soap response could not be process" \
-          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
-          end
-    end
-
-    def danske_bank_encryption_cert
-      cert = document.at(
-        'BankEncryptionCert',
-        'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
-      ).content.gsub(/\s+/, "")
-
-      cert = process_cert_value(cert)
-
-      begin
-        cert = OpenSSL::X509::Certificate.new(cert)
-      rescue => e
-        fail OpenSSL::X509::CertificateError,
-          "The certificate embedded to the soap response could not be process" \
-          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
-          end
-    end
-
-    def danske_bank_signing_cert
-      cert = document.at(
-        'BankSigningCert',
-        'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
-      ).content.gsub(/\s+/, "")
-
-      cert = process_cert_value(cert)
-
-      begin
-        cert = OpenSSL::X509::Certificate.new(cert)
-      rescue => e
-        fail OpenSSL::X509::CertificateError,
-          "The certificate embedded to the soap response could not be process" \
-          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
-          end
-    end
-
-    def danske_bank_root_cert
-      cert = document.at(
-        'BankRootCert',
-        'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
-      ).content.gsub(/\s+/, "")
-
-      cert = process_cert_value(cert)
-
-      begin
-        cert = OpenSSL::X509::Certificate.new(cert)
-      rescue => e
-        fail OpenSSL::X509::CertificateError,
-          "The certificate embedded to the soap response could not be process" \
-          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
-          end
-    end
-
-    def own_encryption_cert
-      cert = document.at(
-        'EncryptionCert',
-        'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
-      ).content.gsub(/\s+/, "")
-
-      cert = process_cert_value(cert)
-
-      begin
-        cert = OpenSSL::X509::Certificate.new(cert)
-      rescue => e
-        fail OpenSSL::X509::CertificateError,
-          "The certificate embedded to the soap document could not be process" \
-          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
-          end
-    end
-
-    def own_signing_cert
-      cert = document.at(
-        'SigningCert',
-        'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
-      ).content.gsub(/\s+/, "")
-
-      cert = process_cert_value(cert)
-
-      begin
-        cert = OpenSSL::X509::Certificate.new(cert)
-      rescue => e
-        fail OpenSSL::X509::CertificateError,
-          "The certificate embedded to the soap response could not be process" \
-          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
-          end
+      @document = response
+      @certificate = extract_cert(document, 'BinarySecurityToken', 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd')
+      @danske_encryption_cert = extract_cert(document, 'BankEncryptionCert', 'http://danskebank.dk/PKI/PKIFactoryService/elements')
+      @danske_bank_signing_cert = extract_cert(document, 'BankSigningCert', 'http://danskebank.dk/PKI/PKIFactoryService/elements')
+      @danske_bank_root_cert = extract_cert(document, 'BankRootCert', 'http://danskebank.dk/PKI/PKIFactoryService/elements')
+      @own_encryption_cert = extract_cert(document, 'EncryptionCert', 'http://danskebank.dk/PKI/PKIFactoryService/elements')
+      @own_signing_cert = extract_cert(document, 'SigningCert', 'http://danskebank.dk/PKI/PKIFactoryService/elements')
     end
 
     # Verifies that the soap's certificate is trusted.
@@ -125,8 +26,7 @@ module Sepa
         certificate.verify(root_cert.public_key)
       else
         fail SecurityError,
-          "The issuer of the certificate doesn't match the subject of the roo" \
-          "t certificate."
+          "The issuer of the certificate doesn't match the subject of the root certificate."
       end
     end
 
