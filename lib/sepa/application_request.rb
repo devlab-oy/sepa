@@ -37,14 +37,6 @@ module Sepa
         @command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join
       end
 
-      def pkcs10der
-        @encryption_cert_pkcs10.to_der
-      end
-
-      def signingder
-        @signing_cert_pkcs10.to_der
-      end
-
       def set_nodes_contents
         case @command
         when :create_certificate
@@ -74,7 +66,7 @@ module Sepa
       end
 
       def set_upload_file_nodes
-        set_node("Content", Base64.encode64(@content))
+        set_node_b("Content", @content)
         set_node("FileType", @file_type)
         set_node("TargetId", @target_id)
       end
@@ -94,8 +86,8 @@ module Sepa
       def set_create_certificate_nodes
         set_node("tns|CustomerId", @customer_id)
         set_node("tns|KeyGeneratorType", @key_generator_type)
-        set_node_b("tns|EncryptionCertPKCS10", pkcs10der)
-        set_node_b("tns|SigningCertPKCS10", signingder)
+        set_node_b("tns|EncryptionCertPKCS10", @encryption_cert_pkcs10.to_der)
+        set_node_b("tns|SigningCertPKCS10", @signing_cert_pkcs10.to_der)
         set_node("tns|Timestamp", @time)
         set_node("tns|RequestId", @request_id)
         set_node("tns|Environment", @environment)
