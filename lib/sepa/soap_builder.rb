@@ -108,30 +108,30 @@ module Sepa
       doc.at_css(node).content = value
     end
 
-    def add_body_to_header(header)
+    def add_body_to_header
       body = @template.at_css('env|Body')
-      header.root.add_child(body)
-      header
+      @header_template.root.add_child(body)
+      @header_template
     end
 
-    def process_header(header)
-      set_node(header, 'wsu|Created', Time.now.utc.iso8601)
+    def process_header
+      set_node(@header_template, 'wsu|Created', Time.now.utc.iso8601)
 
-      set_node(header, 'wsu|Expires', (Time.now.utc + 300).iso8601)
+      set_node(@header_template, 'wsu|Expires', (Time.now.utc + 300).iso8601)
 
-      timestamp_digest = calculate_digest(header,'wsu|Timestamp')
-      set_node(header,'dsig|Reference[URI="#dsfg8sdg87dsf678g6dsg6ds7fg"]' \
+      timestamp_digest = calculate_digest(@header_template,'wsu|Timestamp')
+      set_node(@header_template,'dsig|Reference[URI="#dsfg8sdg87dsf678g6dsg6ds7fg"]' \
                ' dsig|DigestValue', timestamp_digest)
 
       body_digest = calculate_digest(@template, 'env|Body')
-      set_node(header,'dsig|Reference[URI="#sdf6sa7d86f87s6df786sd87f6s8fsd'\
+      set_node(@header_template,'dsig|Reference[URI="#sdf6sa7d86f87s6df786sd87f6s8fsd'\
                'a"] dsig|DigestValue', body_digest)
 
-      signature = calculate_signature(header, 'dsig|SignedInfo')
-      set_node(header, 'dsig|SignatureValue', signature)
+      signature = calculate_signature(@header_template, 'dsig|SignedInfo')
+      set_node(@header_template, 'dsig|SignatureValue', signature)
 
       formatted_cert = format_cert(@cert)
-      set_node(header, 'wsse|BinarySecurityToken', formatted_cert)
+      set_node(@header_template, 'wsse|BinarySecurityToken', formatted_cert)
     end
 
     def request_id

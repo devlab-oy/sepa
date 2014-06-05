@@ -101,14 +101,12 @@ module Sepa
     end
 
     def build_danske_generic_request
-      header = @header_template
-
       set_generic_request_contents
       encrypted_request = encrypt_application_request
       add_encrypted_generic_request_to_soap(encrypted_request)
 
-      process_header(header)
-      add_body_to_header(header)
+      process_header
+      add_body_to_header
     end
 
     def build_certificate_request

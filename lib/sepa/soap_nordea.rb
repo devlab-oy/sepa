@@ -31,11 +31,9 @@ module Sepa
       # Builds : Get User Info, Download File, Download File List, Upload File
       # ------------------------------------------------------------------------
       def build_common_request
-        header = @header_template
-
         common_set_body_contents
-        process_header(header)
-        add_body_to_header(header)
+        process_header
+        add_body_to_header
       end
 
       def common_set_body_contents
