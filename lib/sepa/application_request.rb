@@ -10,10 +10,10 @@ module Sepa
 
       # Set current time
       @time = Time.now.utc.iso8601
+      @ar = load_body_template AR_TEMPLATE_PATH
     end
 
     def get_as_base64
-      load_template
       set_common_nodes
       set_nodes_contents
       process_signature
@@ -24,32 +24,6 @@ module Sepa
     end
 
     private
-
-      # Loads the application request template according to the command
-      def load_template
-        path = "#{AR_TEMPLATE_PATH}/"
-
-        case @command
-        when :get_certificate
-          path << "get_certificate.xml"
-        when :download_file_list
-          path << "download_file_list.xml"
-        when :get_user_info
-          path << "get_user_info.xml"
-        when :upload_file
-          path << "upload_file.xml"
-        when :download_file
-          path << "download_file.xml"
-        when :get_bank_certificate
-          path << "danske_get_bank_certificate.xml"
-        when :create_certificate
-          path << "create_certificate.xml"
-        else
-          fail ArgumentError
-        end
-
-        @ar = Nokogiri::XML(File.open(path))
-      end
 
       def set_node(node, value)
         @ar.at_css(node).content = value

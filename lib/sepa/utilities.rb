@@ -1,5 +1,6 @@
 module Sepa
   module Utilities
+
     def calculate_digest(node)
       sha1 = OpenSSL::Digest::SHA1.new
 
@@ -70,5 +71,31 @@ module Sepa
 
       true
     end
+
+    def load_body_template(template)
+      path = "#{template}/"
+
+      case @command
+      when :download_file_list
+        path << "download_file_list.xml"
+      when :get_user_info
+        path << "get_user_info.xml"
+      when :upload_file
+        path << "upload_file.xml"
+      when :download_file
+        path << "download_file.xml"
+      when :get_certificate
+        path << "get_certificate.xml"
+      when :get_bank_certificate
+        path << "danske_get_bank_certificate.xml"
+      when :create_certificate
+        path << "create_certificate.xml"
+      else
+        fail ArgumentError
+      end
+
+      Nokogiri::XML(File.open(path))
+    end
+
   end
 end
