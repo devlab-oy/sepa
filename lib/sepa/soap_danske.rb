@@ -12,57 +12,63 @@ module Sepa
     end
 
     def encrypt_application_request
-      cert = OpenSSL::X509::Certificate.new(@enc_cert)
+      encryption_cert = OpenSSL::X509::Certificate.new(@enc_cert)
 
-      formatted_cert = format_cert(cert)
+      encryption_public_key = encryption_cert.public_key
 
-      public_key = cert.public_key
+      encryption_cert = format_cert(encryption_cert)
 
-      cipher = OpenSSL::Cipher.new('DES-EDE3-CBC')
-      cipher.encrypt
+      encrypted_ar, key = encrypt_ar
+
+      encrypted_key = encrypt_key(key, encryption_public_key)
+
+      build_encrypted_ar(encryption_cert, encrypted_key, encrypted_ar)
+    end
+
+    # Encrypts a given symmetric encryption key with a public key and returns it in base64 encoded
+    # format
+    def encrypt_key(key, public_key)
+      encrypted_key = public_key.public_encrypt(key)
+      Base64.encode64(encrypted_key)
+    end
+
+    # Encrypts the application request and returns it in base64 encoded format.
+    # Also returns the key needed to decrypt it
+    def encrypt_ar
+      cipher = OpenSSL::Cipher.new('DES-EDE3-CBC').encrypt
 
       key = cipher.random_key
       iv = cipher.random_iv
 
-      output = cipher.update(Nokogiri::XML(@ar).to_xml)
-      output << cipher.final
-      output = iv + output
+      encrypted_data = cipher.update(Nokogiri::XML(@ar).to_xml)
+      encrypted_data << cipher.final
+      encrypted_data = iv + encrypted_data
+      encrypted_data = Base64.encode64(encrypted_data)
+      return encrypted_data, key
+    end
 
-      encryptedkey = public_key.public_encrypt(key)
+    def build_encrypted_ar(cert, encrypted_data, encrypted_key)
+      asym_enc_algorithm = 'http://www.w3.org/2001/04/xmlenc#tripledes-cbc'
+      sym_enc_algorithm = 'http://www.w3.org/2001/04/xmlenc#rsa-1_5'
 
-      ciphervalue1 = Base64.encode64(encryptedkey)
+      Nokogiri::XML::Builder.new :encoding => 'UTF-8' do |xml|
+        xml['xenc'].EncryptedData('xmlns:xenc' => "http://www.w3.org/2001/04/xmlenc#",
+                                  'Type' => "http://www.w3.org/2001/04/xmlenc#Element") do
+          xml.EncryptionMethod('Algorithm' => asym_enc_algorithm)
 
-      ciphervalue2 = Base64.encode64(output)
+          xml['dsig'].KeyInfo('xmlns:dsig' => "http://www.w3.org/2000/09/xmldsig#") do
+            xml['xenc'].EncryptedKey('Recipient' => "name:DanskeBankCryptCERT") do
+              xml.EncryptionMethod('Algorithm' => sym_enc_algorithm)
+              xml['dsig'].KeyInfo do
+                xml.X509Data { xml.X509Certificate cert }
+              end
+              xml['xenc'].CipherData { xml.CipherValue encrypted_data }
+            end
+          end
 
-      builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
-        xml['xenc'].EncryptedData('xmlns:xenc' => "http://www.w3.org/2001/" \
-                                  "04/xmlenc#",
-        'Type' => "http://www.w3.org/2001/04/xmlenc#Element") {
-          xml.EncryptionMethod('Algorithm' => "http://www.w3.org/2001" \
-          "/04/xmlenc#tripledes-cbc") {
-          }
-          xml['dsig'].KeyInfo('xmlns:dsig' => "http://www.w3.org/2000/09" \
-          "/xmldsig#"){
-            xml['xenc'].EncryptedKey('Recipient' =>"name:DanskeBankCryptCERT") {
-              xml.EncryptionMethod('Algorithm' => "http://www.w3.org/2001" \
-                                   "/04/xmlenc#rsa-1_5")
-              xml['dsig'].KeyInfo {
-                xml.X509Data {
-                  xml.X509Certificate formatted_cert
-                }
-              }
-              xml['xenc'].CipherData{
-                xml.CipherValue ciphervalue1
-              }
-            }
-          }
-          xml['xenc'].CipherData{
-            xml.CipherValue ciphervalue2
-          }
-        }
+          xml['xenc'].CipherData { xml.CipherValue encrypted_key }
+        end
       end
-
-      builder
     end
 
     def set_generic_request_contents(body,
