@@ -43,6 +43,13 @@ class ResponseTest < ActiveSupport::TestCase
     refute a.valid?
   end
 
+  def test_hashes_match_works
+    assert @gui.hashes_match?
+    assert @dfl.hashes_match?
+    assert @uf.hashes_match?
+    assert @df.hashes_match?
+  end
+
   def test_cert_check_should_work
     assert @dfl.cert_is_trusted?(@root_cert)
     assert_raises(SecurityError) do

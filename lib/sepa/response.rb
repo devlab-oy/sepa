@@ -34,7 +34,7 @@ module Sepa
     # Takes an optional verbose parameter to show which digests didn't match
     # i.e. verbose: true
     def hashes_match?(options = {})
-      digests = find_digest_values(document)
+      digests = find_digest_values
       nodes = find_nodes_to_verify(document, digests)
 
       verified_digests = digests.select do |uri, digest|
@@ -92,9 +92,9 @@ module Sepa
 
       # Finds all reference nodes with digest values in the document and returns
       # a hash with uri as the key and digest as the value.
-      def find_digest_values(doc)
+      def find_digest_values
         references = {}
-        reference_nodes = response.css(
+        reference_nodes = document.css(
           'xmlns|Reference',
           'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
         )
