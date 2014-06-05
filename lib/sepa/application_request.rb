@@ -1,5 +1,6 @@
 module Sepa
   class ApplicationRequest
+    include Utilities
 
     def initialize(params = {})
       # Set all params as instance variables
@@ -168,13 +169,6 @@ module Sepa
         Base64.encode64(signature)
       end
 
-      def format_cert
-        cert = @cert.to_s
-        cert = cert.split('-----BEGIN CERTIFICATE-----')[1]
-        cert = cert.split('-----END CERTIFICATE-----')[0]
-        cert.gsub!(/\s+/, "")
-      end
-
       def process_signature
         # No signature for Certificate Requests
         return if @command == :get_certificate
@@ -186,7 +180,7 @@ module Sepa
         add_node_to_root(signature_node)
         add_value_to_signature('DigestValue', digest)
         add_value_to_signature('SignatureValue', calculate_signature)
-        add_value_to_signature('X509Certificate', format_cert)
+        add_value_to_signature('X509Certificate', format_cert(@cert))
       end
 
   end

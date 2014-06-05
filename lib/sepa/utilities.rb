@@ -21,6 +21,13 @@ module Sepa
       cert + "-----END CERTIFICATE-----"
     end
 
+    def format_cert(cert)
+      cert = cert.to_s
+      cert = cert.split('-----BEGIN CERTIFICATE-----')[1]
+      cert = cert.split('-----END CERTIFICATE-----')[0]
+      cert.gsub!(/\s+/, "")
+    end
+
     def check_validity_against_schema(doc, schema)
       return false unless doc.respond_to?(:canonicalize)
       schemas_path = File.expand_path(SCHEMA_PATH,
