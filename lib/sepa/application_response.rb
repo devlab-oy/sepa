@@ -3,13 +3,14 @@ module Sepa
     include ActiveModel::Validations
     include Utilities
 
-    attr_accessor :ar
+    attr_accessor :ar, :certificate
 
     validate :response_must_validate_against_schema
     validate :validate_document_format
 
     def initialize(app_resp)
       self.ar = app_resp
+      self.certificate = extract_cert(ar, 'X509Certificate', 'http://www.w3.org/2000/09/xmldsig#')
     end
 
     # Checks that the hash value reported in the signature matches the actual
@@ -34,25 +35,6 @@ module Sepa
       else
         false
       end
-    end
-
-    # Extracts the X509 certificate from the application response.
-    def certificate
-      cert_value = ar.at_css(
-        'xmlns|X509Certificate',
-        'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
-      ).content.gsub(/\s+/, "")
-
-      cert = process_cert_value(cert_value)
-
-      begin
-        OpenSSL::X509::Certificate.new(cert)
-      rescue => e
-        fail OpenSSL::X509::CertificateError,
-          "The certificate embedded in the application response could not be " \
-          "processed. It's most likely corrupted. " \
-          "OpenSSL had this to say: #{e}."
-          end
     end
 
     # Checks that the signature is signed with the private key of the
