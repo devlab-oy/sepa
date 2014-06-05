@@ -53,5 +53,15 @@ module Sepa
              "The certificate could not be processed. It's most likely corrupted. OpenSSL had this to say: #{e}."
       end
     end
+
+    def cert_request_valid?(cert_request)
+      begin
+        OpenSSL::X509::Request.new cert_request
+      rescue
+        return false
+      end
+
+      true
+    end
   end
 end

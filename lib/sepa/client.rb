@@ -1,6 +1,7 @@
 module Sepa
   class Client
     include ActiveModel::Validations
+    include Utilities
 
     attr_accessor :bank, :cert, :command, :content, :customer_id,
                   :encryption_cert_pkcs10, :environment, :file_reference,
@@ -93,9 +94,7 @@ module Sepa
       def check_signing_cert
         return unless command == :create_certificate
 
-        begin
-          OpenSSL::X509::Request.new signing_cert_pkcs10
-        rescue
+        unless cert_request_valid?(signing_cert_pkcs10)
           errors.add(:signing_cert_pkcs10, "Invalid signing certificate request")
         end
       end
@@ -103,9 +102,7 @@ module Sepa
       def check_encryption_cert
         return unless command == :create_certificate
 
-        begin
-          OpenSSL::X509::Request.new encryption_cert_pkcs10
-        rescue
+        unless cert_request_valid?(encryption_cert_pkcs10)
           errors.add(:encryption_cert_pkcs10, "Invalid encryption certificate request")
         end
       end
