@@ -116,16 +116,15 @@ module Sepa
 
     def process_header
       set_node(@header_template, 'wsu|Created', Time.now.utc.iso8601)
-
       set_node(@header_template, 'wsu|Expires', (Time.now.utc + 300).iso8601)
 
       timestamp_digest = calculate_digest(@header_template,'wsu|Timestamp')
-      set_node(@header_template,'dsig|Reference[URI="#dsfg8sdg87dsf678g6dsg6ds7fg"]' \
-               ' dsig|DigestValue', timestamp_digest)
+      dsig = 'dsig|Reference[URI="#dsfg8sdg87dsf678g6dsg6ds7fg"] dsig|DigestValue'
+      set_node(@header_template, dsig, timestamp_digest)
 
       body_digest = calculate_digest(@template, 'env|Body')
-      set_node(@header_template,'dsig|Reference[URI="#sdf6sa7d86f87s6df786sd87f6s8fsd'\
-               'a"] dsig|DigestValue', body_digest)
+      dsig = 'dsig|Reference[URI="#sdf6sa7d86f87s6df786sd87f6s8fsda"] dsig|DigestValue'
+      set_node(@header_template, dsig, body_digest)
 
       signature = calculate_signature(@header_template, 'dsig|SignedInfo')
       set_node(@header_template, 'dsig|SignatureValue', signature)
