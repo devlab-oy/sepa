@@ -1,5 +1,6 @@
 module Sepa
   module DanskeSoapRequest
+
     def find_correct_build
       case @command
       when :create_certificate
@@ -13,15 +14,10 @@ module Sepa
 
     def encrypt_application_request
       encryption_cert = OpenSSL::X509::Certificate.new(@enc_cert)
-
       encryption_public_key = encryption_cert.public_key
-
       encryption_cert = format_cert(encryption_cert)
-
       encrypted_ar, key = encrypt_ar
-
       encrypted_key = encrypt_key(key, encryption_public_key)
-
       build_encrypted_ar(encryption_cert, encrypted_key, encrypted_ar)
     end
 
@@ -44,6 +40,7 @@ module Sepa
       encrypted_data << cipher.final
       encrypted_data = iv + encrypted_data
       encrypted_data = Base64.encode64(encrypted_data)
+
       return encrypted_data, key
     end
 
@@ -59,9 +56,11 @@ module Sepa
           xml['dsig'].KeyInfo('xmlns:dsig' => "http://www.w3.org/2000/09/xmldsig#") do
             xml['xenc'].EncryptedKey('Recipient' => "name:DanskeBankCryptCERT") do
               xml.EncryptionMethod('Algorithm' => sym_enc_algorithm)
+
               xml['dsig'].KeyInfo do
                 xml.X509Data { xml.X509Certificate cert }
               end
+
               xml['xenc'].CipherData { xml.CipherValue encrypted_data }
             end
           end
@@ -78,7 +77,7 @@ module Sepa
                                      receiver_id)
       set_node(body, 'bxd|SenderId', sender_id)
       set_node(body, 'bxd|RequestId', request_id)
-      set_node(body, 'bxd|Timestamp', Time.now.utc.iso8601)
+      set_node(body, 'bxd|Timestamp', iso_time)
       set_node(body, 'bxd|Language', lang)
       set_node(body, 'bxd|UserAgent',"Sepa Transfer Library version " + VERSION)
       set_node(body, 'bxd|ReceiverId', receiver_id)
@@ -88,7 +87,7 @@ module Sepa
       set_node(body, 'pkif|SenderId', @customer_id)
       set_node(body, 'pkif|CustomerId', @customer_id)
       set_node(body, 'pkif|RequestId', @request_id)
-      set_node(body, 'pkif|Timestamp', Time.now.utc.iso8601)
+      set_node(body, 'pkif|Timestamp', iso_time)
       set_node(body, 'pkif|InterfaceVersion', 1)
       set_node(body, 'pkif|Environment', @environment)
     end
@@ -97,8 +96,12 @@ module Sepa
       set_node(body, 'pkif|SenderId', @customer_id)
       set_node(body, 'pkif|CustomerId', @customer_id)
       set_node(body, 'pkif|RequestId', @request_id)
-      set_node(body, 'pkif|Timestamp', Time.now.utc.iso8601)
+      set_node(body, 'pkif|Timestamp', iso_time)
       set_node(body, 'pkif|InterfaceVersion', 1)
+    end
+
+    def iso_time
+      @iso_time ||= Time.now.utc.iso8601
     end
 
     def build_danske_generic_request
