@@ -15,17 +15,16 @@ module Sepa
       # Builds : Get Certificate
       # ------------------------------------------------------------------------
       def build_certificate_request
-        body = load_body_template
-        set_body_contents(body, @ar, @customer_id)
+        set_body_contents
       end
 
-      def set_body_contents(body, ar, sender_id)
-        set_node(body, 'cer|ApplicationRequest', ar)
-        set_node(body, 'cer|SenderId', @customer_id)
-        set_node(body, 'cer|RequestId', SecureRandom.hex(17))
-        set_node(body, 'cer|Timestamp', Time.now.iso8601)
+      def set_body_contents
+        set_node(@template, 'cer|ApplicationRequest', @ar)
+        set_node(@template, 'cer|SenderId', @customer_id)
+        set_node(@template, 'cer|RequestId', SecureRandom.hex(17))
+        set_node(@template, 'cer|Timestamp', Time.now.iso8601)
 
-        body
+        @template
       end
       # ------------------------------------------------------------------------
 
@@ -33,22 +32,21 @@ module Sepa
       # ------------------------------------------------------------------------
       def build_common_request
         header = load_header_template(@template_path)
-        body = load_body_template
 
-        common_set_body_contents(body, @ar, @sender_id, @language, @target_id)
-        process_header(header,body)
-        add_body_to_header(header, body)
+        common_set_body_contents
+        process_header(header)
+        add_body_to_header(header)
       end
 
-      def common_set_body_contents(body, ar, sender_id, lang, receiver_id)
-        set_node(body, 'bxd|ApplicationRequest', ar)
-        set_node(body, 'bxd|SenderId', @customer_id)
-        set_node(body, 'bxd|RequestId', SecureRandom.hex(17))
-        set_node(body, 'bxd|Timestamp', Time.now.iso8601)
-        set_node(body, 'bxd|Language', lang)
-        set_node(body, 'bxd|UserAgent',
+      def common_set_body_contents
+        set_node(@template, 'bxd|ApplicationRequest', @ar)
+        set_node(@template, 'bxd|SenderId', @customer_id)
+        set_node(@template, 'bxd|RequestId', SecureRandom.hex(17))
+        set_node(@template, 'bxd|Timestamp', Time.now.iso8601)
+        set_node(@template, 'bxd|Language', @language)
+        set_node(@template, 'bxd|UserAgent',
                  "Sepa Transfer Library version " + VERSION)
-        set_node(body, 'bxd|ReceiverId', receiver_id)
+        set_node(@template, 'bxd|ReceiverId', @target_id)
       end
   end
 end

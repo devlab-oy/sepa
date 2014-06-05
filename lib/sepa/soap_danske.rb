@@ -70,34 +70,30 @@ module Sepa
       end
     end
 
-    def set_generic_request_contents(body,
-                                     sender_id,
-                                     request_id,
-                                     lang,
-                                     receiver_id)
-      set_node(body, 'bxd|SenderId', sender_id)
-      set_node(body, 'bxd|RequestId', request_id)
-      set_node(body, 'bxd|Timestamp', iso_time)
-      set_node(body, 'bxd|Language', lang)
-      set_node(body, 'bxd|UserAgent',"Sepa Transfer Library version " + VERSION)
-      set_node(body, 'bxd|ReceiverId', receiver_id)
+    def set_generic_request_contents
+      set_node(@template, 'bxd|SenderId', @customer_id)
+      set_node(@template, 'bxd|RequestId', @request_id)
+      set_node(@template, 'bxd|Timestamp', iso_time)
+      set_node(@template, 'bxd|Language', @language)
+      set_node(@template, 'bxd|UserAgent',"Sepa Transfer Library version " + VERSION)
+      set_node(@template, 'bxd|ReceiverId', @target_id)
     end
 
-    def set_create_cert_contents(body)
-      set_node(body, 'pkif|SenderId', @customer_id)
-      set_node(body, 'pkif|CustomerId', @customer_id)
-      set_node(body, 'pkif|RequestId', @request_id)
-      set_node(body, 'pkif|Timestamp', iso_time)
-      set_node(body, 'pkif|InterfaceVersion', 1)
-      set_node(body, 'pkif|Environment', @environment)
+    def set_create_cert_contents
+      set_node(@template, 'pkif|SenderId', @customer_id)
+      set_node(@template, 'pkif|CustomerId', @customer_id)
+      set_node(@template, 'pkif|RequestId', @request_id)
+      set_node(@template, 'pkif|Timestamp', iso_time)
+      set_node(@template, 'pkif|InterfaceVersion', 1)
+      set_node(@template, 'pkif|Environment', @environment)
     end
 
-    def set_bank_certificate_contents(body)
-      set_node(body, 'pkif|SenderId', @customer_id)
-      set_node(body, 'pkif|CustomerId', @customer_id)
-      set_node(body, 'pkif|RequestId', @request_id)
-      set_node(body, 'pkif|Timestamp', iso_time)
-      set_node(body, 'pkif|InterfaceVersion', 1)
+    def set_bank_certificate_contents
+      set_node(@template, 'pkif|SenderId', @customer_id)
+      set_node(@template, 'pkif|CustomerId', @customer_id)
+      set_node(@template, 'pkif|RequestId', @request_id)
+      set_node(@template, 'pkif|Timestamp', iso_time)
+      set_node(@template, 'pkif|InterfaceVersion', 1)
     end
 
     def iso_time
@@ -105,56 +101,51 @@ module Sepa
     end
 
     def build_danske_generic_request
-      body = load_body_template
       header = load_header_template(@template_path)
 
-      set_generic_request_contents(body, @customer_id, @request_id, @language, @target_id)
+      set_generic_request_contents
       encrypted_request = encrypt_application_request
-      add_encrypted_generic_request_to_soap(encrypted_request, body)
+      add_encrypted_generic_request_to_soap(encrypted_request)
 
-      process_header(header,body)
-      add_body_to_header(header,body)
+      process_header(header)
+      add_body_to_header(header)
     end
 
     def build_certificate_request
-      body = load_body_template
-
-      set_create_cert_contents(body)
+      set_create_cert_contents
       encrypted_request = encrypt_application_request
-      add_encrypted_request_to_soap(encrypted_request, body)
+      add_encrypted_request_to_soap(encrypted_request)
     end
 
     def build_get_bank_certificate_request
-      body = load_body_template
-
-      set_bank_certificate_contents(body)
-      add_bank_certificate_body_to_soap(body)
+      set_bank_certificate_contents
+      add_bank_certificate_body_to_soap
     end
 
-    def add_encrypted_request_to_soap(encrypted_request, body)
+    def add_encrypted_request_to_soap(encrypted_request)
       encrypted_request = Nokogiri::XML(encrypted_request.to_xml)
       encrypted_request = encrypted_request.root
-      body.at_css('pkif|CreateCertificateIn').add_child(encrypted_request)
+      @template.at_css('pkif|CreateCertificateIn').add_child(encrypted_request)
 
-      body
+      @template
     end
 
-    def add_encrypted_generic_request_to_soap(encrypted_request, body)
+    def add_encrypted_generic_request_to_soap(encrypted_request)
       encrypted_request = Nokogiri::XML(encrypted_request.to_xml)
       encrypted_request = encrypted_request.root
       encrypted_request = Base64.encode64(encrypted_request.to_xml)
-      body.at_css('bxd|ApplicationRequest').add_child(encrypted_request)
+      @template.at_css('bxd|ApplicationRequest').add_child(encrypted_request)
 
-      body
+      @template
     end
 
-    def add_bank_certificate_body_to_soap(body)
+    def add_bank_certificate_body_to_soap
       ar = Nokogiri::XML(Base64.decode64(@ar))
 
       ar = ar.at_css('elem|GetBankCertificateRequest')
-      body.at_css('pkif|GetBankCertificateIn').add_child(ar)
+      @template.at_css('pkif|GetBankCertificateIn').add_child(ar)
 
-      body
+      @template
     end
   end
 end

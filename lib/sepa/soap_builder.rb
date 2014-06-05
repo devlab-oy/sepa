@@ -16,12 +16,11 @@ module Sepa
       @file_reference = params[:file_reference]
       @enc_cert = params[:enc_cert]
       @request_id = request_id
-
+      @template_path = File.expand_path('../xml_templates/soap/', __FILE__)
+      @template = load_body_template
       @ar = ApplicationRequest.new(params).get_as_base64
 
       find_correct_bank_extension
-
-      @template_path = File.expand_path('../xml_templates/soap/', __FILE__)
     end
 
     def to_xml
@@ -91,6 +90,7 @@ module Sepa
         path = "#{@template_path}/create_certificate.xml"
       end
 
+      return if path.nil?
       body_template = File.open(path)
       body = Nokogiri::XML(body_template)
       body_template.close
@@ -102,8 +102,8 @@ module Sepa
       doc.at_css(node).content = value
     end
 
-    def add_body_to_header(header, body)
-      body = body.at_css('env|Body')
+    def add_body_to_header(header)
+      body = @template.at_css('env|Body')
       header.root.add_child(body)
       header
     end
@@ -122,7 +122,7 @@ module Sepa
       header
     end
 
-    def process_header(header, body)
+    def process_header(header)
       set_node(header, 'wsu|Created', Time.now.utc.iso8601)
 
       set_node(header, 'wsu|Expires', (Time.now.utc + 300).iso8601)
@@ -131,7 +131,7 @@ module Sepa
       set_node(header,'dsig|Reference[URI="#dsfg8sdg87dsf678g6dsg6ds7fg"]' \
                ' dsig|DigestValue', timestamp_digest)
 
-      body_digest = calculate_digest(body, 'env|Body')
+      body_digest = calculate_digest(@template, 'env|Body')
       set_node(header,'dsig|Reference[URI="#sdf6sa7d86f87s6df786sd87f6s8fsd'\
                'a"] dsig|DigestValue', body_digest)
 
