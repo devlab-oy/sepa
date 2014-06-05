@@ -24,5 +24,4 @@ WSDL_PATH = "#{ROOT_PATH}/lib/sepa/wsdl"
 SCHEMA_PATH = "#{ROOT_PATH}/lib/sepa/xml_schemas"
 SCHEMA_FILE = "#{ROOT_PATH}/lib/sepa/xml_schemas/wsdl.xml"
 AR_TEMPLATE_PATH = "#{ROOT_PATH}/lib/sepa/xml_templates/application_request"
-
-
+SOAP_TEMPLATE_PATH = "#{ROOT_PATH}/lib/sepa/xml_templates/soap"
