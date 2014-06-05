@@ -7,21 +7,26 @@ module Sepa
                   :file_type, :key_generator_type, :language, :pin, :private_key,
                   :signing_cert_pkcs10, :status, :target_id, :csr, :service
 
-    validates :bank, inclusion: {in: [:nordea, :danske]}
-    validates :content, presence: true, :if => lambda { command == :upload_file }
-    validates :customer_id, length: {maximum: 16}, presence: true
-    validates :environment, inclusion: {in: ['PRODUCTION', 'TEST', 'customertest']}
-    validates :file_type, length: {maximum: 40}, presence: true, :if => lambda { [:upload_file, :download_file_list].include? command }
-    validates :language, inclusion: {in: ['FI', 'SE', 'EN']}, allow_nil: true
-    validates :status, inclusion: {in: ['NEW', 'DOWNLOADED', 'ALL']}, allow_nil: true
-    validates :target_id, length: {maximum: 80}, presence: true, :if => lambda { command == :upload_file }
-    validates :pin, presence: true, :if => lambda { command == :create_certificate }
+    BANKS = [:nordea, :danske]
+    LANGUAGES = ['FI', 'SE', 'EN']
+    ENVIRONMENTS = ['PRODUCTION', 'TEST', 'customertest']
+    STATUSES = ['NEW', 'DOWNLOADED', 'ALL']
 
+    validates :bank, inclusion: { in: BANKS }
+    validates :customer_id, length: { maximum: 16 }, presence: true
+    validates :environment, inclusion: { in: ENVIRONMENTS }
+    validates :language, inclusion: { in: LANGUAGES }, allow_nil: true
+    validates :status, inclusion: { in: STATUSES }, allow_nil: true
+
+    validate :check_file_type
+    validate :check_target_id
+    validate :check_content
+    validate :check_pin
     validate :check_command
-    validate :check_keys, :unless => lambda { command == :get_certificate }
     validate :check_wsdl
-    validate :check_encryption_cert, :if => lambda { command == :create_certificate }
-    validate :check_signing_cert, :if => lambda { command == :create_certificate }
+    validate :check_keys
+    validate :check_encryption_cert
+    validate :check_signing_cert
 
     def initialize(hash = {})
       self.attributes hash
@@ -70,6 +75,8 @@ module Sepa
       end
 
       def check_keys
+        return if command == :get_certificate
+
         begin
           OpenSSL::PKey::RSA.new private_key
         rescue
@@ -84,6 +91,8 @@ module Sepa
       end
 
       def check_signing_cert
+        return unless command == :create_certificate
+
         begin
           OpenSSL::X509::Request.new signing_cert_pkcs10
         rescue
@@ -92,12 +101,14 @@ module Sepa
       end
 
       def check_encryption_cert
-      begin
-        OpenSSL::X509::Request.new encryption_cert_pkcs10
-      rescue
-        errors.add(:encryption_cert_pkcs10, "Invalid encryption certificate request")
+        return unless command == :create_certificate
+
+        begin
+          OpenSSL::X509::Request.new encryption_cert_pkcs10
+        rescue
+          errors.add(:encryption_cert_pkcs10, "Invalid encryption certificate request")
+        end
       end
-    end
 
       def wsdl
         case bank
@@ -130,6 +141,34 @@ module Sepa
         unless xsd.valid?(xml)
           errors.add(:wsdl, "Invalid wsdl file")
         end
+      end
+
+      def check_file_type
+        return unless [:upload_file, :download_file_list].include? command
+
+        if file_type.nil? || file_type.size > 40
+          errors.add(:file_type, "Invalid file type")
+        end
+      end
+
+      def check_target_id
+        return unless command == :upload_file
+
+        if target_id.nil? || target_id.size > 80
+          errors.add(:file_type, "Invalid target id")
+        end
+      end
+
+      def check_content
+        return unless command == :upload_file
+
+        errors.add(:content, "Invalid content") if content.nil?
+      end
+
+      def check_pin
+        return unless command == :create_certificate
+
+        errors.add(:pin, "Invalid pin") if pin.nil?
       end
 
   end
