@@ -1,9 +1,8 @@
-require File.expand_path('../../test_helper.rb', __FILE__)
+require 'test_helper'
 
 class DanskeGetBankCertTest < ActiveSupport::TestCase
-  def setup
-    @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)
 
+  def setup
     @params = {
       bank: :danske,
       command: :get_bank_certificate,
@@ -81,7 +80,7 @@ class DanskeGetBankCertTest < ActiveSupport::TestCase
   end
 
   def test_should_validate_against_soap_schema
-    Dir.chdir(@schemas_path) do
+    Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
       assert xsd.valid?(@doc)
     end
@@ -91,21 +90,22 @@ class DanskeGetBankCertTest < ActiveSupport::TestCase
     request = @doc.css('GetBankCertificateRequest', 'xmlns' => @elem).to_xml
     request = Nokogiri::XML(request)
 
-    Dir.chdir(@schemas_path) do
+    Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('PKIFactory.xsd'))
       assert xsd.valid?(request)
     end
   end
 
   def test_invalid_bank_root_cert_serial_should_fail_schema_validation
-    @doc.at('BankRootCertificateSerialNo', 'xmlns' => @elem).content = '1'*65
+    @doc.at('BankRootCertificateSerialNo', 'xmlns' => @elem).content = '1' * 65
 
     request = @doc.css('GetBankCertificateRequest', 'xmlns' => @elem).to_xml
     request = Nokogiri::XML(request)
 
-    Dir.chdir(@schemas_path) do
+    Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('PKIFactory.xsd'))
       refute xsd.valid?(request)
     end
   end
+
 end

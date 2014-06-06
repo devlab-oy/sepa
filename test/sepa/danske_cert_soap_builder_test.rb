@@ -1,12 +1,8 @@
-require File.expand_path('../../test_helper.rb', __FILE__)
+require 'test_helper'
 
 class DanskeCertSoapBuilderTest < ActiveSupport::TestCase
+
   def setup
-    @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas', __FILE__)
-
-    @templates_path = File.expand_path('../../../lib/sepa/xml_templates/soap',
-                                       __FILE__)
-
     keys_path = File.expand_path('../danske_test_keys', __FILE__)
 
     encryptpkcs = "-----BEGIN CERTIFICATE REQUEST-----
@@ -44,9 +40,7 @@ CsajqZag/Aoxv/Y=
 -----END CERTIFICATE REQUEST-----"
 
     @enc_cert = File.read "#{keys_path}/own_enc_cert.pem"
-    @enc_private_key = OpenSSL::PKey::RSA.new File.read(
-      "#{keys_path}/enc_private_key.pem"
-    )
+    @enc_private_key = OpenSSL::PKey::RSA.new File.read("#{keys_path}/enc_private_key.pem")
 
     @params = {
       bank: :danske,
@@ -73,7 +67,7 @@ CsajqZag/Aoxv/Y=
 
   def test_get_certificate_soap_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
-    template = File.read("#{@templates_path}/create_certificate.xml")
+    template = File.read("#{SOAP_TEMPLATE_PATH}/create_certificate.xml")
     digest = Base64.encode64(sha1.digest(template)).strip
     assert_equal digest, "7xfCxrQo+BxrOYVmY/EV9lkhY7Y="
   end
@@ -118,8 +112,7 @@ CsajqZag/Aoxv/Y=
   end
 
   def test_certificate_is_added_properly
-    embedded_cert = @doc.at("X509Certificate",
-                            'xmlns' => @dsig).content.gsub(/\s+/, "")
+    embedded_cert = @doc.at("X509Certificate", 'xmlns' => @dsig).content.gsub(/\s+/, "")
 
     actual_cert = @enc_cert
     actual_cert = actual_cert.split('-----BEGIN CERTIFICATE-----')[1]
@@ -156,9 +149,10 @@ CsajqZag/Aoxv/Y=
   end
 
   def test_should_validate_against_schema
-    Dir.chdir(@schemas_path) do
+    Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
       assert xsd.valid?(@doc)
     end
   end
+
 end

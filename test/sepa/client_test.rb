@@ -3,8 +3,7 @@ require 'test_helper'
 class ClientTest < ActiveSupport::TestCase
 
   def setup
-    @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas', __FILE__)
-    wsdl_path = File.expand_path('../../../lib/sepa/wsdl/wsdl_nordea.xml', __FILE__)
+    wsdl_path = File.expand_path("#{WSDL_PATH}/wsdl_nordea.xml", __FILE__)
     keys_path = File.expand_path('../nordea_test_keys', __FILE__)
     danske_keys_path = File.expand_path('../danske_test_keys', __FILE__)
 
@@ -12,9 +11,7 @@ class ClientTest < ActiveSupport::TestCase
     cert = OpenSSL::X509::Certificate.new File.read "#{keys_path}/nordea.crt"
 
     @params = get_params
-
     @certparams = get_cert_params
-
     @danskecertparams = get_danske_cert_params
 
     observer = Class.new {
@@ -23,10 +20,7 @@ class ClientTest < ActiveSupport::TestCase
         @builder = builder
         @globals = globals
         @locals  = locals
-
-        HTTPI::Response.new(200,
-                            { "Reponse is actually" => "the request, w0000t" },
-                            locals[:xml])
+        HTTPI::Response.new(200, { "Reponse is actually" => "the request, w0000t" }, locals[:xml])
       end
     }.new
 
@@ -164,7 +158,7 @@ class ClientTest < ActiveSupport::TestCase
 
     assert_equal response.body.keys[0], :get_user_infoin
 
-    Dir.chdir(@schemas_path) do
+    Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
       assert xsd.valid?(Nokogiri::XML(response.to_xml))
     end
@@ -177,7 +171,7 @@ class ClientTest < ActiveSupport::TestCase
 
     assert_equal response.body.keys[0], :download_file_listin
 
-    Dir.chdir(@schemas_path) do
+    Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
       assert xsd.valid?(Nokogiri::XML(response.to_xml))
     end
@@ -190,7 +184,7 @@ class ClientTest < ActiveSupport::TestCase
 
     assert_equal response.body.keys[0], :download_filein
 
-    Dir.chdir(@schemas_path) do
+    Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
       assert xsd.valid?(Nokogiri::XML(response.to_xml))
     end
@@ -203,7 +197,7 @@ class ClientTest < ActiveSupport::TestCase
 
     assert_equal response.body.keys[0], :upload_filein
 
-    Dir.chdir(@schemas_path) do
+    Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
       assert xsd.valid?(Nokogiri::XML(response.to_xml))
     end
@@ -219,7 +213,7 @@ class ClientTest < ActiveSupport::TestCase
 
     assert_equal response.body.keys[0], :get_certificatein
 
-    Dir.chdir(@schemas_path) do
+    Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
       assert xsd.valid?(Nokogiri::XML(response.to_xml))
     end
@@ -252,4 +246,5 @@ class ClientTest < ActiveSupport::TestCase
 
     refute Sepa::Client.new(@danskecertparams).valid?
   end
+
 end

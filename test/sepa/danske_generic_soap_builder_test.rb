@@ -1,9 +1,8 @@
-require File.expand_path('../../test_helper.rb', __FILE__)
+require 'test_helper'
 
 class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
-  def setup
-    @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)
 
+  def setup
     keys_path = File.expand_path('../danske_test_keys', __FILE__)
 
     private_key_path = "#{keys_path}/signing_private_key.pem"
@@ -56,32 +55,28 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
     @params[:command] = :download_file_list
     doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
 
-    assert doc.at('//cor:downloadFileListin', 'cor' => 'http://bxd.fi/' \
-                  'CorporateFileService')
+    assert doc.at('//cor:downloadFileListin', 'cor' => 'http://bxd.fi/CorporateFileService')
   end
 
   def test_should_load_correct_template_with_get_user_info
     @params[:command] = :get_user_info
     doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
 
-    assert doc.at('//cor:getUserInfoin', 'cor' => 'http://bxd.fi/' \
-                  'CorporateFileService')
+    assert doc.at('//cor:getUserInfoin', 'cor' => 'http://bxd.fi/CorporateFileService')
   end
 
   def test_should_load_correct_template_with_download_file
     @params[:command] = :download_file
     doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
 
-    assert doc.at('//cor:downloadFilein', 'cor' => 'http://bxd.fi/' \
-                  'CorporateFileService')
+    assert doc.at('//cor:downloadFilein', 'cor' => 'http://bxd.fi/CorporateFileService')
   end
 
   def test_should_load_correct_template_with_upload_file
     @params[:command] = :upload_file
     doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
 
-    assert doc.at('//cor:uploadFilein', 'cor' => 'http://bxd.fi/' \
-                  'CorporateFileService')
+    assert doc.at('//cor:uploadFilein', 'cor' => 'http://bxd.fi/CorporateFileService')
   end
 
   def test_should_raise_error_if_unrecognised_command
@@ -120,8 +115,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   def test_user_agent_is_set_correctly
     user_agent_node = @doc.at("//bxd:UserAgent", 'bxd' => 'http://model.bxd.fi')
 
-    assert_equal user_agent_node.content,
-      "Sepa Transfer Library version " + Sepa::VERSION
+    assert_equal user_agent_node.content, "Sepa Transfer Library version " + Sepa::VERSION
   end
 
   def test_receiver_is_is_set_correctly
@@ -162,8 +156,8 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
     )
 
     body_node = body_node.canonicalize(
-      mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
-      with_comments=false
+      mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
+      inclusive_namespaces = nil, with_comments = false
     )
 
     actual_digest = Base64.encode64(sha1.digest(body_node)).strip
@@ -221,12 +215,8 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
     sha1 = OpenSSL::Digest::SHA1.new
 
     private_key = OpenSSL::PKey::RSA.new(@params.fetch(:private_key))
-
-    added_signature = @doc.at("//dsig:SignatureValue", 'dsig' => 'http://' \
-                              'www.w3.org/2000/09/xmldsig#').content
-
-    signed_info_node = @doc.at("//dsig:SignedInfo", 'dsig' => 'http://' \
-                               'www.w3.org/2000/09/xmldsig#')
+    added_signature = @doc.at("//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').content
+    signed_info_node = @doc.at("//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
 
     signed_info_node = signed_info_node.canonicalize(
       mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
@@ -241,7 +231,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_should_validate_against_schema
-    Dir.chdir(@schemas_path) do
+    Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
       assert xsd.valid?(@doc)
     end
@@ -255,7 +245,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
 
     security_node['env:mustUnderstand'] = '3'
 
-    Dir.chdir(@schemas_path) do
+    Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
       refute xsd.valid?(@doc)
     end
@@ -271,10 +261,11 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
 
     ws_node = Nokogiri::XML(ws_node)
 
-    Dir.chdir(@schemas_path) do
+    Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema IO.read 'oasis-200401-wss-wssecurity-' \
         'secext-1.0.xsd'
       assert xsd.valid?(ws_node)
     end
   end
+
 end

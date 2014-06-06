@@ -1,4 +1,4 @@
-require File.expand_path('../../test_helper.rb', __FILE__)
+require 'test_helper'
 
 class TestApplicationRequest < ActiveSupport::TestCase
 

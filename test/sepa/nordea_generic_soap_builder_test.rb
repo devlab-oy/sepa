@@ -1,29 +1,20 @@
-require File.expand_path('../../test_helper.rb', __FILE__)
+require 'test_helper'
 
 class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
+
   def setup
-    @schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)
-
-    @xml_templates_path = File.expand_path(
-      '../../../lib/sepa/xml_templates/soap',
-      __FILE__
-    )
-
     keys_path = File.expand_path('../nordea_test_keys', __FILE__)
-
     private_key = OpenSSL::PKey::RSA.new File.read "#{keys_path}/nordea.key"
     cert = OpenSSL::X509::Certificate.new File.read "#{keys_path}/nordea.crt"
 
     @params = get_params
-
     @soap_request = Sepa::SoapBuilder.new(@params)
-
     @doc = Nokogiri::XML(@soap_request.to_xml)
   end
 
   def test_get_user_info_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
-    template = File.read("#{@xml_templates_path}/get_user_info.xml")
+    template = File.read("#{SOAP_TEMPLATE_PATH}/get_user_info.xml")
     digest = Base64.encode64(sha1.digest(template)).strip
 
     assert_equal digest, "A1UYZTOycIBHAY/70Q5G3lNjQBo="
@@ -31,7 +22,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
 
   def test_download_file_list_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
-    template = File.read("#{@xml_templates_path}/download_file_list.xml")
+    template = File.read("#{SOAP_TEMPLATE_PATH}/download_file_list.xml")
     digest = Base64.encode64(sha1.digest(template)).strip
 
     assert_equal digest, "+3UaQMgseUUn5OKUp/PTHl/BNFE="
@@ -39,7 +30,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
 
   def test_download_file_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
-    template = File.read("#{@xml_templates_path}/download_file.xml")
+    template = File.read("#{SOAP_TEMPLATE_PATH}/download_file.xml")
     digest = Base64.encode64(sha1.digest(template)).strip
 
     assert_equal digest, "HSWQCmwOsMdPJP3erjksi/Sz7hE="
@@ -47,7 +38,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
 
   def test_upload_file_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
-    template = File.read("#{@xml_templates_path}/upload_file.xml")
+    template = File.read("#{SOAP_TEMPLATE_PATH}/upload_file.xml")
     digest = Base64.encode64(sha1.digest(template)).strip
 
     assert_equal digest, "hdbglkugI1pzkeetqKIh2WBDkFM="
@@ -55,7 +46,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
 
   def test_header_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
-    template = File.read("#{@xml_templates_path}/header.xml")
+    template = File.read("#{SOAP_TEMPLATE_PATH}/header.xml")
     digest = Base64.encode64(sha1.digest(template)).strip
 
     assert_equal digest, "aPSrGOlBkyIf+Vkj205ysDbLIko="
@@ -153,8 +144,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
       "//bxd:UserAgent", 'bxd' => 'http://model.bxd.fi'
     ).first
 
-    assert_equal user_agent_node.content,
-      "Sepa Transfer Library version " + Sepa::VERSION
+    assert_equal user_agent_node.content, "Sepa Transfer Library version " + Sepa::VERSION
   end
 
   def test_receiver_is_is_set_correctly
@@ -206,8 +196,8 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
     ).first
 
     body_node = body_node.canonicalize(
-      mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
-      with_comments=false
+      mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, inclusive_namespaces = nil,
+      with_comments = false
     )
 
     actual_digest = Base64.encode64(sha1.digest(body_node)).strip
@@ -234,8 +224,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
 
     timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
 
-    assert timestamp <= (Time.now + 300) &&
-      timestamp > ((Time.now + 300) - 60)
+    assert timestamp <= (Time.now + 300) && timestamp > ((Time.now + 300) - 60)
   end
 
   def test_header_timestamps_digest_is_calculated_correctly
@@ -274,8 +263,8 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
     ).first
 
     signed_info_node = signed_info_node.canonicalize(
-      mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
-      with_comments=false
+      mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, inclusive_namespaces = nil,
+      with_comments = false
     )
 
     actual_signature = Base64.encode64(
@@ -286,7 +275,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_should_validate_against_schema
-    Dir.chdir(@schemas_path) do
+    Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
       assert xsd.valid?(@doc)
     end
@@ -300,7 +289,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
 
     security_node['env:mustUnderstand'] = '3'
 
-    Dir.chdir(@schemas_path) do
+    Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
       refute xsd.valid?(@doc)
     end
@@ -313,13 +302,13 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
     )
 
     ws_node = ws_node.to_xml
-
     ws_node = Nokogiri::XML(ws_node)
 
-    Dir.chdir(@schemas_path) do
+    Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema IO.read 'oasis-200401-wss-wssecurity-secext' \
         '-1.0.xsd'
       assert xsd.valid?(ws_node)
     end
   end
+
 end
