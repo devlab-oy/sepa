@@ -105,5 +105,9 @@ module Sepa
       end
     end
 
+    def iso_time
+      @iso_time ||= Time.now.utc.iso8601
+    end
+
   end
 end

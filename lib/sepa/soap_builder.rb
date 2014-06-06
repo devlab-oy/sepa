@@ -103,9 +103,5 @@ module Sepa
         set_node(@header_template, 'wsse|BinarySecurityToken', formatted_cert)
       end
 
-      def iso_time
-        @iso_time ||= Time.now.utc.iso8601
-      end
-
   end
 end

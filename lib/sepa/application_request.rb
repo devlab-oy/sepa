@@ -8,8 +8,6 @@ module Sepa
         instance_variable_set("@#{key}", value)
       end
 
-      # Set current time
-      @time = Time.now.utc.iso8601
       @ar = load_body_template AR_TEMPLATE_PATH
     end
 
@@ -61,7 +59,7 @@ module Sepa
 
       def set_get_bank_certificate_nodes
         set_node("elem|BankRootCertificateSerialNo", @bank_root_cert_serial)
-        set_node("elem|Timestamp", @time)
+        set_node("elem|Timestamp", iso_time)
         set_node("elem|RequestId", @request_id)
       end
 
@@ -88,7 +86,7 @@ module Sepa
         set_node("tns|KeyGeneratorType", @key_generator_type)
         set_node_b("tns|EncryptionCertPKCS10", @encryption_cert_pkcs10.to_der)
         set_node_b("tns|SigningCertPKCS10", @signing_cert_pkcs10.to_der)
-        set_node("tns|Timestamp", @time)
+        set_node("tns|Timestamp", iso_time)
         set_node("tns|RequestId", @request_id)
         set_node("tns|Environment", @environment)
         set_node("tns|PIN", @pin)
@@ -99,7 +97,7 @@ module Sepa
         return if @command == :create_certificate
 
         set_node("CustomerId", @customer_id)
-        set_node("Timestamp", @time)
+        set_node("Timestamp", iso_time)
         set_node("Environment", @environment)
         set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
         set_node("Command", pretty_command)
