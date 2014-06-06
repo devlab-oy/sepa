@@ -51,9 +51,9 @@ class ResponseTest < ActiveSupport::TestCase
   end
 
   def test_cert_check_should_work
-    assert @dfl.cert_is_trusted?(@root_cert)
+    assert @dfl.cert_is_trusted(@root_cert)
     assert_raises(SecurityError) do
-     @dfl.cert_is_trusted?(@not_root_cert)
+     @dfl.cert_is_trusted(@not_root_cert)
    end
   end
 

@@ -13,8 +13,7 @@ module Sepa
       self.certificate = extract_cert(ar, 'X509Certificate', 'http://www.w3.org/2000/09/xmldsig#')
     end
 
-    # Checks that the hash value reported in the signature matches the actual
-    # one.
+    # Checks that the hash value reported in the signature matches the actual one.
     def hashes_match?
       are = ar.clone
 
@@ -27,21 +26,17 @@ module Sepa
         "xmlns|Signature",
         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
       ).remove
-      errors.add(:base, "#{are.inspect}")
+
       actual_digest = calculate_digest(are)
 
-      if digest_value == actual_digest
-        true
-      else
-        false
-      end
+      return true if digest_value == actual_digest
+
+      false
     end
 
-    # Checks that the signature is signed with the private key of the
-    # certificate's public key.
+    # Checks that the signature is signed with the private key of the certificate's public key.
     def signature_is_valid?
-      node = ar.at_css('xmlns|SignedInfo',
-                        'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
+      node = ar.at_css('xmlns|SignedInfo', 'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
 
       node = node.canonicalize
 
@@ -52,30 +47,21 @@ module Sepa
 
       signature = Base64.decode64(signature)
 
+      # Return true or false
       certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
-    end
-
-    # Checks that the certificate in the application response is signed with the
-    # private key of the public key of the certificate as parameter.
-    def cert_is_trusted?(root_cert)
-      if root_cert.subject == certificate.issuer
-        certificate.verify(root_cert.public_key)
-      else
-        fail SecurityError,
-          "The issuer of the certificate doesn't match the subject of the " \
-          "root certificate."
-      end
     end
 
     private
 
       def validate_document_format
-        errors.add(:base, 'Document must be a Nokogiri XML file') \
-          unless ar.respond_to?(:canonicalize)
+        unless ar.respond_to?(:canonicalize)
+          errors.add(:base, 'Document must be a Nokogiri XML file')
+        end
       end
 
       def response_must_validate_against_schema
         check_validity_against_schema(ar, 'application_response.xsd')
       end
+
   end
 end

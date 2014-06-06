@@ -212,25 +212,25 @@ class ApplicationResponseTest < ActiveSupport::TestCase
   end
 
   def test_cert_should_be_trusted_with_correct_root_cert
-    assert @dfl_ar.cert_is_trusted?(@root_cert)
-    assert @uf_ar.cert_is_trusted?(@root_cert)
-    assert @df_ar.cert_is_trusted?(@root_cert)
-    assert @gui_ar.cert_is_trusted?(@root_cert)
+    assert @dfl_ar.cert_is_trusted(@root_cert)
+    assert @uf_ar.cert_is_trusted(@root_cert)
+    assert @df_ar.cert_is_trusted(@root_cert)
+    assert @gui_ar.cert_is_trusted(@root_cert)
   end
 
   def test_dfl_should_fail_if_wrong_root_cert
-    assert_raises(SecurityError) { @dfl_ar.cert_is_trusted?(@not_root_cert) }
+    assert_raises(SecurityError) { @dfl_ar.cert_is_trusted(@not_root_cert) }
   end
 
   def test_uf_should_fail_if_wrong_root_cert
-    assert_raises(SecurityError) { @uf_ar.cert_is_trusted?(@not_root_cert) }
+    assert_raises(SecurityError) { @uf_ar.cert_is_trusted(@not_root_cert) }
   end
 
   def test_df_should_fail_if_wrong_root_cert
-    assert_raises(SecurityError) { @df_ar.cert_is_trusted?(@not_root_cert) }
+    assert_raises(SecurityError) { @df_ar.cert_is_trusted(@not_root_cert) }
   end
 
   def test_gui_should_fail_if_wrong_root_cert
-    assert_raises(SecurityError) { @gui_ar.cert_is_trusted?(@not_root_cert) }
+    assert_raises(SecurityError) { @gui_ar.cert_is_trusted(@not_root_cert) }
   end
 end

@@ -94,5 +94,16 @@ module Sepa
       Nokogiri::XML(File.open(path))
     end
 
+    # Checks that the certificate in the application response is signed with the
+    # private key of the public key of the certificate as parameter.
+    def cert_is_trusted(root_cert)
+      if root_cert.subject == certificate.issuer
+        # Return true or false
+        certificate.verify(root_cert.public_key)
+      else
+        fail SecurityError, "false"
+      end
+    end
+
   end
 end
