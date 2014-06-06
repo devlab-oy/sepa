@@ -1,16 +1,11 @@
-require File.expand_path('../../test_helper.rb', __FILE__)
+require 'test_helper'
 
 class ApplicationResponseTest < ActiveSupport::TestCase
+
   def setup
     keys_path = File.expand_path('../nordea_test_keys', __FILE__)
-
-    @root_cert = OpenSSL::X509::Certificate.new File.read(
-      "#{keys_path}/root_cert.cer"
-    )
-
-    @not_root_cert = OpenSSL::X509::Certificate.new File.read(
-      "#{keys_path}/nordea.crt"
-    )
+    @root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/root_cert.cer")
+    @not_root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/nordea.crt")
 
     @dfl = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/dfl.xml"))
     @dfl = Sepa::Response.new(@dfl).application_response
@@ -233,4 +228,5 @@ class ApplicationResponseTest < ActiveSupport::TestCase
   def test_gui_should_fail_if_wrong_root_cert
     assert_raises(SecurityError) { @gui_ar.cert_is_trusted(@not_root_cert) }
   end
+
 end

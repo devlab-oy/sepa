@@ -1,21 +1,16 @@
-require File.expand_path('../../test_helper.rb', __FILE__)
+require 'test_helper'
 
 class NordeaCertRequestSoapBuilderTest < ActiveSupport::TestCase
+
   def setup
-    @schemapath = File.expand_path('../../../lib/sepa/xml_schemas',__FILE__)
-    @templatepath = File.expand_path('../../../lib/sepa/xml_templates/soap',__FILE__)
-    @keyspath = File.expand_path('../nordea_test_keys', __FILE__)
-
     @params = get_cert_params
-
     @certrequest = Sepa::SoapBuilder.new(@params)
-
     @xml = Nokogiri::XML(@certrequest.to_xml)
   end
 
   def test_that_get_certificate_soap_template_is_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
-    template = File.read("#{@templatepath}/get_certificate.xml")
+    template = File.read("#{SOAP_TEMPLATE_PATH}/get_certificate.xml")
     digest = Base64.encode64(sha1.digest(template)).strip
 
     assert_equal digest, "iYJcoQAlXZj5Pp9vLlSROXxY3+k="
@@ -69,9 +64,10 @@ class NordeaCertRequestSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_should_validate_against_schema
-    Dir.chdir(@schemapath) do
+    Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
       assert xsd.valid?(@xml)
     end
   end
+
 end

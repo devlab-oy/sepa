@@ -1,29 +1,23 @@
-require File.expand_path('../../test_helper.rb', __FILE__)
+require 'test_helper'
 
 class ResponseTest < ActiveSupport::TestCase
+
   def setup
     keys_path = File.expand_path('../nordea_test_keys', __FILE__)
+    @root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/root_cert.cer")
+    @not_root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/nordea.crt")
 
-    @root_cert = OpenSSL::X509::Certificate.new File.read(
-      "#{keys_path}/root_cert.cer"
-    )
+    dfl = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/dfl.xml"))
+    @dfl = Sepa::Response.new(dfl)
 
-    @not_root_cert = OpenSSL::X509::Certificate.new File.read(
-      "#{keys_path}/nordea.crt"
-    )
+    uf = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/uf.xml"))
+    @uf = Sepa::Response.new(uf)
 
-    @dfl = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/dfl.xml"))
-    @dfl = Sepa::Response.new(@dfl)
+    df = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/df.xml"))
+    @df = Sepa::Response.new(df)
 
-    @uf = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/uf.xml"))
-    @uf = Sepa::Response.new(@uf)
-
-    @df = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/df.xml"))
-    @df = Sepa::Response.new(@df)
-
-    @gui = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/gui.xml"))
-    @gui = Sepa::Response.new(@gui)
-
+    gui = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/gui.xml"))
+    @gui = Sepa::Response.new(gui)
   end
 
   def test_should_be_valid
