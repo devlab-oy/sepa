@@ -10,13 +10,10 @@ require 'sepa/application_request'
 require 'sepa/application_response'
 require 'sepa/client'
 require 'sepa/custom_exceptions'
-require 'sepa/payload'
-require 'sepa/payment'
 require 'sepa/response'
 require 'sepa/soap_builder'
 require 'sepa/soap_danske'
 require 'sepa/soap_nordea'
-require 'sepa/transaction'
 require 'sepa/version'
 
 ROOT_PATH = File.absolute_path('.')
