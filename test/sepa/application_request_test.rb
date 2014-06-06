@@ -26,38 +26,17 @@ class TestApplicationRequest < ActiveSupport::TestCase
   def test_xml_templates_are_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
 
-    get_user_info_template = File.read(
-      "#{AR_TEMPLATE_PATH}/get_user_info.xml"
-    )
+    get_user_info_template = File.read("#{AR_TEMPLATE_PATH}/get_user_info.xml")
+    download_file_list_template = File.read("#{AR_TEMPLATE_PATH}/download_file_list.xml")
+    download_file_template = File.read("#{AR_TEMPLATE_PATH}/download_file.xml")
+    upload_file_template = File.read("#{AR_TEMPLATE_PATH}/upload_file.xml")
 
-    download_file_list_template = File.read(
-      "#{AR_TEMPLATE_PATH}/download_file_list.xml"
-    )
-
-    download_file_template = File.read(
-      "#{AR_TEMPLATE_PATH}/download_file.xml"
-    )
-
-    upload_file_template = File.read(
-      "#{AR_TEMPLATE_PATH}/upload_file.xml"
-    )
-
-    get_user_info_digest = Base64.encode64(
-      sha1.digest(get_user_info_template)
-    ).strip
-
+    get_user_info_digest = Base64.encode64(sha1.digest(get_user_info_template)).strip
     sha1.reset
-
-    download_file_list_digest = Base64.encode64(
-      sha1.digest(download_file_list_template)
-    ).strip
-
+    download_file_list_digest = Base64.encode64(sha1.digest(download_file_list_template)).strip
     sha1.reset
-
     download_file_digest = sha1.digest(download_file_template)
-
     sha1.reset
-
     upload_file_digest = sha1.digest(upload_file_template)
 
     assert_equal get_user_info_digest, "LW5J5R7SnPFPurAa2pM7weTWL1Y="
