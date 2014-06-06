@@ -1,37 +1,24 @@
 require File.expand_path('../../test_helper.rb', __FILE__)
 
 class TestApplicationRequest < ActiveSupport::TestCase
+
   def setup
-    keys_path = File.expand_path('../nordea_test_keys', __FILE__)
-
-    @schemas_path = File.expand_path(SCHEMA_PATH,__FILE__)
-
-    @private_key = OpenSSL::PKey::RSA.new(File.read("#{keys_path}/nordea.key"))
-    @cert = OpenSSL::X509::Certificate.new(File.read("#{keys_path}/nordea.crt"))
-
     @params = get_params
-
-    #@ar_file = Sepa::ApplicationRequest.new(@params)
-    @ar_file = Sepa::SoapBuilder.new(@params).get_ar_as_base64
+    ar_file = Sepa::SoapBuilder.new(@params).get_ar_as_base64
 
     @params[:command] = :get_user_info
-    #@ar_get = Sepa::ApplicationRequest.new(@params)
-    @ar_get = Sepa::SoapBuilder.new(@params).get_ar_as_base64
+    ar_get = Sepa::SoapBuilder.new(@params).get_ar_as_base64
 
     @params[:command] = :download_file_list
-    #@ar_list = Sepa::ApplicationRequest.new(@params)
-    @ar_list = Sepa::SoapBuilder.new(@params).get_ar_as_base64
+    ar_list = Sepa::SoapBuilder.new(@params).get_ar_as_base64
 
     @params[:command] = :upload_file
-    #@ar_up = Sepa::ApplicationRequest.new(@params)
-    @ar_up = Sepa::SoapBuilder.new(@params).get_ar_as_base64
+    ar_up = Sepa::SoapBuilder.new(@params).get_ar_as_base64
 
-    @doc_file = Nokogiri::XML(Base64.decode64(@ar_file))
-    @doc_get = Nokogiri::XML(Base64.decode64(@ar_get))
-    @doc_list = Nokogiri::XML(Base64.decode64(@ar_list))
-    @doc_up = Nokogiri::XML(Base64.decode64(@ar_up))
-
-
+    @doc_file = Nokogiri::XML(Base64.decode64(ar_file))
+    @doc_get = Nokogiri::XML(Base64.decode64(ar_get))
+    @doc_list = Nokogiri::XML(Base64.decode64(ar_list))
+    @doc_up = Nokogiri::XML(Base64.decode64(ar_up))
   end
 
   # Just to make sure that the xml templates are unmodified because
@@ -74,39 +61,23 @@ class TestApplicationRequest < ActiveSupport::TestCase
     upload_file_digest = sha1.digest(upload_file_template)
 
     assert_equal get_user_info_digest, "LW5J5R7SnPFPurAa2pM7weTWL1Y="
-
-    assert_equal download_file_list_digest.strip,
-      "dYtf4lOP1TXfXPVjYLvaTozhVrg="
-
-    assert_equal Base64.encode64(download_file_digest).strip,
-      "lY+8u+BhXlQmUyQiOiXcUfCUikc="
-
-    assert_equal Base64.encode64(upload_file_digest).strip,
-      "zRQTrNHkq4OLSX3u3ogxU05RJsI="
+    assert_equal download_file_list_digest.strip, "dYtf4lOP1TXfXPVjYLvaTozhVrg="
+    assert_equal Base64.encode64(download_file_digest).strip, "lY+8u+BhXlQmUyQiOiXcUfCUikc="
+    assert_equal Base64.encode64(upload_file_digest).strip, "zRQTrNHkq4OLSX3u3ogxU05RJsI="
   end
 
   def test_schemas_are_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
 
-    ar_schema = File.read(
-      "#{@schemas_path}/application_request.xsd"
-    )
-
-    xmldsig_schema = File.read(
-      "#{@schemas_path}/xmldsig-core-schema.xsd"
-    )
-
+    ar_schema = File.read("#{SCHEMA_PATH}/application_request.xsd")
+    xmldsig_schema = File.read("#{SCHEMA_PATH}/xmldsig-core-schema.xsd")
     ar_schema_digest = sha1.digest(ar_schema)
 
     sha1.reset
 
     xmldsig_schema_digest = sha1.digest(xmldsig_schema)
-
-    assert_equal Base64.encode64(ar_schema_digest).strip,
-      "1O24A7+/6S7CFYVlhH1jEZh1ARs="
-
-    assert_equal Base64.encode64(xmldsig_schema_digest).strip,
-      "bmG0+2KykgkLeWsXsl6CFbyo4Yc="
+    assert_equal Base64.encode64(ar_schema_digest).strip, "1O24A7+/6S7CFYVlhH1jEZh1ARs="
+    assert_equal Base64.encode64(xmldsig_schema_digest).strip, "bmG0+2KykgkLeWsXsl6CFbyo4Yc="
   end
 
   def test_ar_should_initialize_with_proper_params
@@ -129,33 +100,19 @@ class TestApplicationRequest < ActiveSupport::TestCase
   end
 
   def test_should_have_timestamp_set_properly_with_all_commands
-    timestamp_file = Time.strptime(@doc_file.at_css("Timestamp").content,
-                                   '%Y-%m-%dT%H:%M:%S%z')
+    timestamp_file = Time.strptime(@doc_file.at_css("Timestamp").content, '%Y-%m-%dT%H:%M:%S%z')
+    timestamp_get = Time.strptime(@doc_get.at_css("Timestamp").content, '%Y-%m-%dT%H:%M:%S%z')
+    timestamp_list = Time.strptime(@doc_list.at_css("Timestamp").content, '%Y-%m-%dT%H:%M:%S%z')
+    timestamp_up = Time.strptime(@doc_up.at_css("Timestamp").content, '%Y-%m-%dT%H:%M:%S%z')
 
-    timestamp_get = Time.strptime(@doc_get.at_css("Timestamp").content,
-                                  '%Y-%m-%dT%H:%M:%S%z')
-
-    timestamp_list = Time.strptime(@doc_list.at_css("Timestamp").content,
-                                   '%Y-%m-%dT%H:%M:%S%z')
-
-    timestamp_up = Time.strptime(@doc_up.at_css("Timestamp").content,
-                                 '%Y-%m-%dT%H:%M:%S%z')
-
-    assert timestamp_file <= Time.now && timestamp_file > (Time.now - 60),
-      "Timestamp was not set correctly"
-
-    assert timestamp_get <= Time.now && timestamp_get > (Time.now - 60),
-      "Timestamp was not set correctly"
-
-    assert timestamp_list <= Time.now && timestamp_list > (Time.now - 60),
-      "Timestamp was not set correctly"
-
-    assert timestamp_up <= Time.now && timestamp_up > (Time.now - 60),
-      "Timestamp was not set correctly"
+    ts_error = "Timestamp was not set correctly"
+    assert timestamp_file <= Time.now && timestamp_file > (Time.now - 60), ts_error
+    assert timestamp_get <= Time.now && timestamp_get > (Time.now - 60), ts_error
+    assert timestamp_list <= Time.now && timestamp_list > (Time.now - 60), ts_error
+    assert timestamp_up <= Time.now && timestamp_up > (Time.now - 60), ts_error
   end
 
   def test_should_have_command_set_when_get_user_info
-
     assert_equal @doc_get.at_css("Command").content, "GetUserInfo"
   end
 
@@ -179,17 +136,12 @@ class TestApplicationRequest < ActiveSupport::TestCase
   end
 
   def test_should_have_software_id_set_with_all_commands
-    assert_equal @doc_file.at_css("SoftwareId").content,
-      "Sepa Transfer Library version " + Sepa::VERSION
+    string = "Sepa Transfer Library version #{Sepa::VERSION}"
 
-    assert_equal @doc_get.at_css("SoftwareId").content,
-      "Sepa Transfer Library version " + Sepa::VERSION
-
-    assert_equal @doc_list.at_css("SoftwareId").content,
-      "Sepa Transfer Library version " + Sepa::VERSION
-
-    assert_equal @doc_up.at_css("SoftwareId").content,
-      "Sepa Transfer Library version " + Sepa::VERSION
+    assert_equal @doc_file.at_css("SoftwareId").content, string
+    assert_equal @doc_get.at_css("SoftwareId").content, string
+    assert_equal @doc_list.at_css("SoftwareId").content, string
+    assert_equal @doc_up.at_css("SoftwareId").content, string
   end
 
   def test_should_have_status_set_when_download_file_list
@@ -237,8 +189,7 @@ class TestApplicationRequest < ActiveSupport::TestCase
   end
 
   def test_should_have_file_reference_set_when_download_file
-    assert_equal @doc_file.at_css("FileReference").content,
-      @params[:file_reference]
+    assert_equal @doc_file.at_css("FileReference").content, @params[:file_reference]
   end
 
   def test_should_not_have_file_ref_when_download_file_list
@@ -254,8 +205,7 @@ class TestApplicationRequest < ActiveSupport::TestCase
   end
 
   def test_should_have_content_when_upload_file
-    assert_equal @doc_up.at_css("Content").content,
-      Base64.encode64(@params[:content])
+    assert_equal @doc_up.at_css("Content").content, Base64.encode64(@params[:content])
   end
 
   def test_should_not_have_content_when_download_file_list
@@ -308,8 +258,11 @@ class TestApplicationRequest < ActiveSupport::TestCase
     ).content
 
     # Calculate the actual signature
+    keys_path = File.expand_path('../nordea_test_keys', __FILE__)
+    private_key = OpenSSL::PKey::RSA.new(File.read("#{keys_path}/nordea.key"))
+
     sha1 = OpenSSL::Digest::SHA1.new
-    actual_signature = Base64.encode64(@private_key.sign(
+    actual_signature = Base64.encode64(private_key.sign(
     sha1, signed_info_node.canonicalize))
 
     # And then of course assert the two are equal
@@ -330,11 +283,10 @@ class TestApplicationRequest < ActiveSupport::TestCase
   end
 
   def test_should_validate_against_schema
-    Dir.chdir(@schemas_path) do
+    Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('application_request.xsd'))
       assert xsd.valid?(@doc_file)
     end
   end
-
 
 end
