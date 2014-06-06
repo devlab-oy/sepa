@@ -45,29 +45,11 @@ module Sepa
     end
 
     def build_encrypted_ar(cert, encrypted_data, encrypted_key)
-      asym_enc_algorithm = 'http://www.w3.org/2001/04/xmlenc#tripledes-cbc'
-      sym_enc_algorithm = 'http://www.w3.org/2001/04/xmlenc#rsa-1_5'
-
-      Nokogiri::XML::Builder.new :encoding => 'UTF-8' do |xml|
-        xml['xenc'].EncryptedData('xmlns:xenc' => "http://www.w3.org/2001/04/xmlenc#",
-                                  'Type' => "http://www.w3.org/2001/04/xmlenc#Element") do
-          xml.EncryptionMethod('Algorithm' => asym_enc_algorithm)
-
-          xml['dsig'].KeyInfo('xmlns:dsig' => "http://www.w3.org/2000/09/xmldsig#") do
-            xml['xenc'].EncryptedKey('Recipient' => "name:DanskeBankCryptCERT") do
-              xml.EncryptionMethod('Algorithm' => sym_enc_algorithm)
-
-              xml['dsig'].KeyInfo do
-                xml.X509Data { xml.X509Certificate cert }
-              end
-
-              xml['xenc'].CipherData { xml.CipherValue encrypted_data }
-            end
-          end
-
-          xml['xenc'].CipherData { xml.CipherValue encrypted_key }
-        end
-      end
+      ar = Nokogiri::XML File.open "#{AR_TEMPLATE_PATH}/encrypted_request.xml"
+      set_node(ar, 'dsig|X509Certificate', cert)
+      set_node(ar, 'dsig|KeyInfo xenc|CipherValue', encrypted_data)
+      set_node(ar, 'xenc|EncryptedData > xenc|CipherData > xenc|CipherValue', encrypted_key)
+      ar
     end
 
     def set_generic_request_contents
