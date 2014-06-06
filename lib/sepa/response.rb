@@ -42,31 +42,28 @@ module Sepa
         digest == nodes[uri]
       end
 
-      if digests == verified_digests
-        true
-      else
-        unverified_digests = digests.select do |uri, digest|
-          uri = uri.sub(/^#/, '')
-          digest != nodes[uri]
-        end
+      return true if digests == verified_digests
 
-        if options[:verbose]
-          puts "These digests failed to verify: #{unverified_digests}."
-        end
-
-        false
+      unverified_digests = digests.select do |uri, digest|
+        uri = uri.sub(/^#/, '')
+        digest != nodes[uri]
       end
+
+      if options[:verbose]
+        puts "These digests failed to verify: #{unverified_digests}."
+      end
+
+      false
     end
 
     # Verifies the signature by extracting the public key from the certificate
     # embedded in the soap header and verifying the signature value with that.
     def signature_is_valid?
-      node = document.at_css('xmlns|SignedInfo',
-                              'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
+      node = document.at_css('xmlns|SignedInfo', 'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
 
       node = node.canonicalize(
-        mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
-        inclusive_namespaces=nil,with_comments=false
+        mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
+        inclusive_namespaces = nil, with_comments = false
       )
 
       signature = document.at_css(
@@ -75,7 +72,6 @@ module Sepa
       ).content
 
       signature = Base64.decode64(signature)
-
 
       certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
     end
@@ -116,6 +112,7 @@ module Sepa
       # references hash.
       def find_nodes_to_verify(doc, references)
         nodes = {}
+
         references.each do |uri, digest_value|
           uri = uri.sub(/^#/, '')
           node = doc.at_css(
@@ -131,12 +128,14 @@ module Sepa
       end
 
       def validate_document_format
-        errors.add(:base, 'Document must be a Nokogiri XML file') \
-          unless document.respond_to?(:canonicalize)
+        unless document.respond_to?(:canonicalize)
+          errors.add(:base, 'Document must be a Nokogiri XML file')
+        end
       end
 
       def document_must_validate_against_schema
         check_validity_against_schema(document, 'soap.xsd')
       end
+
   end
 end
