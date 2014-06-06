@@ -17,7 +17,6 @@ module Sepa
       @content = params[:content]
       @file_reference = params[:file_reference]
       @enc_cert = params[:enc_cert]
-      @request_id = request_id
       @header_template = load_header_template
       @template = load_body_template SOAP_TEMPLATE_PATH
       @ar = ApplicationRequest.new(params).get_as_base64
@@ -104,8 +103,8 @@ module Sepa
         set_node(@header_template, 'wsse|BinarySecurityToken', formatted_cert)
       end
 
-      def request_id
-        SecureRandom.hex(5)
+      def iso_time
+        @iso_time ||= Time.now.utc.iso8601
       end
 
   end

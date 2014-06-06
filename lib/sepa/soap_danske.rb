@@ -54,7 +54,7 @@ module Sepa
 
     def set_generic_request_contents
       set_node(@template, 'bxd|SenderId', @customer_id)
-      set_node(@template, 'bxd|RequestId', @request_id)
+      set_node(@template, 'bxd|RequestId', request_id)
       set_node(@template, 'bxd|Timestamp', iso_time)
       set_node(@template, 'bxd|Language', @language)
       set_node(@template, 'bxd|UserAgent',"Sepa Transfer Library version " + VERSION)
@@ -64,7 +64,7 @@ module Sepa
     def set_create_cert_contents
       set_node(@template, 'pkif|SenderId', @customer_id)
       set_node(@template, 'pkif|CustomerId', @customer_id)
-      set_node(@template, 'pkif|RequestId', @request_id)
+      set_node(@template, 'pkif|RequestId', request_id)
       set_node(@template, 'pkif|Timestamp', iso_time)
       set_node(@template, 'pkif|InterfaceVersion', 1)
       set_node(@template, 'pkif|Environment', @environment)
@@ -73,13 +73,9 @@ module Sepa
     def set_bank_certificate_contents
       set_node(@template, 'pkif|SenderId', @customer_id)
       set_node(@template, 'pkif|CustomerId', @customer_id)
-      set_node(@template, 'pkif|RequestId', @request_id)
+      set_node(@template, 'pkif|RequestId', request_id)
       set_node(@template, 'pkif|Timestamp', iso_time)
       set_node(@template, 'pkif|InterfaceVersion', 1)
-    end
-
-    def iso_time
-      @iso_time ||= Time.now.utc.iso8601
     end
 
     def build_danske_generic_request
@@ -127,5 +123,10 @@ module Sepa
 
       @template
     end
+
+    def request_id
+      SecureRandom.hex(5)
+    end
+
   end
 end
