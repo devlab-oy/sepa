@@ -6,7 +6,7 @@ module Sepa
     attr_accessor :bank, :cert, :command, :content, :customer_id,
                   :encryption_cert_pkcs10, :environment, :file_reference,
                   :file_type, :key_generator_type, :language, :pin, :private_key,
-                  :signing_cert_pkcs10, :status, :target_id, :csr, :service
+                  :signing_cert_pkcs10, :status, :target_id, :csr, :service, :bank_root_cert_serial
 
     BANKS = [:nordea, :danske]
     LANGUAGES = ['FI', 'SE', 'EN']
@@ -28,6 +28,7 @@ module Sepa
     validate :check_keys
     validate :check_encryption_cert
     validate :check_signing_cert
+    validate :check_bank_root_cert_serial
 
     def initialize(hash = {})
       self.attributes hash
@@ -166,6 +167,14 @@ module Sepa
         return unless command == :create_certificate
 
         errors.add(:pin, "Invalid pin") if pin.nil?
+      end
+
+      def check_bank_root_cert_serial
+        return unless command == :get_bank_certificate
+
+        unless bank_root_cert_serial && bank_root_cert_serial.between?(1, 64)
+          errors.add(:bank_root_cert_serial, "Invalid bank root certificate serial")
+        end
       end
 
   end
