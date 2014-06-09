@@ -3,21 +3,21 @@ module Sepa
     include ActiveModel::Validations
     include Utilities
 
-    attr_reader :document, :certificate, :danske_encryption_cert, :danske_bank_signing_cert,
-                :danske_bank_root_cert, :own_encryption_cert, :own_signing_cert
+    attr_reader :document, :certificate
 
     validates :document, presence: true
+
     validate :validate_document_format
     validate :document_must_validate_against_schema
 
-    def initialize(response)
+    GENERIC_COMMANDS = [:get_user_info, :download_file_list, :download_file, :upload_file]
+
+    def initialize(response, command:)
       @document = response
-      @certificate = extract_cert(document, 'BinarySecurityToken', 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd')
-      @danske_encryption_cert = extract_cert(document, 'BankEncryptionCert', 'http://danskebank.dk/PKI/PKIFactoryService/elements')
-      @danske_bank_signing_cert = extract_cert(document, 'BankSigningCert', 'http://danskebank.dk/PKI/PKIFactoryService/elements')
-      @danske_bank_root_cert = extract_cert(document, 'BankRootCert', 'http://danskebank.dk/PKI/PKIFactoryService/elements')
-      @own_encryption_cert = extract_cert(document, 'EncryptionCert', 'http://danskebank.dk/PKI/PKIFactoryService/elements')
-      @own_signing_cert = extract_cert(document, 'SigningCert', 'http://danskebank.dk/PKI/PKIFactoryService/elements')
+
+      if GENERIC_COMMANDS.include? command
+        @certificate = extract_cert(document, 'BinarySecurityToken', 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd')
+      end
     end
 
     # Verifies that all digest values in the response match the actual ones.

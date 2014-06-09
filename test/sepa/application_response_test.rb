@@ -8,16 +8,16 @@ class ApplicationResponseTest < ActiveSupport::TestCase
     @not_root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/nordea.crt")
 
     @dfl = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/dfl.xml"))
-    @dfl = Sepa::Response.new(@dfl).application_response
+    @dfl = Sepa::Response.new(@dfl, command: :download_file_list).application_response
 
     @uf = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/uf.xml"))
-    @uf = Sepa::Response.new(@uf).application_response
+    @uf = Sepa::Response.new(@uf, command: :upload_file).application_response
 
     @df = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/df.xml"))
-    @df = Sepa::Response.new(@df).application_response
+    @df = Sepa::Response.new(@df, command: :download_file).application_response
 
     @gui = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/gui.xml"))
-    @gui = Sepa::Response.new(@gui).application_response
+    @gui = Sepa::Response.new(@gui, command: :get_user_info).application_response
 
     @dfl_ar = Sepa::ApplicationResponse.new(@dfl)
     @uf_ar = Sepa::ApplicationResponse.new(@uf)

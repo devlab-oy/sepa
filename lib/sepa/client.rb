@@ -47,7 +47,13 @@ module Sepa
       client = Savon.client(wsdl: wsdl, pretty_print_xml: true)
 
       response = client.call(command, xml: soap).doc
-      Response.new response
+
+      case bank
+        when :nordea
+          NordeaResponse.new response, command: command
+        when :danske
+          DanskeResponse.new response, command: command
+      end
     end
 
     private

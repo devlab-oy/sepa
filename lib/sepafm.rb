@@ -11,9 +11,11 @@ require 'sepa/application_response'
 require 'sepa/client'
 require 'sepa/custom_exceptions'
 require 'sepa/response'
+require 'sepa/banks/nordea/nordea_response'
+require 'sepa/banks/danske/danske_response'
 require 'sepa/soap_builder'
-require 'sepa/soap_danske'
-require 'sepa/soap_nordea'
+require 'sepa/banks/danske/soap_danske'
+require 'sepa/banks/nordea/soap_nordea'
 require 'sepa/version'
 
 ROOT_PATH = File.absolute_path('.')

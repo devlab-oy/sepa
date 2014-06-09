@@ -8,16 +8,16 @@ class ResponseTest < ActiveSupport::TestCase
     @not_root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/nordea.crt")
 
     dfl = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/dfl.xml"))
-    @dfl = Sepa::Response.new(dfl)
+    @dfl = Sepa::Response.new(dfl, command: :download_file_list)
 
     uf = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/uf.xml"))
-    @uf = Sepa::Response.new(uf)
+    @uf = Sepa::Response.new(uf, command: :upload_file)
 
     df = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/df.xml"))
-    @df = Sepa::Response.new(df)
+    @df = Sepa::Response.new(df, command: :download_file)
 
     gui = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/gui.xml"))
-    @gui = Sepa::Response.new(gui)
+    @gui = Sepa::Response.new(gui, command: :get_user_info)
   end
 
   def test_should_be_valid
@@ -28,12 +28,12 @@ class ResponseTest < ActiveSupport::TestCase
   end
 
   def test_should_fail_with_improper_params
-    a = Sepa::Response.new("Jees")
+    a = Sepa::Response.new("Jees", command: 'not')
     refute a.valid?
   end
 
   def test_should_complain_if_ar_not_valid_against_schema
-    a = Sepa::Response.new(Nokogiri::XML("<ar>text</ar>"))
+    a = Sepa::Response.new(Nokogiri::XML("<ar>text</ar>"), command: 'notvalid')
     refute a.valid?
   end
 
