@@ -1,12 +1,11 @@
 require 'test_helper'
 
-class ResponseTest < ActiveSupport::TestCase
+class DanskeResponseTest < ActiveSupport::TestCase
+  KEYS_PATH = File.expand_path('../danske_test_keys', __FILE__)
+  ROOT_CERT = OpenSSL::X509::Certificate.new File.read("#{KEYS_PATH}/bank_root_cert.pem")
+  NOT_ROOT_CERT = OpenSSL::X509::Certificate.new File.read("#{KEYS_PATH}/bank_encryption_cert.pem")
 
   def setup
-    keys_path = File.expand_path('../nordea_test_keys', __FILE__)
-    @root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/root_cert.cer")
-    @not_root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/nordea.crt")
-
     dfl = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/dfl.xml"))
     @dfl = Sepa::Response.new(dfl, command: :download_file_list)
 
@@ -45,10 +44,10 @@ class ResponseTest < ActiveSupport::TestCase
   end
 
   def test_cert_check_should_work
-    assert @dfl.cert_is_trusted(@root_cert)
+    assert @dfl.cert_is_trusted(ROOT_CERT)
     assert_raises(SecurityError) do
-     @dfl.cert_is_trusted(@not_root_cert)
-   end
+      @dfl.cert_is_trusted(NOT_ROOT_CERT)
+    end
   end
 
   def test_signature_check_should_work
@@ -56,7 +55,7 @@ class ResponseTest < ActiveSupport::TestCase
     @dfl.document.at_css(
         'xmlns|SignatureValue',
         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
-      ).content = "kissa"
+    ).content = "kissa"
     refute @dfl.signature_is_valid?
   end
 

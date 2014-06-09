@@ -3,7 +3,7 @@ module Sepa
     include ActiveModel::Validations
     include Utilities
 
-    attr_accessor :bank, :cert, :command, :content, :customer_id,
+    attr_accessor :bank, :cert, :command, :content, :customer_id, :enc_cert,
                   :encryption_cert_pkcs10, :environment, :file_reference,
                   :file_type, :key_generator_type, :language, :pin, :private_key,
                   :signing_cert_pkcs10, :status, :target_id, :csr, :service, :bank_root_cert_serial
@@ -25,7 +25,8 @@ module Sepa
     validate :check_command
     validate :check_wsdl
     validate :check_keys
-    validate :check_encryption_cert
+    validate :check_enc_cert
+    validate :check_encryption_cert_request
     validate :check_signing_cert
     validate :check_bank_root_cert_serial
 
@@ -44,7 +45,7 @@ module Sepa
 
       soap = SoapBuilder.new(create_hash).to_xml
 
-      client = Savon.client(wsdl: wsdl, pretty_print_xml: true)
+      client = Savon.client(wsdl: wsdl)
 
       response = client.call(command, xml: soap).doc
 
@@ -84,7 +85,7 @@ module Sepa
       end
 
       def check_keys
-        return if [:get_certificate, :get_bank_certificate].include? command
+        return if [:get_certificate, :get_bank_certificate, :create_certificate].include? command
 
         begin
           OpenSSL::PKey::RSA.new private_key
@@ -107,7 +108,7 @@ module Sepa
         end
       end
 
-      def check_encryption_cert
+      def check_encryption_cert_request
         return unless command == :create_certificate
 
         unless cert_request_valid?(encryption_cert_pkcs10)
@@ -200,6 +201,12 @@ module Sepa
         unless customer_id && customer_id.length <= 16
           errors.add(:customer_id, 'Customer Id needs to be present and needs to have a length of less than 17 characters')
         end
+      end
+
+      def check_enc_cert
+        return unless command == :create_certificate
+
+        errors.add(:enc_cert, "Invalid encryption certificate") unless enc_cert
       end
 
   end

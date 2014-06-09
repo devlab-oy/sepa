@@ -236,9 +236,9 @@ class ClientTest < ActiveSupport::TestCase
     refute Sepa::Client.new(@danskecertparams).valid?
   end
 
-  def test_should_raise_error_if_cert_plain_and_cert_path_missing_with_create_certificate
+  def test_should_raise_error_if_encryption_cert_missing_with_create_certificate
     @danskecertparams[:command] = :create_certificate
-    @danskecertparams.delete(:cert)
+    @danskecertparams.delete(:enc_cert)
 
     refute Sepa::Client.new(@danskecertparams).valid?
   end
