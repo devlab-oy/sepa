@@ -36,7 +36,7 @@ module Sepa
       key = cipher.random_key
       iv = cipher.random_iv
 
-      encrypted_data = cipher.update(Nokogiri::XML(@ar).to_xml)
+      encrypted_data = cipher.update(@ar.to_xml)
       encrypted_data << cipher.final
       encrypted_data = iv + encrypted_data
       encrypted_data = Base64.encode64(encrypted_data)
