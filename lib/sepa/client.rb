@@ -45,7 +45,9 @@ module Sepa
       soap = SoapBuilder.new(create_hash).to_xml
 
       client = Savon.client(wsdl: wsdl, pretty_print_xml: true)
-      client.call(command, xml: soap)
+
+      response = client.call(command, xml: soap).doc
+      Response.new response
     end
 
     private
