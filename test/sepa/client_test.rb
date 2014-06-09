@@ -3,16 +3,12 @@ require 'test_helper'
 class ClientTest < ActiveSupport::TestCase
 
   def setup
-    wsdl_path = File.expand_path("#{WSDL_PATH}/wsdl_nordea.xml", __FILE__)
-    keys_path = File.expand_path('../nordea_test_keys', __FILE__)
-    danske_keys_path = File.expand_path('../danske_test_keys', __FILE__)
-
-    private_key = OpenSSL::PKey::RSA.new File.read "#{keys_path}/nordea.key"
-    cert = OpenSSL::X509::Certificate.new File.read "#{keys_path}/nordea.crt"
-
     @params = get_params
     @certparams = get_cert_params
     @danskecertparams = get_danske_cert_params
+
+    # Namespaces
+    @cor = 'http://bxd.fi/CorporateFileService'
 
     observer = Class.new {
       def notify(operation_name, builder, globals, locals)
@@ -156,11 +152,11 @@ class ClientTest < ActiveSupport::TestCase
     client = Sepa::Client.new(@params)
     response = client.send_request
 
-    assert_equal response.body.keys[0], :get_user_infoin
+    assert response.document.at_css('cor|getUserInfoin', cor: @cor)
 
     Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(Nokogiri::XML(response.to_xml))
+      assert xsd.valid?(response.document)
     end
   end
 
@@ -169,11 +165,11 @@ class ClientTest < ActiveSupport::TestCase
     client = Sepa::Client.new(@params)
     response = client.send_request
 
-    assert_equal response.body.keys[0], :download_file_listin
+    assert response.document.at_css('cor|downloadFileListin', cor: @cor)
 
     Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(Nokogiri::XML(response.to_xml))
+      assert xsd.valid?(response.document)
     end
   end
 
@@ -182,11 +178,11 @@ class ClientTest < ActiveSupport::TestCase
     client = Sepa::Client.new(@params)
     response = client.send_request
 
-    assert_equal response.body.keys[0], :download_filein
+    assert response.document.at_css('cor|downloadFilein', cor: @cor)
 
     Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(Nokogiri::XML(response.to_xml))
+      assert xsd.valid?(response.document)
     end
   end
 
@@ -195,11 +191,11 @@ class ClientTest < ActiveSupport::TestCase
     client = Sepa::Client.new(@params)
     response = client.send_request
 
-    assert_equal response.body.keys[0], :upload_filein
+    assert response.document.at_css('cor|uploadFilein', cor: @cor)
 
     Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(Nokogiri::XML(response.to_xml))
+      assert xsd.valid?(response.document)
     end
   end
 
@@ -211,11 +207,11 @@ class ClientTest < ActiveSupport::TestCase
     client = Sepa::Client.new(@certparams)
     response = client.send_request
 
-    assert_equal response.body.keys[0], :get_certificatein
+    assert response.document.at_css('cer|getCertificatein')
 
     Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(Nokogiri::XML(response.to_xml))
+      assert xsd.valid?(response.document)
     end
   end
 
