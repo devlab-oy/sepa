@@ -10,16 +10,15 @@ module Sepa
 
     BANKS = [:nordea, :danske]
     LANGUAGES = ['FI', 'SE', 'EN']
-    ENVIRONMENTS = ['PRODUCTION', 'TEST', 'customertest']
     STATUSES = ['NEW', 'DOWNLOADED', 'ALL']
 
     validates :bank, inclusion: { in: BANKS }
-    validates :customer_id, length: { maximum: 16 }, presence: true
-    validates :environment, inclusion: { in: ENVIRONMENTS }
     validates :language, inclusion: { in: LANGUAGES }, allow_nil: true
     validates :status, inclusion: { in: STATUSES }, allow_nil: true
 
+    validate :check_customer_id
     validate :check_file_type
+    validate :check_environment
     validate :check_target_id
     validate :check_content
     validate :check_pin
@@ -77,7 +76,7 @@ module Sepa
       end
 
       def check_keys
-        return if command == :get_certificate
+        return if [:get_certificate, :get_bank_certificate].include? command
 
         begin
           OpenSSL::PKey::RSA.new private_key
@@ -117,7 +116,7 @@ module Sepa
             file = "wsdl_nordea.xml"
           end
         when :danske
-          if command == :get_bank_certificate || command == :create_certificate
+          if [:get_bank_certificate, :create_certificate].include? command
             file = "wsdl_danske_cert.xml"
           else
             file = "wsdl_danske.xml"
@@ -172,8 +171,26 @@ module Sepa
       def check_bank_root_cert_serial
         return unless command == :get_bank_certificate
 
-        unless bank_root_cert_serial && bank_root_cert_serial.between?(1, 64)
+        unless bank_root_cert_serial && bank_root_cert_serial.length.between?(1, 64)
           errors.add(:bank_root_cert_serial, "Invalid bank root certificate serial")
+        end
+      end
+
+      def check_environment
+        return if command == :get_bank_certificate
+
+        environments = ['PRODUCTION', 'TEST', 'customertest']
+
+        unless environments.include? environment
+          errors.add(:environment, 'Environment needs to be either PRODUCTION, TEST or customertest')
+        end
+      end
+
+      def check_customer_id
+        return if command == :get_bank_certificate
+
+        unless customer_id && customer_id.length <= 16
+          errors.add(:customer_id, 'Customer Id needs to be present and needs to have a length of less than 17 characters')
         end
       end
 
