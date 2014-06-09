@@ -11,7 +11,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
     signing_cert_path = "#{keys_path}/own_signing_cert.pem"
     signing_cert = File.read signing_cert_path
 
-    enc_cert_path = "#{keys_path}/bank_encryption_cert.pem"
+    enc_cert_path = "#{keys_path}/own_enc_cert.pem"
     enc_cert = File.read enc_cert_path
 
     @params = {
@@ -28,7 +28,6 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
       file_type: 'pain.001.001.02',
       content: Base64.encode64('kissa'),
       file_reference: "11111111A12006030329501800000014",
-      request_id: SecureRandom.hex(5)
     }
 
     @soap_request = Sepa::SoapBuilder.new(@params)

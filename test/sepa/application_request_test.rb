@@ -4,21 +4,21 @@ class TestApplicationRequest < ActiveSupport::TestCase
 
   def setup
     @params = get_params
-    ar_file = Sepa::SoapBuilder.new(@params).get_ar_as_base64
+    ar_file = Sepa::SoapBuilder.new(@params).ar
 
     @params[:command] = :get_user_info
-    ar_get = Sepa::SoapBuilder.new(@params).get_ar_as_base64
+    ar_get = Sepa::SoapBuilder.new(@params).ar
 
     @params[:command] = :download_file_list
-    ar_list = Sepa::SoapBuilder.new(@params).get_ar_as_base64
+    ar_list = Sepa::SoapBuilder.new(@params).ar
 
     @params[:command] = :upload_file
-    ar_up = Sepa::SoapBuilder.new(@params).get_ar_as_base64
+    ar_up = Sepa::SoapBuilder.new(@params).ar
 
-    @doc_file = Nokogiri::XML(Base64.decode64(ar_file))
-    @doc_get = Nokogiri::XML(Base64.decode64(ar_get))
-    @doc_list = Nokogiri::XML(Base64.decode64(ar_list))
-    @doc_up = Nokogiri::XML(Base64.decode64(ar_up))
+    @doc_file = Nokogiri::XML(ar_file.to_xml)
+    @doc_get = Nokogiri::XML(ar_get.to_xml)
+    @doc_list = Nokogiri::XML(ar_list.to_xml)
+    @doc_up = Nokogiri::XML(ar_up.to_xml)
   end
 
   # Just to make sure that the xml templates are unmodified because

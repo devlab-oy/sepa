@@ -4,8 +4,8 @@ class CertApplicationRequestTest < ActiveSupport::TestCase
 
   def setup
     @params = get_cert_params
-    ar_cert = Sepa::SoapBuilder.new(@params).get_ar_as_base64
-    @xml = Nokogiri::XML(Base64.decode64(ar_cert))
+    ar_cert = Sepa::SoapBuilder.new(@params).ar
+    @xml = Nokogiri::XML(ar_cert.to_xml)
   end
 
   def test_that_xml_template_is_unmodified

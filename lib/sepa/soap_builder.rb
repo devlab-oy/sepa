@@ -2,6 +2,8 @@ module Sepa
   class SoapBuilder
     include Utilities
 
+    attr_reader :ar
+
     # SoapBuilder creates the SOAP structure.
     def initialize(params)
       @bank = params[:bank]
@@ -19,7 +21,7 @@ module Sepa
       @enc_cert = params[:enc_cert]
       @header_template = load_header_template
       @template = load_body_template SOAP_TEMPLATE_PATH
-      @ar = ApplicationRequest.new(params).get_as_base64
+      @ar = ApplicationRequest.new(params)
 
       find_correct_bank_extension
     end
@@ -27,10 +29,6 @@ module Sepa
     def to_xml
       # Returns a complete SOAP message in xml format
       find_correct_build.to_xml
-    end
-
-    def get_ar_as_base64
-      @ar
     end
 
     private

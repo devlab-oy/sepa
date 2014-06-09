@@ -116,7 +116,7 @@ module Sepa
     end
 
     def add_bank_certificate_body_to_soap
-      ar = Nokogiri::XML(Base64.decode64(@ar))
+      ar = @ar.to_nokogiri
 
       ar = ar.at_css('elem|GetBankCertificateRequest')
       @template.at_css('pkif|GetBankCertificateIn').add_child(ar)

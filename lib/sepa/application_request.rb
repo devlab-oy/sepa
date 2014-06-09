@@ -11,14 +11,19 @@ module Sepa
       @ar = load_body_template AR_TEMPLATE_PATH
     end
 
-    def get_as_base64
+    def to_xml
       set_common_nodes
       set_nodes_contents
       process_signature
+      @ar.to_xml
+    end
 
-      return @ar if @command == :create_certificate
+    def to_base64
+      Base64.encode64(to_xml)
+    end
 
-      Base64.encode64(@ar.to_xml)
+    def to_nokogiri
+      Nokogiri::XML to_xml
     end
 
     private
