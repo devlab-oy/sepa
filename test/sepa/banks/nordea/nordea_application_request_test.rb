@@ -3,17 +3,17 @@ require 'test_helper'
 class NordeaApplicationRequestTest < ActiveSupport::TestCase
 
   def setup
-    @params = get_params
-    ar_file = Sepa::SoapBuilder.new(@params).ar
+    @nordea_generic_params = nordea_generic_params
+    ar_file = Sepa::SoapBuilder.new(@nordea_generic_params).ar
 
-    @params[:command] = :get_user_info
-    ar_get = Sepa::SoapBuilder.new(@params).ar
+    @nordea_generic_params[:command] = :get_user_info
+    ar_get = Sepa::SoapBuilder.new(@nordea_generic_params).ar
 
-    @params[:command] = :download_file_list
-    ar_list = Sepa::SoapBuilder.new(@params).ar
+    @nordea_generic_params[:command] = :download_file_list
+    ar_list = Sepa::SoapBuilder.new(@nordea_generic_params).ar
 
-    @params[:command] = :upload_file
-    ar_up = Sepa::SoapBuilder.new(@params).ar
+    @nordea_generic_params[:command] = :upload_file
+    ar_up = Sepa::SoapBuilder.new(@nordea_generic_params).ar
 
     @doc_file = Nokogiri::XML(ar_file.to_xml)
     @doc_get = Nokogiri::XML(ar_get.to_xml)
@@ -36,22 +36,22 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_ar_should_initialize_with_proper_params
-    assert Sepa::SoapBuilder.new(@params)
+    assert Sepa::SoapBuilder.new(@nordea_generic_params)
   end
 
   def test_should_get_key_error_if_command_missing
-    @params.delete(:command)
+    @nordea_generic_params.delete(:command)
 
     assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
+      Sepa::SoapBuilder.new(@nordea_generic_params)
     end
   end
 
   def test_should_have_customer_id_set_in_with_all_commands
-    assert_equal @doc_file.at_css("CustomerId").content, @params[:customer_id]
-    assert_equal @doc_get.at_css("CustomerId").content, @params[:customer_id]
-    assert_equal @doc_list.at_css("CustomerId").content, @params[:customer_id]
-    assert_equal @doc_up.at_css("CustomerId").content, @params[:customer_id]
+    assert_equal @doc_file.at_css("CustomerId").content, @nordea_generic_params[:customer_id]
+    assert_equal @doc_get.at_css("CustomerId").content, @nordea_generic_params[:customer_id]
+    assert_equal @doc_list.at_css("CustomerId").content, @nordea_generic_params[:customer_id]
+    assert_equal @doc_up.at_css("CustomerId").content, @nordea_generic_params[:customer_id]
   end
 
   def test_should_have_timestamp_set_properly_with_all_commands
@@ -84,10 +84,10 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_should_have_environment_set_with_all_commands
-    assert_equal @doc_file.at_css("Environment").content, @params[:environment]
-    assert_equal @doc_get.at_css("Environment").content, @params[:environment]
-    assert_equal @doc_list.at_css("Environment").content, @params[:environment]
-    assert_equal @doc_up.at_css("Environment").content, @params[:environment]
+    assert_equal @doc_file.at_css("Environment").content, @nordea_generic_params[:environment]
+    assert_equal @doc_get.at_css("Environment").content, @nordea_generic_params[:environment]
+    assert_equal @doc_list.at_css("Environment").content, @nordea_generic_params[:environment]
+    assert_equal @doc_up.at_css("Environment").content, @nordea_generic_params[:environment]
   end
 
   def test_should_have_software_id_set_with_all_commands
@@ -100,11 +100,11 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_should_have_status_set_when_download_file_list
-    assert_equal @doc_list.at_css("Status").content, @params[:status]
+    assert_equal @doc_list.at_css("Status").content, @nordea_generic_params[:status]
   end
 
   def test_should_have_status_set_when_download_file
-    assert_equal @doc_file.at_css("Status").content, @params[:status]
+    assert_equal @doc_file.at_css("Status").content, @nordea_generic_params[:status]
   end
 
   def test_should_not_have_status_set_when_get_user_info
@@ -116,11 +116,11 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_should_have_target_id_set_when_download_file_list
-    assert_equal @doc_list.at_css("TargetId").content, @params[:target_id]
+    assert_equal @doc_list.at_css("TargetId").content, @nordea_generic_params[:target_id]
   end
 
   def test_should_have_target_id_set_when_download_file
-    assert_equal @doc_file.at_css("TargetId").content, @params[:target_id]
+    assert_equal @doc_file.at_css("TargetId").content, @nordea_generic_params[:target_id]
   end
 
   def test_should_not_have_target_id_set_when_get_user_info
@@ -128,15 +128,15 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_should_have_file_type_set_when_download_file_list
-    assert_equal @doc_list.at_css("FileType").content, @params[:file_type]
+    assert_equal @doc_list.at_css("FileType").content, @nordea_generic_params[:file_type]
   end
 
   def test_should_have_file_type_set_when_download_file
-    assert_equal @doc_file.at_css("FileType").content, @params[:file_type]
+    assert_equal @doc_file.at_css("FileType").content, @nordea_generic_params[:file_type]
   end
 
   def test_should_have_file_type_set_when_upload_file
-    assert_equal @doc_up.at_css("FileType").content, @params[:file_type]
+    assert_equal @doc_up.at_css("FileType").content, @nordea_generic_params[:file_type]
   end
 
   def test_should_not_have_file_type_set_when_get_user_info
@@ -144,7 +144,7 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_should_have_file_reference_set_when_download_file
-    assert_equal @doc_file.at_css("FileReference").content, @params[:file_reference]
+    assert_equal @doc_file.at_css("FileReference").content, @nordea_generic_params[:file_reference]
   end
 
   def test_should_not_have_file_ref_when_download_file_list
@@ -160,7 +160,7 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_should_have_content_when_upload_file
-    assert_equal @doc_up.at_css("Content").content, Base64.encode64(@params[:content])
+    assert_equal @doc_up.at_css("Content").content, Base64.encode64(@nordea_generic_params[:content])
   end
 
   def test_should_not_have_content_when_download_file_list
@@ -177,8 +177,8 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
 
   def test_should_raise_argument_error_with_invalid_command
     assert_raises(ArgumentError) do
-      @params[:command] = :wrong_kind_of_command
-      ar = Sepa::ApplicationRequest.new(@params)
+      @nordea_generic_params[:command] = :wrong_kind_of_command
+      ar = Sepa::ApplicationRequest.new(@nordea_generic_params)
       doc = ar.get_as_base64
     end
   end
@@ -229,7 +229,7 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
       "dsig|X509Certificate", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
     ).content
 
-    actual_cert = @params.fetch(:cert).to_s
+    actual_cert = @nordea_generic_params.fetch(:cert).to_s
     actual_cert = actual_cert.split('-----BEGIN CERTIFICATE-----')[1]
     actual_cert = actual_cert.split('-----END CERTIFICATE-----')[0]
     actual_cert.gsub!(/\s+/, "")

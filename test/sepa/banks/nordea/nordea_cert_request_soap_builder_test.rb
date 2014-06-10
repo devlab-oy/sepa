@@ -3,34 +3,34 @@ require 'test_helper'
 class NordeaCertRequestSoapBuilderTest < ActiveSupport::TestCase
 
   def setup
-    @params = get_cert_params
-    @certrequest = Sepa::SoapBuilder.new(@params)
+    @nordea_generic_params = nordea_cert_params
+    @certrequest = Sepa::SoapBuilder.new(@nordea_generic_params)
     @xml = Nokogiri::XML(@certrequest.to_xml)
   end
 
   def test_should_initialize_with_proper_params
-    assert Sepa::SoapBuilder.new(@params)
+    assert Sepa::SoapBuilder.new(@nordea_generic_params)
   end
 
   def test_should_get_error_if_command_missing
-    @params.delete(:command)
+    @nordea_generic_params.delete(:command)
 
     assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
+      Sepa::SoapBuilder.new(@nordea_generic_params)
     end
   end
 
   def test_should_load_correct_template_with_get_certificate
-    @params[:command] = :get_certificate
-    xml = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
+    @nordea_generic_params[:command] = :get_certificate
+    xml = Nokogiri::XML(Sepa::SoapBuilder.new(@nordea_generic_params).to_xml)
 
     assert xml.xpath('//cer:getCertificatein', 'cer' => 'http://bxd.fi/CertificateService').first
   end
 
   def test_should_raise_error_if_command_not_correct
-    @params[:command] = :wrong_command
+    @nordea_generic_params[:command] = :wrong_command
     assert_raises(ArgumentError) do
-      soap = Sepa::SoapBuilder.new(@params).to_xml
+      soap = Sepa::SoapBuilder.new(@nordea_generic_params).to_xml
     end
   end
 
@@ -52,7 +52,7 @@ class NordeaCertRequestSoapBuilderTest < ActiveSupport::TestCase
     ar_doc = Nokogiri::XML(Base64.decode64(ar_node.content))
 
     assert ar_doc.respond_to?(:canonicalize)
-    assert_equal ar_doc.at_css("CustomerId").content, @params[:customer_id]
+    assert_equal ar_doc.at_css("CustomerId").content, @nordea_generic_params[:customer_id]
   end
 
   def test_should_validate_against_schema

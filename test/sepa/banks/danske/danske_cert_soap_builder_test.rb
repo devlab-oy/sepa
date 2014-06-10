@@ -42,7 +42,7 @@ CsajqZag/Aoxv/Y=
     @enc_cert = File.read "#{keys_path}/own_enc_cert.pem"
     @enc_private_key = OpenSSL::PKey::RSA.new File.read("#{keys_path}/enc_private_key.pem")
 
-    @params = {
+    @nordea_generic_params = {
       bank: :danske,
       enc_cert: OpenSSL::X509::Certificate.new(@enc_cert),
       command: :create_certificate,
@@ -55,7 +55,7 @@ CsajqZag/Aoxv/Y=
       request_id: SecureRandom.hex(5)
     }
 
-    @cert_request = Sepa::SoapBuilder.new(@params)
+    @cert_request = Sepa::SoapBuilder.new(@nordea_generic_params)
 
     @doc = Nokogiri::XML(@cert_request.to_xml)
 
@@ -66,21 +66,21 @@ CsajqZag/Aoxv/Y=
   end
 
   def test_should_raise_error_if_command_missing
-    @params.delete(:command)
+    @nordea_generic_params.delete(:command)
 
     assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
+      Sepa::SoapBuilder.new(@nordea_generic_params)
     end
   end
 
   def test_sender_id_is_properly_set
     sender_id = @doc.at("SenderId", "xmlns" => @pkif).content
-    assert_equal sender_id, @params[:customer_id]
+    assert_equal sender_id, @nordea_generic_params[:customer_id]
   end
 
   def test_customer_id_is_properly_set
     customer_id = @doc.at("CustomerId", "xmlns" => @pkif).content
-    assert_equal customer_id, @params[:customer_id]
+    assert_equal customer_id, @nordea_generic_params[:customer_id]
   end
 
   def test_request_id_is_properly_set

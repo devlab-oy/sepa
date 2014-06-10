@@ -7,22 +7,22 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
     private_key = OpenSSL::PKey::RSA.new File.read "#{keys_path}/nordea.key"
     cert = OpenSSL::X509::Certificate.new File.read "#{keys_path}/nordea.crt"
 
-    @params = get_params
-    @soap_request = Sepa::SoapBuilder.new(@params)
+    @nordea_generic_params = nordea_generic_params
+    @soap_request = Sepa::SoapBuilder.new(@nordea_generic_params)
     @doc = Nokogiri::XML(@soap_request.to_xml)
   end
 
   def test_should_get_error_if_command_missing
-    @params.delete(:command)
+    @nordea_generic_params.delete(:command)
 
     assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
+      Sepa::SoapBuilder.new(@nordea_generic_params)
     end
   end
 
   def test_should_load_correct_template_with_download_file_list
-    @params[:command] = :download_file_list
-    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
+    @nordea_generic_params[:command] = :download_file_list
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@nordea_generic_params).to_xml)
 
     assert doc.xpath(
       '//cor:downloadFileListin', 'cor' => 'http://bxd.fi/CorporateFileService'
@@ -30,8 +30,8 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_should_load_correct_template_with_get_user_info
-    @params[:command] = :get_user_info
-    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
+    @nordea_generic_params[:command] = :get_user_info
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@nordea_generic_params).to_xml)
 
     assert doc.xpath(
       '//cor:getUserInfoin', 'cor' => 'http://bxd.fi/CorporateFileService'
@@ -39,8 +39,8 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_should_load_correct_template_with_download_file
-    @params[:command] = :download_file
-    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
+    @nordea_generic_params[:command] = :download_file
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@nordea_generic_params).to_xml)
 
     assert doc.xpath(
       '//cor:downloadFilein', 'cor' => 'http://bxd.fi/CorporateFileService'
@@ -48,8 +48,8 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_should_load_correct_template_with_upload_file
-    @params[:command] = :upload_file
-    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@params).to_xml)
+    @nordea_generic_params[:command] = :upload_file
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@nordea_generic_params).to_xml)
 
     assert doc.xpath(
       '//cor:uploadFilein', 'cor' => 'http://bxd.fi/CorporateFileService'
@@ -57,15 +57,15 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_should_raise_error_if_unrecognised_command
-    @params[:command] = :wrong_command
+    @nordea_generic_params[:command] = :wrong_command
 
     assert_raises(ArgumentError) do
-      soap = Sepa::SoapBuilder.new(@params)
+      soap = Sepa::SoapBuilder.new(@nordea_generic_params)
     end
   end
 
   def test_sender_id_is_properly_set
-    assert_equal @params[:customer_id],
+    assert_equal @nordea_generic_params[:customer_id],
       @doc.xpath("//bxd:SenderId", 'bxd' => 'http://model.bxd.fi').first.content
   end
 
@@ -96,7 +96,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
       "//bxd:Language", 'bxd' => 'http://model.bxd.fi'
     ).first
 
-    assert_equal language_node.content, @params[:language]
+    assert_equal language_node.content, @nordea_generic_params[:language]
   end
 
   def test_user_agent_is_set_correctly
@@ -112,7 +112,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
       "//bxd:ReceiverId", 'bxd' => 'http://model.bxd.fi'
     ).first
 
-    assert_equal receiver_id_node.content, @params[:target_id]
+    assert_equal receiver_id_node.content, @nordea_generic_params[:target_id]
   end
 
   # Just test that the content of application request is a base64 encoded xml
@@ -125,7 +125,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
     ar_doc = Nokogiri::XML(Base64.decode64(ar_node.content))
 
     assert ar_doc.respond_to?(:canonicalize)
-    assert_equal ar_doc.at_css("CustomerId").content, @params[:customer_id]
+    assert_equal ar_doc.at_css("CustomerId").content, @nordea_generic_params[:customer_id]
   end
 
   def test_cert_is_added_correctly
@@ -134,7 +134,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
       '/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
     ).first.content
 
-    actual_cert = @params.fetch(:cert).to_s
+    actual_cert = @nordea_generic_params.fetch(:cert).to_s
     actual_cert = actual_cert.split('-----BEGIN CERTIFICATE-----')[1]
     actual_cert = actual_cert.split('-----END CERTIFICATE-----')[0]
     actual_cert = actual_cert.gsub(/\s+/, "")
@@ -212,7 +212,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
 
   def test_signature_is_calculated_correctly
     sha1 = OpenSSL::Digest::SHA1.new
-    private_key = @params.fetch(:private_key)
+    private_key = @nordea_generic_params.fetch(:private_key)
 
     added_signature = @doc.xpath(
       "//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'

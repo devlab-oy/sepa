@@ -2,6 +2,7 @@ module Sepa
   class Client
     include ActiveModel::Validations
     include Utilities
+    include ErrorMessages
 
     attr_accessor :bank, :cert, :command, :content, :customer_id, :enc_cert,
                   :encryption_cert_pkcs10, :environment, :file_reference,
@@ -32,6 +33,7 @@ module Sepa
 
     def initialize(hash = {})
       self.attributes hash
+      self.environment ||= 'PRODUCTION'
     end
 
     def attributes(hash)
@@ -104,7 +106,7 @@ module Sepa
         return unless command == :create_certificate
 
         unless cert_request_valid?(signing_cert_pkcs10)
-          errors.add(:signing_cert_pkcs10, "Invalid signing certificate request")
+          errors.add(:signing_cert_pkcs10, SIGNING_CERT_REQUEST_ERROR_MESSAGE)
         end
       end
 
@@ -112,7 +114,7 @@ module Sepa
         return unless command == :create_certificate
 
         unless cert_request_valid?(encryption_cert_pkcs10)
-          errors.add(:encryption_cert_pkcs10, "Invalid encryption certificate request")
+          errors.add(:encryption_cert_pkcs10, ENCRYPTION_CERT_REQUEST_ERROR_MESSAGE)
         end
       end
 
@@ -152,8 +154,8 @@ module Sepa
       def check_file_type
         return unless [:upload_file, :download_file_list].include? command
 
-        if file_type.nil? || file_type.size > 40
-          errors.add(:file_type, "Invalid file type")
+        if file_type.nil? || file_type.size > 35
+          errors.add(:file_type, FILE_TYPE_ERROR_MESSAGE)
         end
       end
 
@@ -161,20 +163,20 @@ module Sepa
         return unless command == :upload_file
 
         if target_id.nil? || target_id.size > 80
-          errors.add(:file_type, "Invalid target id")
+          errors.add(:target_id, TARGET_ID_ERROR_MESSAGE)
         end
       end
 
       def check_content
         return unless command == :upload_file
 
-        errors.add(:content, "Invalid content") if content.nil?
+        errors.add(:content, CONTENT_ERROR_MESSAGE) if content.nil?
       end
 
       def check_pin
         return unless command == :create_certificate
 
-        errors.add(:pin, "Invalid pin") if pin.nil?
+        errors.add(:pin, PIN_ERROR_MESSAGE) if pin.nil? || pin.length > 10
       end
 
       def check_bank_root_cert_serial
@@ -191,22 +193,22 @@ module Sepa
         environments = ['PRODUCTION', 'TEST', 'customertest']
 
         unless environments.include? environment
-          errors.add(:environment, 'Environment needs to be either PRODUCTION, TEST or customertest')
+          errors.add(:environment, ENVIRONMENT_ERROR_MESSAGE )
         end
       end
 
       def check_customer_id
         return if command == :get_bank_certificate
 
-        unless customer_id && customer_id.length <= 16
-          errors.add(:customer_id, 'Customer Id needs to be present and needs to have a length of less than 17 characters')
+        unless customer_id && customer_id.length.between?(1, 16)
+          errors.add(:customer_id, CUSTOMER_ID_ERROR_MESSAGE)
         end
       end
 
       def check_enc_cert
         return unless command == :create_certificate
 
-        errors.add(:enc_cert, "Invalid encryption certificate") unless enc_cert
+        errors.add(:enc_cert, ENCRYPTION_CERT_ERROR_MESSAGE) unless enc_cert
       end
 
   end

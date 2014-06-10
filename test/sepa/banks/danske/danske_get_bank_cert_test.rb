@@ -3,7 +3,7 @@ require 'test_helper'
 class DanskeGetBankCertTest < ActiveSupport::TestCase
 
   def setup
-    @params = {
+    @nordea_generic_params = {
       bank: :danske,
       command: :get_bank_certificate,
       bank_root_cert_serial: '1111110002',
@@ -11,7 +11,7 @@ class DanskeGetBankCertTest < ActiveSupport::TestCase
       request_id: SecureRandom.hex(5)
     }
 
-    @doc = Sepa::SoapBuilder.new(@params)
+    @doc = Sepa::SoapBuilder.new(@nordea_generic_params)
     @doc = Nokogiri::XML(@doc.to_xml)
 
     # Namespaces
@@ -20,24 +20,24 @@ class DanskeGetBankCertTest < ActiveSupport::TestCase
   end
 
   def test_should_initialize_request_with_proper_params
-    assert Sepa::SoapBuilder.new(@params).to_xml
+    assert Sepa::SoapBuilder.new(@nordea_generic_params).to_xml
   end
 
   def test_should_get_error_if_command_missing
-    @params.delete(:command)
+    @nordea_generic_params.delete(:command)
 
     assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@params)
+      Sepa::SoapBuilder.new(@nordea_generic_params)
     end
   end
 
   def test_sender_id_is_properly_set
-    assert_equal @params[:customer_id],
+    assert_equal @nordea_generic_params[:customer_id],
       @doc.at('SenderId', 'xmlns' => @pkif).content
   end
 
   def test_customer_id_is_properly_set
-    assert_equal @params[:customer_id],
+    assert_equal @nordea_generic_params[:customer_id],
       @doc.at('CustomerId', 'xmlns' => @pkif).content
   end
 
@@ -61,7 +61,7 @@ class DanskeGetBankCertTest < ActiveSupport::TestCase
   end
 
   def test_bank_root_cert_serial_is_correctly_set
-    assert_equal @params[:bank_root_cert_serial],
+    assert_equal @nordea_generic_params[:bank_root_cert_serial],
       @doc.at('BankRootCertificateSerialNo', 'xmlns' => @elem).content
   end
 

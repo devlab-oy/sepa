@@ -1,4 +1,4 @@
-def get_params
+def nordea_generic_params
   cert = "-----BEGIN CERTIFICATE-----
 MIIDwTCCAqmgAwIBAgIEAX1JuTANBgkqhkiG9w0BAQUFADBkMQswCQYDVQQGEwJT
 RTEeMBwGA1UEChMVTm9yZGVhIEJhbmsgQUIgKHB1YmwpMR8wHQYDVQQDExZOb3Jk
@@ -55,7 +55,7 @@ Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
   }
 end
 
-def get_cert_params
+def nordea_cert_params
   csr = "-----BEGIN CERTIFICATE REQUEST-----
 MIIBczCB3QIBADA0MRIwEAYDVQQDEwlEZXZsYWIgT3kxETAPBgNVBAUTCDExMTEx
 MTExMQswCQYDVQQGEwJGSTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAo9wU
@@ -78,7 +78,7 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
   }
 end
 
-def get_danske_cert_params
+def danske_cert_params
   encryptpkcs = "-----BEGIN CERTIFICATE REQUEST-----
 MIICZjCCAU4CAQAwITESMBAGA1UEAxMJRGV2bGFiIE95MQswCQYDVQQGEwJGSTCC
 ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKN2ceFGw+i4wAyg6WApu7/h
