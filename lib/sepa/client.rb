@@ -162,8 +162,12 @@ module Sepa
       def check_target_id
         return unless command == :upload_file
 
-        if target_id.nil? || target_id.size > 80
-          errors.add(:target_id, TARGET_ID_ERROR_MESSAGE)
+        check_presence_and_length(:target_id, 80, TARGET_ID_ERROR_MESSAGE)
+      end
+
+      def check_presence_and_length(attribute, length, error_message)
+        if send(attribute).nil? || send(attribute).size > length
+          errors.add(attribute, error_message)
         end
       end
 
@@ -176,7 +180,7 @@ module Sepa
       def check_pin
         return unless command == :create_certificate
 
-        errors.add(:pin, PIN_ERROR_MESSAGE) if pin.nil? || pin.length > 10
+        check_presence_and_length(:pin, 10, PIN_ERROR_MESSAGE)
       end
 
       def check_bank_root_cert_serial
