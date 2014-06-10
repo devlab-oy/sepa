@@ -9,5 +9,6 @@ module Sepa
     ENCRYPTION_CERT_REQUEST_ERROR_MESSAGE = 'Invalid encryption certificate request'
     PIN_ERROR_MESSAGE = 'Pin needs to be present for this command and cannot be more than 10 characters'
     ENCRYPTION_CERT_ERROR_MESSAGE = 'Invalid encryption certificate'
+    STATUS_ERROR_MESSAGE = 'Status is required for this command and must be either NEW, DOWNLOADED or ALL'
   end
 end

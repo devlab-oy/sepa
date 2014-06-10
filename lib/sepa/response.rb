@@ -3,9 +3,9 @@ module Sepa
     include ActiveModel::Validations
     include Utilities
 
-    attr_reader :document, :certificate
+    attr_reader :soap, :application_response, :certificate, :content
 
-    validates :document, presence: true
+    validates :soap, presence: true
 
     validate :validate_document_format
     validate :document_must_validate_against_schema
@@ -13,10 +13,15 @@ module Sepa
     GENERIC_COMMANDS = [:get_user_info, :download_file_list, :download_file, :upload_file]
 
     def initialize(response, command:)
-      @document = response
+      @soap = response
+      @command = command
 
+      # Check if command is one of the generic commands which should behave the same way across
+      # different banks
       if GENERIC_COMMANDS.include? command
-        @certificate = extract_cert(document, 'BinarySecurityToken', 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd')
+        @certificate = extract_cert(soap, 'BinarySecurityToken', 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd')
+        @application_response = extract_application_response
+        @content = extract_content
       end
     end
 
@@ -25,7 +30,7 @@ module Sepa
     # i.e. verbose: true
     def hashes_match?(options = {})
       digests = find_digest_values
-      nodes = find_nodes_to_verify(document, digests)
+      nodes = find_nodes_to_verify(soap, digests)
 
       verified_digests = digests.select do |uri, digest|
         uri = uri.sub(/^#/, '')
@@ -49,14 +54,14 @@ module Sepa
     # Verifies the signature by extracting the public key from the certificate
     # embedded in the soap header and verifying the signature value with that.
     def signature_is_valid?
-      node = document.at_css('xmlns|SignedInfo', 'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
+      node = soap.at_css('xmlns|SignedInfo', 'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
 
       node = node.canonicalize(
         mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
         inclusive_namespaces = nil, with_comments = false
       )
 
-      signature = document.at_css(
+      signature = soap.at_css(
         'xmlns|SignatureValue',
         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
       ).content
@@ -69,7 +74,7 @@ module Sepa
     # Gets the application response from the response as an Nokogiri::XML
     # document
     def application_response
-      ar = document.at_css('mod|ApplicationResponse').content
+      ar = soap.at_css('mod|ApplicationResponse').content
       ar = Base64.decode64(ar)
       Nokogiri::XML(ar)
     end
@@ -80,7 +85,7 @@ module Sepa
       # a hash with uri as the key and digest as the value.
       def find_digest_values
         references = {}
-        reference_nodes = document.css(
+        reference_nodes = soap.css(
           'xmlns|Reference',
           'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
         )
@@ -118,13 +123,28 @@ module Sepa
       end
 
       def validate_document_format
-        unless document.respond_to?(:canonicalize)
+        unless soap.respond_to?(:canonicalize)
           errors.add(:base, 'Document must be a Nokogiri XML file')
         end
       end
 
       def document_must_validate_against_schema
-        check_validity_against_schema(document, 'soap.xsd')
+        check_validity_against_schema(soap, 'soap.xsd')
+      end
+
+      def extract_content
+        if @command == :download_file
+          content_node = Nokogiri::XML(@application_response).at_css('xmlns|Content', xmlns: 'http://bxd.fi/xmldata/')
+          Base64.decode64(content_node.content) if content_node
+        end
+      end
+
+      def extract_application_response
+        ar_node = soap.at_css('xmlns|ApplicationResponse', xmlns: 'http://model.bxd.fi')
+
+        if ar_node
+          Base64.decode64(soap.at_css('xmlns|ApplicationResponse', xmlns: 'http://model.bxd.fi').content)
+        end
       end
 
   end

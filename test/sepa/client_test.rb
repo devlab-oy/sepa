@@ -118,7 +118,7 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
-  test "target id is valid" do
+  test "should not be valid without target id" do
     wrong_ids = ["ready"*81, nil]
     @nordea_generic_params[:command] = :upload_file
 
@@ -169,11 +169,11 @@ class ClientTest < ActiveSupport::TestCase
     client = Sepa::Client.new(@nordea_generic_params)
     response = client.send_request
 
-    assert response.document.at_css('cor|getUserInfoin', cor: @cor)
+    assert response.soap.at_css('cor|getUserInfoin', cor: @cor)
 
     Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.document)
+      assert xsd.valid?(response.soap)
     end
   end
 
@@ -182,11 +182,11 @@ class ClientTest < ActiveSupport::TestCase
     client = Sepa::Client.new(@nordea_generic_params)
     response = client.send_request
 
-    assert response.document.at_css('cor|downloadFileListin', cor: @cor)
+    assert response.soap.at_css('cor|downloadFileListin', cor: @cor)
 
     Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.document)
+      assert xsd.valid?(response.soap)
     end
   end
 
@@ -195,11 +195,11 @@ class ClientTest < ActiveSupport::TestCase
     client = Sepa::Client.new(@nordea_generic_params)
     response = client.send_request
 
-    assert response.document.at_css('cor|downloadFilein', cor: @cor)
+    assert response.soap.at_css('cor|downloadFilein', cor: @cor)
 
     Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.document)
+      assert xsd.valid?(response.soap)
     end
   end
 
@@ -208,11 +208,11 @@ class ClientTest < ActiveSupport::TestCase
     client = Sepa::Client.new(@nordea_generic_params)
     response = client.send_request
 
-    assert response.document.at_css('cor|uploadFilein', cor: @cor)
+    assert response.soap.at_css('cor|uploadFilein', cor: @cor)
 
     Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.document)
+      assert xsd.valid?(response.soap)
     end
   end
 
@@ -224,11 +224,11 @@ class ClientTest < ActiveSupport::TestCase
     client = Sepa::Client.new(@nordea_cert_params)
     response = client.send_request
 
-    assert response.document.at_css('cer|getCertificatein')
+    assert response.soap.at_css('cer|getCertificatein')
 
     Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.document)
+      assert xsd.valid?(response.soap)
     end
   end
 

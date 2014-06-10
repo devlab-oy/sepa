@@ -11,12 +11,11 @@ module Sepa
 
     BANKS = [:nordea, :danske]
     LANGUAGES = ['FI', 'SE', 'EN']
-    STATUSES = ['NEW', 'DOWNLOADED', 'ALL']
 
     validates :bank, inclusion: { in: BANKS }
     validates :language, inclusion: { in: LANGUAGES }, allow_nil: true
-    validates :status, inclusion: { in: STATUSES }, allow_nil: true
 
+    validate :check_status
     validate :check_customer_id
     validate :check_file_type
     validate :check_environment
@@ -160,9 +159,9 @@ module Sepa
       end
 
       def check_target_id
-        return unless command == :upload_file
-
-        check_presence_and_length(:target_id, 80, TARGET_ID_ERROR_MESSAGE)
+        unless command == :get_certificate
+          check_presence_and_length(:target_id, 80, TARGET_ID_ERROR_MESSAGE)
+        end
       end
 
       def check_presence_and_length(attribute, length, error_message)
@@ -213,6 +212,16 @@ module Sepa
         return unless command == :create_certificate
 
         errors.add(:enc_cert, ENCRYPTION_CERT_ERROR_MESSAGE) unless enc_cert
+      end
+
+      def check_status
+        return if command == :get_certificate
+
+        statuses = ['NEW', 'DOWNLOADED', 'ALL']
+
+        unless status && statuses.include?(status)
+          errors.add :status, STATUS_ERROR_MESSAGE
+        end
       end
 
   end

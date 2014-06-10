@@ -13,8 +13,11 @@ class NordeaResponseTest < ActiveSupport::TestCase
     uf = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/uf.xml"))
     @uf = Sepa::Response.new(uf, command: :upload_file)
 
-    df = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/df.xml"))
-    @df = Sepa::Response.new(df, command: :download_file)
+    df_tito = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_tito.xml"))
+    @df_tito = Sepa::Response.new(df_tito, command: :download_file)
+
+    df_ktl = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_ktl.xml"))
+    @df_ktl = Sepa::Response.new(df_ktl, command: :download_file)
 
     gui = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/gui.xml"))
     @gui = Sepa::Response.new(gui, command: :get_user_info)
@@ -23,7 +26,7 @@ class NordeaResponseTest < ActiveSupport::TestCase
   def test_should_be_valid
     assert @dfl.valid?
     assert @uf.valid?
-    assert @df.valid?
+    assert @df_tito.valid?
     assert @gui.valid?
   end
 
@@ -41,7 +44,7 @@ class NordeaResponseTest < ActiveSupport::TestCase
     assert @gui.hashes_match?
     assert @dfl.hashes_match?
     assert @uf.hashes_match?
-    assert @df.hashes_match?
+    assert @df_tito.hashes_match?
   end
 
   def test_cert_check_should_work
@@ -53,11 +56,21 @@ class NordeaResponseTest < ActiveSupport::TestCase
 
   def test_signature_check_should_work
     assert @dfl.signature_is_valid?
-    @dfl.document.at_css(
+    @dfl.soap.at_css(
         'xmlns|SignatureValue',
         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
       ).content = "kissa"
     refute @dfl.signature_is_valid?
+  end
+
+  # tito: Electronic account statement
+  def test_content_can_be_extracted_when_file_type_is_tito
+    refute_nil @df_tito.content
+  end
+
+  # ktl: Incoming reference payments
+  def test_content_can_be_extracted_when_file_type_is_ktl
+    refute_nil @df_ktl.content
   end
 
 end
