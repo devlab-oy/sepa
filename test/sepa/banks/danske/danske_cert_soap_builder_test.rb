@@ -65,13 +65,6 @@ CsajqZag/Aoxv/Y=
     @xenc = 'http://www.w3.org/2001/04/xmlenc#'
   end
 
-  def test_get_certificate_soap_template_is_unmodified
-    sha1 = OpenSSL::Digest::SHA1.new
-    template = File.read("#{SOAP_TEMPLATE_PATH}/create_certificate.xml")
-    digest = Base64.encode64(sha1.digest(template)).strip
-    assert_equal digest, "7xfCxrQo+BxrOYVmY/EV9lkhY7Y="
-  end
-
   def test_should_raise_error_if_command_missing
     @params.delete(:command)
 

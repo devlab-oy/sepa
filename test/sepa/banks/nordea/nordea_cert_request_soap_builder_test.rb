@@ -8,14 +8,6 @@ class NordeaCertRequestSoapBuilderTest < ActiveSupport::TestCase
     @xml = Nokogiri::XML(@certrequest.to_xml)
   end
 
-  def test_that_get_certificate_soap_template_is_unmodified
-    sha1 = OpenSSL::Digest::SHA1.new
-    template = File.read("#{SOAP_TEMPLATE_PATH}/get_certificate.xml")
-    digest = Base64.encode64(sha1.digest(template)).strip
-
-    assert_equal digest, "iYJcoQAlXZj5Pp9vLlSROXxY3+k="
-  end
-
   def test_should_initialize_with_proper_params
     assert Sepa::SoapBuilder.new(@params)
   end

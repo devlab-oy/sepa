@@ -8,13 +8,6 @@ class NordeaCertApplicationRequestTest < ActiveSupport::TestCase
     @xml = Nokogiri::XML(ar_cert.to_xml)
   end
 
-  def test_that_xml_template_is_unmodified
-    sha1 = OpenSSL::Digest::SHA1.new
-    get_certificate_template = File.read("#{AR_TEMPLATE_PATH}/get_certificate.xml")
-    digest = Base64.encode64(sha1.digest(get_certificate_template)).strip
-    assert_equal digest, "mpoY4dd4XW5HskkoRxqtVEM+Tts="
-  end
-
   def test_schemas_are_unmodified
     sha1 = OpenSSL::Digest::SHA1.new
     cert_schema = File.read("#{SCHEMA_PATH}/cert_application_request.xsd")

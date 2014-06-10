@@ -12,46 +12,6 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
     @doc = Nokogiri::XML(@soap_request.to_xml)
   end
 
-  def test_get_user_info_template_is_unmodified
-    sha1 = OpenSSL::Digest::SHA1.new
-    template = File.read("#{SOAP_TEMPLATE_PATH}/get_user_info.xml")
-    digest = Base64.encode64(sha1.digest(template)).strip
-
-    assert_equal digest, "A1UYZTOycIBHAY/70Q5G3lNjQBo="
-  end
-
-  def test_download_file_list_template_is_unmodified
-    sha1 = OpenSSL::Digest::SHA1.new
-    template = File.read("#{SOAP_TEMPLATE_PATH}/download_file_list.xml")
-    digest = Base64.encode64(sha1.digest(template)).strip
-
-    assert_equal digest, "+3UaQMgseUUn5OKUp/PTHl/BNFE="
-  end
-
-  def test_download_file_template_is_unmodified
-    sha1 = OpenSSL::Digest::SHA1.new
-    template = File.read("#{SOAP_TEMPLATE_PATH}/download_file.xml")
-    digest = Base64.encode64(sha1.digest(template)).strip
-
-    assert_equal digest, "HSWQCmwOsMdPJP3erjksi/Sz7hE="
-  end
-
-  def test_upload_file_template_is_unmodified
-    sha1 = OpenSSL::Digest::SHA1.new
-    template = File.read("#{SOAP_TEMPLATE_PATH}/upload_file.xml")
-    digest = Base64.encode64(sha1.digest(template)).strip
-
-    assert_equal digest, "hdbglkugI1pzkeetqKIh2WBDkFM="
-  end
-
-  def test_header_template_is_unmodified
-    sha1 = OpenSSL::Digest::SHA1.new
-    template = File.read("#{SOAP_TEMPLATE_PATH}/header.xml")
-    digest = Base64.encode64(sha1.digest(template)).strip
-
-    assert_equal digest, "aPSrGOlBkyIf+Vkj205ysDbLIko="
-  end
-
   def test_should_get_error_if_command_missing
     @params.delete(:command)
 

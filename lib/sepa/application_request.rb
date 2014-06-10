@@ -110,7 +110,7 @@ module Sepa
 
       def hmac
         return "" if @pin.nil? || @csr.nil?
-        OpenSSL::HMAC.digest('sha1', @pin, @csr).chop
+        Base64.encode64(OpenSSL::HMAC.digest('sha1', @pin, @csr).chop)
       end
 
       def remove_node(node, xmlns)
