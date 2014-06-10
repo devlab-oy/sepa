@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class CertApplicationRequestTest < ActiveSupport::TestCase
+class NordeaCertApplicationRequestTest < ActiveSupport::TestCase
 
   def setup
     @params = get_cert_params

@@ -20,5 +20,5 @@ end
 require 'sepafm'
 require 'sepa/fixtures'
 
-TEST_RESPONSE_PATH = "#{ROOT_PATH}/test/sepa/test_files/test_responses"
+NORDEA_TEST_RESPONSE_PATH = "#{ROOT_PATH}/test/sepa/banks/nordea/responses"
 I18n.enforce_available_locales = true

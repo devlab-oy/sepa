@@ -1,22 +1,22 @@
 require 'test_helper'
 
-class ApplicationResponseTest < ActiveSupport::TestCase
+class NordeaApplicationResponseTest < ActiveSupport::TestCase
 
   def setup
-    keys_path = File.expand_path('../nordea_test_keys', __FILE__)
+    keys_path = File.expand_path('../keys', __FILE__)
     @root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/root_cert.cer")
     @not_root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/nordea.crt")
 
-    @dfl = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/dfl.xml"))
+    @dfl = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/dfl.xml"))
     @dfl = Sepa::Response.new(@dfl, command: :download_file_list).application_response
 
-    @uf = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/uf.xml"))
+    @uf = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/uf.xml"))
     @uf = Sepa::Response.new(@uf, command: :upload_file).application_response
 
-    @df = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/df.xml"))
+    @df = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/df.xml"))
     @df = Sepa::Response.new(@df, command: :download_file).application_response
 
-    @gui = Nokogiri::XML(File.read("#{TEST_RESPONSE_PATH}/gui.xml"))
+    @gui = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/gui.xml"))
     @gui = Sepa::Response.new(@gui, command: :get_user_info).application_response
 
     @dfl_ar = Sepa::ApplicationResponse.new(@dfl)

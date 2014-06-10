@@ -3,7 +3,7 @@ require 'test_helper'
 class DanskeCertSoapBuilderTest < ActiveSupport::TestCase
 
   def setup
-    keys_path = File.expand_path('../danske_test_keys', __FILE__)
+    keys_path = File.expand_path('../keys', __FILE__)
 
     encryptpkcs = "-----BEGIN CERTIFICATE REQUEST-----
 MIICdzCCAV8CAQEwMjEPMA0GA1UEAwwGaGVtdWxpMR8wHQYKCZImiZPyLGQBGRYP

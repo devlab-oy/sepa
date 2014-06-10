@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class TestApplicationRequest < ActiveSupport::TestCase
+class NordeaApplicationRequestTest < ActiveSupport::TestCase
 
   def setup
     @params = get_params
@@ -237,7 +237,7 @@ class TestApplicationRequest < ActiveSupport::TestCase
     ).content
 
     # Calculate the actual signature
-    keys_path = File.expand_path('../nordea_test_keys', __FILE__)
+    keys_path = File.expand_path('../keys', __FILE__)
     private_key = OpenSSL::PKey::RSA.new(File.read("#{keys_path}/nordea.key"))
 
     sha1 = OpenSSL::Digest::SHA1.new

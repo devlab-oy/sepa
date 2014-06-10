@@ -3,7 +3,7 @@ require 'test_helper'
 class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
 
   def setup
-    keys_path = File.expand_path('../danske_test_keys', __FILE__)
+    keys_path = File.expand_path('../keys', __FILE__)
 
     private_key_path = "#{keys_path}/signing_private_key.pem"
     private_key = File.read private_key_path

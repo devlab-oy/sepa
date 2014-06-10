@@ -3,7 +3,7 @@ require 'test_helper'
 class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
 
   def setup
-    keys_path = File.expand_path('../nordea_test_keys', __FILE__)
+    keys_path = File.expand_path('../keys', __FILE__)
     private_key = OpenSSL::PKey::RSA.new File.read "#{keys_path}/nordea.key"
     cert = OpenSSL::X509::Certificate.new File.read "#{keys_path}/nordea.crt"
 
