@@ -78,6 +78,15 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
   }
 end
 
+def danske_get_bank_cert_params
+  {
+      bank: :danske,
+      command: :get_bank_certificate,
+      bank_root_cert_serial: '1111110002',
+      customer_id: '360817',
+  }
+end
+
 def danske_cert_params
   encryptpkcs = "-----BEGIN CERTIFICATE REQUEST-----
 MIICZjCCAU4CAQAwITESMBAGA1UEAxMJRGV2bGFiIE95MQswCQYDVQQGEwJGSTCC
