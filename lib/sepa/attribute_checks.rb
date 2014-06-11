@@ -148,7 +148,7 @@ module Sepa
     end
 
     def check_status
-      return if [:get_certificate, :create_certificate, :get_bank_certificate].include? command
+      return unless command == :download_file_list
 
       statuses = ['NEW', 'DOWNLOADED', 'ALL']
 

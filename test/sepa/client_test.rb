@@ -112,6 +112,7 @@ class ClientTest < ActiveSupport::TestCase
     wrong_statuses = ["ready", 'steady', 5, :nipsu]
 
     wrong_statuses.each do |wrong_status|
+      @nordea_generic_params[:command] = :download_file_list
       @nordea_generic_params[:status] = wrong_status
       sepa = Sepa::Client.new @nordea_generic_params
       refute sepa.valid?, sepa.errors.messages
