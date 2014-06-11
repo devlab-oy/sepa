@@ -1,62 +1,11 @@
 require 'test_helper'
 
 class DanskeCertSoapBuilderTest < ActiveSupport::TestCase
-
   def setup
-    keys_path = File.expand_path('../keys', __FILE__)
+    @create_cert_params = danske_create_cert_params
 
-    encryptpkcs = "-----BEGIN CERTIFICATE REQUEST-----
-MIICdzCCAV8CAQEwMjEPMA0GA1UEAwwGaGVtdWxpMR8wHQYKCZImiZPyLGQBGRYP
-bnV1c2thbXVpa2t1bmVuMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
-5aHmVXcfogDqJ3kUfK8ARzdkQ/dm9j4rHbGNh4xmlKCMUwCmmo2LOKMKvviD7qwz
-n1lDsPIClbmZaxc3vFlpNj5A6YVg7SpCU/Cx9RtTY+2vWQF29RWw5UktPDALIRNC
-boKuNykWqbWhwW80YOO3MXlASw2EF2nfsxLGXNmiB7kKaxPrTsNV9CO4rVIrYJj5
-2+1MZSEhEQn9H9VrKgCNlDN/6LCs/TnSC7Np1jOTjo5Nen95afE0KUEbSnMw8Ihw
-ymOFF0zgxiCQ1kme5fYXqCZZJOU+zS3pKO/LdnULu6/uJ1D0JWjIwWBqEwTwMqhj
-NnsJaoJiJJnQtuFcVIhXEQIDAQABoAAwDQYJKoZIhvcNAQEFBQADggEBAAlVfy+G
-GUPYnTfrRoBvgSMz5dR7rynQe5wxHWTtk71xbODSIZNFUntYa4tSAzaIEp65FxTj
-WyGlBZcdzCPd39DJtfxeiZ8q4UKx47VCt4jIzOSpM2jvGzlUpHnm2Eh9rQHqMRye
-C4T49gWBEqsTvZL+hWE9dAQq4Y+P3h9UWr49bMQNbSxERw3fDzWvcEJsSq+4Ml12
-+sPV+Euz5phCzqt15v+6jfqlEgGj27k3MlF+EglX0BWduGw4RxfoOdGQNBwdXPkz
-db1f0XsYTW1NUYoL8O8uxzoNcysyBW/VGP01e2LXB8whWn4xtDtaLpyt/v4ow04V
-9v3lfL5ZDl1gIEY=
------END CERTIFICATE REQUEST-----"
-
-    signingpkcs = "-----BEGIN CERTIFICATE REQUEST-----
-MIICdzCCAV8CAQEwMjEPMA0GA1UEAwwGaGVtdWxpMR8wHQYKCZImiZPyLGQBGRYP
-bnV1c2thbXVpa2t1bmVuMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
-y4zgajeMzFrBR4zsJ50qo4fxHWfjdCmI5nwLbKqKhSKB15JBdRmh/Wz0Gi1qOvER
-x9wS5c/1pMr1ARcVUvz2425ZNV77AAQMGUZpLxP9N6QWK39u4VemoecdPfNYv/tt
-qk1cJFO1aNNmIMrDzBZEzQH/Mf4QbiqsaSvuVay8mjVEW3she4FbcrhNnhlm3PS7
-XOm0UF2TiCjrM4enCI2XhTzKnSxONiM8KubKEAEOXPDAYGRwn+dik30qYwT5kMbG
-tzggHPsiwkBUDEcNeMuMGRKNxP3i03DA4wGSJZu3A61TcYVLihj9hEDnybe7Dw0h
-eNmyqoqp/0gr89rxlAANNwIDAQABoAAwDQYJKoZIhvcNAQEFBQADggEBAEbyXe6f
-aBGbaSldlIceYyxIXVqBRwVuE22vvk6to1f+QYrWj+4IexD0TBdfpcpKATnOjqEH
-sbksB0HOKZmFDCqNZamw1458DtdtSPpOn5EyX9BX6K2hExmj5CV1vEORB8dQ4lBi
-zjrpAOh422NQ3galu1vfrPVvRS8lN4t+zJUlBoCUwPlm5AmH88dJCXDHTxDrwxxv
-6UPUROxE2p+1TyHueUmfMKvjySnt8IIfoEvz4q/EouIbL2lDJwXOwX+1fx4Rva6t
-bx1hmt5Eihy1lORQR4PE4xaOP5TCqtxP0+snuGqRuBHhrDk4mowWEJbvFWlONT5H
-CsajqZag/Aoxv/Y=
------END CERTIFICATE REQUEST-----"
-
-    @enc_cert = File.read "#{keys_path}/own_enc_cert.pem"
-    @enc_private_key = OpenSSL::PKey::RSA.new File.read("#{keys_path}/enc_private_key.pem")
-
-    @nordea_generic_params = {
-      bank: :danske,
-      enc_cert: OpenSSL::X509::Certificate.new(@enc_cert),
-      command: :create_certificate,
-      customer_id: '360817',
-      environment: 'customertest',
-      key_generator_type: 'software',
-      encryption_cert_pkcs10: OpenSSL::X509::Request.new(encryptpkcs),
-      signing_cert_pkcs10: OpenSSL::X509::Request.new(signingpkcs),
-      pin: '1234',
-      request_id: SecureRandom.hex(5)
-    }
-
-    @cert_request = Sepa::SoapBuilder.new(@nordea_generic_params)
-
+    @cert_request = Sepa::SoapBuilder.new(@create_cert_params)
+    @enc_private_key = OpenSSL::PKey::RSA.new File.read("#{DANSKE_TEST_KEYS_PATH}/enc_private_key.pem")
     @doc = Nokogiri::XML(@cert_request.to_xml)
 
     # Namespaces
@@ -66,21 +15,21 @@ CsajqZag/Aoxv/Y=
   end
 
   def test_should_raise_error_if_command_missing
-    @nordea_generic_params.delete(:command)
+    @create_cert_params.delete(:command)
 
     assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@nordea_generic_params)
+      Sepa::SoapBuilder.new(@create_cert_params)
     end
   end
 
   def test_sender_id_is_properly_set
     sender_id = @doc.at("SenderId", "xmlns" => @pkif).content
-    assert_equal sender_id, @nordea_generic_params[:customer_id]
+    assert_equal sender_id, @create_cert_params[:customer_id]
   end
 
   def test_customer_id_is_properly_set
     customer_id = @doc.at("CustomerId", "xmlns" => @pkif).content
-    assert_equal customer_id, @nordea_generic_params[:customer_id]
+    assert_equal customer_id, @create_cert_params[:customer_id]
   end
 
   def test_request_id_is_properly_set
@@ -107,7 +56,7 @@ CsajqZag/Aoxv/Y=
   def test_certificate_is_added_properly
     embedded_cert = @doc.at("X509Certificate", 'xmlns' => @dsig).content.gsub(/\s+/, "")
 
-    actual_cert = @enc_cert
+    actual_cert = @create_cert_params[:enc_cert]
     actual_cert = actual_cert.split('-----BEGIN CERTIFICATE-----')[1]
     actual_cert = actual_cert.split('-----END CERTIFICATE-----')[0]
     actual_cert.gsub!(/\s+/, "")

@@ -42,7 +42,7 @@ module Sepa
     end
 
     def send_request
-      raise ArgumentError unless valid?
+      raise ArgumentError, errors.messages unless valid?
 
       soap = SoapBuilder.new(create_hash).to_xml
 
@@ -61,12 +61,18 @@ module Sepa
     private
 
       def create_hash
+        initialize_private_key
+
         # Create hash of all instance variables
         iv = instance_variables.map do |name|
           [ name[1..-1].to_sym, instance_variable_get(name) ]
         end
 
         iv.to_h
+      end
+
+      def initialize_private_key
+        @private_key = OpenSSL::PKey::RSA.new(@private_key) if @private_key
       end
 
       def allowed_commands
@@ -159,9 +165,9 @@ module Sepa
       end
 
       def check_target_id
-        unless command == :get_certificate
-          check_presence_and_length(:target_id, 80, TARGET_ID_ERROR_MESSAGE)
-        end
+        return if [:get_certificate, :create_certificate].include? command
+
+        check_presence_and_length(:target_id, 80, TARGET_ID_ERROR_MESSAGE)
       end
 
       def check_presence_and_length(attribute, length, error_message)
@@ -215,7 +221,7 @@ module Sepa
       end
 
       def check_status
-        return if command == :get_certificate
+        return if [:get_certificate, :create_certificate].include? command
 
         statuses = ['NEW', 'DOWNLOADED', 'ALL']
 

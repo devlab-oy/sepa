@@ -3,11 +3,13 @@ require 'test_helper'
 class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
 
   def setup
-    keys_path = File.expand_path('../keys', __FILE__)
-    private_key = OpenSSL::PKey::RSA.new File.read "#{keys_path}/nordea.key"
-    cert = OpenSSL::X509::Certificate.new File.read "#{keys_path}/nordea.crt"
-
     @nordea_generic_params = nordea_generic_params
+
+    # Convert the keys here since the conversion is usually done by the client and these tests
+    # bypass the client
+    @nordea_generic_params[:private_key] = OpenSSL::PKey::RSA.new @nordea_generic_params[:private_key]
+    @nordea_generic_params[:cert] = OpenSSL::X509::Certificate.new @nordea_generic_params[:cert]
+
     @soap_request = Sepa::SoapBuilder.new(@nordea_generic_params)
     @doc = Nokogiri::XML(@soap_request.to_xml)
   end

@@ -29,6 +29,12 @@ module Sepa
       cert.gsub!(/\s+/, "")
     end
 
+    def format_cert_request(cert_request)
+      cert_request = cert_request.split('-----BEGIN CERTIFICATE REQUEST-----')[1]
+      cert_request = cert_request.split('-----END CERTIFICATE REQUEST-----')[0]
+      cert_request.gsub!(/\s+/, "")
+    end
+
     def check_validity_against_schema(doc, schema)
       Dir.chdir(SCHEMA_PATH) do
         xsd = Nokogiri::XML::Schema(IO.read(schema))

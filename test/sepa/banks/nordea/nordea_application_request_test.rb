@@ -1,9 +1,14 @@
 require 'test_helper'
 
 class NordeaApplicationRequestTest < ActiveSupport::TestCase
-
   def setup
     @nordea_generic_params = nordea_generic_params
+
+    # Convert the keys here since the conversion is usually done by the client and these tests
+    # bypass the client
+    @nordea_generic_params[:private_key] = OpenSSL::PKey::RSA.new @nordea_generic_params[:private_key]
+    @nordea_generic_params[:cert] = OpenSSL::X509::Certificate.new @nordea_generic_params[:cert]
+
     ar_file = Sepa::SoapBuilder.new(@nordea_generic_params).ar
 
     @nordea_generic_params[:command] = :get_user_info
