@@ -148,7 +148,7 @@ module Sepa
     end
 
     def check_status
-      return unless command == :download_file_list
+      return unless [:download_file_list, :download_file].include? command
 
       statuses = ['NEW', 'DOWNLOADED', 'ALL']
 
