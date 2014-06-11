@@ -198,7 +198,7 @@ bx1hmt5Eihy1lORQR4PE4xaOP5TCqtxP0+snuGqRuBHhrDk4mowWEJbvFWlONT5H
 CsajqZag/Aoxv/Y=
 -----END CERTIFICATE REQUEST-----"
 
-  enc_cert = File.read "#{DANSKE_TEST_KEYS_PATH}/own_enc_cert.pem"
+  enc_cert = File.read "#{DANSKE_TEST_KEYS_PATH}own_enc_cert.pem"
 
   {
       bank: :danske,
