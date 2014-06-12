@@ -1,134 +1,29 @@
 module Sepa
   class Response
-    def initialize(response)
-      unless response.respond_to?(:canonicalize)
-        @response = Nokogiri::XML(response.to_xml)
-      else
-        @response = response
-      end
+    include ActiveModel::Validations
+    include Utilities
 
-      if !@response.respond_to?(:canonicalize)
-        fail ArgumentError,
-          "The response you provided is not a valid Nokogiri::XML file."
-      elsif !valid_against_schema?(@response)
-        fail ArgumentError,
-          "The response you provided doesn't validate against soap schema."
-      end
-    end
+    attr_reader :soap, :application_response, :certificate, :content
 
-    # Returns the x509 certificate embedded in the soap as an
-    # OpenSSL::X509::Certificate
-    def certificate
-      cert_value = @response.at(
-        'wsse|BinarySecurityToken',
-        'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-ws' \
-        'security-secext-1.0.xsd'
-      ).content.gsub(/\s+/, "")
+    validates :soap, presence: true
 
-      cert = process_cert_value(cert_value)
+    validate :validate_document_format
+    validate :document_must_validate_against_schema
 
-      begin
-        cert = OpenSSL::X509::Certificate.new(cert)
-      rescue => e
-        fail OpenSSL::X509::CertificateError,
-          "The certificate embedded to the soap response could not be process" \
-          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
-          end
-    end
+    GENERIC_COMMANDS = [:get_user_info, :download_file_list, :download_file, :upload_file]
 
-    def danske_bank_encryption_cert
-      cert = @response.at(
-        'BankEncryptionCert',
-        'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
-      ).content.gsub(/\s+/, "")
+    def initialize(response, command: nil)
+      @soap = response
+      @command = command
 
-      cert = process_cert_value(cert)
+      # Check if command is one of the generic commands which should behave the same way across
+      # different banks
+      if GENERIC_COMMANDS.include? command
+        xsd = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
 
-      begin
-        cert = OpenSSL::X509::Certificate.new(cert)
-      rescue => e
-        fail OpenSSL::X509::CertificateError,
-          "The certificate embedded to the soap response could not be process" \
-          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
-          end
-    end
-
-    def danske_bank_signing_cert
-      cert = @response.at(
-        'BankSigningCert',
-        'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
-      ).content.gsub(/\s+/, "")
-
-      cert = process_cert_value(cert)
-
-      begin
-        cert = OpenSSL::X509::Certificate.new(cert)
-      rescue => e
-        fail OpenSSL::X509::CertificateError,
-          "The certificate embedded to the soap response could not be process" \
-          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
-          end
-    end
-
-    def danske_bank_root_cert
-      cert = @response.at(
-        'BankRootCert',
-        'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
-      ).content.gsub(/\s+/, "")
-
-      cert = process_cert_value(cert)
-
-      begin
-        cert = OpenSSL::X509::Certificate.new(cert)
-      rescue => e
-        fail OpenSSL::X509::CertificateError,
-          "The certificate embedded to the soap response could not be process" \
-          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
-          end
-    end
-
-    def own_encryption_cert
-      cert = @response.at(
-        'EncryptionCert',
-        'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
-      ).content.gsub(/\s+/, "")
-
-      cert = process_cert_value(cert)
-
-      begin
-        cert = OpenSSL::X509::Certificate.new(cert)
-      rescue => e
-        fail OpenSSL::X509::CertificateError,
-          "The certificate embedded to the soap response could not be process" \
-          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
-          end
-    end
-
-    def own_signing_cert
-      cert = @response.at(
-        'SigningCert',
-        'xmlns' => 'http://danskebank.dk/PKI/PKIFactoryService/elements'
-      ).content.gsub(/\s+/, "")
-
-      cert = process_cert_value(cert)
-
-      begin
-        cert = OpenSSL::X509::Certificate.new(cert)
-      rescue => e
-        fail OpenSSL::X509::CertificateError,
-          "The certificate embedded to the soap response could not be process" \
-          "ed. It's most likely corrupted. OpenSSL had this to say: #{e}."
-          end
-    end
-
-    # Verifies that the soap's certificate is trusted.
-    def cert_is_trusted?(root_cert)
-      if root_cert.subject == certificate.issuer
-        certificate.verify(root_cert.public_key)
-      else
-        fail SecurityError,
-          "The issuer of the certificate doesn't match the subject of the roo" \
-          "t certificate."
+        @application_response = extract_application_response('http://model.bxd.fi')
+        @certificate = extract_cert(soap, 'BinarySecurityToken', xsd)
+        @content = extract_content
       end
     end
 
@@ -136,42 +31,39 @@ module Sepa
     # Takes an optional verbose parameter to show which digests didn't match
     # i.e. verbose: true
     def hashes_match?(options = {})
-      digests = find_digest_values(@response)
-      nodes = find_nodes_to_verify(@response, digests)
+      digests = find_digest_values
+      nodes = find_nodes_to_verify(soap, digests)
 
       verified_digests = digests.select do |uri, digest|
         uri = uri.sub(/^#/, '')
         digest == nodes[uri]
       end
 
-      if digests == verified_digests
-        true
-      else
-        unverified_digests = digests.select do |uri, digest|
-          uri = uri.sub(/^#/, '')
-          digest != nodes[uri]
-        end
+      return true if digests == verified_digests
 
-        if options[:verbose]
-          puts "These digests failed to verify: #{unverified_digests}."
-        end
-
-        false
+      unverified_digests = digests.select do |uri, digest|
+        uri = uri.sub(/^#/, '')
+        digest != nodes[uri]
       end
+
+      if options[:verbose]
+        puts "These digests failed to verify: #{unverified_digests}."
+      end
+
+      false
     end
 
     # Verifies the signature by extracting the public key from the certificate
     # embedded in the soap header and verifying the signature value with that.
     def signature_is_valid?
-      node = @response.at_css('xmlns|SignedInfo',
-                              'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
+      node = soap.at_css('xmlns|SignedInfo', 'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
 
       node = node.canonicalize(
-        mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
-        inclusive_namespaces=nil,with_comments=false
+        mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
+        inclusive_namespaces = nil, with_comments = false
       )
 
-      signature = @response.at_css(
+      signature = soap.at_css(
         'xmlns|SignatureValue',
         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
       ).content
@@ -184,7 +76,7 @@ module Sepa
     # Gets the application response from the response as an Nokogiri::XML
     # document
     def application_response
-      ar = @response.at_css('mod|ApplicationResponse').content
+      ar = soap.at_css('mod|ApplicationResponse').content
       ar = Base64.decode64(ar)
       Nokogiri::XML(ar)
     end
@@ -193,9 +85,9 @@ module Sepa
 
       # Finds all reference nodes with digest values in the document and returns
       # a hash with uri as the key and digest as the value.
-      def find_digest_values(doc)
+      def find_digest_values
         references = {}
-        reference_nodes = @response.css(
+        reference_nodes = soap.css(
           'xmlns|Reference',
           'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
         )
@@ -217,12 +109,14 @@ module Sepa
       # references hash.
       def find_nodes_to_verify(doc, references)
         nodes = {}
+
         references.each do |uri, digest_value|
           uri = uri.sub(/^#/, '')
+          wsu = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
+
           node = doc.at_css(
-            "[wsu|Id='" + uri + "']",
-            'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss' \
-            '-wssecurity-utility-1.0.xsd'
+            "[wsu|Id='#{uri}']",
+            'wsu' => wsu
           )
 
           nodes[uri] = calculate_digest(node)
@@ -231,36 +125,40 @@ module Sepa
         nodes
       end
 
-      def calculate_digest(node)
-        sha1 = OpenSSL::Digest::SHA1.new
-
-        canon_node = node.canonicalize(
-          mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
-          inclusive_namespaces=nil,with_comments=false
-        )
-
-        Base64.encode64(sha1.digest(canon_node)).gsub(/\s+/, "")
-      end
-
-      # Checks that the response is valid against soap schema.
-      def valid_against_schema?(doc)
-        schemas_path = File.expand_path('../../../lib/sepa/xml_schemas',
-                                        __FILE__)
-
-        Dir.chdir(schemas_path) do
-          xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-          xsd.valid?(doc)
+      def validate_document_format
+        unless soap.respond_to?(:canonicalize)
+          errors.add(:base, 'Document must be a Nokogiri XML file')
         end
       end
 
-      # Takes the certificate from the response, adds begin and end
-      # certificate texts and splits it into multiple lines so that OpenSSL
-      # can read it.
-      def process_cert_value(cert_value)
-        cert = "-----BEGIN CERTIFICATE-----\n"
-        cert += cert_value.to_s.gsub(/\s+/, "").scan(/.{1,64}/).join("\n")
-        cert += "\n"
-        cert += "-----END CERTIFICATE-----"
+      def document_must_validate_against_schema
+        check_validity_against_schema(soap, 'soap.xsd')
       end
+
+      def extract_content
+        xml = Nokogiri::XML(@application_response)
+        xmlns = 'http://bxd.fi/xmldata/'
+
+        case @command
+        when :download_file
+          content_node = xml.at_css('xmlns|Content', xmlns: xmlns)
+          Base64.decode64(content_node.content) if content_node
+        when :download_file_list
+          xml.css('xmlns|FileDescriptor', xmlns: xmlns).to_s
+        when :get_user_info
+          xml.css('xmlns|UserFileTypes', xmlns: xmlns).to_s
+        end
+      end
+
+      def extract_application_response(namespace)
+        if soap.respond_to? :at_css
+          ar_node = soap.at_css('xmlns|ApplicationResponse', xmlns: namespace)
+        end
+
+        if ar_node
+          Base64.decode64(ar_node.content)
+        end
+      end
+
   end
 end

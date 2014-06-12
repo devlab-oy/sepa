@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:cer="http://bxd.fi/CertificateService">
 <soapenv:Header/>
 <soapenv:Body>

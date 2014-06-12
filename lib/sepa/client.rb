@@ -1,79 +1,82 @@
 module Sepa
   class Client
-    # Check that parameters are valid, initialize savon client with them and
-    # construct soap message
-    def initialize(params)
-      check_params_hash(params)
-      check_bank(params.fetch(:bank))
-      bank = params.fetch(:bank)
+    include ActiveModel::Validations
+    include Utilities
+    include ErrorMessages
+    include AttributeChecks
 
-      wsdl = find_proper_wsdl(bank, params.fetch(:command))
+    attr_accessor :bank, :cert, :command, :content, :customer_id, :enc_cert,
+                  :encryption_cert_pkcs10, :environment, :file_reference,
+                  :file_type, :key_generator_type, :language, :pin, :private_key,
+                  :signing_cert_pkcs10, :status, :target_id, :csr, :service, :bank_root_cert_serial
 
-      @client = Savon.client(wsdl: wsdl, pretty_print_xml: true) #log_level: :info
-      @command = params.fetch(:command)
-      # SoapBuilder creates a complete SOAP message structure
-      @soap = SoapBuilder.new(params).to_xml
+    BANKS = [:nordea, :danske]
+    LANGUAGES = ['FI', 'SE', 'EN']
+
+    validates :bank, inclusion: { in: BANKS }
+    validates :language, inclusion: { in: LANGUAGES }, allow_nil: true
+
+    validate :check_status
+    validate :check_customer_id
+    validate :check_file_type
+    validate :check_environment
+    validate :check_target_id
+    validate :check_content
+    validate :check_pin
+    validate :check_command
+    validate :check_wsdl
+    validate :check_keys
+    validate :check_enc_cert
+    validate :check_encryption_cert_request
+    validate :check_signing_cert
+    validate :check_bank_root_cert_serial
+
+    def initialize(hash = {})
+      self.attributes hash
+      self.environment ||= 'PRODUCTION'
     end
 
-    # Call savon to make the soap request with the correct command and the
-    # the constructed soap. The returned object will be a savon response.
-    def send
-      @client.call(@command, xml: @soap)
+    def attributes(hash)
+      hash.each do |name, value|
+        send("#{name}=", value)
+      end
+    end
+
+    def send_request
+      raise ArgumentError, errors.messages unless valid?
+
+      soap = SoapBuilder.new(create_hash).to_xml
+      client = Savon.client(wsdl: wsdl)
+      response = client.call(command, xml: soap).doc
+
+      case bank
+      when :nordea
+        NordeaResponse.new response, command: command
+      when :danske
+        DanskeResponse.new response, command: command
+      end
     end
 
     private
 
-      def check_bank(bank)
-        unless [:nordea, :danske].include?(bank)
-          fail ArgumentError, "You didn't provide a proper bank. " \
-            "Acceptable values are nordea OR danske."
+      def create_hash
+        initialize_private_key
+        iv = {}
+
+        # Create hash of all instance variables
+        instance_variables.map do |name|
+          key = name[1..-1].to_sym
+          value = instance_variable_get(name)
+
+          iv[key] = value
         end
+
+        iv
       end
 
-      def find_proper_wsdl(bank, command)
-        wsdlpath = File.expand_path('../../../lib/sepa/wsdl', __FILE__)
-        case bank
-        when :nordea
-          if command == :get_certificate
-            path = "#{wsdlpath}/wsdl_nordea_cert.xml"
-          else
-            path = "#{wsdlpath}/wsdl_nordea.xml"
-          end
-        when :danske
-          if command == :get_bank_certificate || command == :create_certificate
-            path = "#{wsdlpath}/wsdl_danske_cert.xml"
-          else
-            path = "#{wsdlpath}/wsdl_danske.xml"
-          end
-        end
-        check_wsdl(path)
-        path
+      def initialize_private_key
+        @private_key = OpenSSL::PKey::RSA.new(@private_key) if @private_key
       end
 
-      def check_params_hash(params)
-        unless params.respond_to?(:each_pair)
-          fail ArgumentError, "You didn't provide a proper hash"
-        end
-      end
-
-      def check_wsdl(wsdl)
-        schema_file = File.expand_path('../../../lib/sepa/xml_schemas/wsdl.xml',
-                                       __FILE__)
-        xsd = Nokogiri::XML::Schema(File.read(schema_file))
-
-        begin
-          wsdl_file = File.read(wsdl)
-        rescue
-          fail ArgumentError, "You didn't provide a wsdl file or the path is " \
-            "invalid"
-        end
-
-        wsdl = Nokogiri::XML(wsdl_file)
-
-        unless xsd.valid?(wsdl)
-          fail ArgumentError, "The wsdl file provided doesn't validate " \
-            "against the wsdl schema and thus was rejected."
-        end
-      end
   end
 end

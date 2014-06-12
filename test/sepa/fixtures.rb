@@ -1,5 +1,5 @@
-def get_params
-  certplain = "-----BEGIN CERTIFICATE-----
+def nordea_generic_params
+  cert = "-----BEGIN CERTIFICATE-----
 MIIDwTCCAqmgAwIBAgIEAX1JuTANBgkqhkiG9w0BAQUFADBkMQswCQYDVQQGEwJT
 RTEeMBwGA1UEChMVTm9yZGVhIEJhbmsgQUIgKHB1YmwpMR8wHQYDVQQDExZOb3Jk
 ZWEgQ29ycG9yYXRlIENBIDAxMRQwEgYDVQQFEws1MTY0MDYtMDEyMDAeFw0xMzA1
@@ -22,7 +22,7 @@ ydowAnqS9h9aQ6gedwbOdtkWmwKMDVXU6aRz9Gvk+JeYJhtpuP3OPNGbbC5L7NVd
 no+B6AtwxmG3ozd+mPcMeVuz6kKLAmQyIiBSrRNa5OrTkq/CUzxO9WUgTnm/Sri7
 zReR6mU=
 -----END CERTIFICATE-----"
-  pkeyplain = "-----BEGIN PRIVATE KEY-----
+  pkey = "-----BEGIN PRIVATE KEY-----
 MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAMLRRHwLWybhs0MM
 EbpmZL2IdgYxmFbADFHoirTp3t22UnorHwqvk16i9YCPS6H8ngEPSP7A5urS/NMq
 w+YmklKlZugO9/TLJqVv4smXFX+5rPMQDedRElIDempMGQlPaR+tp4CQ49oFLJLW
@@ -38,10 +38,11 @@ fwPAbTwTv6mFFPAiYxLiRZXxVPtW+QtjMXH4ymh2V4y/+GnCqbZyLwJBAJQSDAME
 Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
 45nhdfYxOjgYff0=
 -----END PRIVATE KEY-----"
-  params = {
+
+  {
     bank: :nordea,
-    private_key_plain: pkeyplain,
-    cert_plain: certplain,
+    private_key: pkey,
+    cert: cert,
     command: :download_file,
     customer_id: '11111111',
     environment: 'PRODUCTION',
@@ -52,11 +53,10 @@ Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
     content: Base64.encode64("haisuli"),
     file_reference: "11111111A12006030329501800000014"
   }
-  params
 end
 
-def get_cert_params
-  csrplain = "-----BEGIN CERTIFICATE REQUEST-----
+def nordea_cert_params
+  csr = "-----BEGIN CERTIFICATE REQUEST-----
 MIIBczCB3QIBADA0MRIwEAYDVQQDEwlEZXZsYWIgT3kxETAPBgNVBAUTCDExMTEx
 MTExMQswCQYDVQQGEwJGSTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAo9wU
 c2Ys5hSso4nEanbc+RIhL71aS6GBGiWAegXjhlyb6dpwigrZBFPw4u6UZV/Vq7Y7
@@ -67,20 +67,28 @@ Z+SYNhu8vbj52cGQPAwEDN6mm5yLpcXu40wYzgWyfStLXV9d/b4hMy9qLMW00Dzb
 jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
 -----END CERTIFICATE REQUEST-----"
 
-  certparams = {
+  {
     bank: :nordea,
     command: :get_certificate,
     customer_id: '11111111',
     environment: 'TEST',
-    csr_plain: csrplain,
+    csr: csr,
     pin: '1234567890',
     service: 'service'
   }
-  certparams
 end
 
-def get_danske_cert_params
-  encryptpkcsplain = "-----BEGIN CERTIFICATE REQUEST-----
+def danske_get_bank_cert_params
+  {
+      bank: :danske,
+      command: :get_bank_certificate,
+      bank_root_cert_serial: '1111110002',
+      customer_id: '360817',
+  }
+end
+
+def danske_cert_params
+  encryptpkcs = "-----BEGIN CERTIFICATE REQUEST-----
 MIICZjCCAU4CAQAwITESMBAGA1UEAxMJRGV2bGFiIE95MQswCQYDVQQGEwJGSTCC
 ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKN2ceFGw+i4wAyg6WApu7/h
 5Rpl8tp+QRX1eLbmftYpf6bbzj+JwspWNST/s8p8enGBRrK+HkNT8ayj7ZSubJwx
@@ -95,7 +103,8 @@ M62i5c2v3sNJlDlT4GidRtoGW9KAID2oCdOL94krWpwLAZDP4wLwG7ACCbOx3rST
 f9gDE6jFUn7ONuiiYvOBAqjwckDpyOH+vx3WkZH4cwdcp4KVeLnjJzlJZaw7yTIo
 z8BKfQ26LmOO/S4CFe3Vzq6FRNKl3D4nvCu06WoMi5tAAEi57tk05B32
 -----END CERTIFICATE REQUEST-----"
-  signingpkcsplain = "-----BEGIN CERTIFICATE REQUEST-----
+
+  signingpkcs = "-----BEGIN CERTIFICATE REQUEST-----
 MIICZjCCAU4CAQAwITESMBAGA1UEAxMJRGV2bGFiIE95MQswCQYDVQQGEwJGSTCC
 ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK3yym5CztvmJCxbzhy6tOph
 wzamimFKlJt88cG0VLzwAh0EiAhFz9Yj/39n1HywL+4xOLizIAup794MzLBDs3TH
@@ -110,7 +119,8 @@ H6Xhm3JG9g7AScHhFcM8r6PhmzcL1FubYBPTcUBuotDBYc4lbql7sbww/u8OyWvl
 aIFd+oiwXGSYB7L8Fqg469jeIf0QtOZUtUEGOJWjM4JjTy+NnVmsj0jszMbuBZBW
 7wOrp+GMBUZ9/vaY/zr7nvJTfvKz7CJQOgADeh/0imZqhIYfVKIpJxR5
 -----END CERTIFICATE REQUEST-----"
-  danskebankencryptplain = "-----BEGIN CERTIFICATE-----
+
+  danskebankencrypt = "-----BEGIN CERTIFICATE-----
 MIIEATCCAumgAwIBAgIFAQjv8bMwDQYJKoZIhvcNAQELBQAwgZgxEDAOBgNVBAMT
 B0RCR1JPT1QxCzAJBgNVBAYTAkRLMRMwEQYDVQQHEwpDb3BlbmhhZ2VuMRAwDgYD
 VQQIEwdEZW5tYXJrMRowGAYDVQQKExFEYW5za2UgQmFuayBHcm91cDEaMBgGA1UE
@@ -134,44 +144,16 @@ s6SVms/TuOB+bODUr06ITxBkDJhizOJxjsXRIAtwZvvrH4qGjJz5qFcPb3nz4Txw
 swU8X6yvbtqF+q4aAKPA6ZydnGZFQSoSzNJtcF28T1ItxEHN3+xyQqXpTgFviiuL
 277LaAl9YUFFnSgeh7GiFitWJPfD
 -----END CERTIFICATE-----"
-    danskesigning = "-----BEGIN RSA PRIVATE KEY-----
-MIIEowIBAAKCAQEAvTnADLhlBL5Rdh7ckCeVueT+a77DwLymGO/PQJAUnOiCOA3h
-dEPzg2ruKk9VgC5+ADTXDD4HIxYO0LB0l1hNTr0GhIbjGI4HLgBSlE1lS/v9rWy8
-kQvFVBBysh3oo3aW27AqSGIUSZzHdOaf0vVmCM69aoHZ3rNHR4RoXA0nqisxBYKb
-SepKSJ+BdIEthbgzOz5ybHY6CCIEU+TIbCEkhACXFk52hmId2ODmjnK9pF6EOyJ3
-CMD8jOksjrb4E9ylChsX135jVqBWoyv49mkzCW7abhkgEB8Ap2nBp27Cm+nFGElW
-co5gKwdEKjrkA2B/Hz6KoceR6OydaaZnUI7T5QIDAQABAoIBADNUoSZSNwUMY6i5
-QnfQZStiVSoBO7Ti9+O32e7Xpt/RqtFt4oTZkgtKTIUptDXrZr7Dlrp5cRIxf59Y
-3qfXilEbsdLtjFky3fu6lqwoOpxcJTqQTq7CFKtzMsnilyMQnmfF6BJumLZHU0wA
-68YcT6t/+Z4Uz3c8Bs/9uRmPb/0W9qkWhH35JKtlFyN2g6nyKMCpYoll+FNun3nr
-e6gqZ9lNbqWOAnf2hfZWIKXLHxh9Eko/kQQYzo1Y0bwJ9v5nbqpxpXn77Ys9eL63
-Z7gQDVoYhaOVBzWWvp7bDQ0RlJ5dliWwfqSy7l5/u7/yuzcuozsE4/zsuGQEcgve
-b721MhkCgYEA69tYh6QdlQtRq9SRmEe16X2UoWLN+tLNvAqdQxDqbwE0R8JxlW4z
-gMpmM58L49aNQA50485jLZJaGwmK6vRpb9IBKB6iB94q20DtB4t1VNNQU3RtzbMQ
-cdvJ+ocftflqaRMgAtKDbdeDtYxaG27g6Jz+yw8fq6krWaSIwoChHFcCgYEAzWLh
-9+9yEPVlEW8CodIvhbCdeRnklgw/TZs6tg/B+99mN0QDeG/c2jbxBcOZ0DgksAn5
-/bvhh1oRSOsZLDE9+ILjtTThbs6c4U2QyQxgvTRzX/NEHwid8rxk04mBOQtpYMD0
-Y1yDg+qnJl3Zev6+DGQB9WbthJuOX/XWfEn/LCMCgYAxYhnlPK2c+WO+UKGzesBS
-BSNLrz5lmCHPj4Fh+3a6i0wBAmt52DscakR/5ns81z13/g7na91EO3J2Wsclbsts
-yFHJrrBKaXAbvDpk7ARDIIOfFa+v9CArVtOxiv1OwsxO99wp+x3dr9Q5/QsY11xs
-GAMZTS9aZ+9Vs6eW4gvZvQKBgQCOEalHTJ01d9mKfqRudSqkKnAzNaL129DqCMdK
-6ol/hZ95+RUBeTdmxnxgRVYfPsa58py3VAAEFVxBeUY3WHSKc1e5n7OUZ10DSBkv
-yN0d46svIuHrKZXAM2r3HHWDlQ42fCJQnMzoMiefFWn7dzzU61SjgKgpg0Svwii0
-XqcgywKBgAuj8hccUY5e5yRUGAqXrBfFCJN53ftkBaVtV0nqxJ2jXwIEqYCVohuM
-gnUi1U8K+UAVu7JQJG1VUBEDcKFN2p/47KdpBx3calcurRmNL8Ual2ANPMC55RUD
-11qQJynyu37oWB74v3VByP38tYy6tWmHUg55fMbjUtKW2AHdIXV5
------END RSA PRIVATE KEY-----"
 
-  danskecertparams = {
+  {
     bank: :danske,
     command: :create_certificate,
     customer_id: 'ABC123',
     environment: 'customertest',
     key_generator_type: 'software',
-    private_key_plain: danskesigning,
-    encryption_cert_pkcs10_plain: encryptpkcsplain,
-    signing_cert_pkcs10_plain: signingpkcsplain,
-    cert_plain: danskebankencryptplain,
+    encryption_cert_pkcs10: encryptpkcs,
+    signing_cert_pkcs10: signingpkcs,
+    enc_cert: danskebankencrypt,
     pin: '1234',
     language: 'EN',
     file_type: 'TITO',
@@ -179,5 +161,54 @@ gnUi1U8K+UAVu7JQJG1VUBEDcKFN2p/47KdpBx3calcurRmNL8Ual2ANPMC55RUD
     target_id: 'Danske FI',
     status: 'NEW',
   }
-  danskecertparams
+end
+
+def danske_create_cert_params
+  enc_cert_request = "-----BEGIN CERTIFICATE REQUEST-----
+MIICdzCCAV8CAQEwMjEPMA0GA1UEAwwGaGVtdWxpMR8wHQYKCZImiZPyLGQBGRYP
+bnV1c2thbXVpa2t1bmVuMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
+5aHmVXcfogDqJ3kUfK8ARzdkQ/dm9j4rHbGNh4xmlKCMUwCmmo2LOKMKvviD7qwz
+n1lDsPIClbmZaxc3vFlpNj5A6YVg7SpCU/Cx9RtTY+2vWQF29RWw5UktPDALIRNC
+boKuNykWqbWhwW80YOO3MXlASw2EF2nfsxLGXNmiB7kKaxPrTsNV9CO4rVIrYJj5
+2+1MZSEhEQn9H9VrKgCNlDN/6LCs/TnSC7Np1jOTjo5Nen95afE0KUEbSnMw8Ihw
+ymOFF0zgxiCQ1kme5fYXqCZZJOU+zS3pKO/LdnULu6/uJ1D0JWjIwWBqEwTwMqhj
+NnsJaoJiJJnQtuFcVIhXEQIDAQABoAAwDQYJKoZIhvcNAQEFBQADggEBAAlVfy+G
+GUPYnTfrRoBvgSMz5dR7rynQe5wxHWTtk71xbODSIZNFUntYa4tSAzaIEp65FxTj
+WyGlBZcdzCPd39DJtfxeiZ8q4UKx47VCt4jIzOSpM2jvGzlUpHnm2Eh9rQHqMRye
+C4T49gWBEqsTvZL+hWE9dAQq4Y+P3h9UWr49bMQNbSxERw3fDzWvcEJsSq+4Ml12
++sPV+Euz5phCzqt15v+6jfqlEgGj27k3MlF+EglX0BWduGw4RxfoOdGQNBwdXPkz
+db1f0XsYTW1NUYoL8O8uxzoNcysyBW/VGP01e2LXB8whWn4xtDtaLpyt/v4ow04V
+9v3lfL5ZDl1gIEY=
+-----END CERTIFICATE REQUEST-----"
+
+  signing_cert_request = "-----BEGIN CERTIFICATE REQUEST-----
+MIICdzCCAV8CAQEwMjEPMA0GA1UEAwwGaGVtdWxpMR8wHQYKCZImiZPyLGQBGRYP
+bnV1c2thbXVpa2t1bmVuMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
+y4zgajeMzFrBR4zsJ50qo4fxHWfjdCmI5nwLbKqKhSKB15JBdRmh/Wz0Gi1qOvER
+x9wS5c/1pMr1ARcVUvz2425ZNV77AAQMGUZpLxP9N6QWK39u4VemoecdPfNYv/tt
+qk1cJFO1aNNmIMrDzBZEzQH/Mf4QbiqsaSvuVay8mjVEW3she4FbcrhNnhlm3PS7
+XOm0UF2TiCjrM4enCI2XhTzKnSxONiM8KubKEAEOXPDAYGRwn+dik30qYwT5kMbG
+tzggHPsiwkBUDEcNeMuMGRKNxP3i03DA4wGSJZu3A61TcYVLihj9hEDnybe7Dw0h
+eNmyqoqp/0gr89rxlAANNwIDAQABoAAwDQYJKoZIhvcNAQEFBQADggEBAEbyXe6f
+aBGbaSldlIceYyxIXVqBRwVuE22vvk6to1f+QYrWj+4IexD0TBdfpcpKATnOjqEH
+sbksB0HOKZmFDCqNZamw1458DtdtSPpOn5EyX9BX6K2hExmj5CV1vEORB8dQ4lBi
+zjrpAOh422NQ3galu1vfrPVvRS8lN4t+zJUlBoCUwPlm5AmH88dJCXDHTxDrwxxv
+6UPUROxE2p+1TyHueUmfMKvjySnt8IIfoEvz4q/EouIbL2lDJwXOwX+1fx4Rva6t
+bx1hmt5Eihy1lORQR4PE4xaOP5TCqtxP0+snuGqRuBHhrDk4mowWEJbvFWlONT5H
+CsajqZag/Aoxv/Y=
+-----END CERTIFICATE REQUEST-----"
+
+  enc_cert = File.read "#{DANSKE_TEST_KEYS_PATH}own_enc_cert.pem"
+
+  {
+      bank: :danske,
+      enc_cert: enc_cert,
+      command: :create_certificate,
+      customer_id: '360817',
+      environment: 'customertest',
+      key_generator_type: 'software',
+      encryption_cert_pkcs10: enc_cert_request,
+      signing_cert_pkcs10: signing_cert_request,
+      pin: '1234',
+  }
 end

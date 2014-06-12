@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xenc:EncryptedData Type="http://www.w3.org/2001/04/xmlenc#Element"
+                    xmlns:dsig="http://www.w3.org/2000/09/xmldsig#"
+                    xmlns:xenc="http://www.w3.org/2001/04/xmlenc#">
+  <xenc:EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#tripledes-cbc"/>
+  <dsig:KeyInfo>
+    <xenc:EncryptedKey Recipient="name:DanskeBankCryptCERT">
+      <xenc:EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#rsa-1_5"/>
+      <dsig:KeyInfo>
+        <dsig:X509Data>
+          <dsig:X509Certificate></dsig:X509Certificate>
+        </dsig:X509Data>
+      </dsig:KeyInfo>
+      <xenc:CipherData>
+        <xenc:CipherValue></xenc:CipherValue>
+      </xenc:CipherData>
+    </xenc:EncryptedKey>
+  </dsig:KeyInfo>
+  <xenc:CipherData>
+    <xenc:CipherValue></xenc:CipherValue>
+  </xenc:CipherData>
+</xenc:EncryptedData>
