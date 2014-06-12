@@ -107,6 +107,8 @@ response.content
 
 ### Downloading Danske bank certificates
 
+#### Bank's certificates
+
 Define parameters hash for client
 
 ```ruby
@@ -131,7 +133,52 @@ response = client.send_request
 Get the certificates from the response
 
 ```ruby
-response.content
+# Bank's encryption certificate
+response.bank_encryption_cert
+
+# Bank's signing certificate
+response.bank_signing_cert
+
+# Bank's root certificate
+response.bank_root_cert
+```
+
+#### Own certificates
+
+Define parameters hash
+
+``` ruby
+params = {
+  bank: :danske,
+  enc_cert: danske_bank_enc_cert,
+  command: :create_certificate,
+  customer_id: '360817',
+  environment: 'customertest',
+  key_generator_type: 'software',
+  encryption_cert_pkcs10: danske_enc_cert_request,
+  signing_cert_pkcs10: danske_signing_cert_request,
+  pin: '1234'
+}
+```
+
+Initialize a new instance of the client and pass the params hash
+
+```ruby
+client = Sepa::Client.new params
+response = client.send_request
+```
+
+Get the certificates from the response
+
+```ruby
+# Own encryption certificate
+response.own_encryption_cert
+
+# Own signing certificate
+response.own_signing_cert
+
+# CA Certificate used for signing own certificates
+response.ca_certificate
 ```
 
 ---
