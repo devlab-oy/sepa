@@ -83,7 +83,7 @@ module Sepa
       end
 
       def process_header
-        set_node(@header_template, 'wsu|Created', Time.now.utc.iso8601)
+        set_node(@header_template, 'wsu|Created', iso_time)
         set_node(@header_template, 'wsu|Expires', (Time.now.utc + 300).iso8601)
 
         timestamp_digest = calculate_digest(@header_template,'wsu|Timestamp')
