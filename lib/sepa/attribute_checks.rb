@@ -4,13 +4,13 @@ module Sepa
 
     def allowed_commands
       case bank
-        when :nordea
-          [:get_certificate, :get_user_info, :download_file_list, :download_file, :upload_file]
-        when :danske
-          [:get_bank_certificate, :get_user_info, :download_file_list, :download_file,
-           :upload_file, :create_certificate]
-        else
-          []
+      when :nordea
+        [:get_certificate, :get_user_info, :download_file_list, :download_file, :upload_file]
+      when :danske
+        [:get_bank_certificate, :get_user_info, :download_file_list, :download_file,
+         :upload_file, :create_certificate]
+      else
+        []
       end
     end
 
@@ -156,5 +156,6 @@ module Sepa
         errors.add :status, STATUS_ERROR_MESSAGE
       end
     end
+
   end
 end

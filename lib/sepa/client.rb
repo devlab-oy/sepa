@@ -46,16 +46,14 @@ module Sepa
       raise ArgumentError, errors.messages unless valid?
 
       soap = SoapBuilder.new(create_hash).to_xml
-
       client = Savon.client(wsdl: wsdl)
-
       response = client.call(command, xml: soap).doc
 
       case bank
-        when :nordea
-          NordeaResponse.new response, command: command
-        when :danske
-          DanskeResponse.new response, command: command
+      when :nordea
+        NordeaResponse.new response, command: command
+      when :danske
+        DanskeResponse.new response, command: command
       end
     end
 
@@ -75,5 +73,6 @@ module Sepa
       def initialize_private_key
         @private_key = OpenSSL::PKey::RSA.new(@private_key) if @private_key
       end
+
   end
 end

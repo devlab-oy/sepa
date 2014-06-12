@@ -140,13 +140,13 @@ module Sepa
         xmlns = 'http://bxd.fi/xmldata/'
 
         case @command
-          when :download_file
-            content_node = xml.at_css('xmlns|Content', xmlns: xmlns)
-            Base64.decode64(content_node.content) if content_node
-          when :download_file_list
-            xml.css('xmlns|FileDescriptor', xmlns: xmlns).to_s
-          when :get_user_info
-            xml.css('xmlns|UserFileTypes', xmlns: xmlns).to_s
+        when :download_file
+          content_node = xml.at_css('xmlns|Content', xmlns: xmlns)
+          Base64.decode64(content_node.content) if content_node
+        when :download_file_list
+          xml.css('xmlns|FileDescriptor', xmlns: xmlns).to_s
+        when :get_user_info
+          xml.css('xmlns|UserFileTypes', xmlns: xmlns).to_s
         end
       end
 
