@@ -19,8 +19,8 @@ module Sepa
       # Check if command is one of the generic commands which should behave the same way across
       # different banks
       if GENERIC_COMMANDS.include? command
+        @application_response = extract_application_response('http://model.bxd.fi')
         @certificate = extract_cert(soap, 'BinarySecurityToken', 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd')
-        @application_response = extract_application_response
         @content = extract_content
       end
     end
@@ -133,19 +133,24 @@ module Sepa
       end
 
       def extract_content
-        if @command == :download_file
-          content_node = Nokogiri::XML(@application_response).at_css('xmlns|Content', xmlns: 'http://bxd.fi/xmldata/')
-          Base64.decode64(content_node.content) if content_node
-        elsif @command == :download_file_list
-          Nokogiri::XML(@application_response).css('xmlns|FileDescriptor', xmlns: 'http://bxd.fi/xmldata/').to_s
+        case @command
+          when :download_file
+            content_node = Nokogiri::XML(@application_response).at_css('xmlns|Content', xmlns: 'http://bxd.fi/xmldata/')
+            Base64.decode64(content_node.content) if content_node
+          when :download_file_list
+            Nokogiri::XML(@application_response).css('xmlns|FileDescriptor', xmlns: 'http://bxd.fi/xmldata/').to_s
+          when :get_user_info
+            Nokogiri::XML(@application_response).css('xmlns|UserFileTypes', xmlns: 'http://bxd.fi/xmldata/').to_s
         end
       end
 
-      def extract_application_response
-        ar_node = soap.at_css('xmlns|ApplicationResponse', xmlns: 'http://model.bxd.fi')
+      def extract_application_response(namespace)
+        if soap.respond_to? :at_css
+          ar_node = soap.at_css('xmlns|ApplicationResponse', xmlns: namespace)
+        end
 
         if ar_node
-          Base64.decode64(soap.at_css('xmlns|ApplicationResponse', xmlns: 'http://model.bxd.fi').content)
+          Base64.decode64(ar_node.content)
         end
       end
 

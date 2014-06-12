@@ -1,6 +1,7 @@
 require 'test_helper'
 
 class NordeaResponseTest < ActiveSupport::TestCase
+  include Sepa::Utilities
 
   def setup
     keys_path = File.expand_path('../keys', __FILE__)
@@ -21,6 +22,9 @@ class NordeaResponseTest < ActiveSupport::TestCase
 
     gui = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/gui.xml"))
     @gui = Sepa::Response.new(gui, command: :get_user_info)
+
+    gc = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/gc.xml"))
+    @gc = Sepa::NordeaResponse.new(gc, command: :get_certificate)
   end
 
   def test_should_be_valid
@@ -81,5 +85,19 @@ class NordeaResponseTest < ActiveSupport::TestCase
 
   test 'content can be extracted from download file list response' do
     refute_nil @dfl.content
+  end
+
+  ##
+  # Tests for get user info command
+
+  test 'content can be extracted from get user info response' do
+    refute_nil @gui.content
+  end
+
+  ##
+  # Tests for get certificate command
+
+  test 'certificate can be extracted from get certificate response' do
+    assert_respond_to @gc.content, :sign
   end
 end
