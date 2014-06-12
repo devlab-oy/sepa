@@ -7,7 +7,7 @@ module Sepa
         case @command
         when :get_certificate
           build_certificate_request
-        when :get_user_info, :download_file_list, :download_file,:upload_file
+        when :get_user_info, :download_file_list, :download_file, :upload_file
           build_common_request
         end
       end

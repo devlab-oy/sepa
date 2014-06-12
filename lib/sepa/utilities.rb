@@ -5,8 +5,8 @@ module Sepa
       sha1 = OpenSSL::Digest::SHA1.new
 
       canon_node = node.canonicalize(
-          mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
-          inclusive_namespaces=nil, with_comments=false
+          mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
+          inclusive_namespaces = nil, with_comments = false
       )
 
       Base64.encode64(sha1.digest(canon_node)).gsub(/\s+/, "")

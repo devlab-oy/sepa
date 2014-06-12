@@ -118,16 +118,16 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_receiver_is_is_set_correctly
-    receiver_id_node = @doc.at("//bxd:ReceiverId", 'bxd' => 'http://' \
-                               'model.bxd.fi')
+    receiver_id_node = @doc.at("//bxd:ReceiverId", 'bxd' => 'http://model.bxd.fi')
 
     assert_equal receiver_id_node.content, @nordea_generic_params[:target_id]
   end
 
   def test_cert_is_added_correctly
+    wsse = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+
     added_cert = @doc.at(
-      "//wsse:BinarySecurityToken", 'wsse' => 'http://docs.oasis-open.org/wss' \
-      '/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+      "//wsse:BinarySecurityToken", 'wsse' => wsse
     ).content
 
     actual_cert = OpenSSL::X509::Certificate.new(
@@ -146,8 +146,8 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
 
     # Digest which is calculated from the body and added to the header
     added_digest = @doc.at(
-      "//dsig:Reference[@URI='#sdf6sa7d86f87s6df786sd87f6s8fsda']/dsig:Digest" \
-      "Value", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+      "//dsig:Reference[@URI='#sdf6sa7d86f87s6df786sd87f6s8fsda']/dsig:DigestValue",
+      'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
     ).content
 
     body_node = @doc.at(
@@ -165,9 +165,10 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_header_created_timestamp_is_added_correctly
+    wsu = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
+
     timestamp_node = @doc.at(
-      "//wsu:Created", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis' \
-      '-200401-wss-wssecurity-utility-1.0.xsd'
+      "//wsu:Created", 'wsu' => wsu
     )
 
     timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
@@ -176,9 +177,10 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_header_expires_timestamp_is_added_correctly
+    wsu = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
+
     timestamp_node = @doc.at(
-      "//wsu:Expires", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis' \
-      '-200401-wss-wssecurity-utility-1.0.xsd'
+      "//wsu:Expires", 'wsu' => wsu
     )
 
     timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
@@ -195,14 +197,15 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
       'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
     ).content
 
+    wsu = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
+
     timestamp_node = @doc.at(
-      "//wsu:Timestamp", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oas' \
-      'is-200401-wss-wssecurity-utility-1.0.xsd'
+      "//wsu:Timestamp", 'wsu' => wsu
     )
 
     timestamp_node = timestamp_node.canonicalize(
-      mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
-      with_comments=false
+      mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, inclusive_namespaces = nil,
+      with_comments = false
     )
 
     actual_digest = Base64.encode64(sha1.digest(timestamp_node)).strip
@@ -214,12 +217,17 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
     sha1 = OpenSSL::Digest::SHA1.new
 
     private_key = OpenSSL::PKey::RSA.new(@nordea_generic_params.fetch(:private_key))
-    added_signature = @doc.at("//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#').content
+
+    added_signature = @doc.at(
+      "//dsig:SignatureValue",
+      'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+    ).content
+
     signed_info_node = @doc.at("//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
 
     signed_info_node = signed_info_node.canonicalize(
-      mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
-      with_comments=false
+      mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, inclusive_namespaces = nil,
+      with_comments = false
     )
 
     actual_signature = Base64.encode64(
@@ -237,9 +245,9 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_schema_validation_should_fail_with_wrong_must_understand_value
+    wsse = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
     security_node = @doc.at(
-      '//wsse:Security', 'wsse' => 'http://docs.oasis-open.org/wss/2004/01/' \
-      'oasis-200401-wss-wssecurity-secext-1.0.xsd'
+      '//wsse:Security', 'wsse' => wsse
     )
 
     security_node['env:mustUnderstand'] = '3'
@@ -251,9 +259,10 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_should_validate_against_ws_security_schema
+    wsse = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+
     ws_node = @doc.xpath(
-      '//wsse:Security', 'wsse' => 'http://docs.oasis-open.org/wss/2004/01/' \
-      'oasis-200401-wss-wssecurity-secext-1.0.xsd'
+      '//wsse:Security', 'wsse' => wsse
     )
 
     ws_node = ws_node.to_xml
@@ -261,8 +270,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
     ws_node = Nokogiri::XML(ws_node)
 
     Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema IO.read 'oasis-200401-wss-wssecurity-' \
-        'secext-1.0.xsd'
+      xsd = Nokogiri::XML::Schema IO.read 'oasis-200401-wss-wssecurity-secext-1.0.xsd'
       assert xsd.valid?(ws_node)
     end
   end

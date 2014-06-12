@@ -86,7 +86,7 @@ module Sepa
         set_node(@header_template, 'wsu|Created', iso_time)
         set_node(@header_template, 'wsu|Expires', (Time.now.utc + 300).iso8601)
 
-        timestamp_digest = calculate_digest(@header_template,'wsu|Timestamp')
+        timestamp_digest = calculate_digest(@header_template, 'wsu|Timestamp')
         dsig = 'dsig|Reference[URI="#dsfg8sdg87dsf678g6dsg6ds7fg"] dsig|DigestValue'
         set_node(@header_template, dsig, timestamp_digest)
 

@@ -57,7 +57,7 @@ module Sepa
       set_node(@template, 'bxd|RequestId', request_id)
       set_node(@template, 'bxd|Timestamp', iso_time)
       set_node(@template, 'bxd|Language', @language)
-      set_node(@template, 'bxd|UserAgent',"Sepa Transfer Library version " + VERSION)
+      set_node(@template, 'bxd|UserAgent', "Sepa Transfer Library version " + VERSION)
       set_node(@template, 'bxd|ReceiverId', @target_id)
     end
 

@@ -131,9 +131,10 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_cert_is_added_correctly
+    wsse = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+
     added_cert = @doc.xpath(
-      "//wsse:BinarySecurityToken", 'wsse' => 'http://docs.oasis-open.org/wss' \
-      '/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+      "//wsse:BinarySecurityToken", 'wsse' => wsse
     ).first.content
 
     actual_cert = @nordea_generic_params.fetch(:cert).to_s
@@ -149,8 +150,8 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
 
     # Digest which is calculated from the body and added to the header
     added_digest = @doc.xpath(
-      "//dsig:Reference[@URI='#sdf6sa7d86f87s6df786sd87f6s8fsda']/dsig:Digest" \
-      "Value", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+      "//dsig:Reference[@URI='#sdf6sa7d86f87s6df786sd87f6s8fsda']/dsig:DigestValue",
+      'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
     ).first.content
 
     body_node = @doc.xpath(
@@ -168,9 +169,10 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_header_created_timestamp_is_added_correctly
+    wsu = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
+
     timestamp_node = @doc.xpath(
-      "//wsu:Created", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis' \
-      '-200401-wss-wssecurity-utility-1.0.xsd'
+      "//wsu:Created", 'wsu' => wsu
     ).first
 
     timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
@@ -179,9 +181,10 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_header_expires_timestamp_is_added_correctly
+    wsu = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
+
     timestamp_node = @doc.xpath(
-      "//wsu:Expires", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis' \
-      '-200401-wss-wssecurity-utility-1.0.xsd'
+      "//wsu:Expires", 'wsu' => wsu
     ).first
 
     timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
@@ -197,14 +200,15 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
       'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
     ).first.content
 
+    wsu = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
+
     timestamp_node = @doc.xpath(
-      "//wsu:Timestamp", 'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oas' \
-      'is-200401-wss-wssecurity-utility-1.0.xsd'
+      "//wsu:Timestamp", 'wsu' => wsu
     ).first
 
     timestamp_node = timestamp_node.canonicalize(
-      mode=Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,inclusive_namespaces=nil,
-      with_comments=false
+      mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, inclusive_namespaces = nil,
+      with_comments = false
     )
 
     actual_digest = Base64.encode64(sha1.digest(timestamp_node)).strip
@@ -244,9 +248,9 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_schema_validation_should_fail_with_wrong_must_understand_value
+    wsse = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
     security_node = @doc.xpath(
-      '//wsse:Security', 'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oa' \
-      'sis-200401-wss-wssecurity-secext-1.0.xsd'
+      '//wsse:Security', 'wsse' => wsse
     ).first
 
     security_node['env:mustUnderstand'] = '3'
@@ -258,17 +262,17 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_should_validate_against_ws_security_schema
+    wsse = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+
     ws_node = @doc.xpath(
-      '//wsse:Security', 'wsse' => 'http://docs.oasis-open.org/wss/2004/01/oa' \
-      'sis-200401-wss-wssecurity-secext-1.0.xsd'
+      '//wsse:Security', 'wsse' => wsse
     )
 
     ws_node = ws_node.to_xml
     ws_node = Nokogiri::XML(ws_node)
 
     Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema IO.read 'oasis-200401-wss-wssecurity-secext' \
-        '-1.0.xsd'
+      xsd = Nokogiri::XML::Schema IO.read 'oasis-200401-wss-wssecurity-secext-1.0.xsd'
       assert xsd.valid?(ws_node)
     end
   end

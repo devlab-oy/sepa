@@ -19,8 +19,10 @@ module Sepa
       # Check if command is one of the generic commands which should behave the same way across
       # different banks
       if GENERIC_COMMANDS.include? command
+        xsd = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+
         @application_response = extract_application_response('http://model.bxd.fi')
-        @certificate = extract_cert(soap, 'BinarySecurityToken', 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd')
+        @certificate = extract_cert(soap, 'BinarySecurityToken', xsd)
         @content = extract_content
       end
     end
@@ -110,10 +112,11 @@ module Sepa
 
         references.each do |uri, digest_value|
           uri = uri.sub(/^#/, '')
+          wsu = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
+
           node = doc.at_css(
-            "[wsu|Id='" + uri + "']",
-            'wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss' \
-            '-wssecurity-utility-1.0.xsd'
+            "[wsu|Id='#{uri}']",
+            'wsu' => wsu
           )
 
           nodes[uri] = calculate_digest(node)
@@ -133,14 +136,17 @@ module Sepa
       end
 
       def extract_content
+        xml = Nokogiri::XML(@application_response)
+        xmlns = 'http://bxd.fi/xmldata/'
+
         case @command
           when :download_file
-            content_node = Nokogiri::XML(@application_response).at_css('xmlns|Content', xmlns: 'http://bxd.fi/xmldata/')
+            content_node = xml.at_css('xmlns|Content', xmlns: xmlns)
             Base64.decode64(content_node.content) if content_node
           when :download_file_list
-            Nokogiri::XML(@application_response).css('xmlns|FileDescriptor', xmlns: 'http://bxd.fi/xmldata/').to_s
+            xml.css('xmlns|FileDescriptor', xmlns: xmlns).to_s
           when :get_user_info
-            Nokogiri::XML(@application_response).css('xmlns|UserFileTypes', xmlns: 'http://bxd.fi/xmldata/').to_s
+            xml.css('xmlns|UserFileTypes', xmlns: xmlns).to_s
         end
       end
 
