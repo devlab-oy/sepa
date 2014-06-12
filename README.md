@@ -44,7 +44,9 @@ params = {
   cert: "...your certificate...",
   customer_id: '11111111',
   file_type: 'NDCAMT53L',
-  file_reference: "11111111A12006030329501800000014"
+  file_reference: "11111111A12006030329501800000014",
+  target_id: '11111111A1',
+  status: 'NEW'
 }
 ```
 
@@ -80,11 +82,12 @@ Define parameters hash for client
 
 ```ruby
 params = {
+  pin: '1234567890',
   bank: :nordea,
   command: :get_certificate,
   customer_id: '11111111',
   environment: 'TEST',
-  csr: "...your csr..."
+  csr: "...your csr...",
   service: 'service'
 }
 ```

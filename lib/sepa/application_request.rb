@@ -83,7 +83,7 @@ module Sepa
       def set_get_certificate_nodes
         set_node("Service", @service)
         set_node("Content", format_cert_request(@csr))
-        set_node("HMAC", hmac)
+        set_node("HMAC", hmac(@pin, @csr))
       end
 
       def set_create_certificate_nodes
@@ -106,11 +106,6 @@ module Sepa
         set_node("Environment", @environment)
         set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
         set_node("Command", pretty_command)
-      end
-
-      def hmac
-        return "" if @pin.nil? || @csr.nil?
-        Base64.encode64(OpenSSL::HMAC.digest('sha1', @pin, @csr).chop)
       end
 
       def remove_node(node, xmlns)

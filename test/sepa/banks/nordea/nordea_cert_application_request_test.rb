@@ -1,10 +1,11 @@
 require 'test_helper'
 
 class NordeaCertApplicationRequestTest < ActiveSupport::TestCase
+  include Sepa::Utilities
 
   def setup
-    @nordea_generic_params = nordea_cert_params
-    ar_cert = Sepa::SoapBuilder.new(@nordea_generic_params).ar
+    @get_cert_params = nordea_cert_params
+    ar_cert = Sepa::SoapBuilder.new(@get_cert_params).ar
     @xml = Nokogiri::XML(ar_cert.to_xml)
   end
 
@@ -16,19 +17,19 @@ class NordeaCertApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_should_initialize_with_only_get_certificate_params
-    assert Sepa::ApplicationRequest.new(@nordea_generic_params)
+    assert Sepa::ApplicationRequest.new(@get_cert_params)
   end
 
   def test_should_get_argument_errors_unless_command_is_get_certificate
     assert_raises(ArgumentError) do
-      @nordea_generic_params[:command] = :wrong_command
-      ar = Sepa::ApplicationRequest.new(@nordea_generic_params)
-      xml = ar.get_as_base64
+      @get_cert_params[:command] = :wrong_command
+      ar = Sepa::ApplicationRequest.new(@get_cert_params)
+      ar.get_as_base64
     end
   end
 
   def test_should_have_customer_id_set
-    assert_equal @xml.at_css("CustomerId").content, @nordea_generic_params[:customer_id]
+    assert_equal @xml.at_css("CustomerId").content, @get_cert_params[:customer_id]
   end
 
   def test_should_have_timestamp_set_properly
@@ -41,7 +42,24 @@ class NordeaCertApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_should_have_environment_set
-    assert_equal @xml.at_css("Environment").content, @nordea_generic_params[:environment]
+    assert_equal @xml.at_css("Environment").content, @get_cert_params[:environment]
+  end
+
+  test 'should have software id set' do
+    assert_equal @xml.at_css("SoftwareId").content, "Sepa Transfer Library version #{Sepa::VERSION}"
+  end
+
+  test 'should have service set' do
+    assert_equal @xml.at_css('Service').content, @get_cert_params[:service]
+  end
+
+  test 'should have content set' do
+    assert_equal @xml.at_css('Content').content, format_cert_request(@get_cert_params[:csr])
+  end
+
+  test 'should have hmac set' do
+    assert_equal @xml.at_css('HMAC').content.chop,
+                 hmac(@get_cert_params[:pin], @get_cert_params[:csr]).chop
   end
 
   def test_should_validate_against_schema

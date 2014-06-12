@@ -115,5 +115,9 @@ module Sepa
       @iso_time ||= Time.now.utc.iso8601
     end
 
+    def hmac(pin, csr)
+      Base64.encode64(OpenSSL::HMAC.digest('sha1', pin, csr).chop)
+    end
+
   end
 end
