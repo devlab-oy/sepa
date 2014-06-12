@@ -63,6 +63,9 @@ class NordeaResponseTest < ActiveSupport::TestCase
     refute @dfl.signature_is_valid?
   end
 
+  ##
+  # Tests for download file command
+
   # tito: Electronic account statement
   def test_content_can_be_extracted_when_file_type_is_tito
     refute_nil @df_tito.content
@@ -73,4 +76,10 @@ class NordeaResponseTest < ActiveSupport::TestCase
     refute_nil @df_ktl.content
   end
 
+  ##
+  # Tests for download file list command
+
+  test 'content can be extracted from download file list response' do
+    refute_nil @dfl.content
+  end
 end

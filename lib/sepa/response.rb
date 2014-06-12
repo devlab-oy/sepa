@@ -136,6 +136,8 @@ module Sepa
         if @command == :download_file
           content_node = Nokogiri::XML(@application_response).at_css('xmlns|Content', xmlns: 'http://bxd.fi/xmldata/')
           Base64.decode64(content_node.content) if content_node
+        elsif @command == :download_file_list
+          Nokogiri::XML(@application_response).css('xmlns|FileDescriptor', xmlns: 'http://bxd.fi/xmldata/').to_s
         end
       end
 
