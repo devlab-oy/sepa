@@ -1,7 +1,7 @@
 module Sepa
   class NordeaResponse < Response
 
-    def initialize(response, command:)
+    def initialize(response, command: nil)
       super
 
       if @command == :get_certificate

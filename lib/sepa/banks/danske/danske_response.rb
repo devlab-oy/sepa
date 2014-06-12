@@ -6,7 +6,7 @@ module Sepa
     # Namespace used in danske bank certificate responses and requests
     TNS = 'http://danskebank.dk/PKI/PKIFactoryService/elements'
 
-    def initialize(response, command:)
+    def initialize(response, command: nil)
       super
       @bank_encryption_cert = extract_cert(soap, 'BankEncryptionCert', TNS)
       @bank_signing_cert = extract_cert(soap, 'BankSigningCert', TNS)

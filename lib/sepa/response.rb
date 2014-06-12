@@ -12,7 +12,7 @@ module Sepa
 
     GENERIC_COMMANDS = [:get_user_info, :download_file_list, :download_file, :upload_file]
 
-    def initialize(response, command:)
+    def initialize(response, command: nil)
       @soap = response
       @command = command
 

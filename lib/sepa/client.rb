@@ -61,13 +61,17 @@ module Sepa
 
       def create_hash
         initialize_private_key
+        iv = {}
 
         # Create hash of all instance variables
-        iv = instance_variables.map do |name|
-          [ name[1..-1].to_sym, instance_variable_get(name) ]
+        instance_variables.map do |name|
+          key = name[1..-1].to_sym
+          value = instance_variable_get(name)
+
+          iv[key] = value
         end
 
-        iv.to_h
+        iv
       end
 
       def initialize_private_key
