@@ -58,8 +58,8 @@ class NordeaCertApplicationRequestTest < ActiveSupport::TestCase
   end
 
   test 'should have hmac set' do
-    assert_equal @xml.at_css('HMAC').content.chop,
-                 hmac(@get_cert_params[:pin], @get_cert_params[:csr]).chop
+    assert_equal @xml.at_css('HMAC').content,
+                 hmac(@get_cert_params[:pin], csr_to_binary(@get_cert_params[:csr]))
   end
 
   def test_should_validate_against_schema

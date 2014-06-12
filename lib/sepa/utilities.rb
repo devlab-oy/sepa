@@ -116,7 +116,11 @@ module Sepa
     end
 
     def hmac(pin, csr)
-      Base64.encode64(OpenSSL::HMAC.digest('sha1', pin, csr).chop)
+      Base64.encode64(OpenSSL::HMAC.digest('sha1', pin, csr)).chop
+    end
+
+    def csr_to_binary(csr)
+      OpenSSL::X509::Request.new(csr).to_der
     end
 
   end
