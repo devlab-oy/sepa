@@ -6,9 +6,8 @@ module Sepa
 
       if @command == :get_certificate
         @application_response = extract_application_response('http://bxd.fi/CertificateService')
+        @content = extract_own_cert
       end
-
-      @content = extract_own_cert
     end
 
     def extract_own_cert
