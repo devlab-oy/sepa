@@ -20,7 +20,7 @@ require 'sepa/banks/danske/soap_danske'
 require 'sepa/banks/nordea/soap_nordea'
 require 'sepa/version'
 
-ROOT_PATH = File.absolute_path('.')
+ROOT_PATH = File.expand_path('../../', __FILE__)
 WSDL_PATH = "#{ROOT_PATH}/lib/sepa/wsdl"
 SCHEMA_PATH = "#{ROOT_PATH}/lib/sepa/xml_schemas"
 SCHEMA_FILE = "#{ROOT_PATH}/lib/sepa/xml_schemas/wsdl.xml"
