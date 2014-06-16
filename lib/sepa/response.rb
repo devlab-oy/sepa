@@ -141,8 +141,8 @@ module Sepa
 
         case @command
         when :download_file
-          content_node = xml.at_css('xmlns|Content', xmlns: xmlns)
-          Base64.decode64(content_node.content) if content_node
+          content_node = xml.at('xmlns|Content', xmlns: xmlns)
+          content_node.content if content_node
         when :download_file_list
           content_node = xml.at('xmlns|FileDescriptors', xmlns: xmlns)
           content_node.canonicalize if content_node
