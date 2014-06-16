@@ -88,6 +88,13 @@ class NordeaResponseTest < ActiveSupport::TestCase
   end
 
   ##
+  # Tests for upload file list command
+
+  test 'upload file list command returns a response' do
+    refute_nil @uf.content
+  end
+
+  ##
   # Tests for get user info command
 
   test 'content can be extracted from get user info response' do

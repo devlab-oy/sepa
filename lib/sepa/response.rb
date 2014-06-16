@@ -148,6 +148,12 @@ module Sepa
           content_node.canonicalize if content_node
         when :get_user_info
           xml.css('xmlns|UserFileTypes', xmlns: xmlns).to_s
+        when :upload_file
+          signature_node = xml.at('xmlns|Signature', xmlns: 'http://www.w3.org/2000/09/xmldsig#')
+          if signature_node
+            signature_node.remove
+            xml
+          end
         end
       end
 
