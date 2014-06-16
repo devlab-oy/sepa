@@ -152,7 +152,7 @@ module Sepa
           signature_node = xml.at('xmlns|Signature', xmlns: 'http://www.w3.org/2000/09/xmldsig#')
           if signature_node
             signature_node.remove
-            xml
+            xml.canonicalize
           end
         end
       end
