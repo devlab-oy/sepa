@@ -144,7 +144,8 @@ module Sepa
           content_node = xml.at_css('xmlns|Content', xmlns: xmlns)
           Base64.decode64(content_node.content) if content_node
         when :download_file_list
-          xml.css('xmlns|FileDescriptor', xmlns: xmlns).to_s
+          content_node = xml.at('xmlns|FileDescriptors', xmlns: xmlns)
+          content_node.canonicalize if content_node
         when :get_user_info
           xml.css('xmlns|UserFileTypes', xmlns: xmlns).to_s
         end
