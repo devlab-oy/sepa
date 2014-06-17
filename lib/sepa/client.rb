@@ -36,6 +36,14 @@ module Sepa
       self.environment ||= 'PRODUCTION'
     end
 
+    def bank=(value)
+      @bank = value.to_sym
+    end
+
+    def command=(value)
+      @command = value.to_sym
+    end
+
     def attributes(hash)
       hash.each do |name, value|
         send("#{name}=", value)
