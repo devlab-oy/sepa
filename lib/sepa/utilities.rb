@@ -123,5 +123,10 @@ module Sepa
       OpenSSL::X509::Request.new(csr).to_der
     end
 
+    def canonicalized_node(doc, namespace, node)
+      content_node = doc.at("xmlns|#{node}", xmlns: namespace)
+      content_node.canonicalize if content_node
+    end
+
   end
 end

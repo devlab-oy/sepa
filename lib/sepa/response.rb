@@ -144,10 +144,9 @@ module Sepa
           content_node = xml.at('xmlns|Content', xmlns: xmlns)
           content_node.content if content_node
         when :download_file_list
-          content_node = xml.at('xmlns|FileDescriptors', xmlns: xmlns)
-          content_node.canonicalize if content_node
+          canonicalized_node(xml, xmlns, 'FileDescriptors')
         when :get_user_info
-          xml.css('xmlns|UserFileTypes', xmlns: xmlns).to_s
+          canonicalized_node(xml, xmlns, 'UserFileTypes')
         when :upload_file
           signature_node = xml.at('xmlns|Signature', xmlns: 'http://www.w3.org/2000/09/xmldsig#')
           if signature_node
