@@ -144,7 +144,8 @@ module Sepa
           content_node = xml.at('xmlns|Content', xmlns: xmlns)
           content_node.content if content_node
         when :download_file_list
-          canonicalized_node(xml, xmlns, 'FileDescriptors')
+          content_node = xml.remove_namespaces!.at('FileDescriptors')
+          content_node.to_xml if content_node
         when :get_user_info
           canonicalized_node(xml, xmlns, 'UserFileTypes')
         when :upload_file
