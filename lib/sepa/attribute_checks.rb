@@ -157,5 +157,13 @@ module Sepa
       end
     end
 
+    def check_file_reference
+      return unless command == :download_file
+
+      unless file_reference && file_reference.length <= 32
+        errors.add :file_reference, FILE_REFERENCE_ERROR_MESSAGE
+      end
+    end
+
   end
 end

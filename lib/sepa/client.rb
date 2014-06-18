@@ -30,6 +30,7 @@ module Sepa
     validate :check_encryption_cert_request
     validate :check_signing_cert
     validate :check_bank_root_cert_serial
+    validate :check_file_reference
 
     def initialize(hash = {})
       self.attributes hash
