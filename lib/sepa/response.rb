@@ -3,7 +3,7 @@ module Sepa
     include ActiveModel::Validations
     include Utilities
 
-    attr_reader :soap, :application_response, :certificate, :content
+    attr_reader :soap, :application_response, :certificate, :content, :file_references
 
     validates :soap, presence: true
 
@@ -25,6 +25,8 @@ module Sepa
         @certificate = extract_cert(soap, 'BinarySecurityToken', xsd)
         @content = extract_content
       end
+
+      @file_references = extract_file_references
     end
 
     # Verifies that all digest values in the response match the actual ones.
@@ -165,6 +167,15 @@ module Sepa
         if ar_node
           Base64.decode64(ar_node.content)
         end
+      end
+
+      def extract_file_references
+        return unless @command == :download_file_list
+
+        content = Nokogiri::XML @content
+        descriptors = content.css('FileDescriptor')
+
+        descriptors.map { |descriptor| descriptor.at('FileReference').content }
       end
 
   end

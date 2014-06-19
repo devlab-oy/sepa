@@ -87,6 +87,10 @@ class NordeaResponseTest < ActiveSupport::TestCase
     refute_nil @dfl.content
   end
 
+  test 'file references can be extracted from download file list response' do
+    assert_equal 14, @dfl.file_references.length
+  end
+
   ##
   # Tests for upload file list command
 
