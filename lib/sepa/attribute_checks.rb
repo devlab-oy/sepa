@@ -84,7 +84,7 @@ module Sepa
     end
 
     def check_file_type
-      return unless [:upload_file, :download_file_list].include? command
+      return unless [:upload_file, :download_file_list, :download_file].include? command
 
       if file_type.nil? || file_type.size > 35
         errors.add(:file_type, FILE_TYPE_ERROR_MESSAGE)
@@ -154,6 +154,14 @@ module Sepa
 
       unless status && statuses.include?(status)
         errors.add :status, STATUS_ERROR_MESSAGE
+      end
+    end
+
+    def check_file_reference
+      return unless command == :download_file
+
+      unless file_reference && file_reference.length <= 32
+        errors.add :file_reference, FILE_REFERENCE_ERROR_MESSAGE
       end
     end
 

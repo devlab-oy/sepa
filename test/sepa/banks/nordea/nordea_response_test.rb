@@ -87,6 +87,17 @@ class NordeaResponseTest < ActiveSupport::TestCase
     refute_nil @dfl.content
   end
 
+  test 'file references can be extracted from download file list response' do
+    assert_equal 14, @dfl.file_references.length
+  end
+
+  ##
+  # Tests for upload file list command
+
+  test 'upload file list command returns a response' do
+    refute_nil @uf.content
+  end
+
   ##
   # Tests for get user info command
 
@@ -98,6 +109,8 @@ class NordeaResponseTest < ActiveSupport::TestCase
   # Tests for get certificate command
 
   test 'certificate can be extracted from get certificate response' do
-    assert_respond_to @gc.content, :sign
+    assert_nothing_raised do
+      OpenSSL::X509::Certificate.new Base64.decode64(@gc.content)
+    end
   end
 end

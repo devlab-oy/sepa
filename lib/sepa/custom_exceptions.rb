@@ -1,2 +1,0 @@
-class SchemaError < StandardError
-end

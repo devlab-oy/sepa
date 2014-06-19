@@ -14,7 +14,7 @@ module Sepa
       node = Nokogiri::XML(@application_response)
       .at('xmlns|Certificate > xmlns|Certificate', xmlns: 'http://filetransfer.nordea.com/xmldata/')
 
-      OpenSSL::X509::Certificate.new(process_cert_value(node.content)) if node
+      Base64.encode64(OpenSSL::X509::Certificate.new(process_cert_value(node.content)).to_s) if node
     end
   end
 end

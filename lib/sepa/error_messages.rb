@@ -10,5 +10,6 @@ module Sepa
     PIN_ERROR_MESSAGE = 'Pin needs to be present for this command and cannot be more than 10 characters'
     ENCRYPTION_CERT_ERROR_MESSAGE = 'Invalid encryption certificate'
     STATUS_ERROR_MESSAGE = 'Status is required for this command and must be either NEW, DOWNLOADED or ALL'
+    FILE_REFERENCE_ERROR_MESSAGE = 'File reference is required for this command and must be under 33 characters'
   end
 end

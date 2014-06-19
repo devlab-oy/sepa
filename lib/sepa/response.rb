@@ -6,7 +6,6 @@ module Sepa
     attr_reader :soap, :application_response, :certificate, :content
 
     validates :soap, presence: true
-
     validate :validate_document_format
     validate :document_must_validate_against_schema
 
@@ -81,6 +80,16 @@ module Sepa
       Nokogiri::XML(ar)
     end
 
+    def file_references
+      return unless @command == :download_file_list
+
+      @file_references ||= begin
+        content = Nokogiri::XML @content
+        descriptors = content.css('FileDescriptor')
+        descriptors.map { |descriptor| descriptor.at('FileReference').content }
+      end
+    end
+
     private
 
       # Finds all reference nodes with digest values in the document and returns
@@ -141,12 +150,19 @@ module Sepa
 
         case @command
         when :download_file
-          content_node = xml.at_css('xmlns|Content', xmlns: xmlns)
-          Base64.decode64(content_node.content) if content_node
+          content_node = xml.at('xmlns|Content', xmlns: xmlns)
+          content_node.content if content_node
         when :download_file_list
-          xml.css('xmlns|FileDescriptor', xmlns: xmlns).to_s
+          content_node = xml.remove_namespaces!.at('FileDescriptors')
+          content_node.to_xml if content_node
         when :get_user_info
-          xml.css('xmlns|UserFileTypes', xmlns: xmlns).to_s
+          canonicalized_node(xml, xmlns, 'UserFileTypes')
+        when :upload_file
+          signature_node = xml.at('xmlns|Signature', xmlns: 'http://www.w3.org/2000/09/xmldsig#')
+          if signature_node
+            signature_node.remove
+            xml.canonicalize
+          end
         end
       end
 

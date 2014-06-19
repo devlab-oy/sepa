@@ -30,10 +30,19 @@ module Sepa
     validate :check_encryption_cert_request
     validate :check_signing_cert
     validate :check_bank_root_cert_serial
+    validate :check_file_reference
 
     def initialize(hash = {})
       self.attributes hash
       self.environment ||= 'PRODUCTION'
+    end
+
+    def bank=(value)
+      @bank = value.to_sym
+    end
+
+    def command=(value)
+      @command = value.to_sym
     end
 
     def attributes(hash)
