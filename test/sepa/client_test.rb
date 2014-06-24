@@ -158,7 +158,7 @@ class ClientTest < ActiveSupport::TestCase
 
   # # The response from savon will be the request to check that a proper request
   # # was made in the following four tests
-  def test_should_send_proper_request_with_get_user_info
+  test "should_send_proper_request_with_get_user_info" do
     @nordea_generic_params[:command] = :get_user_info
     client = Sepa::Client.new(@nordea_generic_params)
     response = client.send_request
@@ -171,7 +171,7 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
-  def test_should_send_proper_request_with_download_file_list
+  test "should_send_proper_request_with_download_file_list" do
     @nordea_generic_params[:command] = :download_file_list
     client = Sepa::Client.new(@nordea_generic_params)
     response = client.send_request
@@ -184,7 +184,7 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
-  def test_should_send_proper_request_with_download_file
+  test "should_send_proper_request_with_download_file" do
     @nordea_generic_params[:command] = :download_file
     client = Sepa::Client.new(@nordea_generic_params)
     response = client.send_request
@@ -197,7 +197,7 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
-  def test_should_send_proper_request_with_upload_file
+  test "should_send_proper_request_with_upload_file" do
     @nordea_generic_params[:command] = :upload_file
     client = Sepa::Client.new(@nordea_generic_params)
     response = client.send_request
@@ -210,11 +210,11 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
-  def test_should_initialize_with_proper_cert_params
+  test "should_initialize_with_proper_cert_params" do
     assert Sepa::Client.new(@nordea_cert_params)
   end
 
-  def test_should_send_proper_request_with_get_certificate
+  test "should_send_proper_request_with_get_certificate" do
     client = Sepa::Client.new(@nordea_cert_params)
     response = client.send_request
 
@@ -226,7 +226,7 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
-  def test_should_check_signing_cert_request_with_create_certificate
+  test "should_check_signing_cert_request_with_create_certificate" do
     @danske_cert_params[:command] = :create_certificate
     @danske_cert_params.delete(:signing_cert_pkcs10)
 
@@ -235,7 +235,7 @@ class ClientTest < ActiveSupport::TestCase
     assert_includes sepa.errors.messages.to_s, SIGNING_CERT_REQUEST_ERROR_MESSAGE
   end
 
-  def test_should_check_encryption_cert_request_with_create_certificate
+  test "should_check_encryption_cert_request_with_create_certificate" do
     @danske_cert_params[:command] = :create_certificate
     @danske_cert_params.delete(:encryption_cert_pkcs10)
 
@@ -244,7 +244,7 @@ class ClientTest < ActiveSupport::TestCase
     assert_includes sepa.errors.messages.to_s, ENCRYPTION_CERT_REQUEST_ERROR_MESSAGE
   end
 
-  def test_should_check_pin_with_create_certificate
+  test "should_check_pin_with_create_certificate" do
     @danske_cert_params[:command] = :create_certificate
     @danske_cert_params.delete(:pin)
 
@@ -253,7 +253,7 @@ class ClientTest < ActiveSupport::TestCase
     assert_includes sepa.errors.messages.to_s, PIN_ERROR_MESSAGE
   end
 
-  def test_should_check_encryption_cert_with_create_certificate
+  test "should_check_encryption_cert_with_create_certificate" do
     @danske_cert_params[:command] = :create_certificate
     @danske_cert_params.delete(:enc_cert)
 
@@ -280,7 +280,7 @@ class ClientTest < ActiveSupport::TestCase
     response = client.send_request
 
     refute response.valid?, response.errors.messages
-    assert_includes response.errors.messages, "HTTP error (500): THE ERROR!"
+    assert_includes response.errors.messages.to_s, "HTTP error (500): THE ERROR!"
 
     Savon.observers.pop
   end
