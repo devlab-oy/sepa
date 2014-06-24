@@ -32,3 +32,16 @@ DANSKE_BANK_ROOT_CERT = File.read "#{DANSKE_TEST_KEYS_PATH}bank_root_cert.pem"
 DANSKE_OWN_ENCRYPTION_CERT = File.read "#{DANSKE_TEST_KEYS_PATH}own_enc_cert.pem"
 
 I18n.enforce_available_locales = true
+
+# Create an observer to fake sending requests to bank
+observer = Class.new {
+  def notify(operation_name, builder, globals, locals)
+    @operation_name = operation_name
+    @builder = builder
+    @globals = globals
+    @locals  = locals
+    HTTPI::Response.new(200, { "Reponse is actually" => "the request, w0000t" }, locals[:xml])
+  end
+}.new
+
+Savon.observers << observer

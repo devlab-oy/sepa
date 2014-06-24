@@ -2,22 +2,32 @@ require 'test_helper'
 
 class NordeaApplicationResponseTest < ActiveSupport::TestCase
 
+  KEYS_PATH = File.expand_path('../keys', __FILE__)
+
   def setup
-    keys_path = File.expand_path('../keys', __FILE__)
-    @root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/root_cert.cer")
-    @not_root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/nordea.crt")
+    options = {
+      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/dfl.xml")),
+      command: :download_file_list
+    }
+    @dfl = Sepa::Response.new(options).application_response_as_xml
 
-    @dfl = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/dfl.xml"))
-    @dfl = Sepa::Response.new(@dfl, command: :download_file_list).application_response
+    options = {
+      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/uf.xml")),
+      command: :upload_file
+    }
+    @uf = Sepa::Response.new(options).application_response_as_xml
 
-    @uf = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/uf.xml"))
-    @uf = Sepa::Response.new(@uf, command: :upload_file).application_response
+    options = {
+      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_tito.xml")),
+      command: :download_file
+    }
+    @df_tito = Sepa::Response.new(options).application_response_as_xml
 
-    @df_tito = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_tito.xml"))
-    @df_tito = Sepa::Response.new(@df_tito, command: :download_file).application_response
-
-    @gui = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/gui.xml"))
-    @gui = Sepa::Response.new(@gui, command: :get_user_info).application_response
+    options = {
+      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/gui.xml")),
+      command: :get_user_info
+    }
+    @gui = Sepa::Response.new(options).application_response_as_xml
 
     @dfl_ar = Sepa::ApplicationResponse.new(@dfl)
     @uf_ar = Sepa::ApplicationResponse.new(@uf)
@@ -207,26 +217,19 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   end
 
   def test_cert_should_be_trusted_with_correct_root_cert
-    assert @dfl_ar.cert_is_trusted(@root_cert)
-    assert @uf_ar.cert_is_trusted(@root_cert)
-    assert @df_ar.cert_is_trusted(@root_cert)
-    assert @gui_ar.cert_is_trusted(@root_cert)
+    root_cert = OpenSSL::X509::Certificate.new File.read("#{KEYS_PATH}/root_cert.cer")
+    assert @dfl_ar.cert_is_trusted(root_cert)
+    assert @uf_ar.cert_is_trusted(root_cert)
+    assert @df_ar.cert_is_trusted(root_cert)
+    assert @gui_ar.cert_is_trusted(root_cert)
   end
 
-  def test_dfl_should_fail_if_wrong_root_cert
-    assert_raises(SecurityError) { @dfl_ar.cert_is_trusted(@not_root_cert) }
-  end
-
-  def test_uf_should_fail_if_wrong_root_cert
-    assert_raises(SecurityError) { @uf_ar.cert_is_trusted(@not_root_cert) }
-  end
-
-  def test_df_should_fail_if_wrong_root_cert
-    assert_raises(SecurityError) { @df_ar.cert_is_trusted(@not_root_cert) }
-  end
-
-  def test_gui_should_fail_if_wrong_root_cert
-    assert_raises(SecurityError) { @gui_ar.cert_is_trusted(@not_root_cert) }
+  def test_should_fail_if_wrong_root_cert
+    not_root_cert = OpenSSL::X509::Certificate.new File.read("#{KEYS_PATH}/nordea.crt")
+    assert_raises(SecurityError) { @dfl_ar.cert_is_trusted(not_root_cert) }
+    assert_raises(SecurityError) { @uf_ar.cert_is_trusted(not_root_cert) }
+    assert_raises(SecurityError) { @df_ar.cert_is_trusted(not_root_cert) }
+    assert_raises(SecurityError) { @gui_ar.cert_is_trusted(not_root_cert) }
   end
 
 end

@@ -71,7 +71,7 @@ Make sure response is valid
 response.valid?
 ```
 
-Get reponse content
+Get response content
 
 ```ruby
 response.content

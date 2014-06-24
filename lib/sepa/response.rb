@@ -3,27 +3,19 @@ module Sepa
     include ActiveModel::Validations
     include Utilities
 
-    attr_reader :soap, :application_response, :certificate, :content
+    attr_reader :soap, :error, :command
 
     validates :soap, presence: true
     validate :validate_document_format
     validate :document_must_validate_against_schema
+    validate :client_errors
 
     GENERIC_COMMANDS = [:get_user_info, :download_file_list, :download_file, :upload_file]
 
-    def initialize(response, command: nil)
-      @soap = response
-      @command = command
-
-      # Check if command is one of the generic commands which should behave the same way across
-      # different banks
-      if GENERIC_COMMANDS.include? command
-        xsd = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
-
-        @application_response = extract_application_response('http://model.bxd.fi')
-        @certificate = extract_cert(soap, 'BinarySecurityToken', xsd)
-        @content = extract_content
-      end
+    def initialize(hash = {})
+      @soap = hash[:response]
+      @command = hash[:command]
+      @error = hash[:error]
     end
 
     # Verifies that all digest values in the response match the actual ones.
@@ -75,6 +67,10 @@ module Sepa
     # Gets the application response from the response as an Nokogiri::XML
     # document
     def application_response
+      extract_application_response('http://model.bxd.fi')
+    end
+
+    def application_response_as_xml
       ar = soap.at_css('mod|ApplicationResponse').content
       ar = Base64.decode64(ar)
       Nokogiri::XML(ar)
@@ -84,9 +80,36 @@ module Sepa
       return unless @command == :download_file_list
 
       @file_references ||= begin
-        content = Nokogiri::XML @content
-        descriptors = content.css('FileDescriptor')
+        xml = Nokogiri::XML content
+        descriptors = xml.css('FileDescriptor')
         descriptors.map { |descriptor| descriptor.at('FileReference').content }
+      end
+    end
+
+    def certificate
+      xsd = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+      extract_cert(soap, 'BinarySecurityToken', xsd)
+    end
+
+    def content
+      xml = Nokogiri::XML(application_response)
+      xmlns = 'http://bxd.fi/xmldata/'
+
+      case @command
+      when :download_file
+        content_node = xml.at('xmlns|Content', xmlns: xmlns)
+        content_node.content if content_node
+      when :download_file_list
+        content_node = xml.remove_namespaces!.at('FileDescriptors')
+        content_node.to_xml if content_node
+      when :get_user_info
+        canonicalized_node(xml, xmlns, 'UserFileTypes')
+      when :upload_file
+        signature_node = xml.at('xmlns|Signature', xmlns: 'http://www.w3.org/2000/09/xmldsig#')
+        if signature_node
+          signature_node.remove
+          xml.canonicalize
+        end
       end
     end
 
@@ -144,28 +167,6 @@ module Sepa
         check_validity_against_schema(soap, 'soap.xsd')
       end
 
-      def extract_content
-        xml = Nokogiri::XML(@application_response)
-        xmlns = 'http://bxd.fi/xmldata/'
-
-        case @command
-        when :download_file
-          content_node = xml.at('xmlns|Content', xmlns: xmlns)
-          content_node.content if content_node
-        when :download_file_list
-          content_node = xml.remove_namespaces!.at('FileDescriptors')
-          content_node.to_xml if content_node
-        when :get_user_info
-          canonicalized_node(xml, xmlns, 'UserFileTypes')
-        when :upload_file
-          signature_node = xml.at('xmlns|Signature', xmlns: 'http://www.w3.org/2000/09/xmldsig#')
-          if signature_node
-            signature_node.remove
-            xml.canonicalize
-          end
-        end
-      end
-
       def extract_application_response(namespace)
         if soap.respond_to? :at_css
           ar_node = soap.at_css('xmlns|ApplicationResponse', xmlns: namespace)
@@ -174,6 +175,11 @@ module Sepa
         if ar_node
           Base64.decode64(ar_node.content)
         end
+      end
+
+      def client_errors
+        client_error = error.to_s
+        errors.add(:base, client_error) unless client_error.empty?
       end
 
   end
