@@ -2,26 +2,27 @@ module Sepa
   class SoapBuilder
     include Utilities
 
-    attr_reader :ar
+    attr_reader :application_request
 
     # SoapBuilder creates the SOAP structure.
     def initialize(params)
-      @bank = params[:bank]
-      @private_key = params[:private_key]
-      @cert = params[:cert]
-      @command = params[:command]
-      @customer_id = params[:customer_id]
-      @environment = params[:environment]
-      @status = params[:status]
-      @target_id = params[:target_id]
-      @language = params[:language]
-      @file_type = params[:file_type]
-      @content = params[:content]
-      @file_reference = params[:file_reference]
-      @enc_cert = params[:enc_cert]
-      @header_template = load_header_template
-      @template = load_body_template SOAP_TEMPLATE_PATH
-      @ar = ApplicationRequest.new(params)
+      @bank                = params[:bank]
+      @cert                = params[:cert]
+      @command             = params[:command]
+      @content             = params[:content]
+      @customer_id         = params[:customer_id]
+      @enc_cert            = params[:enc_cert]
+      @environment         = params[:environment]
+      @file_reference      = params[:file_reference]
+      @file_type           = params[:file_type]
+      @language            = params[:language]
+      @private_key         = params[:private_key]
+      @status              = params[:status]
+      @target_id           = params[:target_id]
+
+      @application_request = ApplicationRequest.new params
+      @header_template     = load_header_template
+      @template            = load_body_template SOAP_TEMPLATE_PATH
 
       find_correct_bank_extension
     end

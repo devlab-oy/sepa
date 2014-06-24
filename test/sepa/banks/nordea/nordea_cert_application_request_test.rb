@@ -5,7 +5,7 @@ class NordeaCertApplicationRequestTest < ActiveSupport::TestCase
 
   def setup
     @get_cert_params = nordea_cert_params
-    ar_cert = Sepa::SoapBuilder.new(@get_cert_params).ar
+    ar_cert = Sepa::SoapBuilder.new(@get_cert_params).application_request
     @xml = Nokogiri::XML(ar_cert.to_xml)
   end
 
