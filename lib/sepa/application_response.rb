@@ -3,21 +3,17 @@ module Sepa
     include ActiveModel::Validations
     include Utilities
 
-    attr_accessor :xml
+    attr_reader :application_response
 
     validate :response_must_validate_against_schema
     validate :validate_document_format
 
     def initialize(app_resp)
-      @xml = app_resp
+      @application_response = app_resp
     end
 
     def doc
-      @doc ||= xml_doc @xml
-    end
-
-    def certificate
-      @certificate ||= extract_cert(doc, 'X509Certificate', 'http://www.w3.org/2000/09/xmldsig#')
+      @doc ||= xml_doc @application_response
     end
 
     # Checks that the hash value reported in the signature matches the actual one.
@@ -43,8 +39,8 @@ module Sepa
 
     # Checks that the signature is signed with the private key of the certificate's public key.
     def signature_is_valid?
-      node = doc.at_css('xmlns|SignedInfo', 'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
-
+      xmlns = 'http://www.w3.org/2000/09/xmldsig#'
+      node = doc.at_css('xmlns|SignedInfo', 'xmlns' => xmlns)
       node = node.canonicalize
 
       signature = doc.at_css(
@@ -59,7 +55,11 @@ module Sepa
     end
 
     def to_s
-      @xml
+      @application_response
+    end
+
+    def certificate
+      extract_cert(doc, 'X509Certificate', 'http://www.w3.org/2000/09/xmldsig#')
     end
 
     private
