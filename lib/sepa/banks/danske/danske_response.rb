@@ -29,5 +29,4 @@ module Sepa
     end
 
   end
-
 end
