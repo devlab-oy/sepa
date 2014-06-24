@@ -8,14 +8,14 @@ module Sepa
         instance_variable_set("@#{key}", value)
       end
 
-      @ar = load_body_template AR_TEMPLATE_PATH
+      @application_request = load_body_template AR_TEMPLATE_PATH
     end
 
     def to_xml
       set_common_nodes
       set_nodes_contents
       process_signature
-      @ar.to_xml
+      @application_request.to_xml
     end
 
     def to_base64
@@ -29,7 +29,7 @@ module Sepa
     private
 
       def set_node(node, value)
-        @ar.at_css(node).content = value
+        @application_request.at_css(node).content = value
       end
 
       def set_node_b(node, value)
@@ -109,26 +109,28 @@ module Sepa
       end
 
       def remove_node(node, xmlns)
-        @ar.at_css("xmlns|#{node}", 'xmlns' => xmlns).remove
+        @application_request.at_css("xmlns|#{node}", 'xmlns' => xmlns).remove
       end
 
       def add_node_to_root(node)
-        @ar.root.add_child(node)
+        @application_request.root.add_child(node)
       end
 
       def calculate_digest
         sha1 = OpenSSL::Digest::SHA1.new
-        Base64.encode64(sha1.digest(@ar.canonicalize))
+        Base64.encode64(sha1.digest(@application_request.canonicalize))
       end
 
       def add_value_to_signature(node, value)
-        sig = @ar.at_css("dsig|#{node}", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
+        dsig = 'http://www.w3.org/2000/09/xmldsig#'
+        sig = @application_request.at_css("dsig|#{node}", 'dsig' => dsig)
         sig.content = value
       end
 
       def calculate_signature
         sha1 = OpenSSL::Digest::SHA1.new
-        node = @ar.at_css("dsig|SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
+        dsig = 'http://www.w3.org/2000/09/xmldsig#'
+        node = @application_request.at_css("dsig|SignedInfo", 'dsig' => dsig)
         signature = @private_key.sign(sha1, node.canonicalize)
         Base64.encode64(signature)
       end
