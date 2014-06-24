@@ -35,6 +35,8 @@ module Sepa
     def initialize(hash = {})
       self.attributes hash
       self.environment ||= 'PRODUCTION'
+      self.language ||= 'EN'
+      self.status ||= 'NEW'
     end
 
     def bank=(value)
