@@ -2,15 +2,19 @@ require 'test_helper'
 
 class DanskeCertResponseTest < ActiveSupport::TestCase
 
-  get_bank_cert_soap = Nokogiri::XML(File.open "#{DANSKE_TEST_RESPONSE_PATH}get_bank_cert.xml")
-  get_bank_cert_response = Sepa::DanskeResponse.new(get_bank_cert_soap, command: :get_bank_certificate)
+  options = {
+    response: Nokogiri::XML(File.open "#{DANSKE_TEST_RESPONSE_PATH}get_bank_cert.xml"),
+    command: :get_bank_certificate
+  }
+  get_bank_cert_response = Sepa::DanskeResponse.new options
 
-  create_certificate_soap = Nokogiri::XML(File.open "#{DANSKE_TEST_RESPONSE_PATH}create_cert.xml")
-  create_certificate_response = Sepa::DanskeResponse.new(create_certificate_soap, command: :create_certificate)
+  options = {
+    response: Nokogiri::XML(File.open "#{DANSKE_TEST_RESPONSE_PATH}create_cert.xml"),
+    command: :create_certificate
+  }
+  create_certificate_response = Sepa::DanskeResponse.new options
 
-  ##
   # Tests for get bank certificate
-
   test 'should have correct bank signing cert with get_bank_certificate command' do
     bank_signing_cert = get_bank_cert_response.bank_signing_cert
     refute_nil bank_signing_cert
@@ -29,9 +33,7 @@ class DanskeCertResponseTest < ActiveSupport::TestCase
     assert_equal bank_root_cert.to_s, DANSKE_BANK_ROOT_CERT
   end
 
-  ##
   # Tests for create certificate
-
   test 'should have own encryption certificate with create certificate command' do
     own_encryption_cert = create_certificate_response.own_encryption_cert
     refute_nil own_encryption_cert
@@ -49,4 +51,5 @@ class DanskeCertResponseTest < ActiveSupport::TestCase
     refute_nil ca_certificate
     assert ca_certificate.respond_to? :sign
   end
+
 end

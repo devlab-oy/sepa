@@ -4,43 +4,59 @@ class NordeaResponseTest < ActiveSupport::TestCase
   include Sepa::Utilities
 
   def setup
-    keys_path = File.expand_path('../keys', __FILE__)
-    @root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/root_cert.cer")
-    @not_root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/nordea.crt")
+    options = {
+      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/dfl.xml")),
+      command: :download_file_list
+    }
+    @dfl = Sepa::NordeaResponse.new options
 
-    dfl = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/dfl.xml"))
-    @dfl = Sepa::Response.new(dfl, command: :download_file_list)
+    options = {
+      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/uf.xml")),
+      command: :upload_file
+    }
+    @uf = Sepa::NordeaResponse.new options
 
-    uf = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/uf.xml"))
-    @uf = Sepa::Response.new(uf, command: :upload_file)
+    options = {
+      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_tito.xml")),
+      command: :download_file
+    }
+    @df_tito = Sepa::NordeaResponse.new options
 
-    df_tito = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_tito.xml"))
-    @df_tito = Sepa::Response.new(df_tito, command: :download_file)
+    options = {
+      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_ktl.xml")),
+      command: :download_file
+    }
+    @df_ktl = Sepa::NordeaResponse.new options
 
-    df_ktl = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_ktl.xml"))
-    @df_ktl = Sepa::Response.new(df_ktl, command: :download_file)
+    options = {
+      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/gui.xml")),
+      command: :get_user_info
+    }
+    @gui = Sepa::NordeaResponse.new options
 
-    gui = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/gui.xml"))
-    @gui = Sepa::Response.new(gui, command: :get_user_info)
-
-    gc = Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/gc.xml"))
-    @gc = Sepa::NordeaResponse.new(gc, command: :get_certificate)
+    options = {
+      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/gc.xml")),
+      command: :get_certificate
+    }
+    @gc = Sepa::NordeaResponse.new options
   end
 
   def test_should_be_valid
-    assert @dfl.valid?
-    assert @uf.valid?
-    assert @df_tito.valid?
-    assert @gui.valid?
+    assert @dfl.valid?, "dfl"
+    assert @uf.valid?, "uf"
+    assert @df_tito.valid?, "df_tito"
+    assert @df_ktl.valid?, "df_ktl"
+    assert @gui.valid?, "gui"
+    assert @gc.valid?, "gc"
   end
 
   def test_should_fail_with_improper_params
-    a = Sepa::Response.new("Jees", command: 'not')
+    a = Sepa::Response.new({ response: "Jees", command: 'not'})
     refute a.valid?
   end
 
   def test_should_complain_if_ar_not_valid_against_schema
-    a = Sepa::Response.new(Nokogiri::XML("<ar>text</ar>"), command: 'notvalid')
+    a = Sepa::Response.new({ response: Nokogiri::XML("<ar>text</ar>"), command: 'notvalid' })
     refute a.valid?
   end
 
@@ -52,9 +68,13 @@ class NordeaResponseTest < ActiveSupport::TestCase
   end
 
   def test_cert_check_should_work
-    assert @dfl.cert_is_trusted(@root_cert)
+    keys_path = File.expand_path('../keys', __FILE__)
+    root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/root_cert.cer")
+    not_root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/nordea.crt")
+
+    assert @dfl.cert_is_trusted(root_cert)
     assert_raises(SecurityError) do
-     @dfl.cert_is_trusted(@not_root_cert)
+     @dfl.cert_is_trusted(not_root_cert)
    end
   end
 
@@ -113,4 +133,5 @@ class NordeaResponseTest < ActiveSupport::TestCase
       OpenSSL::X509::Certificate.new Base64.decode64(@gc.content)
     end
   end
+
 end

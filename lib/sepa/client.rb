@@ -58,13 +58,21 @@ module Sepa
 
       soap = SoapBuilder.new(create_hash).to_xml
       client = Savon.client(wsdl: wsdl)
-      response = client.call(command, xml: soap).doc
+
+      response = client.call(command, xml: soap)
+      response = response.doc if response
+
+      options = {
+        response: response,
+        error: nil,
+        command: command
+      }
 
       case bank
       when :nordea
-        NordeaResponse.new response, command: command
+        NordeaResponse.new options
       when :danske
-        DanskeResponse.new response, command: command
+        DanskeResponse.new options
       end
     end
 
