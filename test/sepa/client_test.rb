@@ -8,24 +8,10 @@ class ClientTest < ActiveSupport::TestCase
     # Get params hashes from fixtures for different banks and for different request types
     @nordea_generic_params = nordea_generic_params
     @nordea_cert_params = nordea_cert_params
-
     @danske_cert_params = danske_cert_params
 
     # Namespaces
     @cor = 'http://bxd.fi/CorporateFileService'
-
-    # Create an observer to fake sending requests to bank
-    observer = Class.new {
-      def notify(operation_name, builder, globals, locals)
-        @operation_name = operation_name
-        @builder = builder
-        @globals = globals
-        @locals  = locals
-        HTTPI::Response.new(200, { "Reponse is actually" => "the request, w0000t" }, locals[:xml])
-      end
-    }.new
-
-    Savon.observers << observer
   end
 
   test "should initialize class" do
