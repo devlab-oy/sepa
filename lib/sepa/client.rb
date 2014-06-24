@@ -87,5 +87,27 @@ module Sepa
         @private_key = OpenSSL::PKey::RSA.new(@private_key) if @private_key
       end
 
+      # Returns path to WSDL file
+      def wsdl
+        case bank
+          when :nordea
+            if command == :get_certificate
+              file = "wsdl_nordea_cert.xml"
+            else
+              file = "wsdl_nordea.xml"
+            end
+          when :danske
+            if [:get_bank_certificate, :create_certificate].include? command
+              file = "wsdl_danske_cert.xml"
+            else
+              file = "wsdl_danske.xml"
+            end
+          else
+            return nil
+        end
+
+        "#{WSDL_PATH}/#{file}"
+      end
+
   end
 end
