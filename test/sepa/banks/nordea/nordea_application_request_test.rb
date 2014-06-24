@@ -9,16 +9,16 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
     @nordea_generic_params[:private_key] = OpenSSL::PKey::RSA.new @nordea_generic_params[:private_key]
     @nordea_generic_params[:cert] = OpenSSL::X509::Certificate.new @nordea_generic_params[:cert]
 
-    ar_file = Sepa::SoapBuilder.new(@nordea_generic_params).ar
+    ar_file = Sepa::SoapBuilder.new(@nordea_generic_params).application_request
 
     @nordea_generic_params[:command] = :get_user_info
-    ar_get = Sepa::SoapBuilder.new(@nordea_generic_params).ar
+    ar_get = Sepa::SoapBuilder.new(@nordea_generic_params).application_request
 
     @nordea_generic_params[:command] = :download_file_list
-    ar_list = Sepa::SoapBuilder.new(@nordea_generic_params).ar
+    ar_list = Sepa::SoapBuilder.new(@nordea_generic_params).application_request
 
     @nordea_generic_params[:command] = :upload_file
-    ar_up = Sepa::SoapBuilder.new(@nordea_generic_params).ar
+    ar_up = Sepa::SoapBuilder.new(@nordea_generic_params).application_request
 
     @doc_file = Nokogiri::XML(ar_file.to_xml)
     @doc_get = Nokogiri::XML(ar_get.to_xml)

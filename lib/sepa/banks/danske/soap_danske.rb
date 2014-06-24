@@ -36,7 +36,7 @@ module Sepa
       key = cipher.random_key
       iv = cipher.random_iv
 
-      encrypted_data = cipher.update(@ar.to_xml)
+      encrypted_data = cipher.update(@application_request.to_xml)
       encrypted_data << cipher.final
       encrypted_data = iv + encrypted_data
       encrypted_data = Base64.encode64(encrypted_data)
@@ -116,7 +116,7 @@ module Sepa
     end
 
     def add_bank_certificate_body_to_soap
-      ar = @ar.to_nokogiri
+      ar = @application_request.to_nokogiri
 
       ar = ar.at_css('elem|GetBankCertificateRequest')
       @template.at_css('pkif|GetBankCertificateIn').add_child(ar)
