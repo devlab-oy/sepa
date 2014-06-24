@@ -59,12 +59,17 @@ module Sepa
       soap = SoapBuilder.new(create_hash).to_xml
       client = Savon.client(wsdl: wsdl)
 
-      response = client.call(command, xml: soap)
-      response = response.doc if response
+      begin
+        response = client.call(command, xml: soap)
+        response = response.doc if response
+      rescue Savon::Error => e
+        response = nil
+        error = e.to_s
+      end
 
       options = {
         response: response,
-        error: nil,
+        error: error,
         command: command
       }
 

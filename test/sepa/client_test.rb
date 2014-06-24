@@ -262,4 +262,27 @@ class ClientTest < ActiveSupport::TestCase
     assert_includes sepa.errors.messages.to_s, ENCRYPTION_CERT_ERROR_MESSAGE
   end
 
+  test "response should be invalid on savon exception" do
+    # Create an observer to fake sending requests to bank
+    observer = Class.new {
+      def notify(operation_name, builder, globals, locals)
+        @operation_name = operation_name
+        @builder = builder
+        @globals = globals
+        @locals  = locals
+        HTTPI::Response.new(500, {}, 'THE ERROR!')
+      end
+    }.new
+
+    Savon.observers << observer
+
+    client = Sepa::Client.new @nordea_generic_params
+    response = client.send_request
+
+    refute response.valid?, response.errors.messages
+    assert_includes response.errors.messages, "HTTP error (500): THE ERROR!"
+
+    Savon.observers.pop
+  end
+
 end

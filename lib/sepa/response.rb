@@ -8,6 +8,7 @@ module Sepa
     validates :soap, presence: true
     validate :validate_document_format
     validate :document_must_validate_against_schema
+    validate :client_errors
 
     GENERIC_COMMANDS = [:get_user_info, :download_file_list, :download_file, :upload_file]
 
@@ -174,6 +175,11 @@ module Sepa
         if ar_node
           Base64.decode64(ar_node.content)
         end
+      end
+
+      def client_errors
+        client_error = error.to_s
+        errors.add(:base, client_error) unless client_error.empty?
       end
 
   end
