@@ -9,7 +9,7 @@ module Sepa
           inclusive_namespaces = nil, with_comments = false
       )
 
-      Base64.encode64(sha1.digest(canon_node)).gsub(/\s+/, "")
+      encode(sha1.digest(canon_node)).gsub(/\s+/, "")
     end
 
     # Takes a certificate, adds begin and end
@@ -58,7 +58,7 @@ module Sepa
       cert = process_cert_value(cert_raw)
 
       begin
-        OpenSSL::X509::Certificate.new(cert)
+        x509_certificate(cert)
       rescue => e
         fail OpenSSL::X509::CertificateError,
              "The certificate could not be processed. It's most likely corrupted. OpenSSL had this to say: #{e}."
@@ -116,7 +116,7 @@ module Sepa
     end
 
     def hmac(pin, csr)
-      Base64.encode64(OpenSSL::HMAC.digest('sha1', pin, csr)).chop
+      encode(OpenSSL::HMAC.digest('sha1', pin, csr)).chop
     end
 
     def csr_to_binary(csr)
@@ -140,6 +140,14 @@ module Sepa
       value.canonicalize(mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
                          inclusive_namespaces = nil,
                          with_comments = false)
+    end
+
+    def x509_certificate(value)
+      OpenSSL::X509::Certificate.new value
+    end
+
+    def encode(value)
+      Base64.encode64 value
     end
 
   end
