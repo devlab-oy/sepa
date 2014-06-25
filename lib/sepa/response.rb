@@ -17,7 +17,7 @@ module Sepa
     end
 
     def doc
-      @doc ||= Nokogiri::XML @soap
+      @doc ||= xml_doc @soap
     end
 
     # Verifies that all digest values in the response match the actual ones.
@@ -49,33 +49,27 @@ module Sepa
     # Verifies the signature by extracting the public key from the certificate
     # embedded in the soap header and verifying the signature value with that.
     def signature_is_valid?
-      node = doc.at_css('xmlns|SignedInfo', 'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
+      node = doc.at('xmlns|SignedInfo', xmlns: DSIG)
 
-      node = node.canonicalize(
-        mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
-        inclusive_namespaces = nil, with_comments = false
-      )
+      node = canonicalize_exclusively node
 
-      signature = doc.at_css(
-        'xmlns|SignatureValue',
-        'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
-      ).content
+      signature = doc.at('xmlns|SignatureValue', xmlns: DSIG).content
 
-      signature = Base64.decode64(signature)
+      signature = decode(signature)
 
       certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
     end
 
     # Gets the application response from the response as an xml document
     def application_response
-      @application_response ||= extract_application_response('http://model.bxd.fi')
+      @application_response ||= extract_application_response(BXD)
     end
 
     def file_references
       return unless @command == :download_file_list
 
       @file_references ||= begin
-        xml = Nokogiri::XML content
+        xml = xml_doc content
         descriptors = xml.css('FileDescriptor')
         descriptors.map { |descriptor| descriptor.at('FileReference').content }
       end
@@ -83,27 +77,25 @@ module Sepa
 
     def certificate
       @certificate ||= begin
-        xsd = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
-        extract_cert(doc, 'BinarySecurityToken', xsd)
+        extract_cert(doc, 'BinarySecurityToken', OASIS_SECEXT)
       end
     end
 
     def content
       @content ||= begin
-        xml = Nokogiri::XML(application_response)
-        xmlns = 'http://bxd.fi/xmldata/'
+        xml = xml_doc(application_response)
 
         case @command
         when :download_file
-          content_node = xml.at('xmlns|Content', xmlns: xmlns)
+          content_node = xml.at('xmlns|Content', xmlns: XML_DATA)
           content_node.content if content_node
         when :download_file_list
           content_node = xml.remove_namespaces!.at('FileDescriptors')
           content_node.to_xml if content_node
         when :get_user_info
-          canonicalized_node(xml, xmlns, 'UserFileTypes')
+          canonicalized_node(xml, XML_DATA, 'UserFileTypes')
         when :upload_file
-          signature_node = xml.at('xmlns|Signature', xmlns: 'http://www.w3.org/2000/09/xmldsig#')
+          signature_node = xml.at('xmlns|Signature', xmlns: DSIG)
           if signature_node
             signature_node.remove
             xml.canonicalize
@@ -122,17 +114,11 @@ module Sepa
       # a hash with uri as the key and digest as the value.
       def find_digest_values
         references = {}
-        reference_nodes = doc.css(
-          'xmlns|Reference',
-          'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
-        )
+        reference_nodes = doc.css('xmlns|Reference', xmlns: DSIG)
 
         reference_nodes.each do |node|
           uri = node.attr('URI')
-          digest_value = node.at_css(
-            'xmlns|DigestValue',
-            'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
-          ).content
+          digest_value = node.at('xmlns|DigestValue', xmlns: DSIG).content
 
           references[uri] = digest_value
         end
@@ -145,14 +131,10 @@ module Sepa
       def find_nodes_to_verify(references)
         nodes = {}
 
-        references.each do |uri, digest_value|
+        references.each do |uri, _digest_value|
           uri = uri.sub(/^#/, '')
-          wsu = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
 
-          node = doc.at_css(
-            "[wsu|Id='#{uri}']",
-            'wsu' => wsu
-          )
+          node = doc.at("[xmlns|Id='#{uri}']", xmlns: OASIS_UTILITY)
 
           nodes[uri] = calculate_digest(node)
         end
@@ -162,7 +144,7 @@ module Sepa
 
       def validate_document_format
         unless doc.respond_to?(:canonicalize)
-          errors.add(:base, 'Document must be a Nokogiri XML file')
+          errors.add(:base, 'Document must be a valid XML file')
         end
       end
 
@@ -171,8 +153,8 @@ module Sepa
       end
 
       def extract_application_response(namespace)
-        ar_node = doc.at_css('xmlns|ApplicationResponse', xmlns: namespace)
-        Base64.decode64(ar_node.content)
+        ar_node = doc.at('xmlns|ApplicationResponse', xmlns: namespace)
+        decode(ar_node.content)
       end
 
       def client_errors
