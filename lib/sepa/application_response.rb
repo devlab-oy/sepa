@@ -20,15 +20,9 @@ module Sepa
     def hashes_match?
       are = doc.clone
 
-      digest_value = are.at_css(
-        'xmlns|DigestValue',
-        'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
-      ).content.strip
+      digest_value = are.at('xmlns|DigestValue', xmlns: DSIG).content.strip
 
-      are.at_css(
-        "xmlns|Signature",
-        'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
-      ).remove
+      are.at('xmlns|Signature', xmlns: DSIG).remove
 
       actual_digest = calculate_digest(are)
 
@@ -39,16 +33,12 @@ module Sepa
 
     # Checks that the signature is signed with the private key of the certificate's public key.
     def signature_is_valid?
-      xmlns = 'http://www.w3.org/2000/09/xmldsig#'
-      node = doc.at_css('xmlns|SignedInfo', 'xmlns' => xmlns)
+      node = doc.at('xmlns|SignedInfo', 'xmlns' => DSIG)
       node = node.canonicalize
 
-      signature = doc.at_css(
-        'xmlns|SignatureValue',
-        'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
-      ).content
+      signature = doc.at('xmlns|SignatureValue', 'xmlns' => DSIG).content
 
-      signature = Base64.decode64(signature)
+      signature = decode(signature)
 
       # Return true or false
       certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
@@ -59,7 +49,7 @@ module Sepa
     end
 
     def certificate
-      extract_cert(doc, 'X509Certificate', 'http://www.w3.org/2000/09/xmldsig#')
+      extract_cert(doc, 'X509Certificate', DSIG)
     end
 
     private
