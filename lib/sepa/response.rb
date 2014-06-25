@@ -135,7 +135,6 @@ module Sepa
           uri = uri.sub(/^#/, '')
           node = find_node_by_uri(uri)
 
-          puts node
           nodes[uri] = calculate_digest(node)
         end
 
