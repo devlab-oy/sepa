@@ -9,6 +9,7 @@ module Sepa
     validate :validate_document_format
 
     def initialize(app_resp)
+      @raw_xml = app_resp
       self.ar = Nokogiri::XML app_resp
     end
 
@@ -52,6 +53,10 @@ module Sepa
 
       # Return true or false
       certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
+    end
+
+    def to_s
+      @raw_xml
     end
 
     private

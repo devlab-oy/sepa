@@ -87,6 +87,10 @@ class NordeaResponseTest < ActiveSupport::TestCase
     refute @dfl.signature_is_valid?
   end
 
+  test 'to_s works' do
+    assert_equal File.read("#{NORDEA_TEST_RESPONSE_PATH}/dfl.xml"), @dfl.to_s
+  end
+
   ##
   # Tests for download file command
 

@@ -110,6 +110,10 @@ module Sepa
       end
     end
 
+    def to_s
+      @soap
+    end
+
     private
 
       # Finds all reference nodes with digest values in the document and returns

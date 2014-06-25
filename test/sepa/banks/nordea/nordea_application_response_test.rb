@@ -237,4 +237,8 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
     assert_raises(SecurityError) { @gui_ar.cert_is_trusted(not_root_cert) }
   end
 
+  test 'to_s works' do
+    assert_equal @uf, @uf_ar.to_s
+  end
+
 end
