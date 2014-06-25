@@ -10,8 +10,6 @@ module Sepa
     validate :document_must_validate_against_schema
     validate :client_errors
 
-    GENERIC_COMMANDS = [:get_user_info, :download_file_list, :download_file, :upload_file]
-
     def initialize(hash = {})
       @soap = hash[:response]
       @command = hash[:command]
@@ -70,7 +68,7 @@ module Sepa
 
     # Gets the application response from the response as an xml document
     def application_response
-      extract_application_response('http://model.bxd.fi')
+      @application_response ||= extract_application_response('http://model.bxd.fi')
     end
 
     def file_references
@@ -84,28 +82,32 @@ module Sepa
     end
 
     def certificate
-      xsd = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
-      extract_cert(doc, 'BinarySecurityToken', xsd)
+      @certificate ||= begin
+        xsd = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+        extract_cert(doc, 'BinarySecurityToken', xsd)
+      end
     end
 
     def content
-      xml = Nokogiri::XML(application_response)
-      xmlns = 'http://bxd.fi/xmldata/'
+      @content ||= begin
+        xml = Nokogiri::XML(application_response)
+        xmlns = 'http://bxd.fi/xmldata/'
 
-      case @command
-      when :download_file
-        content_node = xml.at('xmlns|Content', xmlns: xmlns)
-        content_node.content if content_node
-      when :download_file_list
-        content_node = xml.remove_namespaces!.at('FileDescriptors')
-        content_node.to_xml if content_node
-      when :get_user_info
-        canonicalized_node(xml, xmlns, 'UserFileTypes')
-      when :upload_file
-        signature_node = xml.at('xmlns|Signature', xmlns: 'http://www.w3.org/2000/09/xmldsig#')
-        if signature_node
-          signature_node.remove
-          xml.canonicalize
+        case @command
+        when :download_file
+          content_node = xml.at('xmlns|Content', xmlns: xmlns)
+          content_node.content if content_node
+        when :download_file_list
+          content_node = xml.remove_namespaces!.at('FileDescriptors')
+          content_node.to_xml if content_node
+        when :get_user_info
+          canonicalized_node(xml, xmlns, 'UserFileTypes')
+        when :upload_file
+          signature_node = xml.at('xmlns|Signature', xmlns: 'http://www.w3.org/2000/09/xmldsig#')
+          if signature_node
+            signature_node.remove
+            xml.canonicalize
+          end
         end
       end
     end
