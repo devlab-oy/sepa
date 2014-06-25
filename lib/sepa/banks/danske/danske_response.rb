@@ -1,31 +1,28 @@
 module Sepa
   class DanskeResponse < Response
 
-    # Namespace used in danske bank certificate responses and requests
-    TNS = 'http://danskebank.dk/PKI/PKIFactoryService/elements'
-
     def bank_encryption_cert
-      extract_cert(doc, 'BankEncryptionCert', TNS)
+      @bank_encryption_cert ||= extract_cert(doc, 'BankEncryptionCert', DANSKE_PKI)
     end
 
     def bank_signing_cert
-      extract_cert(doc, 'BankSigningCert', TNS)
+      @bank_signing_cert ||= extract_cert(doc, 'BankSigningCert', DANSKE_PKI)
     end
 
     def bank_root_cert
-      extract_cert(doc, 'BankRootCert', TNS)
+      @bank_root_cert ||= extract_cert(doc, 'BankRootCert', DANSKE_PKI)
     end
 
     def own_encryption_cert
-      extract_cert(doc, 'EncryptionCert', TNS)
+      @own_encryption_cert ||= extract_cert(doc, 'EncryptionCert', DANSKE_PKI)
     end
 
     def own_signing_cert
-      extract_cert(doc, 'SigningCert', TNS)
+      @own_signing_cert ||= extract_cert(doc, 'SigningCert', DANSKE_PKI)
     end
 
     def ca_certificate
-      extract_cert(doc, 'CACert', TNS)
+      @ca_certificate ||= extract_cert(doc, 'CACert', DANSKE_PKI)
     end
 
   end
