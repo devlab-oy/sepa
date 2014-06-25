@@ -3,17 +3,17 @@ module Sepa
     include ActiveModel::Validations
     include Utilities
 
-    attr_reader :application_response
+    attr_reader :xml
 
     validate :response_must_validate_against_schema
     validate :validate_document_format
 
     def initialize(app_resp)
-      @application_response = app_resp
+      @xml = app_resp
     end
 
     def doc
-      @doc ||= xml_doc @application_response
+      @doc ||= xml_doc @xml
     end
 
     # Checks that the hash value reported in the signature matches the actual one.
@@ -55,7 +55,7 @@ module Sepa
     end
 
     def to_s
-      @application_response
+      @xml
     end
 
     def certificate
