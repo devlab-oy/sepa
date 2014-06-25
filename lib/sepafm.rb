@@ -26,10 +26,16 @@ SCHEMA_FILE = "#{ROOT_PATH}/lib/sepa/xml_schemas/wsdl.xml"
 AR_TEMPLATE_PATH = "#{ROOT_PATH}/lib/sepa/xml_templates/application_request"
 SOAP_TEMPLATE_PATH = "#{ROOT_PATH}/lib/sepa/xml_templates/soap"
 
-# XML Namespaces
+# Common XML namespaces
 DSIG = 'http://www.w3.org/2000/09/xmldsig#'
 OASIS_UTILITY = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
 OASIS_SECEXT = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
 XML_DATA = 'http://bxd.fi/xmldata/'
 BXD = 'http://model.bxd.fi'
+
+# Nordea XML namespaces
+NORDEA_PKI = 'http://bxd.fi/CertificateService'
+NORDEA_XML_DATA = 'http://filetransfer.nordea.com/xmldata/'
+
+# Danske XML namespaces
 DANSKE_PKI = 'http://danskebank.dk/PKI/PKIFactoryService/elements'
