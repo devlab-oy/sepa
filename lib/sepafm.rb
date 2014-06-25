@@ -32,3 +32,4 @@ OASIS_UTILITY = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecur
 OASIS_SECEXT = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
 XML_DATA = 'http://bxd.fi/xmldata/'
 BXD = 'http://model.bxd.fi'
+DANSKE_PKI = 'http://danskebank.dk/PKI/PKIFactoryService/elements'
