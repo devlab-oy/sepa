@@ -4,10 +4,7 @@ module Sepa
     def calculate_digest(node)
       sha1 = OpenSSL::Digest::SHA1.new
 
-      canon_node = node.canonicalize(
-          mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
-          inclusive_namespaces = nil, with_comments = false
-      )
+      canon_node = canonicalize_exclusively node
 
       encode(sha1.digest(canon_node)).gsub(/\s+/, "")
     end
@@ -17,9 +14,9 @@ module Sepa
     # can read it.
     def process_cert_value(cert_value)
       cert = "-----BEGIN CERTIFICATE-----\n"
-      cert += cert_value.to_s.gsub(/\s+/, "").scan(/.{1,64}/).join("\n")
-      cert += "\n"
-      cert + "-----END CERTIFICATE-----"
+      cert << cert_value.to_s.gsub(/\s+/, "").scan(/.{1,64}/).join("\n")
+      cert << "\n"
+      cert << "-----END CERTIFICATE-----"
     end
 
     def format_cert(cert)
@@ -47,11 +44,7 @@ module Sepa
     # Extracts a certificate from a document and return it as an OpenSSL X509 certificate
     # Return nil is the node cannot be found
     def extract_cert(doc, node, namespace)
-      return nil unless doc.respond_to? :at
-
       cert_raw = doc.at("xmlns|#{node}", 'xmlns' => namespace)
-
-      return nil if cert_raw.nil?
 
       cert_raw = cert_raw.content.gsub(/\s+/, "")
 
@@ -97,7 +90,7 @@ module Sepa
         fail ArgumentError
       end
 
-      Nokogiri::XML(File.open(path))
+      xml_doc(File.open(path))
     end
 
     # Checks that the certificate in the application response is signed with the
