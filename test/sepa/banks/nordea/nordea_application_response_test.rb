@@ -1,33 +1,38 @@
 require 'test_helper'
 
 class NordeaApplicationResponseTest < ActiveSupport::TestCase
+  include Sepa::Utilities
 
   KEYS_PATH = File.expand_path('../keys', __FILE__)
 
   def setup
     options = {
-      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/dfl.xml")),
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/dfl.xml"),
       command: :download_file_list
     }
-    @dfl = Sepa::Response.new(options).application_response_as_xml
+    @dfl = Sepa::NordeaResponse.new(options).application_response
+    @dfl_doc = xml @dfl
 
     options = {
-      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/uf.xml")),
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/uf.xml"),
       command: :upload_file
     }
-    @uf = Sepa::Response.new(options).application_response_as_xml
+    @uf = Sepa::NordeaResponse.new(options).application_response
+    @uf_doc = xml @dfl
 
     options = {
-      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_tito.xml")),
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_tito.xml"),
       command: :download_file
     }
-    @df_tito = Sepa::Response.new(options).application_response_as_xml
+    @df_tito = Sepa::NordeaResponse.new(options).application_response
+    @df_tito_doc = xml @df_tito
 
     options = {
-      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/gui.xml")),
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/gui.xml"),
       command: :get_user_info
     }
-    @gui = Sepa::Response.new(options).application_response_as_xml
+    @gui = Sepa::NordeaResponse.new(options).application_response
+    @gui_doc = xml @gui
 
     @dfl_ar = Sepa::ApplicationResponse.new(@dfl)
     @uf_ar = Sepa::ApplicationResponse.new(@uf)
@@ -42,7 +47,7 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
     assert @gui_ar.valid?
   end
 
-  def test_should_fail_if_initialized_with_not_nokogiri_xml
+  def test_should_fail_if_initialized_with_invalid_xml
     as = Sepa::ApplicationResponse.new("Jees")
     refute as.valid?
   end
@@ -69,39 +74,39 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   end
 
   def test_invalid_dfl_hash_check_should_not_verify
-    customer_id_node = @dfl.at_css('c2b|CustomerId')
+    customer_id_node = @dfl_doc.at_css('c2b|CustomerId')
     customer_id_node.content = customer_id_node.content[0..-2]
 
-    refute Sepa::ApplicationResponse.new(@dfl).hashes_match?
+    refute Sepa::ApplicationResponse.new(@dfl_doc.to_s).hashes_match?
   end
 
   def test_invalid_uf_hash_check_should_not_verify
-    timestamp_node = @uf.at_css('c2b|Timestamp')
+    timestamp_node = @uf_doc.at_css('c2b|Timestamp')
     timestamp_node.content = Time.now.iso8601
 
-    refute Sepa::ApplicationResponse.new(@uf).hashes_match?
+    refute Sepa::ApplicationResponse.new(@uf_doc.to_s).hashes_match?
   end
 
   def test_invalid_df_hash_check_should_not_verify
-    digest_value_node = @df_tito.at_css(
+    digest_value_node = @df_tito_doc.at_css(
       'xmlns|DigestValue',
       'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
     )
 
     digest_value_node.content = digest_value_node.content[4..-1]
 
-    refute Sepa::ApplicationResponse.new(@df_tito).hashes_match?
+    refute Sepa::ApplicationResponse.new(@df_tito_doc.to_s).hashes_match?
   end
 
   def test_invalid_gui_hash_check_should_not_verify
-    digest_value_node = @gui.at_css(
+    digest_value_node = @gui_doc.at_css(
       'xmlns|DigestValue',
       'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
     )
 
     digest_value_node.content = '1234' + digest_value_node.content
 
-    refute Sepa::ApplicationResponse.new(@gui).hashes_match?
+    refute Sepa::ApplicationResponse.new(@gui_doc.to_s).hashes_match?
   end
 
   def test_proper_dfl_signature_should_verify
@@ -121,51 +126,51 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   end
 
   def test_corrupted_signature_in_dfl_should_fail_signature_verification
-    signature_node = @dfl.at_css(
+    signature_node = @dfl_doc.at_css(
       'xmlns|SignatureValue',
       'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
     )
 
     signature_node.content = signature_node.content[4..-1]
 
-    refute Sepa::ApplicationResponse.new(@dfl).signature_is_valid?
+    refute Sepa::ApplicationResponse.new(@dfl_doc.to_s).signature_is_valid?
   end
 
   def test_corrupted_signature_in_uf_should_fail_signature_verification
-    signature_node = @uf.at_css(
+    signature_node = @uf_doc.at_css(
       'xmlns|SignatureValue',
       'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
     )
 
     signature_node.content = signature_node.content[0..-5]
 
-    refute Sepa::ApplicationResponse.new(@uf).signature_is_valid?
+    refute Sepa::ApplicationResponse.new(@uf_doc.to_s).signature_is_valid?
   end
 
   def test_corrupted_signature_in_df_should_fail_signature_verification
-    signature_node = @df_tito.at_css(
+    signature_node = @df_tito_doc.at_css(
       'xmlns|SignatureValue',
       'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
     )
 
     signature_node.content = 'a' + signature_node.content[1..-1]
 
-    refute Sepa::ApplicationResponse.new(@df_tito).signature_is_valid?
+    refute Sepa::ApplicationResponse.new(@df_tito_doc.to_s).signature_is_valid?
   end
 
   def test_corrupted_signature_in_gui_should_fail_signature_verification
-    signature_node = @gui.at_css(
+    signature_node = @gui_doc.at_css(
       'xmlns|SignatureValue',
       'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
     )
 
     signature_node.content = 'zombi' + signature_node.content[1..-1]
 
-    refute Sepa::ApplicationResponse.new(@gui).signature_is_valid?
+    refute Sepa::ApplicationResponse.new(@gui_doc.to_s).signature_is_valid?
   end
 
   def test_should_raise_error_if_certificate_corrupted_in_dfl
-    cert_node = @dfl.at_css(
+    cert_node = @dfl_doc.at_css(
       'xmlns|X509Certificate',
       'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
     )
@@ -173,12 +178,12 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
     cert_node.content = cert_node.content[0..-5]
 
     assert_raises(OpenSSL::X509::CertificateError) do
-      Sepa::ApplicationResponse.new(@dfl).certificate
+      Sepa::ApplicationResponse.new(@dfl_doc.to_s).certificate
     end
   end
 
   def test_should_raise_error_if_certificate_corrupted_in_uf
-    cert_node = @uf.at_css(
+    cert_node = @uf_doc.at_css(
       'xmlns|X509Certificate',
       'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
     )
@@ -186,12 +191,12 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
     cert_node.content = cert_node.content[4..-1]
 
     assert_raises(OpenSSL::X509::CertificateError) do
-      Sepa::ApplicationResponse.new(@uf).certificate
+      Sepa::ApplicationResponse.new(@uf_doc.to_s).certificate
     end
   end
 
   def test_should_raise_error_if_certificate_corrupted_in_df
-    cert_node = @df_tito.at_css(
+    cert_node = @df_tito_doc.at_css(
       'xmlns|X509Certificate',
       'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
     )
@@ -199,12 +204,12 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
     cert_node.content = "n5iw#{cert_node.content}"
 
     assert_raises(OpenSSL::X509::CertificateError) do
-      Sepa::ApplicationResponse.new(@df_tito).certificate
+      Sepa::ApplicationResponse.new(@df_tito_doc.to_s).certificate
     end
   end
 
   def test_should_raise_error_if_certificate_corrupted_in_gui
-    cert_node = @gui.at_css(
+    cert_node = @gui_doc.at_css(
       'xmlns|X509Certificate',
       'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
     )
@@ -212,7 +217,7 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
     cert_node.content = Base64.encode64('voivoi')
 
     assert_raises(OpenSSL::X509::CertificateError) do
-      Sepa::ApplicationResponse.new(@gui).certificate
+      Sepa::ApplicationResponse.new(@gui_doc.to_s).certificate
     end
   end
 

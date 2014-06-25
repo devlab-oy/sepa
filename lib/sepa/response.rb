@@ -68,16 +68,9 @@ module Sepa
       certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
     end
 
-    # Gets the application response from the response as an Nokogiri::XML
-    # document
+    # Gets the application response from the response as an xml document
     def application_response
       extract_application_response('http://model.bxd.fi')
-    end
-
-    def application_response_as_xml
-      ar = soap.at_css('mod|ApplicationResponse').content
-      ar = Base64.decode64(ar)
-      Nokogiri::XML(ar)
     end
 
     def file_references
@@ -172,13 +165,8 @@ module Sepa
       end
 
       def extract_application_response(namespace)
-        if doc.respond_to? :at_css
-          ar_node = doc.at_css('xmlns|ApplicationResponse', xmlns: namespace)
-        end
-
-        if ar_node
-          Base64.decode64(ar_node.content)
-        end
+        ar_node = doc.at_css('xmlns|ApplicationResponse', xmlns: namespace)
+        Base64.decode64(ar_node.content)
       end
 
       def client_errors

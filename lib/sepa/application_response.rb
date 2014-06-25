@@ -3,14 +3,17 @@ module Sepa
     include ActiveModel::Validations
     include Utilities
 
-    attr_accessor :ar, :certificate
+    attr_accessor :ar
 
     validate :response_must_validate_against_schema
     validate :validate_document_format
 
     def initialize(app_resp)
-      self.ar = app_resp
-      self.certificate = extract_cert(ar, 'X509Certificate', 'http://www.w3.org/2000/09/xmldsig#')
+      self.ar = Nokogiri::XML app_resp
+    end
+
+    def certificate
+      @certificate ||= extract_cert(ar, 'X509Certificate', 'http://www.w3.org/2000/09/xmldsig#')
     end
 
     # Checks that the hash value reported in the signature matches the actual one.
