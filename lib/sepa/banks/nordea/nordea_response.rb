@@ -1,19 +1,19 @@
 module Sepa
   class NordeaResponse < Response
+    include Utilities
 
     def own_signing_cert
-      ar = extract_application_response('http://bxd.fi/CertificateService')
+      application_response = extract_application_response(NORDEA_PKI)
       at = 'xmlns|Certificate > xmlns|Certificate'
-      xmlns = 'http://filetransfer.nordea.com/xmldata/'
-      node = Nokogiri::XML(ar).at(at, xmlns: xmlns)
+      node = Nokogiri::XML(application_response).at(at, xmlns: NORDEA_XML_DATA)
 
       return unless node
 
       cert_value = process_cert_value node.content
-      cert = OpenSSL::X509::Certificate.new cert_value
+      cert = x509_certificate cert_value
       cert_plain = cert.to_s
 
-      Base64.encode64 cert_plain
+      encode cert_plain
     end
 
   end
