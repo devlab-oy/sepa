@@ -128,7 +128,7 @@ module Sepa
       content_node.canonicalize if content_node
     end
 
-    def xml(value)
+    def xml_doc(value)
       Nokogiri::XML value
     end
 

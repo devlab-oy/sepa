@@ -3,23 +3,26 @@ module Sepa
     include ActiveModel::Validations
     include Utilities
 
-    attr_accessor :ar
+    attr_accessor :xml
 
     validate :response_must_validate_against_schema
     validate :validate_document_format
 
     def initialize(app_resp)
-      @raw_xml = app_resp
-      self.ar = Nokogiri::XML app_resp
+      @xml = app_resp
+    end
+
+    def doc
+      @doc ||= xml_doc @xml
     end
 
     def certificate
-      @certificate ||= extract_cert(ar, 'X509Certificate', 'http://www.w3.org/2000/09/xmldsig#')
+      @certificate ||= extract_cert(doc, 'X509Certificate', 'http://www.w3.org/2000/09/xmldsig#')
     end
 
     # Checks that the hash value reported in the signature matches the actual one.
     def hashes_match?
-      are = ar.clone
+      are = doc.clone
 
       digest_value = are.at_css(
         'xmlns|DigestValue',
@@ -40,11 +43,11 @@ module Sepa
 
     # Checks that the signature is signed with the private key of the certificate's public key.
     def signature_is_valid?
-      node = ar.at_css('xmlns|SignedInfo', 'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
+      node = doc.at_css('xmlns|SignedInfo', 'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
 
       node = node.canonicalize
 
-      signature = ar.at_css(
+      signature = doc.at_css(
         'xmlns|SignatureValue',
         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
       ).content
@@ -56,19 +59,19 @@ module Sepa
     end
 
     def to_s
-      @raw_xml
+      @xml
     end
 
     private
 
       def validate_document_format
-        unless ar.respond_to?(:canonicalize)
-          errors.add(:base, 'Document must be a Nokogiri XML file')
+        unless doc.respond_to?(:canonicalize)
+          errors.add(:base, 'Document must be a valid XML file')
         end
       end
 
       def response_must_validate_against_schema
-        check_validity_against_schema(ar, 'application_response.xsd')
+        check_validity_against_schema(doc, 'application_response.xsd')
       end
 
   end

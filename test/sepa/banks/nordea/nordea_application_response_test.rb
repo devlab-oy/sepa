@@ -11,28 +11,28 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
       command: :download_file_list
     }
     @dfl = Sepa::NordeaResponse.new(options).application_response
-    @dfl_doc = xml @dfl
+    @dfl_doc = xml_doc @dfl
 
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/uf.xml"),
       command: :upload_file
     }
     @uf = Sepa::NordeaResponse.new(options).application_response
-    @uf_doc = xml @dfl
+    @uf_doc = xml_doc @dfl
 
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_tito.xml"),
       command: :download_file
     }
     @df_tito = Sepa::NordeaResponse.new(options).application_response
-    @df_tito_doc = xml @df_tito
+    @df_tito_doc = xml_doc @df_tito
 
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/gui.xml"),
       command: :get_user_info
     }
     @gui = Sepa::NordeaResponse.new(options).application_response
-    @gui_doc = xml @gui
+    @gui_doc = xml_doc @gui
 
     @dfl_ar = Sepa::ApplicationResponse.new(@dfl)
     @uf_ar = Sepa::ApplicationResponse.new(@uf)
