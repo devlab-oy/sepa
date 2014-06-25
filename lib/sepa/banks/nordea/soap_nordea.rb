@@ -18,7 +18,7 @@ module Sepa
       end
 
       def set_body_contents
-        set_node(@template, 'cer|ApplicationRequest', @ar.to_base64)
+        set_node(@template, 'cer|ApplicationRequest', @application_request.to_base64)
         set_node(@template, 'cer|SenderId', @customer_id)
         set_node(@template, 'cer|RequestId', request_id)
         set_node(@template, 'cer|Timestamp', iso_time)
@@ -34,7 +34,7 @@ module Sepa
       end
 
       def common_set_body_contents
-        set_node(@template, 'bxd|ApplicationRequest', @ar.to_base64)
+        set_node(@template, 'bxd|ApplicationRequest', @application_request.to_base64)
         set_node(@template, 'bxd|SenderId', @customer_id)
         set_node(@template, 'bxd|RequestId', request_id)
         set_node(@template, 'bxd|Timestamp', iso_time)

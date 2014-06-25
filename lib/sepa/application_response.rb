@@ -3,19 +3,18 @@ module Sepa
     include ActiveModel::Validations
     include Utilities
 
-    attr_accessor :ar, :certificate
+    attr_reader :application_response
 
     validate :response_must_validate_against_schema
     validate :validate_document_format
 
     def initialize(app_resp)
-      self.ar = app_resp
-      self.certificate = extract_cert(ar, 'X509Certificate', 'http://www.w3.org/2000/09/xmldsig#')
+      @application_response = app_resp
     end
 
     # Checks that the hash value reported in the signature matches the actual one.
     def hashes_match?
-      are = ar.clone
+      are = application_response.clone
 
       digest_value = are.at_css(
         'xmlns|DigestValue',
@@ -36,11 +35,11 @@ module Sepa
 
     # Checks that the signature is signed with the private key of the certificate's public key.
     def signature_is_valid?
-      node = ar.at_css('xmlns|SignedInfo', 'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
-
+      xmlns = 'http://www.w3.org/2000/09/xmldsig#'
+      node = application_response.at_css('xmlns|SignedInfo', 'xmlns' => xmlns)
       node = node.canonicalize
 
-      signature = ar.at_css(
+      signature = application_response.at_css(
         'xmlns|SignatureValue',
         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
       ).content
@@ -51,16 +50,20 @@ module Sepa
       certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
     end
 
+    def certificate
+      extract_cert(application_response, 'X509Certificate', 'http://www.w3.org/2000/09/xmldsig#')
+    end
+
     private
 
       def validate_document_format
-        unless ar.respond_to?(:canonicalize)
+        unless application_response.respond_to?(:canonicalize)
           errors.add(:base, 'Document must be a Nokogiri XML file')
         end
       end
 
       def response_must_validate_against_schema
-        check_validity_against_schema(ar, 'application_response.xsd')
+        check_validity_against_schema(application_response, 'application_response.xsd')
       end
 
   end
