@@ -52,4 +52,8 @@ class DanskeCertResponseTest < ActiveSupport::TestCase
     assert ca_certificate.respond_to? :sign
   end
 
+  test 'hashes should match' do
+    assert create_certificate_response.hashes_match?
+  end
+
 end

@@ -133,9 +133,9 @@ module Sepa
 
         references.each do |uri, _digest_value|
           uri = uri.sub(/^#/, '')
+          node = find_node_by_uri(uri)
 
-          node = doc.at("[xmlns|Id='#{uri}']", xmlns: OASIS_UTILITY)
-
+          puts node
           nodes[uri] = calculate_digest(node)
         end
 
@@ -160,6 +160,10 @@ module Sepa
       def client_errors
         client_error = error.to_s
         errors.add(:base, client_error) unless client_error.empty?
+      end
+
+      def find_node_by_uri(uri)
+        doc.at("[xmlns|Id='#{uri}']", xmlns: OASIS_UTILITY)
       end
 
   end
