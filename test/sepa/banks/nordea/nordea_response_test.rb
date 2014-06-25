@@ -80,10 +80,7 @@ class NordeaResponseTest < ActiveSupport::TestCase
 
   def test_signature_check_should_work
     assert @dfl.signature_is_valid?
-    @dfl.doc.at_css(
-        'xmlns|SignatureValue',
-        'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
-      ).content = "kissa"
+    @dfl.doc.at('xmlns|SignatureValue', 'xmlns' => DSIG).content = "kissa"
     refute @dfl.signature_is_valid?
   end
 
