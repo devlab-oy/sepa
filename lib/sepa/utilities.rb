@@ -132,5 +132,15 @@ module Sepa
       Nokogiri::XML value
     end
 
+    def decode(value)
+      Base64.decode64 value
+    end
+
+    def canonicalize_exclusively(value)
+      value.canonicalize(mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
+                         inclusive_namespaces = nil,
+                         with_comments = false)
+    end
+
   end
 end
