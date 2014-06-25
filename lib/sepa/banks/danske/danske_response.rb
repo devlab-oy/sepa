@@ -5,27 +5,27 @@ module Sepa
     TNS = 'http://danskebank.dk/PKI/PKIFactoryService/elements'
 
     def bank_encryption_cert
-      extract_cert(soap, 'BankEncryptionCert', TNS)
+      extract_cert(doc, 'BankEncryptionCert', TNS)
     end
 
     def bank_signing_cert
-      extract_cert(soap, 'BankSigningCert', TNS)
+      extract_cert(doc, 'BankSigningCert', TNS)
     end
 
     def bank_root_cert
-      extract_cert(soap, 'BankRootCert', TNS)
+      extract_cert(doc, 'BankRootCert', TNS)
     end
 
     def own_encryption_cert
-      extract_cert(soap, 'EncryptionCert', TNS)
+      extract_cert(doc, 'EncryptionCert', TNS)
     end
 
     def own_signing_cert
-      extract_cert(soap, 'SigningCert', TNS)
+      extract_cert(doc, 'SigningCert', TNS)
     end
 
     def ca_certificate
-      extract_cert(soap, 'CACert', TNS)
+      extract_cert(doc, 'CACert', TNS)
     end
 
   end

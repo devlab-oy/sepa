@@ -18,12 +18,16 @@ module Sepa
       @error = hash[:error]
     end
 
+    def doc
+      @doc ||= Nokogiri::XML @soap
+    end
+
     # Verifies that all digest values in the response match the actual ones.
     # Takes an optional verbose parameter to show which digests didn't match
     # i.e. verbose: true
     def hashes_match?(options = {})
       digests = find_digest_values
-      nodes = find_nodes_to_verify(soap, digests)
+      nodes = find_nodes_to_verify(digests)
 
       verified_digests = digests.select do |uri, digest|
         uri = uri.sub(/^#/, '')
@@ -47,14 +51,14 @@ module Sepa
     # Verifies the signature by extracting the public key from the certificate
     # embedded in the soap header and verifying the signature value with that.
     def signature_is_valid?
-      node = soap.at_css('xmlns|SignedInfo', 'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
+      node = doc.at_css('xmlns|SignedInfo', 'xmlns' => 'http://www.w3.org/2000/09/xmldsig#')
 
       node = node.canonicalize(
         mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
         inclusive_namespaces = nil, with_comments = false
       )
 
-      signature = soap.at_css(
+      signature = doc.at_css(
         'xmlns|SignatureValue',
         'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
       ).content
@@ -88,7 +92,7 @@ module Sepa
 
     def certificate
       xsd = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
-      extract_cert(soap, 'BinarySecurityToken', xsd)
+      extract_cert(doc, 'BinarySecurityToken', xsd)
     end
 
     def content
@@ -119,7 +123,7 @@ module Sepa
       # a hash with uri as the key and digest as the value.
       def find_digest_values
         references = {}
-        reference_nodes = soap.css(
+        reference_nodes = doc.css(
           'xmlns|Reference',
           'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
         )
@@ -139,7 +143,7 @@ module Sepa
 
       # Finds nodes to verify by comparing their id's to the uris' in the
       # references hash.
-      def find_nodes_to_verify(doc, references)
+      def find_nodes_to_verify(references)
         nodes = {}
 
         references.each do |uri, digest_value|
@@ -158,18 +162,18 @@ module Sepa
       end
 
       def validate_document_format
-        unless soap.respond_to?(:canonicalize)
+        unless doc.respond_to?(:canonicalize)
           errors.add(:base, 'Document must be a Nokogiri XML file')
         end
       end
 
       def document_must_validate_against_schema
-        check_validity_against_schema(soap, 'soap.xsd')
+        check_validity_against_schema(doc, 'soap.xsd')
       end
 
       def extract_application_response(namespace)
-        if soap.respond_to? :at_css
-          ar_node = soap.at_css('xmlns|ApplicationResponse', xmlns: namespace)
+        if doc.respond_to? :at_css
+          ar_node = doc.at_css('xmlns|ApplicationResponse', xmlns: namespace)
         end
 
         if ar_node

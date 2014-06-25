@@ -3,13 +3,13 @@ require 'test_helper'
 class DanskeCertResponseTest < ActiveSupport::TestCase
 
   options = {
-    response: Nokogiri::XML(File.open "#{DANSKE_TEST_RESPONSE_PATH}get_bank_cert.xml"),
+    response: (File.open "#{DANSKE_TEST_RESPONSE_PATH}get_bank_cert.xml"),
     command: :get_bank_certificate
   }
   get_bank_cert_response = Sepa::DanskeResponse.new options
 
   options = {
-    response: Nokogiri::XML(File.open "#{DANSKE_TEST_RESPONSE_PATH}create_cert.xml"),
+    response: (File.open "#{DANSKE_TEST_RESPONSE_PATH}create_cert.xml"),
     command: :create_certificate
   }
   create_certificate_response = Sepa::DanskeResponse.new options

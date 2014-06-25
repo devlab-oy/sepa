@@ -61,7 +61,7 @@ module Sepa
 
       begin
         response = client.call(command, xml: soap)
-        response = response.doc if response
+        response &&= response.to_xml
       rescue Savon::Error => e
         response = nil
         error = e.to_s
