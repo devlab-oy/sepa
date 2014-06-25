@@ -25,5 +25,13 @@ module Sepa
       @ca_certificate ||= extract_cert(doc, 'CACert', DANSKE_PKI)
     end
 
+    private
+
+      def find_node_by_uri(uri)
+        node = doc.at("[xml|id='#{uri}']")
+        node.at('xmlns|Signature', xmlns: DSIG).remove
+        node
+      end
+
   end
 end
