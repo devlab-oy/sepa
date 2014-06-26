@@ -25,6 +25,14 @@ module Sepa
       @ca_certificate ||= extract_cert(doc, 'CACert', DANSKE_PKI)
     end
 
+    def certificate
+      if @command == :create_certificate
+        @certificate ||= begin
+          extract_cert(doc, 'X509Certificate', DSIG)
+        end
+      end
+    end
+
     private
 
       def find_node_by_uri(uri)
