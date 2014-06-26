@@ -37,7 +37,6 @@ module Sepa
       node = node.canonicalize
 
       signature = doc.at('xmlns|SignatureValue', 'xmlns' => DSIG).content
-
       signature = decode(signature)
 
       # Return true or false
