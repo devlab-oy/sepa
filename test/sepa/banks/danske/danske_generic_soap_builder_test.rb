@@ -26,7 +26,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
       status: 'ALL',
       target_id: 'Danske FI',
       file_type: 'pain.001.001.02',
-      content: Base64.encode64('kissa'),
+      content: encode('kissa'),
       file_reference: "11111111A12006030329501800000014",
     }
 
@@ -159,7 +159,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
       inclusive_namespaces = nil, with_comments = false
     )
 
-    actual_digest = Base64.encode64(sha1.digest(body_node)).strip
+    actual_digest = encode(sha1.digest(body_node)).strip
 
     assert_equal actual_digest, added_digest
   end
@@ -208,7 +208,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
       with_comments = false
     )
 
-    actual_digest = Base64.encode64(sha1.digest(timestamp_node)).strip
+    actual_digest = encode(sha1.digest(timestamp_node)).strip
 
     assert_equal actual_digest, added_digest
   end
@@ -230,7 +230,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
       with_comments = false
     )
 
-    actual_signature = Base64.encode64(
+    actual_signature = encode(
       private_key.sign(sha1, signed_info_node)
     ).gsub(/\s+/, "")
 

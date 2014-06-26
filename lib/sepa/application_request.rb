@@ -19,7 +19,7 @@ module Sepa
     end
 
     def to_base64
-      Base64.encode64(to_xml)
+      encode to_xml
     end
 
     def to_nokogiri
@@ -33,7 +33,7 @@ module Sepa
       end
 
       def set_node_b(node, value)
-        set_node node, Base64.encode64(value)
+        set_node node, encode(value)
       end
 
       def pretty_command
@@ -118,7 +118,7 @@ module Sepa
 
       def calculate_digest
         sha1 = OpenSSL::Digest::SHA1.new
-        Base64.encode64(sha1.digest(@application_request.canonicalize))
+        encode(sha1.digest(@application_request.canonicalize))
       end
 
       def add_value_to_signature(node, value)
@@ -132,7 +132,7 @@ module Sepa
         dsig = 'http://www.w3.org/2000/09/xmldsig#'
         node = @application_request.at_css("dsig|SignedInfo", 'dsig' => dsig)
         signature = @private_key.sign(sha1, node.canonicalize)
-        Base64.encode64(signature)
+        encode signature
       end
 
       def process_signature

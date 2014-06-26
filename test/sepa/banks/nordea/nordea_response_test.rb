@@ -5,49 +5,49 @@ class NordeaResponseTest < ActiveSupport::TestCase
 
   def setup
     options = {
-      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/dfl.xml")),
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/dfl.xml"),
       command: :download_file_list
     }
     @dfl = Sepa::NordeaResponse.new options
 
     options = {
-      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/uf.xml")),
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/uf.xml"),
       command: :upload_file
     }
     @uf = Sepa::NordeaResponse.new options
 
     options = {
-      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_tito.xml")),
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_tito.xml"),
       command: :download_file
     }
     @df_tito = Sepa::NordeaResponse.new options
 
     options = {
-      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_ktl.xml")),
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_ktl.xml"),
       command: :download_file
     }
     @df_ktl = Sepa::NordeaResponse.new options
 
     options = {
-      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/gui.xml")),
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/gui.xml"),
       command: :get_user_info
     }
     @gui = Sepa::NordeaResponse.new options
 
     options = {
-      response: Nokogiri::XML(File.read("#{NORDEA_TEST_RESPONSE_PATH}/gc.xml")),
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/gc.xml"),
       command: :get_certificate
     }
     @gc = Sepa::NordeaResponse.new options
   end
 
   def test_should_be_valid
-    assert @dfl.valid?, "dfl"
-    assert @uf.valid?, "uf"
-    assert @df_tito.valid?, "df_tito"
-    assert @df_ktl.valid?, "df_ktl"
-    assert @gui.valid?, "gui"
-    assert @gc.valid?, "gc"
+    assert @dfl.valid?, @dfl.errors.messages
+    assert @uf.valid?, @uf.errors.messages
+    assert @df_tito.valid?, @df_tito.errors.messages
+    assert @df_ktl.valid?, @df_ktl.errors.messages
+    assert @gui.valid?, @gui.errors.messages
+    assert @gc.valid?, @gc.errors.messages
   end
 
   def test_should_fail_with_improper_params
@@ -56,7 +56,7 @@ class NordeaResponseTest < ActiveSupport::TestCase
   end
 
   def test_should_complain_if_ar_not_valid_against_schema
-    a = Sepa::Response.new({ response: Nokogiri::XML("<ar>text</ar>"), command: 'notvalid' })
+    a = Sepa::Response.new({ response: "<ar>text</ar>", command: 'notvalid' })
     refute a.valid?
   end
 
@@ -80,11 +80,12 @@ class NordeaResponseTest < ActiveSupport::TestCase
 
   def test_signature_check_should_work
     assert @dfl.signature_is_valid?
-    @dfl.soap.at_css(
-        'xmlns|SignatureValue',
-        'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
-      ).content = "kissa"
+    @dfl.doc.at('xmlns|SignatureValue', 'xmlns' => DSIG).content = "kissa"
     refute @dfl.signature_is_valid?
+  end
+
+  test 'to_s works' do
+    assert_equal File.read("#{NORDEA_TEST_RESPONSE_PATH}/dfl.xml"), @dfl.to_s
   end
 
   ##
@@ -130,7 +131,7 @@ class NordeaResponseTest < ActiveSupport::TestCase
 
   test 'certificate can be extracted from get certificate response' do
     assert_nothing_raised do
-      OpenSSL::X509::Certificate.new Base64.decode64(@gc.own_signing_cert)
+      OpenSSL::X509::Certificate.new decode(@gc.own_signing_cert)
     end
   end
 

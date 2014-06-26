@@ -124,7 +124,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
       "//bxd:ApplicationRequest", 'bxd' => 'http://model.bxd.fi'
     ).first
 
-    ar_doc = Nokogiri::XML(Base64.decode64(ar_node.content))
+    ar_doc = Nokogiri::XML(decode(ar_node.content))
 
     assert ar_doc.respond_to?(:canonicalize)
     assert_equal ar_doc.at_css("CustomerId").content, @nordea_generic_params[:customer_id]
@@ -163,7 +163,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
       with_comments = false
     )
 
-    actual_digest = Base64.encode64(sha1.digest(body_node)).strip
+    actual_digest = encode(sha1.digest(body_node)).strip
 
     assert_equal actual_digest, added_digest
   end
@@ -211,7 +211,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
       with_comments = false
     )
 
-    actual_digest = Base64.encode64(sha1.digest(timestamp_node)).strip
+    actual_digest = encode(sha1.digest(timestamp_node)).strip
 
     assert_equal actual_digest, added_digest
   end
@@ -233,7 +233,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
       with_comments = false
     )
 
-    actual_signature = Base64.encode64(
+    actual_signature = encode(
       private_key.sign(sha1, signed_info_node)
     ).gsub(/\s+/, "")
 

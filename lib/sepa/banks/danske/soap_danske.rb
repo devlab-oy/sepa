@@ -27,7 +27,7 @@ module Sepa
       # format
       def encrypt_key(key, public_key)
         encrypted_key = public_key.public_encrypt(key)
-        Base64.encode64(encrypted_key)
+        encode encrypted_key
       end
 
       # Encrypts the application request and returns it in base64 encoded format.
@@ -41,7 +41,7 @@ module Sepa
         encrypted_data = cipher.update(@application_request.to_xml)
         encrypted_data << cipher.final
         encrypted_data = iv + encrypted_data
-        encrypted_data = Base64.encode64(encrypted_data)
+        encrypted_data = encode encrypted_data
 
         return encrypted_data, key
       end
@@ -111,7 +111,7 @@ module Sepa
       def add_encrypted_generic_request_to_soap(encrypted_request)
         encrypted_request = Nokogiri::XML(encrypted_request.to_xml)
         encrypted_request = encrypted_request.root
-        encrypted_request = Base64.encode64(encrypted_request.to_xml)
+        encrypted_request = encode encrypted_request.to_xml
         @template.at_css('bxd|ApplicationRequest').add_child(encrypted_request)
 
         @template

@@ -36,8 +36,8 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
     sha1.reset
 
     xmldsig_schema_digest = sha1.digest(xmldsig_schema)
-    assert_equal Base64.encode64(ar_schema_digest).strip, "1O24A7+/6S7CFYVlhH1jEZh1ARs="
-    assert_equal Base64.encode64(xmldsig_schema_digest).strip, "bmG0+2KykgkLeWsXsl6CFbyo4Yc="
+    assert_equal encode(ar_schema_digest).strip, "1O24A7+/6S7CFYVlhH1jEZh1ARs="
+    assert_equal encode(xmldsig_schema_digest).strip, "bmG0+2KykgkLeWsXsl6CFbyo4Yc="
   end
 
   def test_ar_should_initialize_with_proper_params
@@ -165,7 +165,7 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_should_have_content_when_upload_file
-    assert_equal @doc_up.at_css("Content").content, Base64.encode64(@nordea_generic_params[:content])
+    assert_equal @doc_up.at_css("Content").content, encode(@nordea_generic_params[:content])
   end
 
   def test_should_not_have_content_when_download_file_list
@@ -200,7 +200,7 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
 
     # Calculate digest
     sha1 = OpenSSL::Digest::SHA1.new
-    actual_digest = Base64.encode64(sha1.digest(@doc_file.canonicalize))
+    actual_digest = encode(sha1.digest(@doc_file.canonicalize))
 
     # And then make sure the two are equal
     assert_equal calculated_digest.strip, actual_digest.strip
@@ -222,7 +222,7 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
     private_key = OpenSSL::PKey::RSA.new(File.read("#{keys_path}/nordea.key"))
 
     sha1 = OpenSSL::Digest::SHA1.new
-    actual_signature = Base64.encode64(private_key.sign(
+    actual_signature = encode(private_key.sign(
     sha1, signed_info_node.canonicalize))
 
     # And then of course assert the two are equal

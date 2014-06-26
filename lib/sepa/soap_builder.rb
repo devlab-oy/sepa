@@ -52,7 +52,7 @@ module Sepa
           inclusive_namespaces = nil, with_comments = false
         )
 
-        Base64.encode64(sha1.digest(canon_node)).gsub(/\s+/, "")
+        encode(sha1.digest(canon_node)).gsub(/\s+/, "")
       end
 
       def calculate_signature(doc, node)
@@ -65,7 +65,7 @@ module Sepa
         )
 
         signature = @private_key.sign(sha1, canon_signed_info_node)
-        Base64.encode64(signature).gsub(/\s+/, "")
+        encode(signature).gsub(/\s+/, "")
       end
 
       def load_header_template

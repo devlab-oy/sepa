@@ -49,7 +49,7 @@ class NordeaCertRequestSoapBuilderTest < ActiveSupport::TestCase
       "//cer:ApplicationRequest", 'cer' => 'http://bxd.fi/CertificateService'
     ).first
 
-    ar_doc = Nokogiri::XML(Base64.decode64(ar_node.content))
+    ar_doc = Nokogiri::XML(decode(ar_node.content))
 
     assert ar_doc.respond_to?(:canonicalize)
     assert_equal ar_doc.at_css("CustomerId").content, @nordea_generic_params[:customer_id]

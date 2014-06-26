@@ -13,7 +13,7 @@ class NordeaCertApplicationRequestTest < ActiveSupport::TestCase
     sha1 = OpenSSL::Digest::SHA1.new
     cert_schema = File.read("#{SCHEMA_PATH}/cert_application_request.xsd")
     cert_digest = sha1.digest(cert_schema)
-    assert_equal Base64.encode64(cert_digest).strip, "sFwy9Tj+cERTdcmaGhm8WpmJBH4="
+    assert_equal encode(cert_digest).strip, "sFwy9Tj+cERTdcmaGhm8WpmJBH4="
   end
 
   def test_should_initialize_with_only_get_certificate_params

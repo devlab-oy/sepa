@@ -3,28 +3,26 @@ module Sepa
     include ActiveModel::Validations
     include Utilities
 
-    attr_reader :application_response
+    attr_reader :xml
 
     validate :response_must_validate_against_schema
     validate :validate_document_format
 
     def initialize(app_resp)
-      @application_response = app_resp
+      @xml = app_resp
+    end
+
+    def doc
+      @doc ||= xml_doc @xml
     end
 
     # Checks that the hash value reported in the signature matches the actual one.
     def hashes_match?
-      are = application_response.clone
+      are = doc.clone
 
-      digest_value = are.at_css(
-        'xmlns|DigestValue',
-        'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
-      ).content.strip
+      digest_value = are.at('xmlns|DigestValue', xmlns: DSIG).content.strip
 
-      are.at_css(
-        "xmlns|Signature",
-        'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
-      ).remove
+      are.at('xmlns|Signature', xmlns: DSIG).remove
 
       actual_digest = calculate_digest(are)
 
@@ -35,35 +33,34 @@ module Sepa
 
     # Checks that the signature is signed with the private key of the certificate's public key.
     def signature_is_valid?
-      xmlns = 'http://www.w3.org/2000/09/xmldsig#'
-      node = application_response.at_css('xmlns|SignedInfo', 'xmlns' => xmlns)
+      node = doc.at('xmlns|SignedInfo', 'xmlns' => DSIG)
       node = node.canonicalize
 
-      signature = application_response.at_css(
-        'xmlns|SignatureValue',
-        'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
-      ).content
-
-      signature = Base64.decode64(signature)
+      signature = doc.at('xmlns|SignatureValue', 'xmlns' => DSIG).content
+      signature = decode(signature)
 
       # Return true or false
       certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
     end
 
+    def to_s
+      @xml
+    end
+
     def certificate
-      extract_cert(application_response, 'X509Certificate', 'http://www.w3.org/2000/09/xmldsig#')
+      extract_cert(doc, 'X509Certificate', DSIG)
     end
 
     private
 
       def validate_document_format
-        unless application_response.respond_to?(:canonicalize)
-          errors.add(:base, 'Document must be a Nokogiri XML file')
+        unless doc.respond_to?(:canonicalize)
+          errors.add(:base, 'Document must be a valid XML file')
         end
       end
 
       def response_must_validate_against_schema
-        check_validity_against_schema(application_response, 'application_response.xsd')
+        check_validity_against_schema(doc, 'application_response.xsd')
       end
 
   end

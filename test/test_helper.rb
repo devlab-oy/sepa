@@ -20,6 +20,8 @@ end
 require 'sepafm'
 require 'sepa/fixtures'
 
+include Sepa::Utilities
+
 # Test responses
 NORDEA_TEST_RESPONSE_PATH = "#{ROOT_PATH}/test/sepa/banks/nordea/responses"
 DANSKE_TEST_RESPONSE_PATH = "#{ROOT_PATH}/test/sepa/banks/danske/responses/"
