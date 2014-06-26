@@ -66,17 +66,17 @@ class DanskeCertSoapBuilderTest < ActiveSupport::TestCase
 
   def test_encrypted_key_is_added_properly_and_can_be_decrypted
     enc_key = @doc.css("CipherValue", 'xmlns' => @xenc)[0].content
-    enc_key = Base64.decode64(enc_key)
+    enc_key = decode enc_key
     assert @enc_private_key.private_decrypt(enc_key)
   end
 
   def test_encypted_data_is_added_properly_and_can_be_decrypted
     enc_key = @doc.css("CipherValue", 'xmlns' => @xenc)[0].content
-    enc_key = Base64.decode64(enc_key)
+    enc_key = decode enc_key
     key = @enc_private_key.private_decrypt(enc_key)
 
     encypted_data = @doc.css("CipherValue", 'xmlns' => @xenc)[1].content
-    encypted_data = Base64.decode64(encypted_data)
+    encypted_data = decode encypted_data
     iv = encypted_data[0, 8]
     encypted_data = encypted_data[8, encypted_data.length]
 

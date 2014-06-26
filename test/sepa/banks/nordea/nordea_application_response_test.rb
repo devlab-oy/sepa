@@ -214,7 +214,7 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
       'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
     )
 
-    cert_node.content = Base64.encode64('voivoi')
+    cert_node.content = encode 'voivoi'
 
     assert_raises(OpenSSL::X509::CertificateError) do
       Sepa::ApplicationResponse.new(@gui_doc.to_s).certificate
