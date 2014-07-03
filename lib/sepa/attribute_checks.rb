@@ -71,7 +71,10 @@ module Sepa
     end
 
     def check_target_id
-      return if [:get_certificate, :create_certificate, :get_bank_certificate].include? command
+      return if [:get_user_info,
+                 :get_certificate,
+                 :create_certificate,
+                 :get_bank_certificate].include? command
 
       check_presence_and_length(:target_id, 80, TARGET_ID_ERROR_MESSAGE)
     end
