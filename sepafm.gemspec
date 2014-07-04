@@ -27,4 +27,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 10.3'
   spec.add_development_dependency 'codeclimate-test-reporter', '~> 0.3'
   spec.add_development_dependency 'dotenv', '~> 0.11'
+  spec.add_development_dependency 'rubyntlm', '~> 0.3'
 end
