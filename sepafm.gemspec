@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.description   = 'SEPA Financial Messages using Web Services'
   spec.homepage      = 'https://github.com/devlab-oy/sepa'
   spec.license       = 'MIT'
-  spec.authors       = ['Joni Kanerva', 'Mika Myllynen', 'Tommi Jarvinen']
+  spec.authors       = ['Joni Kanerva', 'Mika Myllynen', 'Tommi Järvinen']
   spec.email         = ['joni@devlab.fi']
   spec.files         = `git ls-files`.split($/)
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
@@ -18,14 +18,14 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.0.0'
 
-  spec.add_dependency 'savon',       '~> 2.5'
-  spec.add_dependency 'nokogiri',    '~> 1.6'
   spec.add_dependency 'activemodel', '~> 4.1'
-  spec.add_dependency 'minitest',    '~> 5.3'
+  spec.add_dependency 'nokogiri', '~> 1.6'
+  spec.add_dependency 'savon', '~> 2.5'
 
   spec.add_development_dependency 'bundler', '~> 1.6'
-  spec.add_development_dependency 'rake', '~> 10.3'
   spec.add_development_dependency 'codeclimate-test-reporter', '~> 0.3'
   spec.add_development_dependency 'dotenv', '~> 0.11'
+  spec.add_development_dependency 'minitest', '~> 5.3'
+  spec.add_development_dependency 'rake', '~> 10.3'
   spec.add_development_dependency 'rubyntlm', '~> 0.3'
 end
