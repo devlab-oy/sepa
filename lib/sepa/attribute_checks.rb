@@ -7,7 +7,7 @@ module Sepa
       when :nordea
         [:get_certificate, :get_user_info, :download_file_list, :download_file, :upload_file]
       when :danske
-        [:get_bank_certificate, :get_user_info, :download_file_list, :download_file,
+        [:get_bank_certificate, :download_file_list, :download_file,
          :upload_file, :create_certificate]
       else
         []
@@ -76,6 +76,9 @@ module Sepa
                  :create_certificate,
                  :get_bank_certificate].include? command
 
+      # Danske Bank does not use target_id
+      return if bank == :danske
+
       check_presence_and_length(:target_id, 80, TARGET_ID_ERROR_MESSAGE)
     end
 
@@ -108,7 +111,7 @@ module Sepa
     def check_environment
       return if command == :get_bank_certificate
 
-      environments = ['PRODUCTION', 'TEST', 'production', 'customertest']
+      environments = ['PRODUCTION', 'TEST', 'production', 'test', 'customertest']
 
       unless environments.include? environment
         errors.add(:environment, ENVIRONMENT_ERROR_MESSAGE)
