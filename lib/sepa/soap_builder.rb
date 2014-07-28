@@ -84,6 +84,8 @@ module Sepa
       end
 
       def process_header
+        set_token_id
+
         set_node(@header_template, 'wsu|Created', iso_time)
         set_node(@header_template, 'wsu|Expires', (Time.now.utc + 300).iso8601)
 
@@ -100,6 +102,13 @@ module Sepa
 
         formatted_cert = format_cert(@cert)
         set_node(@header_template, 'wsse|BinarySecurityToken', formatted_cert)
+      end
+
+      def set_token_id
+        security_token_id = "token-#{SecureRandom.uuid}"
+
+        @header_template.at('wsse|BinarySecurityToken')['wsu:Id'] = security_token_id
+        @header_template.at('wsse|Reference')['URI'] = security_token_id
       end
 
   end

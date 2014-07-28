@@ -10,7 +10,7 @@
               xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
               EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary"
               ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"
-              wsu:Id="sdgdsg76sdg78sdg78d6gs"></wsse:BinarySecurityToken>
+              wsu:Id=""></wsse:BinarySecurityToken>
       <dsig:Signature xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">
         <dsig:SignedInfo>
           <dsig:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
@@ -33,7 +33,7 @@
         <dsig:SignatureValue></dsig:SignatureValue>
         <dsig:KeyInfo>
           <wsse:SecurityTokenReference>
-            <wsse:Reference URI="#sdgdsg76sdg78sdg78d6gs"/>
+            <wsse:Reference URI=""/>
           </wsse:SecurityTokenReference>
         </dsig:KeyInfo>
       </dsig:Signature>
