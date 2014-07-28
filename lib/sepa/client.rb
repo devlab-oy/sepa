@@ -17,7 +17,6 @@ module Sepa
                   :environment,
                   :file_reference,
                   :file_type,
-                  :key_generator_type,
                   :language,
                   :pin,
                   :private_key,

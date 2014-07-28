@@ -91,7 +91,7 @@ module Sepa
 
       def set_create_certificate_nodes
         set_node("tns|CustomerId", @customer_id)
-        set_node("tns|KeyGeneratorType", @key_generator_type)
+        set_node("tns|KeyGeneratorType", 'software')
         set_node("tns|EncryptionCertPKCS10", format_cert_request(@encryption_cert_pkcs10))
         set_node("tns|SigningCertPKCS10", format_cert_request(@signing_cert_pkcs10))
         set_node("tns|Timestamp", iso_time)
