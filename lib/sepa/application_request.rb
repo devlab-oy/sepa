@@ -63,7 +63,10 @@ module Sepa
       end
 
       def set_get_bank_certificate_nodes
-        set_node("elem|BankRootCertificateSerialNo", @bank_root_cert_serial)
+        raise 'OnlyWorksWithDanske' if @bank != :danske
+
+        # Root Cert Serial Hardcoded to Danske
+        set_node("elem|BankRootCertificateSerialNo", '1111110002')
         set_node("elem|Timestamp", iso_time)
         set_node("elem|RequestId", @request_id)
       end
