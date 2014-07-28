@@ -120,7 +120,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   def test_receiver_is_is_set_correctly
     receiver_id_node = @doc.at("//bxd:ReceiverId", 'bxd' => 'http://model.bxd.fi')
 
-    assert_equal receiver_id_node.content, @nordea_generic_params[:target_id]
+    assert_equal 'DABAFIHH', receiver_id_node.content
   end
 
   def test_cert_is_added_correctly
