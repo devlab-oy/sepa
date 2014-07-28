@@ -84,7 +84,7 @@ module Sepa
       end
 
       def set_get_certificate_nodes
-        set_node("Service", @service)
+        set_node("Service", '')
         set_node("Content", format_cert_request(@csr))
         set_node("HMAC", hmac(@pin, csr_to_binary(@csr)))
       end

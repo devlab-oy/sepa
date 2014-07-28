@@ -20,7 +20,6 @@ module Sepa
                   :language,
                   :pin,
                   :private_key,
-                  :service,
                   :signing_cert_pkcs10,
                   :status,
                   :target_id

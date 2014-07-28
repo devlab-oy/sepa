@@ -73,8 +73,7 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
     customer_id: '11111111',
     environment: 'TEST',
     csr: csr,
-    pin: '1234567890',
-    service: 'service'
+    pin: '1234567890'
   }
 end
 
