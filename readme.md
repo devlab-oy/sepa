@@ -156,7 +156,6 @@ params = {
   command: :create_certificate,
   customer_id: '360817',
   environment: 'customertest',
-  key_generator_type: 'software',
   encryption_cert_pkcs10: danske_enc_cert_request,
   signing_cert_pkcs10: danske_signing_cert_request,
   pin: '1234'
