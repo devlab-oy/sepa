@@ -149,10 +149,8 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
     sha1 = OpenSSL::Digest::SHA1.new
 
     # Digest which is calculated from the body and added to the header
-    added_digest = @doc.xpath(
-      "//dsig:Reference[@URI='#sdf6sa7d86f87s6df786sd87f6s8fsda']/dsig:DigestValue",
-      'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
-    ).first.content
+    reference_node = @doc.css('dsig|Reference')[1]
+    added_digest = reference_node.at('dsig|DigestValue').content
 
     body_node = @doc.xpath(
       "//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/'

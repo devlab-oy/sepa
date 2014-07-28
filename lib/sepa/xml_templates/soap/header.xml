@@ -22,7 +22,7 @@
             <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
             <dsig:DigestValue></dsig:DigestValue>
           </dsig:Reference>
-          <dsig:Reference URI="#sdf6sa7d86f87s6df786sd87f6s8fsda">
+          <dsig:Reference URI="">
             <dsig:Transforms>
               <dsig:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
             </dsig:Transforms>

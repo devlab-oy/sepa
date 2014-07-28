@@ -95,8 +95,10 @@ module Sepa
         dsig = "dsig|Reference[URI='##{timestamp_id}'] dsig|DigestValue"
         set_node(@header_template, dsig, timestamp_digest)
 
+        body_id = set_body_id
+
         body_digest = calculate_digest(@template, 'env|Body')
-        dsig = 'dsig|Reference[URI="#sdf6sa7d86f87s6df786sd87f6s8fsda"] dsig|DigestValue'
+        dsig = "dsig|Reference[URI='##{body_id}'] dsig|DigestValue"
         set_node(@header_template, dsig, body_digest)
 
         signature = calculate_signature(@header_template, 'dsig|SignedInfo')
@@ -120,6 +122,15 @@ module Sepa
         @header_template.css('dsig|Reference')[0]['URI'] = "##{timestamp_id}"
 
         timestamp_id
+      end
+
+      def set_body_id
+        body_id = "body-#{SecureRandom.uuid}"
+
+        @template.at('env|Body')['wsu:Id'] = body_id
+        @header_template.css('dsig|Reference')[1]['URI'] = "##{body_id}"
+
+        body_id
       end
 
   end
