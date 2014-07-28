@@ -15,7 +15,7 @@
         <dsig:SignedInfo>
           <dsig:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
           <dsig:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
-          <dsig:Reference URI="#dsfg8sdg87dsf678g6dsg6ds7fg">
+          <dsig:Reference URI="">
             <dsig:Transforms>
               <dsig:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
             </dsig:Transforms>
@@ -39,7 +39,7 @@
       </dsig:Signature>
       <wsu:Timestamp
               xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
-              wsu:Id="dsfg8sdg87dsf678g6dsg6ds7fg">
+              wsu:Id="">
         <wsu:Created></wsu:Created>
         <wsu:Expires></wsu:Expires>
       </wsu:Timestamp>

@@ -192,10 +192,8 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   def test_header_timestamps_digest_is_calculated_correctly
     sha1 = OpenSSL::Digest::SHA1.new
 
-    added_digest = @doc.at(
-      "//dsig:Reference[@URI='#dsfg8sdg87dsf678g6dsg6ds7fg']/dsig:DigestValue",
-      'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
-    ).content
+    reference_node = @doc.css('dsig|Reference')[0]
+    added_digest = reference_node.at('dsig|DigestValue').content
 
     wsu = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
 
