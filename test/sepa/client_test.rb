@@ -77,7 +77,7 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test "environment is checked" do
-    wrong_envs = ["not proper", 5, :protuction]
+    wrong_envs = ["not proper", :protuction]
 
     wrong_envs.each do |wrong_env|
       @nordea_generic_params[:environment] = wrong_env
@@ -90,7 +90,7 @@ class ClientTest < ActiveSupport::TestCase
   test 'environment defaults to production' do
     @nordea_generic_params.delete :environment
     sepa = Sepa::Client.new @nordea_generic_params
-    assert sepa.environment == 'PRODUCTION'
+    assert sepa.environment == :production
     assert sepa.valid?
   end
 
