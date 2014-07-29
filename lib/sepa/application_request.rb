@@ -63,7 +63,10 @@ module Sepa
       end
 
       def set_get_bank_certificate_nodes
-        set_node("elem|BankRootCertificateSerialNo", @bank_root_cert_serial)
+        raise 'OnlyWorksWithDanske' if @bank != :danske
+
+        # Root Cert Serial Hardcoded to Danske
+        set_node("elem|BankRootCertificateSerialNo", '1111110002')
         set_node("elem|Timestamp", iso_time)
         set_node("elem|RequestId", @request_id)
       end
@@ -81,14 +84,14 @@ module Sepa
       end
 
       def set_get_certificate_nodes
-        set_node("Service", @service)
+        set_node("Service", '')
         set_node("Content", format_cert_request(@csr))
         set_node("HMAC", hmac(@pin, csr_to_binary(@csr)))
       end
 
       def set_create_certificate_nodes
         set_node("tns|CustomerId", @customer_id)
-        set_node("tns|KeyGeneratorType", @key_generator_type)
+        set_node("tns|KeyGeneratorType", 'software')
         set_node("tns|EncryptionCertPKCS10", format_cert_request(@encryption_cert_pkcs10))
         set_node("tns|SigningCertPKCS10", format_cert_request(@signing_cert_pkcs10))
         set_node("tns|Timestamp", iso_time)

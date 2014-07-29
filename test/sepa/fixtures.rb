@@ -73,8 +73,7 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
     customer_id: '11111111',
     environment: 'TEST',
     csr: csr,
-    pin: '1234567890',
-    service: 'service'
+    pin: '1234567890'
   }
 end
 
@@ -149,8 +148,7 @@ swU8X6yvbtqF+q4aAKPA6ZydnGZFQSoSzNJtcF28T1ItxEHN3+xyQqXpTgFviiuL
     bank: :danske,
     command: :create_certificate,
     customer_id: 'ABC123',
-    environment: 'customertest',
-    key_generator_type: 'software',
+    environment: 'test',
     encryption_cert_pkcs10: encryptpkcs,
     signing_cert_pkcs10: signingpkcs,
     enc_cert: danskebankencrypt,
@@ -205,8 +203,7 @@ CsajqZag/Aoxv/Y=
       enc_cert: enc_cert,
       command: :create_certificate,
       customer_id: '360817',
-      environment: 'customertest',
-      key_generator_type: 'software',
+      environment: 'test',
       encryption_cert_pkcs10: enc_cert_request,
       signing_cert_pkcs10: signing_cert_request,
       pin: '1234',

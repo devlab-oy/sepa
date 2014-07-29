@@ -5,10 +5,24 @@ module Sepa
     include ErrorMessages
     include AttributeChecks
 
-    attr_accessor :bank, :cert, :command, :content, :customer_id, :enc_cert,
-                  :encryption_cert_pkcs10, :environment, :file_reference,
-                  :file_type, :key_generator_type, :language, :pin, :private_key,
-                  :signing_cert_pkcs10, :status, :target_id, :csr, :service, :bank_root_cert_serial
+    attr_accessor :bank,
+                  :bank_root_cert_serial,
+                  :cert,
+                  :command,
+                  :content,
+                  :csr,
+                  :customer_id,
+                  :enc_cert,
+                  :encryption_cert_pkcs10,
+                  :environment,
+                  :file_reference,
+                  :file_type,
+                  :language,
+                  :pin,
+                  :private_key,
+                  :signing_cert_pkcs10,
+                  :status,
+                  :target_id
 
     BANKS = [:nordea, :danske]
     LANGUAGES = ['FI', 'SE', 'EN']
@@ -34,7 +48,7 @@ module Sepa
 
     def initialize(hash = {})
       self.attributes hash
-      self.environment ||= 'PRODUCTION'
+      self.environment ||= :production
       self.language ||= 'EN'
       self.status ||= 'NEW'
     end
@@ -45,6 +59,10 @@ module Sepa
 
     def command=(value)
       @command = value.to_sym
+    end
+
+    def environment=(value)
+      @environment = value.downcase.to_sym
     end
 
     def attributes(hash)

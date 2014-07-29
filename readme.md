@@ -156,7 +156,6 @@ params = {
   command: :create_certificate,
   customer_id: '360817',
   environment: 'customertest',
-  key_generator_type: 'software',
   encryption_cert_pkcs10: danske_enc_cert_request,
   signing_cert_pkcs10: danske_signing_cert_request,
   pin: '1234'
@@ -198,10 +197,10 @@ response.ca_certificate
     * get_user_info
     * get_certificate
     * get_bank_certificate
-* **customer_id** - Your personal id with the bank.
+* **customer_id** - Your customer id with the bank.
 * **environment** - Must be either PRODUCTION or TEST
 * **status** - For filtering stuff. Must be either NEW, DOWNLOADED or ALL
-* **target_id** - Some specification of the folder which to access in the bank.
+* **target_id** - Some specification of the folder which to access in the bank (Nordea only)
 * **language** - Language must be either FI, EN or SV
 * **file_type** - File types to upload or download:
     * LMP300 = Laskujen maksupalvelu (lähtevä)
@@ -214,8 +213,6 @@ response.ca_certificate
 * **content** - The payload to send.
 * **file_reference** - File reference for :download_file command
 * **pin** - Your personal pin-code provided by the bank
-* **service** - For testing value is service, otherwise ISSUER
-* **bank_root_cert_serial** - Serial number for Danske bank certificate download (1111110002)
 
 ---
 

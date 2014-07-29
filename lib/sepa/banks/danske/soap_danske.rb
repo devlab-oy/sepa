@@ -90,6 +90,7 @@ module Sepa
       end
 
       def build_certificate_request
+        @environment = :customertest if @environment == :test
         set_create_cert_contents
         encrypted_request = encrypt_application_request
         add_encrypted_request_to_soap(encrypted_request)
