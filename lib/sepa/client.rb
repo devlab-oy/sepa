@@ -18,7 +18,7 @@ module Sepa
                   :pin,
                   :signing_private_key,
                   :signing_certificate,
-                  :signing_scr,
+                  :signing_csr,
                   :encryption_private_key,
                   :encryption_certificate,
                   :encryption_csr
@@ -41,9 +41,9 @@ module Sepa
     validate :check_command
     validate :check_wsdl
     validate :check_keys
-    validate :check_enc_cert
+    validate :check_encryption_certificate
     validate :check_encryption_cert_request
-    validate :check_signing_cert
+    validate :check_signing_csr
     validate :check_bank_root_cert_serial
     validate :check_file_reference
 
@@ -103,7 +103,7 @@ module Sepa
     private
 
       def create_hash
-        initialize_private_key
+        initialize_signing_private_key
         iv = {}
 
         # Create hash of all instance variables
@@ -117,8 +117,8 @@ module Sepa
         iv
       end
 
-      def initialize_private_key
-        @private_key = OpenSSL::PKey::RSA.new(@private_key) if @private_key
+      def initialize_signing_private_key
+        @signing_private_key = OpenSSL::PKey::RSA.new(@signing_private_key) if @signing_private_key
       end
 
       # Returns path to WSDL file

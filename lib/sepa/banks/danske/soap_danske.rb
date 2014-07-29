@@ -15,12 +15,12 @@ module Sepa
       end
 
       def encrypt_application_request
-        encryption_cert = OpenSSL::X509::Certificate.new(@enc_cert)
-        encryption_public_key = encryption_cert.public_key
-        encryption_cert = format_cert(encryption_cert)
-        encrypted_ar, key = encrypt_ar
+        encryption_certificate = OpenSSL::X509::Certificate.new(@encryption_certificate)
+        encryption_public_key = encryption_certificate.public_key
+        encryption_certificate = format_cert(encryption_certificate)
+        encrypted_application_request, key = encrypt_ar
         encrypted_key = encrypt_key(key, encryption_public_key)
-        build_encrypted_ar(encryption_cert, encrypted_key, encrypted_ar)
+        build_encrypted_ar(encryption_certificate, encrypted_key, encrypted_application_request)
       end
 
       # Encrypts a given symmetric encryption key with a public key and returns it in base64 encoded

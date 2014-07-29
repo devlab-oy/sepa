@@ -2,9 +2,9 @@ require 'test_helper'
 
 class DanskeCertSoapBuilderTest < ActiveSupport::TestCase
   def setup
-    @create_cert_params = danske_create_cert_params
+    @danske_create_certificate_params = danske_create_certificate_params
 
-    @cert_request = Sepa::SoapBuilder.new(@create_cert_params)
+    @cert_request = Sepa::SoapBuilder.new(@danske_create_certificate_params)
     @enc_private_key = OpenSSL::PKey::RSA.new File.read("#{DANSKE_TEST_KEYS_PATH}/enc_private_key.pem")
     @doc = Nokogiri::XML(@cert_request.to_xml)
 
@@ -15,21 +15,21 @@ class DanskeCertSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_should_raise_error_if_command_missing
-    @create_cert_params.delete(:command)
+    @danske_create_certificate_params.delete(:command)
 
     assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@create_cert_params)
+      Sepa::SoapBuilder.new(@danske_create_certificate_params)
     end
   end
 
   def test_sender_id_is_properly_set
     sender_id = @doc.at("SenderId", "xmlns" => @pkif).content
-    assert_equal sender_id, @create_cert_params[:customer_id]
+    assert_equal sender_id, @danske_create_certificate_params[:customer_id]
   end
 
   def test_customer_id_is_properly_set
     customer_id = @doc.at("CustomerId", "xmlns" => @pkif).content
-    assert_equal customer_id, @create_cert_params[:customer_id]
+    assert_equal customer_id, @danske_create_certificate_params[:customer_id]
   end
 
   def test_request_id_is_properly_set
@@ -54,14 +54,14 @@ class DanskeCertSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_certificate_is_added_properly
-    embedded_cert = @doc.at("X509Certificate", 'xmlns' => @dsig).content.gsub(/\s+/, "")
+    embedded_certificate = @doc.at("X509Certificate", 'xmlns' => @dsig).content.gsub(/\s+/, "")
 
-    actual_cert = @create_cert_params[:enc_cert]
-    actual_cert = actual_cert.split('-----BEGIN CERTIFICATE-----')[1]
-    actual_cert = actual_cert.split('-----END CERTIFICATE-----')[0]
-    actual_cert.gsub!(/\s+/, "")
+    actual_certificate = @danske_create_certificate_params[:encryption_certificate]
+    actual_certificate = actual_certificate.split('-----BEGIN CERTIFICATE-----')[1]
+    actual_certificate = actual_certificate.split('-----END CERTIFICATE-----')[0]
+    actual_certificate.gsub!(/\s+/, "")
 
-    assert_equal embedded_cert, actual_cert
+    assert_equal embedded_certificate, actual_certificate
   end
 
   def test_encrypted_key_is_added_properly_and_can_be_decrypted

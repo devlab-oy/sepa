@@ -6,8 +6,8 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
 
     # Convert the keys here since the conversion is usually done by the client and these tests
     # bypass the client
-    @nordea_generic_params[:private_key] = OpenSSL::PKey::RSA.new @nordea_generic_params[:private_key]
-    @nordea_generic_params[:cert] = OpenSSL::X509::Certificate.new @nordea_generic_params[:cert]
+    @nordea_generic_params[:signing_private_key] = OpenSSL::PKey::RSA.new @nordea_generic_params[:signing_private_key]
+    @nordea_generic_params[:signing_certificate] = OpenSSL::X509::Certificate.new @nordea_generic_params[:signing_certificate]
 
     ar_file = Sepa::SoapBuilder.new(@nordea_generic_params).application_request
 
@@ -230,16 +230,16 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_certificate_is_added_correctly
-    added_cert = @doc_file.at_css(
+    added_certificate = @doc_file.at_css(
       "dsig|X509Certificate", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
     ).content
 
-    actual_cert = @nordea_generic_params.fetch(:cert).to_s
-    actual_cert = actual_cert.split('-----BEGIN CERTIFICATE-----')[1]
-    actual_cert = actual_cert.split('-----END CERTIFICATE-----')[0]
-    actual_cert.gsub!(/\s+/, "")
+    actual_certificate = @nordea_generic_params.fetch(:signing_certificate).to_s
+    actual_certificate = actual_certificate.split('-----BEGIN CERTIFICATE-----')[1]
+    actual_certificate = actual_certificate.split('-----END CERTIFICATE-----')[0]
+    actual_certificate.gsub!(/\s+/, "")
 
-    assert_equal added_cert, actual_cert
+    assert_equal added_certificate, actual_certificate
   end
 
   def test_should_validate_against_schema

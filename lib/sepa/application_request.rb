@@ -85,15 +85,15 @@ module Sepa
 
       def set_get_certificate_nodes
         set_node("Service", '')
-        set_node("Content", format_cert_request(@csr))
-        set_node("HMAC", hmac(@pin, csr_to_binary(@csr)))
+        set_node("Content", format_cert_request(@signing_csr))
+        set_node("HMAC", hmac(@pin, csr_to_binary(@signing_csr)))
       end
 
       def set_create_certificate_nodes
         set_node("tns|CustomerId", @customer_id)
         set_node("tns|KeyGeneratorType", 'software')
-        set_node("tns|EncryptionCertPKCS10", format_cert_request(@encryption_cert_pkcs10))
-        set_node("tns|SigningCertPKCS10", format_cert_request(@signing_cert_pkcs10))
+        set_node("tns|EncryptionCertPKCS10", format_cert_request(@encryption_csr))
+        set_node("tns|SigningCertPKCS10", format_cert_request(@signing_csr))
         set_node("tns|Timestamp", iso_time)
         set_node("tns|RequestId", @request_id)
         set_node("tns|Environment", @environment)
@@ -134,7 +134,7 @@ module Sepa
         sha1 = OpenSSL::Digest::SHA1.new
         dsig = 'http://www.w3.org/2000/09/xmldsig#'
         node = @application_request.at_css("dsig|SignedInfo", 'dsig' => dsig)
-        signature = @private_key.sign(sha1, node.canonicalize)
+        signature = @signing_private_key.sign(sha1, node.canonicalize)
         encode signature
       end
 
@@ -149,7 +149,7 @@ module Sepa
         add_node_to_root(signature_node)
         add_value_to_signature('DigestValue', digest)
         add_value_to_signature('SignatureValue', calculate_signature)
-        add_value_to_signature('X509Certificate', format_cert(@cert))
+        add_value_to_signature('X509Certificate', format_cert(@signing_certificate))
       end
 
   end

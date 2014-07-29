@@ -6,23 +6,23 @@ module Sepa
 
     # SoapBuilder creates the SOAP structure.
     def initialize(params)
-      @bank                = params[:bank]
-      @cert                = params[:cert]
-      @command             = params[:command]
-      @content             = params[:content]
-      @customer_id         = params[:customer_id]
-      @enc_cert            = params[:enc_cert]
-      @environment         = params[:environment]
-      @file_reference      = params[:file_reference]
-      @file_type           = params[:file_type]
-      @language            = params[:language]
-      @private_key         = params[:private_key]
-      @status              = params[:status]
-      @target_id           = params[:target_id]
+      @bank                   = params[:bank]
+      @signing_certificate    = params[:signing_certificate]
+      @command                = params[:command]
+      @content                = params[:content]
+      @customer_id            = params[:customer_id]
+      @encryption_certificate = params[:encryption_certificate]
+      @environment            = params[:environment]
+      @file_reference         = params[:file_reference]
+      @file_type              = params[:file_type]
+      @language               = params[:language]
+      @signing_private_key    = params[:signing_private_key]
+      @status                 = params[:status]
+      @target_id              = params[:target_id]
 
-      @application_request = ApplicationRequest.new params
-      @header_template     = load_header_template
-      @template            = load_body_template SOAP_TEMPLATE_PATH
+      @application_request    = ApplicationRequest.new params
+      @header_template        = load_header_template
+      @template               = load_body_template SOAP_TEMPLATE_PATH
 
       find_correct_bank_extension
     end
@@ -64,7 +64,7 @@ module Sepa
           inclusive_namespaces = nil, with_comments = false
         )
 
-        signature = @private_key.sign(sha1, canon_signed_info_node)
+        signature = @signing_private_key.sign(sha1, canon_signed_info_node)
         encode(signature).gsub(/\s+/, "")
       end
 
@@ -104,7 +104,7 @@ module Sepa
         signature = calculate_signature(@header_template, 'dsig|SignedInfo')
         set_node(@header_template, 'dsig|SignatureValue', signature)
 
-        formatted_cert = format_cert(@cert)
+        formatted_cert = format_cert(@signing_certificate)
         set_node(@header_template, 'wsse|BinarySecurityToken', formatted_cert)
       end
 

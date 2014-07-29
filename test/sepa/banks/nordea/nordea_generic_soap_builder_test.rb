@@ -7,8 +7,8 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
 
     # Convert the keys here since the conversion is usually done by the client and these tests
     # bypass the client
-    @nordea_generic_params[:private_key] = OpenSSL::PKey::RSA.new @nordea_generic_params[:private_key]
-    @nordea_generic_params[:cert] = OpenSSL::X509::Certificate.new @nordea_generic_params[:cert]
+    @nordea_generic_params[:signing_private_key] = OpenSSL::PKey::RSA.new @nordea_generic_params[:signing_private_key]
+    @nordea_generic_params[:signing_certificate] = OpenSSL::X509::Certificate.new @nordea_generic_params[:signing_certificate]
 
     @soap_request = Sepa::SoapBuilder.new(@nordea_generic_params)
     @doc = Nokogiri::XML(@soap_request.to_xml)
@@ -133,16 +133,16 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
   def test_cert_is_added_correctly
     wsse = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
 
-    added_cert = @doc.xpath(
+    added_certificate = @doc.xpath(
       "//wsse:BinarySecurityToken", 'wsse' => wsse
     ).first.content
 
-    actual_cert = @nordea_generic_params.fetch(:cert).to_s
-    actual_cert = actual_cert.split('-----BEGIN CERTIFICATE-----')[1]
-    actual_cert = actual_cert.split('-----END CERTIFICATE-----')[0]
-    actual_cert = actual_cert.gsub(/\s+/, "")
+    actual_certificate = @nordea_generic_params.fetch(:signing_certificate).to_s
+    actual_certificate = actual_certificate.split('-----BEGIN CERTIFICATE-----')[1]
+    actual_certificate = actual_certificate.split('-----END CERTIFICATE-----')[0]
+    actual_certificate = actual_certificate.gsub(/\s+/, "")
 
-    assert_equal added_cert, actual_cert
+    assert_equal added_certificate, actual_certificate
   end
 
   def test_body_digest_is_calculated_correctly
@@ -214,7 +214,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
 
   def test_signature_is_calculated_correctly
     sha1 = OpenSSL::Digest::SHA1.new
-    private_key = @nordea_generic_params.fetch(:private_key)
+    signing_private_key = @nordea_generic_params.fetch(:signing_private_key)
 
     added_signature = @doc.xpath(
       "//dsig:SignatureValue", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
@@ -230,7 +230,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
     )
 
     actual_signature = encode(
-      private_key.sign(sha1, signed_info_node)
+      signing_private_key.sign(sha1, signed_info_node)
     ).gsub(/\s+/, "")
 
     assert_equal actual_signature, added_signature

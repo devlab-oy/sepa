@@ -6,9 +6,9 @@ module Sepa
     attr_reader :soap, :error, :command
 
     validates :soap, presence: true
-    validate :validate_document_format
-    validate :document_must_validate_against_schema
-    validate :client_errors
+    validate  :validate_document_format
+    validate  :document_must_validate_against_schema
+    validate  :client_errors
 
     def initialize(hash = {})
       @soap = hash[:response]
@@ -124,9 +124,6 @@ module Sepa
     end
 
     def ca_certificate
-    end
-
-    def certificate
     end
 
     private

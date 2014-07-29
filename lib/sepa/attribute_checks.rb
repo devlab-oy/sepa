@@ -22,31 +22,31 @@ module Sepa
       return if [:get_certificate, :get_bank_certificate, :create_certificate].include? command
 
       begin
-        OpenSSL::PKey::RSA.new private_key
+        OpenSSL::PKey::RSA.new signing_private_key
       rescue
-        errors.add(:private_key, "Invalid private key")
+        errors.add(:signing_private_key, "Invalid signing private key")
       end
 
       begin
-        OpenSSL::X509::Certificate.new cert
+        OpenSSL::X509::Certificate.new signing_certificate
       rescue
-        errors.add(:cert, "Invalid certificate")
+        errors.add(:signing_certificate, "Invalid signing certificate")
       end
     end
 
-    def check_signing_cert
+    def check_signing_csr
       return unless command == :create_certificate
 
-      unless cert_request_valid?(signing_cert_pkcs10)
-        errors.add(:signing_cert_pkcs10, SIGNING_CERT_REQUEST_ERROR_MESSAGE)
+      unless cert_request_valid?(signing_csr)
+        errors.add(:signing_csr, SIGNING_CERT_REQUEST_ERROR_MESSAGE)
       end
     end
 
     def check_encryption_cert_request
       return unless command == :create_certificate
 
-      unless cert_request_valid?(encryption_cert_pkcs10)
-        errors.add(:encryption_cert_pkcs10, ENCRYPTION_CERT_REQUEST_ERROR_MESSAGE)
+      unless cert_request_valid?(encryption_csr)
+        errors.add(:encryption_csr, ENCRYPTION_CERT_REQUEST_ERROR_MESSAGE)
       end
     end
 
@@ -111,7 +111,7 @@ module Sepa
     def check_environment
       return if command == :get_bank_certificate
 
-      unless ENVIRONMENTS.include? environment
+      unless Client::ENVIRONMENTS.include? environment
         errors.add(:environment, ENVIRONMENT_ERROR_MESSAGE)
       end
     end
@@ -124,16 +124,16 @@ module Sepa
       end
     end
 
-    def check_enc_cert
+    def check_encryption_certificate
       return unless command == :create_certificate
 
-      errors.add(:enc_cert, ENCRYPTION_CERT_ERROR_MESSAGE) unless enc_cert
+      errors.add(:encryption_certificate, ENCRYPTION_CERT_ERROR_MESSAGE) unless encryption_certificate
     end
 
     def check_status
       return unless [:download_file_list, :download_file].include? command
 
-      unless status && STATUSES.include?(status)
+      unless status && Client::STATUSES.include?(status)
         errors.add :status, STATUS_ERROR_MESSAGE
       end
     end
