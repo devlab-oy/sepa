@@ -133,9 +133,7 @@ module Sepa
     def check_status
       return unless [:download_file_list, :download_file].include? command
 
-      statuses = ['NEW', 'DOWNLOADED', 'ALL']
-
-      unless status && statuses.include?(status)
+      unless status && STATUSES.include? status
         errors.add :status, STATUS_ERROR_MESSAGE
       end
     end
