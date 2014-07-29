@@ -96,7 +96,10 @@ module Sepa
         set_node("tns|SigningCertPKCS10", format_cert_request(@signing_csr))
         set_node("tns|Timestamp", iso_time)
         set_node("tns|RequestId", @request_id)
+
+        @environment = 'customertest' if @environment == :test
         set_node("tns|Environment", @environment)
+
         set_node("tns|PIN", @pin)
       end
 
