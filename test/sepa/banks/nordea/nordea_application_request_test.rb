@@ -89,10 +89,12 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_should_have_environment_set_with_all_commands
-    assert_equal @doc_file.at_css("Environment").content, @nordea_generic_params[:environment]
-    assert_equal @doc_get.at_css("Environment").content, @nordea_generic_params[:environment]
-    assert_equal @doc_list.at_css("Environment").content, @nordea_generic_params[:environment]
-    assert_equal @doc_up.at_css("Environment").content, @nordea_generic_params[:environment]
+    expected_environment = @nordea_generic_params[:environment].upcase
+
+    assert_equal @doc_file.at_css("Environment").content, expected_environment
+    assert_equal @doc_get.at_css("Environment").content, expected_environment
+    assert_equal @doc_list.at_css("Environment").content, expected_environment
+    assert_equal @doc_up.at_css("Environment").content, expected_environment
   end
 
   def test_should_have_software_id_set_with_all_commands

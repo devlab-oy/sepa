@@ -45,7 +45,7 @@ Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
     signing_certificate: signing_certificate,
     command: :download_file,
     customer_id: '11111111',
-    environment: 'PRODUCTION',
+    environment: 'production',
     status: 'NEW',
     target_id: '11111111A1',
     language: 'FI',
