@@ -100,14 +100,6 @@ module Sepa
       check_presence_and_length(:pin, 10, PIN_ERROR_MESSAGE)
     end
 
-    def check_bank_root_cert_serial
-      return unless command == :get_bank_certificate
-
-      unless bank_root_cert_serial && bank_root_cert_serial.length.between?(1, 64)
-        errors.add(:bank_root_cert_serial, "Invalid bank root certificate serial")
-      end
-    end
-
     def check_environment
       return if command == :get_bank_certificate
 
