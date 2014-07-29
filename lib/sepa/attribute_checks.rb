@@ -76,6 +76,8 @@ module Sepa
                  :create_certificate,
                  :get_bank_certificate].include? command
 
+      return if bank == :danske
+
       check_presence_and_length(:target_id, 80, TARGET_ID_ERROR_MESSAGE)
     end
 
@@ -108,7 +110,7 @@ module Sepa
     def check_environment
       return if command == :get_bank_certificate
 
-      environments = ['PRODUCTION', 'TEST', 'customertest']
+      environments = ['PRODUCTION', 'TEST', 'production', 'customertest']
 
       unless environments.include? environment
         errors.add(:environment, ENVIRONMENT_ERROR_MESSAGE)
