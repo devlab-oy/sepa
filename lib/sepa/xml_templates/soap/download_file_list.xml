@@ -4,7 +4,7 @@
               xmlns:cor="http://bxd.fi/CorporateFileService" xmlns:bxd="http://model.bxd.fi">
   <env:Body
           xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
-          wsu:Id="sdf6sa7d86f87s6df786sd87f6s8fsda">
+          wsu:Id="">
     <cor:downloadFileListin xmlns:cor="http://bxd.fi/CorporateFileService">
       <bxd:RequestHeader xmlns:bxd="http://model.bxd.fi">
         <bxd:SenderId></bxd:SenderId>

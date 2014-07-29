@@ -120,7 +120,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   def test_receiver_is_is_set_correctly
     receiver_id_node = @doc.at("//bxd:ReceiverId", 'bxd' => 'http://model.bxd.fi')
 
-    assert_equal receiver_id_node.content, @nordea_generic_params[:target_id]
+    assert_equal 'DABAFIHH', receiver_id_node.content
   end
 
   def test_cert_is_added_correctly
@@ -145,10 +145,8 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
     sha1 = OpenSSL::Digest::SHA1.new
 
     # Digest which is calculated from the body and added to the header
-    added_digest = @doc.at(
-      "//dsig:Reference[@URI='#sdf6sa7d86f87s6df786sd87f6s8fsda']/dsig:DigestValue",
-      'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
-    ).content
+    reference_node = @doc.css('dsig|Reference')[1]
+    added_digest = reference_node.at('dsig|DigestValue').content
 
     body_node = @doc.at(
       "//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/'
@@ -192,10 +190,8 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   def test_header_timestamps_digest_is_calculated_correctly
     sha1 = OpenSSL::Digest::SHA1.new
 
-    added_digest = @doc.at(
-      "//dsig:Reference[@URI='#dsfg8sdg87dsf678g6dsg6ds7fg']/dsig:DigestValue",
-      'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
-    ).content
+    reference_node = @doc.css('dsig|Reference')[0]
+    added_digest = reference_node.at('dsig|DigestValue').content
 
     wsu = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
 
