@@ -108,6 +108,27 @@ module Sepa
       @soap
     end
 
+    def bank_encryption_cert
+    end
+
+    def bank_signing_cert
+    end
+
+    def bank_root_cert
+    end
+
+    def own_encryption_cert
+    end
+
+    def own_signing_cert
+    end
+
+    def ca_certificate
+    end
+
+    def certificate
+    end
+
     private
 
       # Finds all reference nodes with digest values in the document and returns

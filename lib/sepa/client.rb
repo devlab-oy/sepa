@@ -6,23 +6,22 @@ module Sepa
     include AttributeChecks
 
     attr_accessor :bank,
-                  :bank_root_cert_serial,
-                  :cert,
                   :command,
                   :content,
-                  :csr,
                   :customer_id,
-                  :enc_cert,
-                  :encryption_cert_pkcs10,
+                  :target_id,
                   :environment,
                   :file_reference,
                   :file_type,
                   :language,
-                  :pin,
-                  :private_key,
-                  :signing_cert_pkcs10,
                   :status,
-                  :target_id
+                  :pin,
+                  :signing_private_key,
+                  :signing_certificate,
+                  :signing_scr,
+                  :encryption_private_key,
+                  :encryption_certificate,
+                  :encryption_csr
 
     BANKS = [:nordea, :danske]
     LANGUAGES = ['FI', 'SE', 'EN']
