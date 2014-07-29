@@ -108,23 +108,17 @@ module Sepa
       @soap
     end
 
-    def bank_encryption_cert
-    end
+    def bank_encryption_certificate; end
 
-    def bank_signing_cert
-    end
+    def bank_signing_certificate; end
 
-    def bank_root_cert
-    end
+    def bank_root_certificate; end
 
-    def own_encryption_cert
-    end
+    def own_encryption_certificate; end
 
-    def own_signing_cert
-    end
+    def own_signing_certificate; end
 
-    def ca_certificate
-    end
+    def ca_certificate; end
 
     private
 

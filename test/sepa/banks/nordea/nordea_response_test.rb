@@ -131,7 +131,7 @@ class NordeaResponseTest < ActiveSupport::TestCase
 
   test 'certificate can be extracted from get certificate response' do
     assert_nothing_raised do
-      OpenSSL::X509::Certificate.new decode(@gc.own_signing_certificate)
+      OpenSSL::X509::Certificate.new @gc.own_signing_certificate
     end
   end
 

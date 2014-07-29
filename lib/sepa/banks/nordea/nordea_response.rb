@@ -11,9 +11,7 @@ module Sepa
 
       cert_value = process_cert_value node.content
       cert = x509_certificate cert_value
-      cert_plain = cert.to_s
-
-      encode cert_plain
+      cert.to_s
     end
 
   end
