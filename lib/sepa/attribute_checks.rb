@@ -111,9 +111,7 @@ module Sepa
     def check_environment
       return if command == :get_bank_certificate
 
-      environments = [:production, :test]
-
-      unless environments.include? environment
+      unless ENVIRONMENTS.include? environment
         errors.add(:environment, ENVIRONMENT_ERROR_MESSAGE)
       end
     end

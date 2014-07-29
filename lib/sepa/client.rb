@@ -25,6 +25,7 @@ module Sepa
 
     BANKS = [:nordea, :danske]
     LANGUAGES = ['FI', 'SE', 'EN']
+    ENVIRONMENTS = [:production, :test]
 
     validates :bank, inclusion: { in: BANKS }
     validates :language, inclusion: { in: LANGUAGES }, allow_nil: true
