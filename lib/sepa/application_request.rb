@@ -42,6 +42,8 @@ module Sepa
 
       def set_nodes_contents
         case @command
+        when :get_user_info
+          set_get_user_info_nodes
         when :create_certificate
           set_create_certificate_nodes
         when :get_certificate
@@ -55,6 +57,10 @@ module Sepa
         when :get_bank_certificate
           set_get_bank_certificate_nodes
         end
+      end
+
+      def set_get_user_info_nodes
+        set_node('Environment', @environment)
       end
 
       def set_download_file_nodes
@@ -72,18 +78,21 @@ module Sepa
       end
 
       def set_upload_file_nodes
+        set_node("Environment", @environment)
         set_node_b("Content", @content)
         set_node("FileType", @file_type)
         set_node("TargetId", @target_id)
       end
 
       def set_download_file_list_nodes
+        set_node("Environment", @environment)
         set_node("Status", @status)
         set_node("TargetId", @target_id)
         set_node("FileType", @file_type)
       end
 
       def set_get_certificate_nodes
+        set_node('Environment', @environment.to_s.upcase)
         set_node("Service", '')
         set_node("Content", format_cert_request(@signing_csr))
         set_node("HMAC", hmac(@pin, csr_to_binary(@signing_csr)))
@@ -106,7 +115,6 @@ module Sepa
 
         set_node("CustomerId", @customer_id)
         set_node("Timestamp", iso_time)
-        set_node("Environment", @environment)
         set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
         set_node("Command", pretty_command)
       end

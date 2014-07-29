@@ -71,7 +71,7 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
     bank: :nordea,
     command: :get_certificate,
     customer_id: '11111111',
-    environment: 'TEST',
+    environment: 'test',
     signing_csr: signing_csr,
     pin: '1234567890'
   }

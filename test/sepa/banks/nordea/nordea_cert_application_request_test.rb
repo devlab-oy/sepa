@@ -41,8 +41,9 @@ class NordeaCertApplicationRequestTest < ActiveSupport::TestCase
     assert_equal @xml.at_css("Command").content, "GetCertificate"
   end
 
-  def test_should_have_environment_set
-    assert_equal @xml.at_css("Environment").content, @nordea_get_certificate_params[:environment]
+  def test_should_have_environment_set_and_upcase
+    expected_environment = @nordea_get_certificate_params[:environment].upcase
+    assert_equal expected_environment, @xml.at_css("Environment").content
   end
 
   test 'should have software id set' do
