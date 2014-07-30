@@ -16,7 +16,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
 
     @danske_generic_params = {
       bank: :danske,
-      signing_private_key: OpenSSL::PKey::RSA.new(signing_private_key),
+      signing_private_key: rsa_key(signing_private_key),
       command: :upload_file,
       customer_id: '360817',
       environment: 'TEST',
@@ -212,7 +212,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   def test_signature_is_calculated_correctly
     sha1 = OpenSSL::Digest::SHA1.new
 
-    private_key = OpenSSL::PKey::RSA.new(@danske_generic_params.fetch(:signing_private_key))
+    private_key = rsa_key(@danske_generic_params.fetch(:signing_private_key))
 
     added_signature = @doc.at(
       "//dsig:SignatureValue",
