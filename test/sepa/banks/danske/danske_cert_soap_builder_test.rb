@@ -5,13 +5,12 @@ class DanskeCertSoapBuilderTest < ActiveSupport::TestCase
     @danske_create_certificate_params = danske_create_certificate_params
 
     @cert_request = Sepa::SoapBuilder.new(@danske_create_certificate_params)
-    @enc_private_key = OpenSSL::PKey::RSA.new File.read("#{DANSKE_TEST_KEYS_PATH}/enc_private_key.pem")
+    @enc_private_key = rsa_key File.read("#{DANSKE_TEST_KEYS_PATH}/enc_private_key.pem")
     @doc = Nokogiri::XML(@cert_request.to_xml)
 
     # Namespaces
     @pkif = 'http://danskebank.dk/PKI/PKIFactoryService'
     @dsig = 'http://www.w3.org/2000/09/xmldsig#'
-    @xenc = 'http://www.w3.org/2001/04/xmlenc#'
   end
 
   def test_should_raise_error_if_command_missing
@@ -65,17 +64,17 @@ class DanskeCertSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_encrypted_key_is_added_properly_and_can_be_decrypted
-    enc_key = @doc.css("CipherValue", 'xmlns' => @xenc)[0].content
+    enc_key = @doc.css("CipherValue", 'xmlns' => XMLENC)[0].content
     enc_key = decode enc_key
     assert @enc_private_key.private_decrypt(enc_key)
   end
 
   def test_encypted_data_is_added_properly_and_can_be_decrypted
-    enc_key = @doc.css("CipherValue", 'xmlns' => @xenc)[0].content
+    enc_key = @doc.css("CipherValue", 'xmlns' => XMLENC)[0].content
     enc_key = decode enc_key
     key = @enc_private_key.private_decrypt(enc_key)
 
-    encypted_data = @doc.css("CipherValue", 'xmlns' => @xenc)[1].content
+    encypted_data = @doc.css("CipherValue", 'xmlns' => XMLENC)[1].content
     encypted_data = decode encypted_data
     iv = encypted_data[0, 8]
     encypted_data = encypted_data[8, encypted_data.length]
