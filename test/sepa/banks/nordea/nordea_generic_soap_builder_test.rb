@@ -7,7 +7,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
 
     # Convert the keys here since the conversion is usually done by the client and these tests
     # bypass the client
-    @nordea_generic_params[:signing_private_key] = OpenSSL::PKey::RSA.new @nordea_generic_params[:signing_private_key]
+    @nordea_generic_params[:signing_private_key] = rsa_key @nordea_generic_params[:signing_private_key]
     @nordea_generic_params[:signing_certificate] = OpenSSL::X509::Certificate.new @nordea_generic_params[:signing_certificate]
 
     @soap_request = Sepa::SoapBuilder.new(@nordea_generic_params)
