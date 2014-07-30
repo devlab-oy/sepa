@@ -8,7 +8,6 @@
   <FileReferences>
     <FileReference></FileReference>
   </FileReferences>
-  <TargetId></TargetId>
   <SoftwareId></SoftwareId>
   <FileType></FileType>
   <dsig:Signature xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">

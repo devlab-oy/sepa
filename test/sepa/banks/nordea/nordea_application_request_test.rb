@@ -126,10 +126,6 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
     assert_equal @doc_list.at_css("TargetId").content, @nordea_generic_params[:target_id]
   end
 
-  def test_should_have_target_id_set_when_download_file
-    assert_equal @doc_file.at_css("TargetId").content, @nordea_generic_params[:target_id]
-  end
-
   def test_should_not_have_target_id_set_when_get_user_info
     refute @doc_get.at_css("TargetId")
   end

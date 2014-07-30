@@ -58,7 +58,8 @@ module Sepa
       end
 
       def set_download_file_nodes
-        set_download_file_list_nodes
+        set_node("Status", @status)
+        set_node("FileType", @file_type)
         set_node("FileReference", @file_reference)
       end
 
@@ -74,12 +75,12 @@ module Sepa
       def set_upload_file_nodes
         set_node_b("Content", @content)
         set_node("FileType", @file_type)
-        set_node("TargetId", @target_id)
+        add_target_id
       end
 
       def set_download_file_list_nodes
         set_node("Status", @status)
-        set_node("TargetId", @target_id)
+        add_target_id
         set_node("FileType", @file_type)
       end
 
@@ -153,6 +154,14 @@ module Sepa
         add_value_to_signature('DigestValue', digest)
         add_value_to_signature('SignatureValue', calculate_signature)
         add_value_to_signature('X509Certificate', format_cert(@signing_certificate))
+      end
+
+      def add_target_id
+        return unless @bank == :nordea
+
+        target_id = Nokogiri::XML::Node.new 'TargetId', @application_request
+        target_id.content = @target_id
+        @application_request.at('CustomerId').add_next_sibling target_id
       end
 
   end
