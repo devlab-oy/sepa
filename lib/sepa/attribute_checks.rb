@@ -109,8 +109,6 @@ module Sepa
     end
 
     def check_customer_id
-      return if command == :get_bank_certificate
-
       unless customer_id && customer_id.length.between?(1, 16)
         errors.add(:customer_id, CUSTOMER_ID_ERROR_MESSAGE)
       end

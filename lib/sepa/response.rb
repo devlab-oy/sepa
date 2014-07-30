@@ -161,6 +161,8 @@ module Sepa
       end
 
       def document_must_validate_against_schema
+        return if command.to_sym == :get_bank_certificate
+
         check_validity_against_schema(doc, 'soap.xsd')
       end
 
