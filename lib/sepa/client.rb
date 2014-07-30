@@ -90,7 +90,7 @@ module Sepa
         error: error,
         command: command
       }
-      options[:encryption_private_key] = encryption_private_key if encryption_private_key
+      options[:encryption_private_key] = rsa_key(encryption_private_key) if encryption_private_key
 
       case bank
       when :nordea
