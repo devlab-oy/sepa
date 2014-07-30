@@ -22,7 +22,7 @@ module Sepa
       return if [:get_certificate, :get_bank_certificate, :create_certificate].include? command
 
       begin
-        OpenSSL::PKey::RSA.new signing_private_key
+        rsa_key signing_private_key
       rescue
         errors.add(:signing_private_key, "Invalid signing private key")
       end
