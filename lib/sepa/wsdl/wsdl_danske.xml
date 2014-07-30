@@ -228,7 +228,7 @@
     </wsdl:binding>
     <wsdl:service name="CorporateFileService">
         <wsdl:port binding="tns:CorporateFileServiceHttpBinding" name="CorporateFileServiceHttpPort">
-            <wsdlsoap:address location="https://businessWS.danskebank.com/edifileservice/edifileservice.asmx"/>
+            <wsdlsoap:address location="https://businessws.sampopankki.fi/edifileservice/edifileservice.asmx"/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>
