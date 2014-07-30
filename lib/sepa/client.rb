@@ -90,6 +90,7 @@ module Sepa
         error: error,
         command: command
       }
+      options[:encryption_private_key] = encryption_private_key if encryption_private_key
 
       case bank
       when :nordea
@@ -117,7 +118,7 @@ module Sepa
       end
 
       def initialize_signing_private_key
-        @signing_private_key = OpenSSL::PKey::RSA.new(@signing_private_key) if @signing_private_key
+        @signing_private_key = rsa_key(@signing_private_key) if @signing_private_key
       end
 
       # Returns path to WSDL file

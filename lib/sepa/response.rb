@@ -14,6 +14,7 @@ module Sepa
       @soap = hash[:response]
       @command = hash[:command]
       @error = hash[:error]
+      @encryption_private_key = hash[:encryption_private_key]
     end
 
     def doc
