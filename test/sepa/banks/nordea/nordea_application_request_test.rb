@@ -240,11 +240,33 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
     assert_equal added_certificate, actual_certificate
   end
 
-  def test_should_validate_against_schema
+  test 'download file should validate against schema' do
     Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('application_request.xsd'))
       assert xsd.valid?(@doc_file)
     end
   end
 
+  test 'upload file should validate against schema' do
+    Dir.chdir(SCHEMA_PATH) do
+      xsd = Nokogiri::XML::Schema(IO.read('application_request.xsd'))
+      xsd.validate(@doc_up).each do |error|
+        puts error
+      end
+    end
+  end
+
+  test 'download file list should validate against schema' do
+    Dir.chdir(SCHEMA_PATH) do
+      xsd = Nokogiri::XML::Schema(IO.read('application_request.xsd'))
+      assert xsd.valid?(@doc_list)
+    end
+  end
+
+  test 'get user info should validate against schema' do
+    Dir.chdir(SCHEMA_PATH) do
+      xsd = Nokogiri::XML::Schema(IO.read('application_request.xsd'))
+      assert xsd.valid?(@doc_get)
+    end
+  end
 end
