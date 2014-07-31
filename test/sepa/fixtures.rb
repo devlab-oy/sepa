@@ -1,3 +1,36 @@
+def danske_generic_params
+  keys_path = "#{ROOT_PATH}/test/sepa/banks/danske/keys"
+
+  signing_private_key_path = "#{keys_path}/signing_key.pem"
+  signing_private_key = File.read signing_private_key_path
+
+  encryption_private_key_path = "#{keys_path}/enc_private_key.pem"
+  encryption_private_key = File.read encryption_private_key_path
+
+  signing_certificate_path = "#{keys_path}/own_signing_cert.pem"
+  signing_certificate = File.read signing_certificate_path
+
+  encryption_certificate_path = "#{keys_path}/own_enc_cert.pem"
+  encryption_certificate = File.read encryption_certificate_path
+
+  {
+    bank: :danske,
+    signing_private_key: signing_private_key,
+    encryption_private_key: encryption_private_key,
+    command: :upload_file,
+    customer_id: '360817',
+    environment: 'test',
+    encryption_certificate: encryption_certificate,
+    signing_certificate: signing_certificate,
+    language: 'FI',
+    status: 'ALL',
+    target_id: 'DABAFIHH',
+    file_type: 'pain.001.001.02',
+    content: encode('kissa'),
+    file_reference: '11111111A12006030329501800000014',
+  }
+end
+
 def nordea_generic_params
   signing_certificate = "-----BEGIN CERTIFICATE-----
 MIIDwTCCAqmgAwIBAgIEAX1JuTANBgkqhkiG9w0BAQUFADBkMQswCQYDVQQGEwJT

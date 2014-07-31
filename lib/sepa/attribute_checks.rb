@@ -136,5 +136,15 @@ module Sepa
       end
     end
 
+    def check_encryption_private_key
+      return unless bank == :danske
+      return if [:create_certificate, :get_bank_certificate].include? command
+
+      rsa_key encryption_private_key
+
+    rescue
+      errors.add :encryption_private_key, ENCRYPTION_PRIVATE_KEY_ERROR_MESSAGE
+    end
+
   end
 end

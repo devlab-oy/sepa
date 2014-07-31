@@ -9,6 +9,7 @@ class ClientTest < ActiveSupport::TestCase
     @nordea_generic_params = nordea_generic_params
     @nordea_get_certificate_params = nordea_get_certificate_params
     @danske_create_certificate_params = danske_create_certificate_params
+    @danske_generic_params = danske_generic_params
 
     # Namespaces
     @cor = 'http://bxd.fi/CorporateFileService'
@@ -283,6 +284,12 @@ class ClientTest < ActiveSupport::TestCase
     assert_includes response.errors.messages.to_s, "HTTP error (500): THE ERROR!"
 
     Savon.observers.pop
+  end
+
+  test 'encryption private key is checked when bank is danske' do
+    @danske_generic_params.delete :encryption_private_key
+    client = Sepa::Client.new @danske_generic_params
+    refute client.valid?
   end
 
 end

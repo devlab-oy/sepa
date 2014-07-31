@@ -45,6 +45,7 @@ module Sepa
     validate :check_encryption_cert_request
     validate :check_signing_csr
     validate :check_file_reference
+    validate :check_encryption_private_key
 
     def initialize(hash = {})
       self.attributes hash

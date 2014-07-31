@@ -11,5 +11,6 @@ module Sepa
     ENCRYPTION_CERT_ERROR_MESSAGE = 'Invalid encryption certificate'
     STATUS_ERROR_MESSAGE = 'Status is required for this command and must be either NEW, DOWNLOADED or ALL'
     FILE_REFERENCE_ERROR_MESSAGE = 'File reference is required for this command and must be under 33 characters'
+    ENCRYPTION_PRIVATE_KEY_ERROR_MESSAGE = 'Encryption private key is needed for this bank and this command'
   end
 end
