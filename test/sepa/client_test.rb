@@ -7,8 +7,9 @@ class ClientTest < ActiveSupport::TestCase
 
     # Get params hashes from fixtures for different banks and for different request types
     @nordea_generic_params = nordea_generic_params
-    @nordea_cert_params = nordea_cert_params
-    @danske_cert_params = danske_cert_params
+    @nordea_get_certificate_params = nordea_get_certificate_params
+    @danske_create_certificate_params = danske_create_certificate_params
+    @danske_generic_params = danske_generic_params
 
     # Namespaces
     @cor = 'http://bxd.fi/CorporateFileService'
@@ -28,7 +29,7 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test "should be valid with required params" do
-    sepa = Sepa::Client.new @danske_cert_params
+    sepa = Sepa::Client.new @danske_create_certificate_params
     assert sepa.valid?, sepa.errors.messages
   end
 
@@ -38,10 +39,10 @@ class ClientTest < ActiveSupport::TestCase
     refute sepa.valid?, sepa.errors.messages
   end
 
-  test "banks supported commands" do
-    @nordea_cert_params[:bank] = :danske
-    @nordea_cert_params[:command] = :get_certificate
-    sepa = Sepa::Client.new @nordea_cert_params
+  test 'commands differ by bank' do
+    @nordea_get_certificate_params[:bank] = :danske
+    @nordea_get_certificate_params[:command] = :get_certificate
+    sepa = Sepa::Client.new @nordea_get_certificate_params
     refute sepa.valid?, sepa.errors.messages
   end
 
@@ -49,7 +50,7 @@ class ClientTest < ActiveSupport::TestCase
     wrong_pks = ['Im not a key', :leppakerttu, nil]
 
     wrong_pks.each do |wrong_pk|
-      @nordea_generic_params[:private_key] = wrong_pk
+      @nordea_generic_params[:signing_private_key] = wrong_pk
       sepa = Sepa::Client.new @nordea_generic_params
       refute sepa.valid?, sepa.errors.messages
     end
@@ -59,7 +60,7 @@ class ClientTest < ActiveSupport::TestCase
     wrong_certs = ['Im not a cert', 99, :leppakerttu, nil]
 
     wrong_certs.each do |wrong_cert|
-      @nordea_generic_params[:cert] = wrong_cert
+      @nordea_generic_params[:signing_certificate] = wrong_cert
       sepa = Sepa::Client.new @nordea_generic_params
       refute sepa.valid?, sepa.errors.messages
     end
@@ -211,11 +212,11 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test "should_initialize_with_proper_cert_params" do
-    assert Sepa::Client.new(@nordea_cert_params)
+    assert Sepa::Client.new(@nordea_get_certificate_params)
   end
 
   test "should_send_proper_request_with_get_certificate" do
-    client = Sepa::Client.new(@nordea_cert_params)
+    client = Sepa::Client.new(@nordea_get_certificate_params)
     response = client.send_request
 
     assert response.doc.at_css('cer|getCertificatein')
@@ -227,37 +228,37 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test "should_check_signing_cert_request_with_create_certificate" do
-    @danske_cert_params[:command] = :create_certificate
-    @danske_cert_params.delete(:signing_cert_pkcs10)
+    @danske_create_certificate_params[:command] = :create_certificate
+    @danske_create_certificate_params.delete(:signing_csr)
 
-    sepa = Sepa::Client.new(@danske_cert_params)
+    sepa = Sepa::Client.new(@danske_create_certificate_params)
     refute sepa.valid?
     assert_includes sepa.errors.messages.to_s, SIGNING_CERT_REQUEST_ERROR_MESSAGE
   end
 
   test "should_check_encryption_cert_request_with_create_certificate" do
-    @danske_cert_params[:command] = :create_certificate
-    @danske_cert_params.delete(:encryption_cert_pkcs10)
+    @danske_create_certificate_params[:command] = :create_certificate
+    @danske_create_certificate_params.delete(:encryption_csr)
 
-    sepa = Sepa::Client.new(@danske_cert_params)
+    sepa = Sepa::Client.new(@danske_create_certificate_params)
     refute sepa.valid?
     assert_includes sepa.errors.messages.to_s, ENCRYPTION_CERT_REQUEST_ERROR_MESSAGE
   end
 
   test "should_check_pin_with_create_certificate" do
-    @danske_cert_params[:command] = :create_certificate
-    @danske_cert_params.delete(:pin)
+    @danske_create_certificate_params[:command] = :create_certificate
+    @danske_create_certificate_params.delete(:pin)
 
-    sepa = Sepa::Client.new(@danske_cert_params)
+    sepa = Sepa::Client.new(@danske_create_certificate_params)
     refute sepa.valid?
     assert_includes sepa.errors.messages.to_s, PIN_ERROR_MESSAGE
   end
 
   test "should_check_encryption_cert_with_create_certificate" do
-    @danske_cert_params[:command] = :create_certificate
-    @danske_cert_params.delete(:enc_cert)
+    @danske_create_certificate_params[:command] = :create_certificate
+    @danske_create_certificate_params.delete(:encryption_certificate)
 
-    sepa = Sepa::Client.new(@danske_cert_params)
+    sepa = Sepa::Client.new(@danske_create_certificate_params)
     refute sepa.valid?
     assert_includes sepa.errors.messages.to_s, ENCRYPTION_CERT_ERROR_MESSAGE
   end
@@ -283,6 +284,18 @@ class ClientTest < ActiveSupport::TestCase
     assert_includes response.errors.messages.to_s, "HTTP error (500): THE ERROR!"
 
     Savon.observers.pop
+  end
+
+  test 'encryption private key is checked when bank is danske' do
+    @danske_generic_params.delete :encryption_private_key
+    client = Sepa::Client.new @danske_generic_params
+    refute client.valid?
+  end
+
+  test 'encryption certificate is checked when bank is danske' do
+    @danske_generic_params.delete :encryption_certificate
+    client = Sepa::Client.new @danske_generic_params
+    refute client.valid?
   end
 
 end

@@ -22,31 +22,31 @@ module Sepa
       return if [:get_certificate, :get_bank_certificate, :create_certificate].include? command
 
       begin
-        OpenSSL::PKey::RSA.new private_key
+        rsa_key signing_private_key
       rescue
-        errors.add(:private_key, "Invalid private key")
+        errors.add(:signing_private_key, "Invalid signing private key")
       end
 
       begin
-        OpenSSL::X509::Certificate.new cert
+        OpenSSL::X509::Certificate.new signing_certificate
       rescue
-        errors.add(:cert, "Invalid certificate")
+        errors.add(:signing_certificate, "Invalid signing certificate")
       end
     end
 
-    def check_signing_cert
+    def check_signing_csr
       return unless command == :create_certificate
 
-      unless cert_request_valid?(signing_cert_pkcs10)
-        errors.add(:signing_cert_pkcs10, SIGNING_CERT_REQUEST_ERROR_MESSAGE)
+      unless cert_request_valid?(signing_csr)
+        errors.add(:signing_csr, SIGNING_CERT_REQUEST_ERROR_MESSAGE)
       end
     end
 
     def check_encryption_cert_request
       return unless command == :create_certificate
 
-      unless cert_request_valid?(encryption_cert_pkcs10)
-        errors.add(:encryption_cert_pkcs10, ENCRYPTION_CERT_REQUEST_ERROR_MESSAGE)
+      unless cert_request_valid?(encryption_csr)
+        errors.add(:encryption_csr, ENCRYPTION_CERT_REQUEST_ERROR_MESSAGE)
       end
     end
 
@@ -100,44 +100,31 @@ module Sepa
       check_presence_and_length(:pin, 10, PIN_ERROR_MESSAGE)
     end
 
-    def check_bank_root_cert_serial
-      return unless command == :get_bank_certificate
-
-      unless bank_root_cert_serial && bank_root_cert_serial.length.between?(1, 64)
-        errors.add(:bank_root_cert_serial, "Invalid bank root certificate serial")
-      end
-    end
-
     def check_environment
       return if command == :get_bank_certificate
 
-      environments = [:production, :test]
-
-      unless environments.include? environment
+      unless Client::ENVIRONMENTS.include? environment
         errors.add(:environment, ENVIRONMENT_ERROR_MESSAGE)
       end
     end
 
     def check_customer_id
-      return if command == :get_bank_certificate
-
       unless customer_id && customer_id.length.between?(1, 16)
         errors.add(:customer_id, CUSTOMER_ID_ERROR_MESSAGE)
       end
     end
 
-    def check_enc_cert
-      return unless command == :create_certificate
+    def check_encryption_certificate
+      return unless bank == :danske
+      return if command == :get_bank_certificate
 
-      errors.add(:enc_cert, ENCRYPTION_CERT_ERROR_MESSAGE) unless enc_cert
+      errors.add(:encryption_certificate, ENCRYPTION_CERT_ERROR_MESSAGE) unless encryption_certificate
     end
 
     def check_status
       return unless [:download_file_list, :download_file].include? command
 
-      statuses = ['NEW', 'DOWNLOADED', 'ALL']
-
-      unless status && statuses.include?(status)
+      unless status && Client::STATUSES.include?(status)
         errors.add :status, STATUS_ERROR_MESSAGE
       end
     end
@@ -148,6 +135,16 @@ module Sepa
       unless file_reference && file_reference.length <= 32
         errors.add :file_reference, FILE_REFERENCE_ERROR_MESSAGE
       end
+    end
+
+    def check_encryption_private_key
+      return unless bank == :danske
+      return if [:create_certificate, :get_bank_certificate].include? command
+
+      rsa_key encryption_private_key
+
+    rescue
+      errors.add :encryption_private_key, ENCRYPTION_PRIVATE_KEY_ERROR_MESSAGE
     end
 
   end

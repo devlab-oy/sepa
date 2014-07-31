@@ -5,23 +5,23 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   def setup
     keys_path = File.expand_path('../keys', __FILE__)
 
-    private_key_path = "#{keys_path}/signing_private_key.pem"
-    private_key = File.read private_key_path
+    signing_private_key_path = "#{keys_path}/signing_key.pem"
+    signing_private_key = File.read signing_private_key_path
 
-    signing_cert_path = "#{keys_path}/own_signing_cert.pem"
-    signing_cert = File.read signing_cert_path
+    signing_certificate_path = "#{keys_path}/own_signing_cert.pem"
+    signing_certificate = File.read signing_certificate_path
 
-    enc_cert_path = "#{keys_path}/own_enc_cert.pem"
-    enc_cert = File.read enc_cert_path
+    encryption_certificate_path = "#{keys_path}/own_enc_cert.pem"
+    encryption_certificate = File.read encryption_certificate_path
 
-    @nordea_generic_params = {
+    @danske_generic_params = {
       bank: :danske,
-      private_key: OpenSSL::PKey::RSA.new(private_key),
+      signing_private_key: rsa_key(signing_private_key),
       command: :upload_file,
       customer_id: '360817',
       environment: 'TEST',
-      enc_cert: enc_cert,
-      cert: signing_cert,
+      encryption_certificate: encryption_certificate,
+      signing_certificate: signing_certificate,
       language: 'EN',
       status: 'ALL',
       target_id: 'Danske FI',
@@ -30,7 +30,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
       file_reference: "11111111A12006030329501800000014",
     }
 
-    @soap_request = Sepa::SoapBuilder.new(@nordea_generic_params)
+    @soap_request = Sepa::SoapBuilder.new(@danske_generic_params)
 
     @doc = Nokogiri::XML(@soap_request.to_xml)
 
@@ -39,55 +39,55 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_should_initialize_request_with_proper_params
-    assert Sepa::SoapBuilder.new(@nordea_generic_params).to_xml
+    assert Sepa::SoapBuilder.new(@danske_generic_params).to_xml
   end
 
   def test_should_get_error_if_command_missing
-    @nordea_generic_params.delete(:command)
+    @danske_generic_params.delete(:command)
 
     assert_raises(ArgumentError) do
-      Sepa::SoapBuilder.new(@nordea_generic_params)
+      Sepa::SoapBuilder.new(@danske_generic_params)
     end
   end
 
   def test_should_load_correct_template_with_download_file_list
-    @nordea_generic_params[:command] = :download_file_list
-    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@nordea_generic_params).to_xml)
+    @danske_generic_params[:command] = :download_file_list
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@danske_generic_params).to_xml)
 
     assert doc.at('//cor:downloadFileListin', 'cor' => 'http://bxd.fi/CorporateFileService')
   end
 
   def test_should_load_correct_template_with_get_user_info
-    @nordea_generic_params[:command] = :get_user_info
-    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@nordea_generic_params).to_xml)
+    @danske_generic_params[:command] = :get_user_info
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@danske_generic_params).to_xml)
 
     assert doc.at('//cor:getUserInfoin', 'cor' => 'http://bxd.fi/CorporateFileService')
   end
 
   def test_should_load_correct_template_with_download_file
-    @nordea_generic_params[:command] = :download_file
-    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@nordea_generic_params).to_xml)
+    @danske_generic_params[:command] = :download_file
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@danske_generic_params).to_xml)
 
     assert doc.at('//cor:downloadFilein', 'cor' => 'http://bxd.fi/CorporateFileService')
   end
 
   def test_should_load_correct_template_with_upload_file
-    @nordea_generic_params[:command] = :upload_file
-    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@nordea_generic_params).to_xml)
+    @danske_generic_params[:command] = :upload_file
+    doc = Nokogiri::XML(Sepa::SoapBuilder.new(@danske_generic_params).to_xml)
 
     assert doc.at('//cor:uploadFilein', 'cor' => 'http://bxd.fi/CorporateFileService')
   end
 
   def test_should_raise_error_if_unrecognised_command
-    @nordea_generic_params[:command] = :wrong_command
+    @danske_generic_params[:command] = :wrong_command
 
     assert_raises(ArgumentError) do
-      soap = Sepa::SoapBuilder.new(@nordea_generic_params)
+      soap = Sepa::SoapBuilder.new(@danske_generic_params)
     end
   end
 
   def test_sender_id_is_properly_set
-    assert_equal @nordea_generic_params[:customer_id],
+    assert_equal @danske_generic_params[:customer_id],
       @doc.at("//bxd:SenderId", 'bxd' => 'http://model.bxd.fi').content
   end
 
@@ -108,7 +108,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   def test_language_is_set_correctly
     language_node = @doc.at("//bxd:Language", 'bxd' => 'http://model.bxd.fi')
 
-    assert_equal language_node.content, @nordea_generic_params[:language]
+    assert_equal language_node.content, @danske_generic_params[:language]
   end
 
   def test_user_agent_is_set_correctly
@@ -126,19 +126,19 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   def test_cert_is_added_correctly
     wsse = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
 
-    added_cert = @doc.at(
+    added_certificate = @doc.at(
       "//wsse:BinarySecurityToken", 'wsse' => wsse
     ).content
 
-    actual_cert = OpenSSL::X509::Certificate.new(
-      @nordea_generic_params.fetch(:cert)
+    actual_certificate = OpenSSL::X509::Certificate.new(
+      @danske_generic_params.fetch(:signing_certificate)
     ).to_s
 
-    actual_cert = actual_cert.split('-----BEGIN CERTIFICATE-----')[1]
-    actual_cert = actual_cert.split('-----END CERTIFICATE-----')[0]
-    actual_cert = actual_cert.gsub(/\s+/, "")
+    actual_certificate = actual_certificate.split('-----BEGIN CERTIFICATE-----')[1]
+    actual_certificate = actual_certificate.split('-----END CERTIFICATE-----')[0]
+    actual_certificate = actual_certificate.gsub(/\s+/, "")
 
-    assert_equal added_cert, actual_cert
+    assert_equal added_certificate, actual_certificate
   end
 
   def test_body_digest_is_calculated_correctly
@@ -212,7 +212,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   def test_signature_is_calculated_correctly
     sha1 = OpenSSL::Digest::SHA1.new
 
-    private_key = OpenSSL::PKey::RSA.new(@nordea_generic_params.fetch(:private_key))
+    private_key = rsa_key(@danske_generic_params.fetch(:signing_private_key))
 
     added_signature = @doc.at(
       "//dsig:SignatureValue",

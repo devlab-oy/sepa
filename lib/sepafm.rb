@@ -32,6 +32,7 @@ OASIS_UTILITY = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecur
 OASIS_SECEXT = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
 XML_DATA = 'http://bxd.fi/xmldata/'
 BXD = 'http://model.bxd.fi'
+XMLENC = 'http://www.w3.org/2001/04/xmlenc#'
 
 # Nordea XML namespaces
 NORDEA_PKI = 'http://bxd.fi/CertificateService'

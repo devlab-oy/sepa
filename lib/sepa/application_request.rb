@@ -58,7 +58,9 @@ module Sepa
       end
 
       def set_download_file_nodes
-        set_download_file_list_nodes
+        add_target_id_after 'FileReferences'
+        set_node("Status", @status)
+        set_node("FileType", @file_type)
         set_node("FileReference", @file_reference)
       end
 
@@ -74,29 +76,32 @@ module Sepa
       def set_upload_file_nodes
         set_node_b("Content", @content)
         set_node("FileType", @file_type)
-        set_node("TargetId", @target_id)
+        add_target_id_after 'Environment'
       end
 
       def set_download_file_list_nodes
+        add_target_id_after 'Environment'
         set_node("Status", @status)
-        set_node("TargetId", @target_id)
         set_node("FileType", @file_type)
       end
 
       def set_get_certificate_nodes
         set_node("Service", '')
-        set_node("Content", format_cert_request(@csr))
-        set_node("HMAC", hmac(@pin, csr_to_binary(@csr)))
+        set_node("Content", format_cert_request(@signing_csr))
+        set_node("HMAC", hmac(@pin, csr_to_binary(@signing_csr)))
       end
 
       def set_create_certificate_nodes
         set_node("tns|CustomerId", @customer_id)
         set_node("tns|KeyGeneratorType", 'software')
-        set_node("tns|EncryptionCertPKCS10", format_cert_request(@encryption_cert_pkcs10))
-        set_node("tns|SigningCertPKCS10", format_cert_request(@signing_cert_pkcs10))
+        set_node("tns|EncryptionCertPKCS10", format_cert_request(@encryption_csr))
+        set_node("tns|SigningCertPKCS10", format_cert_request(@signing_csr))
         set_node("tns|Timestamp", iso_time)
         set_node("tns|RequestId", @request_id)
+
+        @environment = 'customertest' if @environment == :test
         set_node("tns|Environment", @environment)
+
         set_node("tns|PIN", @pin)
       end
 
@@ -104,9 +109,9 @@ module Sepa
         return if @command == :get_bank_certificate
         return if @command == :create_certificate
 
+        set_node('Environment', @environment.to_s.upcase)
         set_node("CustomerId", @customer_id)
         set_node("Timestamp", iso_time)
-        set_node("Environment", @environment)
         set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
         set_node("Command", pretty_command)
       end
@@ -134,7 +139,7 @@ module Sepa
         sha1 = OpenSSL::Digest::SHA1.new
         dsig = 'http://www.w3.org/2000/09/xmldsig#'
         node = @application_request.at_css("dsig|SignedInfo", 'dsig' => dsig)
-        signature = @private_key.sign(sha1, node.canonicalize)
+        signature = @signing_private_key.sign(sha1, node.canonicalize)
         encode signature
       end
 
@@ -149,7 +154,15 @@ module Sepa
         add_node_to_root(signature_node)
         add_value_to_signature('DigestValue', digest)
         add_value_to_signature('SignatureValue', calculate_signature)
-        add_value_to_signature('X509Certificate', format_cert(@cert))
+        add_value_to_signature('X509Certificate', format_cert(@signing_certificate))
+      end
+
+      def add_target_id_after(node)
+        return unless @bank == :nordea
+
+        target_id = Nokogiri::XML::Node.new 'TargetId', @application_request
+        target_id.content = @target_id
+        @application_request.at(node).add_next_sibling target_id
       end
 
   end

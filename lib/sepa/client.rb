@@ -6,26 +6,27 @@ module Sepa
     include AttributeChecks
 
     attr_accessor :bank,
-                  :bank_root_cert_serial,
-                  :cert,
                   :command,
                   :content,
-                  :csr,
                   :customer_id,
-                  :enc_cert,
-                  :encryption_cert_pkcs10,
+                  :target_id,
                   :environment,
                   :file_reference,
                   :file_type,
                   :language,
-                  :pin,
-                  :private_key,
-                  :signing_cert_pkcs10,
                   :status,
-                  :target_id
+                  :pin,
+                  :signing_private_key,
+                  :signing_certificate,
+                  :signing_csr,
+                  :encryption_private_key,
+                  :encryption_certificate,
+                  :encryption_csr
 
     BANKS = [:nordea, :danske]
     LANGUAGES = ['FI', 'SE', 'EN']
+    ENVIRONMENTS = [:production, :test]
+    STATUSES = ['NEW', 'DOWNLOADED', 'ALL']
 
     validates :bank, inclusion: { in: BANKS }
     validates :language, inclusion: { in: LANGUAGES }, allow_nil: true
@@ -40,11 +41,11 @@ module Sepa
     validate :check_command
     validate :check_wsdl
     validate :check_keys
-    validate :check_enc_cert
+    validate :check_encryption_certificate
     validate :check_encryption_cert_request
-    validate :check_signing_cert
-    validate :check_bank_root_cert_serial
+    validate :check_signing_csr
     validate :check_file_reference
+    validate :check_encryption_private_key
 
     def initialize(hash = {})
       self.attributes hash
@@ -90,6 +91,7 @@ module Sepa
         error: error,
         command: command
       }
+      options[:encryption_private_key] = rsa_key(encryption_private_key) if encryption_private_key
 
       case bank
       when :nordea
@@ -102,7 +104,7 @@ module Sepa
     private
 
       def create_hash
-        initialize_private_key
+        initialize_signing_private_key
         iv = {}
 
         # Create hash of all instance variables
@@ -116,8 +118,8 @@ module Sepa
         iv
       end
 
-      def initialize_private_key
-        @private_key = OpenSSL::PKey::RSA.new(@private_key) if @private_key
+      def initialize_signing_private_key
+        @signing_private_key = rsa_key(@signing_private_key) if @signing_private_key
       end
 
       # Returns path to WSDL file

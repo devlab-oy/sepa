@@ -6,14 +6,15 @@ module Sepa
     attr_reader :soap, :error, :command
 
     validates :soap, presence: true
-    validate :validate_document_format
-    validate :document_must_validate_against_schema
-    validate :client_errors
+    validate  :validate_document_format
+    validate  :document_must_validate_against_schema
+    validate  :client_errors
 
     def initialize(hash = {})
       @soap = hash[:response]
       @command = hash[:command]
       @error = hash[:error]
+      @encryption_private_key = hash[:encryption_private_key]
     end
 
     def doc
@@ -108,6 +109,18 @@ module Sepa
       @soap
     end
 
+    def bank_encryption_certificate; end
+
+    def bank_signing_certificate; end
+
+    def bank_root_certificate; end
+
+    def own_encryption_certificate; end
+
+    def own_signing_certificate; end
+
+    def ca_certificate; end
+
     private
 
       # Finds all reference nodes with digest values in the document and returns
@@ -148,6 +161,8 @@ module Sepa
       end
 
       def document_must_validate_against_schema
+        return if command.to_sym == :get_bank_certificate
+
         check_validity_against_schema(doc, 'soap.xsd')
       end
 

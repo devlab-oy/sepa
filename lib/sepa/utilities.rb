@@ -143,5 +143,9 @@ module Sepa
       Base64.encode64 value
     end
 
+    def rsa_key(key_as_string)
+      OpenSSL::PKey::RSA.new key_as_string
+    end
+
   end
 end

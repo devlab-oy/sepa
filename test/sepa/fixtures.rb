@@ -1,5 +1,38 @@
+def danske_generic_params
+  keys_path = "#{ROOT_PATH}/test/sepa/banks/danske/keys"
+
+  signing_private_key_path = "#{keys_path}/signing_key.pem"
+  signing_private_key = File.read signing_private_key_path
+
+  encryption_private_key_path = "#{keys_path}/enc_private_key.pem"
+  encryption_private_key = File.read encryption_private_key_path
+
+  signing_certificate_path = "#{keys_path}/own_signing_cert.pem"
+  signing_certificate = File.read signing_certificate_path
+
+  encryption_certificate_path = "#{keys_path}/own_enc_cert.pem"
+  encryption_certificate = File.read encryption_certificate_path
+
+  {
+    bank: :danske,
+    signing_private_key: signing_private_key,
+    encryption_private_key: encryption_private_key,
+    command: :upload_file,
+    customer_id: '360817',
+    environment: 'test',
+    encryption_certificate: encryption_certificate,
+    signing_certificate: signing_certificate,
+    language: 'FI',
+    status: 'ALL',
+    target_id: 'DABAFIHH',
+    file_type: 'pain.001.001.02',
+    content: encode('kissa'),
+    file_reference: '11111111A12006030329501800000014',
+  }
+end
+
 def nordea_generic_params
-  cert = "-----BEGIN CERTIFICATE-----
+  signing_certificate = "-----BEGIN CERTIFICATE-----
 MIIDwTCCAqmgAwIBAgIEAX1JuTANBgkqhkiG9w0BAQUFADBkMQswCQYDVQQGEwJT
 RTEeMBwGA1UEChMVTm9yZGVhIEJhbmsgQUIgKHB1YmwpMR8wHQYDVQQDExZOb3Jk
 ZWEgQ29ycG9yYXRlIENBIDAxMRQwEgYDVQQFEws1MTY0MDYtMDEyMDAeFw0xMzA1
@@ -22,7 +55,7 @@ ydowAnqS9h9aQ6gedwbOdtkWmwKMDVXU6aRz9Gvk+JeYJhtpuP3OPNGbbC5L7NVd
 no+B6AtwxmG3ozd+mPcMeVuz6kKLAmQyIiBSrRNa5OrTkq/CUzxO9WUgTnm/Sri7
 zReR6mU=
 -----END CERTIFICATE-----"
-  pkey = "-----BEGIN PRIVATE KEY-----
+  signing_private_key = "-----BEGIN PRIVATE KEY-----
 MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAMLRRHwLWybhs0MM
 EbpmZL2IdgYxmFbADFHoirTp3t22UnorHwqvk16i9YCPS6H8ngEPSP7A5urS/NMq
 w+YmklKlZugO9/TLJqVv4smXFX+5rPMQDedRElIDempMGQlPaR+tp4CQ49oFLJLW
@@ -41,11 +74,11 @@ Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
 
   {
     bank: :nordea,
-    private_key: pkey,
-    cert: cert,
+    signing_private_key: signing_private_key,
+    signing_certificate: signing_certificate,
     command: :download_file,
     customer_id: '11111111',
-    environment: 'PRODUCTION',
+    environment: 'production',
     status: 'NEW',
     target_id: '11111111A1',
     language: 'FI',
@@ -55,8 +88,8 @@ Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
   }
 end
 
-def nordea_cert_params
-  csr = "-----BEGIN CERTIFICATE REQUEST-----
+def nordea_get_certificate_params
+  signing_csr = "-----BEGIN CERTIFICATE REQUEST-----
 MIIBczCB3QIBADA0MRIwEAYDVQQDEwlEZXZsYWIgT3kxETAPBgNVBAUTCDExMTEx
 MTExMQswCQYDVQQGEwJGSTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAo9wU
 c2Ys5hSso4nEanbc+RIhL71aS6GBGiWAegXjhlyb6dpwigrZBFPw4u6UZV/Vq7Y7
@@ -71,8 +104,8 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
     bank: :nordea,
     command: :get_certificate,
     customer_id: '11111111',
-    environment: 'TEST',
-    csr: csr,
+    environment: 'test',
+    signing_csr: signing_csr,
     pin: '1234567890'
   }
 end
@@ -161,8 +194,8 @@ swU8X6yvbtqF+q4aAKPA6ZydnGZFQSoSzNJtcF28T1ItxEHN3+xyQqXpTgFviiuL
   }
 end
 
-def danske_create_cert_params
-  enc_cert_request = "-----BEGIN CERTIFICATE REQUEST-----
+def danske_create_certificate_params
+  encryption_csr = "-----BEGIN CERTIFICATE REQUEST-----
 MIICdzCCAV8CAQEwMjEPMA0GA1UEAwwGaGVtdWxpMR8wHQYKCZImiZPyLGQBGRYP
 bnV1c2thbXVpa2t1bmVuMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
 5aHmVXcfogDqJ3kUfK8ARzdkQ/dm9j4rHbGNh4xmlKCMUwCmmo2LOKMKvviD7qwz
@@ -179,7 +212,7 @@ db1f0XsYTW1NUYoL8O8uxzoNcysyBW/VGP01e2LXB8whWn4xtDtaLpyt/v4ow04V
 9v3lfL5ZDl1gIEY=
 -----END CERTIFICATE REQUEST-----"
 
-  signing_cert_request = "-----BEGIN CERTIFICATE REQUEST-----
+  signing_csr = "-----BEGIN CERTIFICATE REQUEST-----
 MIICdzCCAV8CAQEwMjEPMA0GA1UEAwwGaGVtdWxpMR8wHQYKCZImiZPyLGQBGRYP
 bnV1c2thbXVpa2t1bmVuMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
 y4zgajeMzFrBR4zsJ50qo4fxHWfjdCmI5nwLbKqKhSKB15JBdRmh/Wz0Gi1qOvER
@@ -196,16 +229,16 @@ bx1hmt5Eihy1lORQR4PE4xaOP5TCqtxP0+snuGqRuBHhrDk4mowWEJbvFWlONT5H
 CsajqZag/Aoxv/Y=
 -----END CERTIFICATE REQUEST-----"
 
-  enc_cert = File.read "#{DANSKE_TEST_KEYS_PATH}own_enc_cert.pem"
+  encryption_certificate = File.read "#{DANSKE_TEST_KEYS_PATH}own_enc_cert.pem"
 
   {
       bank: :danske,
-      enc_cert: enc_cert,
+      encryption_certificate: encryption_certificate,
       command: :create_certificate,
       customer_id: '360817',
       environment: 'test',
-      encryption_cert_pkcs10: enc_cert_request,
-      signing_cert_pkcs10: signing_cert_request,
+      encryption_csr: encryption_csr,
+      signing_csr: signing_csr,
       pin: '1234',
   }
 end

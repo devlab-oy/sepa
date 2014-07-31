@@ -1,7 +1,7 @@
 module Sepa
   module ErrorMessages
     CUSTOMER_ID_ERROR_MESSAGE = 'Customer Id needs to be present and needs to have a length of less than 17 characters'
-    ENVIRONMENT_ERROR_MESSAGE = 'Environment needs to be either PRODUCTION, TEST or customertest'
+    ENVIRONMENT_ERROR_MESSAGE = 'Environment needs to be either production or test'
     TARGET_ID_ERROR_MESSAGE = 'Target Id needs to be present and under 80 characters'
     FILE_TYPE_ERROR_MESSAGE = 'File type needs to be present and under 35 characters'
     CONTENT_ERROR_MESSAGE = 'Content needs to be present for this command'
@@ -11,5 +11,6 @@ module Sepa
     ENCRYPTION_CERT_ERROR_MESSAGE = 'Invalid encryption certificate'
     STATUS_ERROR_MESSAGE = 'Status is required for this command and must be either NEW, DOWNLOADED or ALL'
     FILE_REFERENCE_ERROR_MESSAGE = 'File reference is required for this command and must be under 33 characters'
+    ENCRYPTION_PRIVATE_KEY_ERROR_MESSAGE = 'Encryption private key is needed for this bank and this command'
   end
 end

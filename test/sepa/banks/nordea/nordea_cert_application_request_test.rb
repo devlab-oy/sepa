@@ -4,8 +4,8 @@ class NordeaCertApplicationRequestTest < ActiveSupport::TestCase
   include Sepa::Utilities
 
   def setup
-    @get_cert_params = nordea_cert_params
-    ar_cert = Sepa::SoapBuilder.new(@get_cert_params).application_request
+    @nordea_get_certificate_params = nordea_get_certificate_params
+    ar_cert = Sepa::SoapBuilder.new(@nordea_get_certificate_params).application_request
     @xml = Nokogiri::XML(ar_cert.to_xml)
   end
 
@@ -17,19 +17,19 @@ class NordeaCertApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_should_initialize_with_only_get_certificate_params
-    assert Sepa::ApplicationRequest.new(@get_cert_params)
+    assert Sepa::ApplicationRequest.new(@nordea_get_certificate_params)
   end
 
   def test_should_get_argument_errors_unless_command_is_get_certificate
     assert_raises(ArgumentError) do
-      @get_cert_params[:command] = :wrong_command
-      ar = Sepa::ApplicationRequest.new(@get_cert_params)
+      @nordea_get_certificate_params[:command] = :wrong_command
+      ar = Sepa::ApplicationRequest.new(@nordea_get_certificate_params)
       ar.get_as_base64
     end
   end
 
   def test_should_have_customer_id_set
-    assert_equal @xml.at_css("CustomerId").content, @get_cert_params[:customer_id]
+    assert_equal @xml.at_css("CustomerId").content, @nordea_get_certificate_params[:customer_id]
   end
 
   def test_should_have_timestamp_set_properly
@@ -41,8 +41,9 @@ class NordeaCertApplicationRequestTest < ActiveSupport::TestCase
     assert_equal @xml.at_css("Command").content, "GetCertificate"
   end
 
-  def test_should_have_environment_set
-    assert_equal @xml.at_css("Environment").content, @get_cert_params[:environment]
+  def test_should_have_environment_set_and_upcase
+    expected_environment = @nordea_get_certificate_params[:environment].upcase
+    assert_equal expected_environment, @xml.at_css("Environment").content
   end
 
   test 'should have software id set' do
@@ -54,12 +55,12 @@ class NordeaCertApplicationRequestTest < ActiveSupport::TestCase
   end
 
   test 'should have content set' do
-    assert_equal @xml.at_css('Content').content, format_cert_request(@get_cert_params[:csr])
+    assert_equal @xml.at_css('Content').content, format_cert_request(@nordea_get_certificate_params[:signing_csr])
   end
 
   test 'should have hmac set' do
     assert_equal @xml.at_css('HMAC').content,
-                 hmac(@get_cert_params[:pin], csr_to_binary(@get_cert_params[:csr]))
+                 hmac(@nordea_get_certificate_params[:pin], csr_to_binary(@nordea_get_certificate_params[:signing_csr]))
   end
 
   def test_should_validate_against_schema

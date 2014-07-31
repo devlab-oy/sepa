@@ -6,8 +6,8 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
 
     # Convert the keys here since the conversion is usually done by the client and these tests
     # bypass the client
-    @nordea_generic_params[:private_key] = OpenSSL::PKey::RSA.new @nordea_generic_params[:private_key]
-    @nordea_generic_params[:cert] = OpenSSL::X509::Certificate.new @nordea_generic_params[:cert]
+    @nordea_generic_params[:signing_private_key] = rsa_key @nordea_generic_params[:signing_private_key]
+    @nordea_generic_params[:signing_certificate] = OpenSSL::X509::Certificate.new @nordea_generic_params[:signing_certificate]
 
     ar_file = Sepa::SoapBuilder.new(@nordea_generic_params).application_request
 
@@ -89,10 +89,12 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_should_have_environment_set_with_all_commands
-    assert_equal @doc_file.at_css("Environment").content, @nordea_generic_params[:environment]
-    assert_equal @doc_get.at_css("Environment").content, @nordea_generic_params[:environment]
-    assert_equal @doc_list.at_css("Environment").content, @nordea_generic_params[:environment]
-    assert_equal @doc_up.at_css("Environment").content, @nordea_generic_params[:environment]
+    expected_environment = @nordea_generic_params[:environment].upcase
+
+    assert_equal @doc_file.at_css("Environment").content, expected_environment
+    assert_equal @doc_get.at_css("Environment").content, expected_environment
+    assert_equal @doc_list.at_css("Environment").content, expected_environment
+    assert_equal @doc_up.at_css("Environment").content, expected_environment
   end
 
   def test_should_have_software_id_set_with_all_commands
@@ -122,10 +124,6 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
 
   def test_should_have_target_id_set_when_download_file_list
     assert_equal @doc_list.at_css("TargetId").content, @nordea_generic_params[:target_id]
-  end
-
-  def test_should_have_target_id_set_when_download_file
-    assert_equal @doc_file.at_css("TargetId").content, @nordea_generic_params[:target_id]
   end
 
   def test_should_not_have_target_id_set_when_get_user_info
@@ -219,7 +217,7 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
 
     # Calculate the actual signature
     keys_path = File.expand_path('../keys', __FILE__)
-    private_key = OpenSSL::PKey::RSA.new(File.read("#{keys_path}/nordea.key"))
+    private_key = rsa_key(File.read("#{keys_path}/nordea.key"))
 
     sha1 = OpenSSL::Digest::SHA1.new
     actual_signature = encode(private_key.sign(
@@ -230,23 +228,45 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_certificate_is_added_correctly
-    added_cert = @doc_file.at_css(
+    added_certificate = @doc_file.at_css(
       "dsig|X509Certificate", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
     ).content
 
-    actual_cert = @nordea_generic_params.fetch(:cert).to_s
-    actual_cert = actual_cert.split('-----BEGIN CERTIFICATE-----')[1]
-    actual_cert = actual_cert.split('-----END CERTIFICATE-----')[0]
-    actual_cert.gsub!(/\s+/, "")
+    actual_certificate = @nordea_generic_params.fetch(:signing_certificate).to_s
+    actual_certificate = actual_certificate.split('-----BEGIN CERTIFICATE-----')[1]
+    actual_certificate = actual_certificate.split('-----END CERTIFICATE-----')[0]
+    actual_certificate.gsub!(/\s+/, "")
 
-    assert_equal added_cert, actual_cert
+    assert_equal added_certificate, actual_certificate
   end
 
-  def test_should_validate_against_schema
+  test 'download file should validate against schema' do
     Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('application_request.xsd'))
       assert xsd.valid?(@doc_file)
     end
   end
 
+  test 'upload file should validate against schema' do
+    Dir.chdir(SCHEMA_PATH) do
+      xsd = Nokogiri::XML::Schema(IO.read('application_request.xsd'))
+      xsd.validate(@doc_up).each do |error|
+        puts error
+      end
+    end
+  end
+
+  test 'download file list should validate against schema' do
+    Dir.chdir(SCHEMA_PATH) do
+      xsd = Nokogiri::XML::Schema(IO.read('application_request.xsd'))
+      assert xsd.valid?(@doc_list)
+    end
+  end
+
+  test 'get user info should validate against schema' do
+    Dir.chdir(SCHEMA_PATH) do
+      xsd = Nokogiri::XML::Schema(IO.read('application_request.xsd'))
+      assert xsd.valid?(@doc_get)
+    end
+  end
 end
