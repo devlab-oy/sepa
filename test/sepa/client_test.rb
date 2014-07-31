@@ -292,4 +292,10 @@ class ClientTest < ActiveSupport::TestCase
     refute client.valid?
   end
 
+  test 'encryption certificate is checked when bank is danske' do
+    @danske_generic_params.delete :encryption_certificate
+    client = Sepa::Client.new @danske_generic_params
+    refute client.valid?
+  end
+
 end

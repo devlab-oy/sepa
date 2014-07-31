@@ -115,7 +115,8 @@ module Sepa
     end
 
     def check_encryption_certificate
-      return unless command == :create_certificate
+      return unless bank == :danske
+      return if command == :get_bank_certificate
 
       errors.add(:encryption_certificate, ENCRYPTION_CERT_ERROR_MESSAGE) unless encryption_certificate
     end
