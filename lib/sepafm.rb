@@ -39,4 +39,5 @@ NORDEA_PKI = 'http://bxd.fi/CertificateService'
 NORDEA_XML_DATA = 'http://filetransfer.nordea.com/xmldata/'
 
 # Danske XML namespaces
-DANSKE_PKI = 'http://danskebank.dk/PKI/PKIFactoryService/elements'
+DANSKE_PKI  = 'http://danskebank.dk/PKI/PKIFactoryService/elements'
+DANSKE_PKIF = 'http://danskebank.dk/PKI/PKIFactoryService'
