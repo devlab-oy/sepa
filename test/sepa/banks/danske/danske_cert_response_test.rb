@@ -14,6 +14,12 @@ class DanskeCertResponseTest < ActiveSupport::TestCase
         command: :create_certificate
     }
     @create_certificate_response = Sepa::DanskeResponse.new options
+
+    options = {
+      response: (File.open "#{DANSKE_TEST_RESPONSE_PATH}get_bank_certificate_not_ok.xml"),
+      command: :get_bank_certificate
+    }
+    @get_bank_certificate_not_ok_response = Sepa::DanskeResponse.new options
   end
 
   # Tests for get bank certificate
@@ -61,6 +67,16 @@ class DanskeCertResponseTest < ActiveSupport::TestCase
   test 'hashes shouldnt match when data is corrupted' do
     @create_certificate_response.doc.at('xmlns|ReturnText', xmlns: DANSKE_PKI).content = 'kana'
     refute @create_certificate_response.hashes_match?
+  end
+
+  test 'should not be valid when response code is not 00 in get bank certificate' do
+    refute @get_bank_certificate_not_ok_response.valid?
+    refute_empty @get_bank_certificate_not_ok_response.errors.messages
+  end
+
+  test 'should be valid when response code is 00 in get bank certificate' do
+    assert @get_bank_cert_response.valid?
+    assert_empty @get_bank_cert_response.errors.messages
   end
 
 end

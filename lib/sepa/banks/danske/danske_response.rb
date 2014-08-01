@@ -51,6 +51,13 @@ module Sepa
       end
     end
 
+    def response_code
+      return super unless [:get_bank_certificate, :create_certificate].include? @command
+
+      node = doc.at('xmlns|ReturnCode', xmlns: DANSKE_PKI)
+      node.content if node
+    end
+
     private
 
       def find_node_by_uri(uri)
