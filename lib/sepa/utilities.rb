@@ -46,6 +46,8 @@ module Sepa
     def extract_cert(doc, node, namespace)
       cert_raw = doc.at("xmlns|#{node}", 'xmlns' => namespace)
 
+      return nil unless cert_raw
+
       cert_raw = cert_raw.content.gsub(/\s+/, "")
 
       cert = process_cert_value(cert_raw)
