@@ -106,8 +106,8 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not be valid without target id" do
-    wrong_ids = ["ready"*81, nil]
+  test 'target id is checked' do
+    wrong_ids = ["ready"*81, nil, false]
     @nordea_generic_params[:command] = :upload_file
 
     wrong_ids.each do |wrong_id|
