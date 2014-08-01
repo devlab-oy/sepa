@@ -189,7 +189,7 @@ module Sepa
       end
 
       def response_code_is_ok
-        unless response_code.to_s == '00'
+        unless %w(00 24).include? response_code
           errors.add(:base, 'The response from the bank was invalid, check your parameters and try again')
         end
       end

@@ -45,6 +45,12 @@ class NordeaResponseTest < ActiveSupport::TestCase
       command: :download_file_list
     }
     @not_ok_response_code_response = Sepa::NordeaResponse.new options
+
+    options = {
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/download_file_list_no_content.xml"),
+      command: :download_file_list
+    }
+    @response_with_code_24 = Sepa::NordeaResponse.new options
   end
 
   def test_should_be_valid
@@ -141,9 +147,14 @@ class NordeaResponseTest < ActiveSupport::TestCase
     end
   end
 
-  test 'response with a response code other than 00 is considered invalid' do
+  test 'response with a response code other than 00 or 24 is considered invalid' do
     refute @not_ok_response_code_response.valid?
     refute_empty @not_ok_response_code_response.errors.messages
+  end
+
+  test 'response with a response code of 24 is considered valid' do
+    assert @response_with_code_24.valid?
+    assert_empty @response_with_code_24.errors.messages
   end
 
 end
