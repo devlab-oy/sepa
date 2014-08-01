@@ -109,7 +109,7 @@ module Sepa
     end
 
     def check_customer_id
-      unless customer_id && customer_id.length.between?(1, 16)
+      unless customer_id && customer_id.respond_to?(:length) && customer_id.length.between?(1, 16)
         errors.add(:customer_id, CUSTOMER_ID_ERROR_MESSAGE)
       end
     end
