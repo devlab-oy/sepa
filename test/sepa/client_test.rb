@@ -89,10 +89,14 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test 'environment defaults to production' do
-    @nordea_generic_params.delete :environment
-    sepa = Sepa::Client.new @nordea_generic_params
-    assert sepa.environment == :production
-    assert sepa.valid?
+    empty_environments = [nil, false]
+
+    empty_environments.each do |empty_environment|
+      @nordea_generic_params[:environment] = empty_environment
+      sepa = Sepa::Client.new @nordea_generic_params
+      assert sepa.environment == :production
+      assert sepa.valid?
+    end
   end
 
   test "status values are checked" do

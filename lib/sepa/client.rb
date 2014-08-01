@@ -63,7 +63,7 @@ module Sepa
     end
 
     def environment=(value)
-      @environment = value.downcase.to_sym
+      @environment = value.downcase.to_sym if value
     end
 
     def attributes(hash)
