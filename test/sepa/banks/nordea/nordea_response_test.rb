@@ -39,6 +39,12 @@ class NordeaResponseTest < ActiveSupport::TestCase
       command: :get_certificate
     }
     @gc = Sepa::NordeaResponse.new options
+
+    options = {
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/not_ok_response_code.xml"),
+      command: :download_file_list
+    }
+    @not_ok_response_code_response = Sepa::NordeaResponse.new options
   end
 
   def test_should_be_valid
@@ -133,6 +139,11 @@ class NordeaResponseTest < ActiveSupport::TestCase
     assert_nothing_raised do
       x509_certificate @gc.own_signing_certificate
     end
+  end
+
+  test 'response with a response code other than 00 is considered invalid' do
+    refute @not_ok_response_code_response.valid?
+    refute_empty @not_ok_response_code_response.errors.messages
   end
 
 end

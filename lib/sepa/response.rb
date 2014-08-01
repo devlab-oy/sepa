@@ -9,6 +9,7 @@ module Sepa
     validate  :validate_document_format
     validate  :document_must_validate_against_schema
     validate  :client_errors
+    validate  :response_code_is_ok
 
     def initialize(hash = {})
       @soap = hash[:response]
@@ -121,6 +122,11 @@ module Sepa
 
     def ca_certificate; end
 
+    def response_code
+      node = doc.at('xmlns|ResponseCode', xmlns: BXD)
+      node.content if node
+    end
+
     private
 
       # Finds all reference nodes with digest values in the document and returns
@@ -180,6 +186,12 @@ module Sepa
 
       def find_node_by_uri(uri)
         doc.at("[xmlns|Id='#{uri}']", xmlns: OASIS_UTILITY)
+      end
+
+      def response_code_is_ok
+        unless response_code.to_s == '00'
+          errors.add(:base, 'The response from the bank was invalid, check your parameters and try again')
+        end
       end
 
   end
