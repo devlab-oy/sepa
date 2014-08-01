@@ -311,10 +311,14 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test 'validity of encryption private key is checked when bank is danske' do
-    @danske_generic_params[:encryption_private_key] = encode('kissa' * 1000)
-    client = Sepa::Client.new @danske_generic_params
-    refute client.valid?
-    refute_empty client.errors.messages
+    wrong_keys = [encode('kissa' * 1000), false]
+
+    wrong_keys.each do |wrong_key|
+      @danske_generic_params[:encryption_private_key] = wrong_key
+      client = Sepa::Client.new @danske_generic_params
+      refute client.valid?
+      refute_empty client.errors.messages
+    end
   end
 
   test 'validity of encryption certificate is checked when bank is danske' do
