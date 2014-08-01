@@ -89,7 +89,7 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test 'environment defaults to production' do
-    empty_environments = [nil, false]
+    empty_environments = [nil, false, true]
 
     empty_environments.each do |empty_environment|
       @nordea_generic_params[:environment] = empty_environment
