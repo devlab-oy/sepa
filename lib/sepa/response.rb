@@ -168,7 +168,9 @@ module Sepa
 
       def extract_application_response(namespace)
         ar_node = doc.at('xmlns|ApplicationResponse', xmlns: namespace)
-        decode(ar_node.content)
+        if ar_node
+          decode(ar_node.content)
+        end
       end
 
       def client_errors
