@@ -129,7 +129,7 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test "file type is checked" do
-    wrong_types = ["kalle"*36, nil]
+    wrong_types = ["kalle"*36, nil, false]
 
     wrong_types.each do |wrong_type|
       [:upload_file, :download_file_list].each do |command|

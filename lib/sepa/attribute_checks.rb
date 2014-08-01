@@ -65,7 +65,7 @@ module Sepa
     def check_file_type
       return unless [:upload_file, :download_file_list, :download_file].include? command
 
-      if file_type.nil? || file_type.size > 35
+      unless file_type && file_type.size < 35
         errors.add(:file_type, FILE_TYPE_ERROR_MESSAGE)
       end
     end
