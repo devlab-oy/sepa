@@ -130,7 +130,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
       "//wsse:BinarySecurityToken", 'wsse' => wsse
     ).content
 
-    actual_certificate = OpenSSL::X509::Certificate.new(
+    actual_certificate = x509_certificate(
       @danske_generic_params.fetch(:signing_certificate)
     ).to_s
 

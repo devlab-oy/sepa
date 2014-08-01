@@ -298,4 +298,30 @@ class ClientTest < ActiveSupport::TestCase
     refute client.valid?
   end
 
+  test 'presence of encryption private key is checked when bank is danske' do
+    @danske_generic_params.delete :encryption_private_key
+    client = Sepa::Client.new @danske_generic_params
+    refute client.valid?
+  end
+
+  test 'presence encryption certificate is checked when bank is danske' do
+    @danske_generic_params.delete :encryption_certificate
+    client = Sepa::Client.new @danske_generic_params
+    refute client.valid?
+  end
+
+  test 'validity of encryption private key is checked when bank is danske' do
+    @danske_generic_params[:encryption_private_key] = encode('kissa' * 1000)
+    client = Sepa::Client.new @danske_generic_params
+    refute client.valid?
+    refute_empty client.errors.messages
+  end
+
+  test 'validity of encryption certificate is checked when bank is danske' do
+    @danske_generic_params[:encryption_certificate] = encode('kissa' * 1000)
+    client = Sepa::Client.new @danske_generic_params
+    refute client.valid?
+    refute_empty client.errors.messages
+  end
+
 end

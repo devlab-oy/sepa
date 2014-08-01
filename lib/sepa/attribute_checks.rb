@@ -28,7 +28,7 @@ module Sepa
       end
 
       begin
-        OpenSSL::X509::Certificate.new signing_certificate
+        x509_certificate signing_certificate
       rescue
         errors.add(:signing_certificate, "Invalid signing certificate")
       end
@@ -118,7 +118,14 @@ module Sepa
       return unless bank == :danske
       return if command == :get_bank_certificate
 
-      errors.add(:encryption_certificate, ENCRYPTION_CERT_ERROR_MESSAGE) unless encryption_certificate
+      unless encryption_certificate
+        return errors.add(:encryption_certificate, ENCRYPTION_CERT_ERROR_MESSAGE)
+      end
+
+      x509_certificate encryption_certificate
+
+    rescue
+      errors.add(:encryption_certificate, ENCRYPTION_CERT_ERROR_MESSAGE)
     end
 
     def check_status

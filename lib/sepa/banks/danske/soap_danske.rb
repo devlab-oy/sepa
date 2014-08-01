@@ -15,7 +15,7 @@ module Sepa
       end
 
       def encrypt_application_request
-        encryption_certificate = OpenSSL::X509::Certificate.new(@encryption_certificate)
+        encryption_certificate = x509_certificate(@encryption_certificate)
         encryption_public_key = encryption_certificate.public_key
         encryption_certificate = format_cert(encryption_certificate)
         encrypted_application_request, key = encrypt_ar

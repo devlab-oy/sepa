@@ -69,8 +69,8 @@ class NordeaResponseTest < ActiveSupport::TestCase
 
   def test_cert_check_should_work
     keys_path = File.expand_path('../keys', __FILE__)
-    root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/root_cert.cer")
-    not_root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/nordea.crt")
+    root_cert = x509_certificate File.read("#{keys_path}/root_cert.cer")
+    not_root_cert = x509_certificate File.read("#{keys_path}/nordea.crt")
 
     assert @dfl.cert_is_trusted(root_cert)
     assert_raises(SecurityError) do
@@ -131,7 +131,7 @@ class NordeaResponseTest < ActiveSupport::TestCase
 
   test 'certificate can be extracted from get certificate response' do
     assert_nothing_raised do
-      OpenSSL::X509::Certificate.new @gc.own_signing_certificate
+      x509_certificate @gc.own_signing_certificate
     end
   end
 

@@ -222,7 +222,7 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   end
 
   def test_cert_should_be_trusted_with_correct_root_cert
-    root_cert = OpenSSL::X509::Certificate.new File.read("#{KEYS_PATH}/root_cert.cer")
+    root_cert = x509_certificate File.read("#{KEYS_PATH}/root_cert.cer")
     assert @dfl_ar.cert_is_trusted(root_cert)
     assert @uf_ar.cert_is_trusted(root_cert)
     assert @df_ar.cert_is_trusted(root_cert)
@@ -230,7 +230,7 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   end
 
   def test_should_fail_if_wrong_root_cert
-    not_root_cert = OpenSSL::X509::Certificate.new File.read("#{KEYS_PATH}/nordea.crt")
+    not_root_cert = x509_certificate File.read("#{KEYS_PATH}/nordea.crt")
     assert_raises(SecurityError) { @dfl_ar.cert_is_trusted(not_root_cert) }
     assert_raises(SecurityError) { @uf_ar.cert_is_trusted(not_root_cert) }
     assert_raises(SecurityError) { @df_ar.cert_is_trusted(not_root_cert) }
