@@ -1,6 +1,8 @@
 module Sepa
   class DanskeResponse < Response
 
+    validate :valid_get_bank_certificate_response
+
     def application_response
       @application_response ||= decrypt_application_response
     end
@@ -78,6 +80,14 @@ module Sepa
         decipher.iv = iv
 
         decipher.update(encypted_data) + decipher.final
+      end
+
+      def valid_get_bank_certificate_response
+        return unless @command == :get_bank_certificate
+
+        if doc.at('xmlns|PKIFactoryServiceFault', xmlns: DANSKE_PKIF)
+          errors.add(:base, "Did not get a proper response when trying to get bank's certificates")
+        end
       end
 
   end
