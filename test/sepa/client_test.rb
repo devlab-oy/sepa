@@ -146,12 +146,16 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
-  test "content is required for upload file" do
-    @nordea_generic_params[:command] = :upload_file
-    @nordea_generic_params.delete(:content)
-    sepa = Sepa::Client.new @nordea_generic_params
-    refute sepa.valid?, sepa.errors.messages
-    assert_includes sepa.errors.messages.to_s, CONTENT_ERROR_MESSAGE
+  test 'content is checked when command is upload file' do
+    invalid_contents = [nil, false, true]
+
+    invalid_contents.each do |invalid_content|
+      @nordea_generic_params[:command] = :upload_file
+      @nordea_generic_params[:content] = invalid_content
+      sepa = Sepa::Client.new @nordea_generic_params
+      refute sepa.valid?, sepa.errors.messages
+      assert_includes sepa.errors.messages.to_s, CONTENT_ERROR_MESSAGE
+    end
   end
 
   test 'file reference is required for download file' do
