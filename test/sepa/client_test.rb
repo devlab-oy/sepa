@@ -350,4 +350,12 @@ class ClientTest < ActiveSupport::TestCase
     refute_empty client.errors.messages
   end
 
+  test 'signing csr is checked with nordea when command is get certificate' do
+    @nordea_get_certificate_params[:signing_csr] = encode('kissa' * 1000)
+    client = Sepa::Client.new @nordea_get_certificate_params
+
+    refute client.valid?
+    refute_empty client.errors.messages
+  end
+
 end

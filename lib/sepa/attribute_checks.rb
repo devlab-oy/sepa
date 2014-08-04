@@ -35,7 +35,7 @@ module Sepa
     end
 
     def check_signing_csr
-      return unless command == :create_certificate
+      return unless [:get_certificate, :create_certificate].include? command
 
       unless cert_request_valid?(signing_csr)
         errors.add(:signing_csr, SIGNING_CERT_REQUEST_ERROR_MESSAGE)
