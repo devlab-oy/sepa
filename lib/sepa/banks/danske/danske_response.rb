@@ -103,6 +103,7 @@ module Sepa
 
       def can_be_decrypted_with_given_key
         return if [:get_bank_certificate, :create_certificate].include? @command
+        return unless encrypted_application_response
 
         unless decrypt_embedded_key
           errors.add(:encryption_private_key, DECRYPTION_ERROR_MESSAGE)

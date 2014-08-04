@@ -124,7 +124,7 @@ module Sepa
     end
 
     def xml_doc(value)
-      Nokogiri::XML value
+      Nokogiri::XML value if value
     end
 
     def decode(value)
