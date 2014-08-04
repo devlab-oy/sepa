@@ -39,7 +39,6 @@ module Sepa
     validate :check_content
     validate :check_pin
     validate :check_command
-    validate :check_wsdl
     validate :check_keys
     validate :check_encryption_certificate
     validate :check_encryption_cert_request
@@ -128,8 +127,6 @@ module Sepa
           else
             file = "wsdl_danske.xml"
           end
-        else
-          return nil
         end
 
         "#{WSDL_PATH}/#{file}"

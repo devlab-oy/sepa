@@ -6,7 +6,6 @@ module Sepa
     attr_reader :xml
 
     validate :response_must_validate_against_schema
-    validate :validate_document_format
 
     def initialize(app_resp)
       @xml = app_resp
@@ -33,10 +32,10 @@ module Sepa
 
     # Checks that the signature is signed with the private key of the certificate's public key.
     def signature_is_valid?
-      node = doc.at('xmlns|SignedInfo', 'xmlns' => DSIG)
+      node = doc.at('xmlns|SignedInfo', xmlns: DSIG)
       node = node.canonicalize
 
-      signature = doc.at('xmlns|SignatureValue', 'xmlns' => DSIG).content
+      signature = doc.at('xmlns|SignatureValue', xmlns: DSIG).content
       signature = decode(signature)
 
       # Return true or false
@@ -52,12 +51,6 @@ module Sepa
     end
 
     private
-
-      def validate_document_format
-        unless doc.respond_to?(:canonicalize)
-          errors.add(:base, 'Document must be a valid XML file')
-        end
-      end
 
       def response_must_validate_against_schema
         check_validity_against_schema(doc, 'application_response.xsd')

@@ -65,8 +65,10 @@ class DanskeCertResponseTest < ActiveSupport::TestCase
   end
 
   test 'hashes shouldnt match when data is corrupted' do
-    @create_certificate_response.doc.at('xmlns|ReturnText', xmlns: DANSKE_PKI).content = 'kana'
-    refute @create_certificate_response.hashes_match?
+    assert_output /These digests failed to verify: {"#response"=>"2vCYl3h7ksRgk7IyV2axgpXxTWM="}/ do
+      @create_certificate_response.doc.at('xmlns|ReturnText', xmlns: DANSKE_PKI).content = 'kana'
+      refute @create_certificate_response.hashes_match?({ verbose: true })
+    end
   end
 
   test 'should not be valid when response code is not 00 in get bank certificate' do

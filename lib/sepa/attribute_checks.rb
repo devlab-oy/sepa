@@ -50,18 +50,6 @@ module Sepa
       end
     end
 
-    def check_wsdl
-      return unless wsdl.present?
-
-      xsd = Nokogiri::XML::Schema(File.read(SCHEMA_FILE))
-      wsdl_file = File.read(wsdl)
-      xml = Nokogiri::XML(wsdl_file)
-
-      unless xsd.valid?(xml)
-        errors.add(:wsdl, "Invalid wsdl file")
-      end
-    end
-
     def check_file_type
       return unless [:upload_file, :download_file_list, :download_file].include? command
 

@@ -171,7 +171,7 @@ class ClientTest < ActiveSupport::TestCase
 
   # # The response from savon will be the request to check that a proper request
   # # was made in the following four tests
-  test "should_send_proper_request_with_get_user_info" do
+  test "should_send_proper_request_with_nordea_get_user_info" do
     @nordea_generic_params[:command] = :get_user_info
     client = Sepa::Client.new(@nordea_generic_params)
     response = client.send_request
@@ -184,7 +184,7 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
-  test "should_send_proper_request_with_download_file_list" do
+  test "should_send_proper_request_with_nordea_download_file_list" do
     @nordea_generic_params[:command] = :download_file_list
     client = Sepa::Client.new(@nordea_generic_params)
     response = client.send_request
@@ -197,7 +197,7 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
-  test "should_send_proper_request_with_download_file" do
+  test "should_send_proper_request_with_nordea_download_file" do
     @nordea_generic_params[:command] = :download_file
     client = Sepa::Client.new(@nordea_generic_params)
     response = client.send_request
@@ -210,7 +210,7 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
-  test "should_send_proper_request_with_upload_file" do
+  test "should_send_proper_request_with_nordea_upload_file" do
     @nordea_generic_params[:command] = :upload_file
     client = Sepa::Client.new(@nordea_generic_params)
     response = client.send_request
@@ -223,11 +223,7 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
-  test "should_initialize_with_proper_cert_params" do
-    assert Sepa::Client.new(@nordea_get_certificate_params)
-  end
-
-  test "should_send_proper_request_with_get_certificate" do
+  test 'should send proper request with nordea get certificate' do
     client = Sepa::Client.new(@nordea_get_certificate_params)
     response = client.send_request
 
@@ -238,6 +234,49 @@ class ClientTest < ActiveSupport::TestCase
       assert xsd.valid?(response.doc)
     end
   end
+
+  test 'should send proper request with danske download file list' do
+    @danske_generic_params[:command] = :download_file_list
+    client = Sepa::Client.new(@danske_generic_params)
+    response = client.send_request
+
+    Dir.chdir(SCHEMA_PATH) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(response.doc)
+    end
+  end
+
+  test 'should send proper request with danske download file' do
+    @danske_generic_params[:command] = :download_file
+    client = Sepa::Client.new(@danske_generic_params)
+    response = client.send_request
+
+    Dir.chdir(SCHEMA_PATH) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(response.doc)
+    end
+  end
+
+  test 'should send proper request with danske upload file' do
+    client = Sepa::Client.new(@danske_generic_params)
+    response = client.send_request
+
+    Dir.chdir(SCHEMA_PATH) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(response.doc)
+    end
+  end
+
+  test 'should send proper request with danske create certificate' do
+    client = Sepa::Client.new(@danske_create_certificate_params)
+    response = client.send_request
+
+    Dir.chdir(SCHEMA_PATH) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(response.doc)
+    end
+  end
+
 
   test "should_check_signing_cert_request_with_create_certificate" do
     @danske_create_certificate_params[:command] = :create_certificate

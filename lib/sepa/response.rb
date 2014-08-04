@@ -7,7 +7,6 @@ module Sepa
     attr_reader :soap, :error, :command
 
     validates :soap, presence: true
-    validate  :validate_document_format
     validate  :document_must_validate_against_schema
     validate  :client_errors
     validate  :response_code_is_ok
@@ -43,7 +42,7 @@ module Sepa
       end
 
       if options[:verbose]
-        puts "These digests failed to verify: #{unverified_digests}."
+        puts "These digests failed to verify: #{unverified_digests}"
       end
 
       false
@@ -159,12 +158,6 @@ module Sepa
         end
 
         nodes
-      end
-
-      def validate_document_format
-        unless doc.respond_to?(:canonicalize)
-          errors.add(:base, 'Document must be a valid XML file')
-        end
       end
 
       def document_must_validate_against_schema
