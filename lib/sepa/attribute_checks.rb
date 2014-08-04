@@ -139,9 +139,7 @@ module Sepa
     def check_file_reference
       return unless command == :download_file
 
-      unless file_reference && file_reference.length <= 32
-        errors.add :file_reference, FILE_REFERENCE_ERROR_MESSAGE
-      end
+      check_presence_and_length :file_reference, 33, FILE_REFERENCE_ERROR_MESSAGE
     end
 
     def check_encryption_private_key

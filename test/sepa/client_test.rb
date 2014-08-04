@@ -159,10 +159,14 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test 'file reference is required for download file' do
-    @nordea_generic_params.delete :file_reference
-    sepa = Sepa::Client.new @nordea_generic_params
-    refute sepa.valid?, sepa.errors.messages
-    assert_includes sepa.errors.messages.to_s, FILE_REFERENCE_ERROR_MESSAGE
+    invalid_file_references = [nil, false, true]
+
+    invalid_file_references.each do |invalid_file_reference|
+      @nordea_generic_params[:file_reference] = invalid_file_reference
+      sepa = Sepa::Client.new @nordea_generic_params
+      refute sepa.valid?, sepa.errors.messages
+      assert_includes sepa.errors.messages.to_s, FILE_REFERENCE_ERROR_MESSAGE
+    end
   end
 
   # # The response from savon will be the request to check that a proper request
