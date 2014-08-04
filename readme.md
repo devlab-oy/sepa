@@ -44,6 +44,8 @@ params = {
   command: :download_file,
   signing_private_key: "...your signing private key...",
   signing_certificate: "...your signing certificate...",
+  bank_encryption_certificate: "...banks encryption certificate... (Not used with Nordea, mandatory with Danske)",
+  own_encryption_private_key: "...your own encryption private key... (Not used with Nordea, mandatory with Danske)"
   customer_id: '11111111',
   file_type: 'NDCAMT53L',
   file_reference: "11111111A12006030329501800000014",
