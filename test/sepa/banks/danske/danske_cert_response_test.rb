@@ -79,4 +79,12 @@ class DanskeCertResponseTest < ActiveSupport::TestCase
     assert_empty @get_bank_cert_response.errors.messages
   end
 
+  test 'certificate used to sign the response can be extracted' do
+    certificate = @create_certificate_response.certificate
+
+    assert_nothing_raised do
+      x509_certificate certificate
+    end
+  end
+
 end

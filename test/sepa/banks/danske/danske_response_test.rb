@@ -54,4 +54,44 @@ l+Ul4l4+FfAysq3a7b3xoQ59kN1CrEWqDo2KqndxGv6wQft3n/dxnQ==
       x509_certificate certificate
     end
   end
+
+  test 'proper error message is returned if wrong encryption private key is given' do
+    wrong_encryption_private_key = '-----BEGIN RSA PRIVATE KEY-----
+MIIEogIBAAKCAQEAuzOFRV7RWJXwga+2tyj+2vJvfr2CNBypJGuSlIvuHhnEF1Lx
+mIIx+G/jUMI6mPBmW4Y8jKEPLBCWNeuSpGC8CUzahLEzmUj3RbYh43Jx1V6R632h
+8CpgS8pxkyzgvaCvyv2kkX+n87sMUzhoNQFoc8pTTcpGVrnNIF7TtBSO7oWY+OJZ
+A8HEZH2t++d0ZN02B7MtfeFsW5M83IjTUAJy6+P0mNmW4X4Xpbdx+PzkyuuVvPlP
+NxBX2iPpvSY3SZy2fTgcasDaQMoMtCBL4nNL5A39JNOUeDt3PCa0pUXqA9HmzElb
+Ps0Q7XgMitPZTk1BkSgAGzGqId6FwXSpeOYAQQIDAQABAoIBAEa5mEg1InKNc2gL
+ssRQQLkHjwgbIO3/Rgf0fFSS6UuGAIevVod/6NErtH32Y50UdhduB8I5tzm2qomE
+jsp7oY8B8izfpdbrskAsJ3F+83LhX8/QjzXlTKxVt8Ma2W3LH59ZZKtzx0hWCroG
+PZiJB6V3czGYkiqB1/W63dDTU4zZVd02SCwlhGUEuncAnfpty+JpROpzRAcgquTF
+VEIoK2tDieas4uAgpmE5cjKxuyOSY26HV5GlUDkmb+cUiE3J/3gjHUlvAV48qMY4
+EePA+0n3JA/dhVOF5SUbp/txEMhHI8G1loCDC47xNkyQ48mUdjokgajpM0ODmKxj
+JnFkcGECgYEA96ZDmyxUE+dfcl7vM8wcZSp3akuYOXWpxA3JPTX1LeY5/jVUnAF6
+iA/Dzf1iR4dzsrtSiRc8Qeh0fJs8ObhX5H4loWemptT9KSj84a2zeMuxC6LyMXFx
+8qhA166V/kRMdpR3WgCrO3+kJLFhu/jnqT27wWDHSmR5Nithk14ovCMCgYEAwYN2
+EsOEraZ2qNcAzZe4ujLKCaFeeNl00v4O+y8D8q+m7mzg8SVKtdzsFAR/F8p7s689
+VUrKDti4Lt/cwzrkPRbIzxXVhOxGkkneQ8mFr77sji2UFAYXl9GtURp91dCk0/Zh
+LkJAeoF24YDeDYJ5M0ODcsgy/sAN6+p8b05StksCgYBf2jSUnOW2BnnE9MW00K20
+4mjx9Wxn4QjiX0uiq33IVDHiGJY1A8V/YEqzMf2WHfFEHojlkt65y9U6XYND+/vY
+7pJ2FH5GWG3cPocSen7apExUaq8/P9+QwlrGoEZh8eF+jBxd86BTGSZZJWbksIRJ
+1yESyfiY7KaVtti/h1RQ7QKBgHXon/z23NTh5NMjjf23QHtTjv8nL+T6utAEtSQf
+lYw9srz74mOMkWUWY1IfG0Fnws/NKtXZaBx7uF33URAzxfXi+CAV8a+4N5fTInaz
+R525+3D2HI/G1oFO5QfR2HJ7WrM8ICKLg7YhREpKtwIMScUOkf1SNqA6bUEd8wvu
+8T7ZAoGAOPLMNVJv07zJsaiktjYODcVOenINp+LoUJphblWCliXWvaHpDdpAiqKq
+aimQ9Emu6u+JHCvRdHGGnAUEQKRCjUL+oAQhJfWimlhSfqbS0uQAo9XakIZGRyhO
+ufGDBuk6Qe7BSx+/iYvjK1o/IP42RSwj7Ar/IaQuzzfxsflqrGA=
+-----END RSA PRIVATE KEY-----'
+
+    options = {
+      response: File.read("#{DANSKE_TEST_RESPONSE_PATH}/download_file_list.xml"),
+      command: :download_file_list,
+      encryption_private_key: rsa_key(wrong_encryption_private_key)
+    }
+    response = Sepa::DanskeResponse.new options
+
+    refute response.valid?
+    refute_empty response.errors.messages
+  end
 end
