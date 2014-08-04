@@ -42,8 +42,8 @@ Define parameters hash for client, ie. get bank statement;
 params = {
   bank: :nordea,
   command: :download_file,
-  private_key: "...your private key...",
-  cert: "...your certificate...",
+  signing_private_key: "...your signing private key...",
+  signing_certificate: "...your signing certificate...",
   customer_id: '11111111',
   file_type: 'NDCAMT53L',
   file_reference: "11111111A12006030329501800000014",
@@ -89,8 +89,7 @@ params = {
   command: :get_certificate,
   customer_id: '11111111',
   environment: 'TEST',
-  csr: "...your csr...",
-  service: 'service'
+  signing_csr: "...your signing certificate signing request..."
 }
 ```
 
@@ -101,10 +100,10 @@ client = Sepa::Client.new params
 response = client.send_request
 ```
 
-Get the certificates from the response
+Get the certificate from the response
 
 ```ruby
-response.content
+response.own_signing_certificate
 ```
 
 ### Downloading Danske bank certificates
@@ -116,10 +115,8 @@ Define parameters hash for client
 ```ruby
 params = {
   bank: :danske,
-  target_id: 'Danske FI',
-  language: 'EN',
+  target_id: 'DABAFIHH',
   command: :get_bank_certificate,
-  bank_root_cert_serial: '1111110002',
   customer_id: '360817',
   environment: 'TEST'
 }
@@ -136,13 +133,13 @@ Get the certificates from the response
 
 ```ruby
 # Bank's encryption certificate
-response.bank_encryption_cert
+response.bank_encryption_certificate
 
 # Bank's signing certificate
-response.bank_signing_cert
+response.bank_signing_certificate
 
 # Bank's root certificate
-response.bank_root_cert
+response.bank_root_certificate
 ```
 
 #### Own certificates
@@ -152,12 +149,12 @@ Define parameters hash
 ``` ruby
 params = {
   bank: :danske,
-  enc_cert: danske_bank_enc_cert,
+  bank_encryption_certificate: '...banks encryption certificate...',
   command: :create_certificate,
   customer_id: '360817',
-  environment: 'customertest',
-  encryption_cert_pkcs10: danske_enc_cert_request,
-  signing_cert_pkcs10: danske_signing_cert_request,
+  environment: 'test',
+  encryption_csr: '...encryption certificate signing request...',
+  signing_csr: '...signing certificate signing request...',
   pin: '1234'
 }
 ```
@@ -173,10 +170,10 @@ Get the certificates from the response
 
 ```ruby
 # Own encryption certificate
-response.own_encryption_cert
+response.own_encryption_certificate
 
 # Own signing certificate
-response.own_signing_cert
+response.own_signing_certificate
 
 # CA Certificate used for signing own certificates
 response.ca_certificate
@@ -187,9 +184,9 @@ response.ca_certificate
 ### Parameter breakdown
 
 * **bank** - The bank you want to send the request to as a symbol. Either :nordea or :danske
-* **private_key** - Your private key in plain text format
-* **cert** - Your certificate in plain text format
-* **csr** - Your certificate signing request in plain text format
+* **signing_private_key** - Your signing private key in plain text format
+* **signing_certificate** - Your signing certificate in plain text format
+* **encryption/signing_csr** - Your certificate signing request in plain text format
 * **command** - Must be one of:
     * download_file_list
     * upload_file
@@ -197,8 +194,9 @@ response.ca_certificate
     * get_user_info
     * get_certificate
     * get_bank_certificate
+    * create_certificate
 * **customer_id** - Your customer id with the bank.
-* **environment** - Must be either PRODUCTION or TEST
+* **environment** - Must be either production or test
 * **status** - For filtering stuff. Must be either NEW, DOWNLOADED or ALL
 * **target_id** - Some specification of the folder which to access in the bank (Nordea only)
 * **language** - Language must be either FI, EN or SV
