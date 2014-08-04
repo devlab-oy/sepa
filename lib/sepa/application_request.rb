@@ -154,7 +154,7 @@ module Sepa
         add_node_to_root(signature_node)
         add_value_to_signature('DigestValue', digest)
         add_value_to_signature('SignatureValue', calculate_signature)
-        add_value_to_signature('X509Certificate', format_cert(@signing_certificate))
+        add_value_to_signature('X509Certificate', format_cert(@own_signing_certificate))
       end
 
       def add_target_id_after(node)

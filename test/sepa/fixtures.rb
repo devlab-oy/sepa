@@ -8,10 +8,10 @@ def danske_generic_params
   encryption_private_key = File.read encryption_private_key_path
 
   signing_certificate_path = "#{keys_path}/own_signing_cert.pem"
-  signing_certificate = File.read signing_certificate_path
+  own_signing_certificate = File.read signing_certificate_path
 
   encryption_certificate_path = "#{keys_path}/own_enc_cert.pem"
-  encryption_certificate = File.read encryption_certificate_path
+  bank_encryption_certificate = File.read encryption_certificate_path
 
   {
     bank: :danske,
@@ -20,8 +20,8 @@ def danske_generic_params
     command: :upload_file,
     customer_id: '360817',
     environment: 'test',
-    encryption_certificate: encryption_certificate,
-    signing_certificate: signing_certificate,
+    bank_encryption_certificate: bank_encryption_certificate,
+    own_signing_certificate: own_signing_certificate,
     language: 'FI',
     status: 'ALL',
     target_id: 'DABAFIHH',
@@ -32,7 +32,7 @@ def danske_generic_params
 end
 
 def nordea_generic_params
-  signing_certificate = "-----BEGIN CERTIFICATE-----
+  own_signing_certificate = "-----BEGIN CERTIFICATE-----
 MIIDwTCCAqmgAwIBAgIEAX1JuTANBgkqhkiG9w0BAQUFADBkMQswCQYDVQQGEwJT
 RTEeMBwGA1UEChMVTm9yZGVhIEJhbmsgQUIgKHB1YmwpMR8wHQYDVQQDExZOb3Jk
 ZWEgQ29ycG9yYXRlIENBIDAxMRQwEgYDVQQFEws1MTY0MDYtMDEyMDAeFw0xMzA1
@@ -75,7 +75,7 @@ Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
   {
     bank: :nordea,
     signing_private_key: signing_private_key,
-    signing_certificate: signing_certificate,
+    own_signing_certificate: own_signing_certificate,
     command: :download_file,
     customer_id: '11111111',
     environment: 'production',
@@ -229,11 +229,11 @@ bx1hmt5Eihy1lORQR4PE4xaOP5TCqtxP0+snuGqRuBHhrDk4mowWEJbvFWlONT5H
 CsajqZag/Aoxv/Y=
 -----END CERTIFICATE REQUEST-----"
 
-  encryption_certificate = File.read "#{DANSKE_TEST_KEYS_PATH}own_enc_cert.pem"
+  bank_encryption_certificate = File.read "#{DANSKE_TEST_KEYS_PATH}own_enc_cert.pem"
 
   {
       bank: :danske,
-      encryption_certificate: encryption_certificate,
+      bank_encryption_certificate: bank_encryption_certificate,
       command: :create_certificate,
       customer_id: '360817',
       environment: 'test',

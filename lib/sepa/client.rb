@@ -17,10 +17,10 @@ module Sepa
                   :status,
                   :pin,
                   :signing_private_key,
-                  :signing_certificate,
+                  :own_signing_certificate,
                   :signing_csr,
                   :encryption_private_key,
-                  :encryption_certificate,
+                  :bank_encryption_certificate,
                   :encryption_csr
 
     BANKS = [:nordea, :danske]

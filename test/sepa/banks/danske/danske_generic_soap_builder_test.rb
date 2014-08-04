@@ -14,21 +14,10 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
     encryption_certificate_path = "#{keys_path}/own_enc_cert.pem"
     encryption_certificate = File.read encryption_certificate_path
 
-    @danske_generic_params = {
-      bank: :danske,
-      signing_private_key: rsa_key(signing_private_key),
-      command: :upload_file,
-      customer_id: '360817',
-      environment: 'TEST',
-      encryption_certificate: encryption_certificate,
-      signing_certificate: signing_certificate,
-      language: 'EN',
-      status: 'ALL',
-      target_id: 'Danske FI',
-      file_type: 'pain.001.001.02',
-      content: encode('kissa'),
-      file_reference: "11111111A12006030329501800000014",
-    }
+    @danske_generic_params = danske_generic_params
+
+    # Convert keys in danske generic params, because this is usually done by the client
+    @danske_generic_params[:signing_private_key] = rsa_key(@danske_generic_params[:signing_private_key])
 
     @soap_request = Sepa::SoapBuilder.new(@danske_generic_params)
 
@@ -131,7 +120,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
     ).content
 
     actual_certificate = x509_certificate(
-      @danske_generic_params.fetch(:signing_certificate)
+      @danske_generic_params.fetch(:own_signing_certificate)
     ).to_s
 
     actual_certificate = actual_certificate.split('-----BEGIN CERTIFICATE-----')[1]

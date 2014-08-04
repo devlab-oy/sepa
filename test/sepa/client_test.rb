@@ -60,7 +60,7 @@ class ClientTest < ActiveSupport::TestCase
     wrong_certs = ['Im not a cert', 99, :leppakerttu, nil]
 
     wrong_certs.each do |wrong_cert|
-      @nordea_generic_params[:signing_certificate] = wrong_cert
+      @nordea_generic_params[:own_signing_certificate] = wrong_cert
       sepa = Sepa::Client.new @nordea_generic_params
       refute sepa.valid?, sepa.errors.messages
     end
@@ -268,7 +268,7 @@ class ClientTest < ActiveSupport::TestCase
 
   test "should_check_encryption_cert_with_create_certificate" do
     @danske_create_certificate_params[:command] = :create_certificate
-    @danske_create_certificate_params.delete(:encryption_certificate)
+    @danske_create_certificate_params.delete(:bank_encryption_certificate)
 
     sepa = Sepa::Client.new(@danske_create_certificate_params)
     refute sepa.valid?
@@ -304,20 +304,15 @@ class ClientTest < ActiveSupport::TestCase
     refute client.valid?
   end
 
-  test 'encryption certificate is checked when bank is danske' do
-    @danske_generic_params.delete :encryption_certificate
+  test 'bank encryption certificate is checked when bank is danske' do
+    @danske_generic_params.delete :bank_encryption_certificate
+    puts @danske_generic_params
     client = Sepa::Client.new @danske_generic_params
     refute client.valid?
   end
 
   test 'presence of encryption private key is checked when bank is danske' do
     @danske_generic_params.delete :encryption_private_key
-    client = Sepa::Client.new @danske_generic_params
-    refute client.valid?
-  end
-
-  test 'presence encryption certificate is checked when bank is danske' do
-    @danske_generic_params.delete :encryption_certificate
     client = Sepa::Client.new @danske_generic_params
     refute client.valid?
   end
@@ -334,7 +329,7 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test 'validity of encryption certificate is checked when bank is danske' do
-    @danske_generic_params[:encryption_certificate] = encode('kissa' * 1000)
+    @danske_generic_params[:bank_encryption_certificate] = encode('kissa' * 1000)
     client = Sepa::Client.new @danske_generic_params
     refute client.valid?
     refute_empty client.errors.messages
