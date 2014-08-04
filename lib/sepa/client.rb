@@ -81,6 +81,7 @@ module Sepa
       client = Savon.client(wsdl: wsdl)
 
       begin
+        error = nil
         response = client.call(command, xml: soap)
         response &&= response.to_xml
       rescue Savon::Error => e
@@ -88,21 +89,7 @@ module Sepa
         error = e.to_s
       end
 
-      options = {
-        response: response,
-        error: error,
-        command: command
-      }
-      if encryption_private_key && !encryption_private_key.empty?
-        options[:encryption_private_key] = rsa_key(encryption_private_key)
-      end
-
-      case bank
-      when :nordea
-        NordeaResponse.new options
-      when :danske
-        DanskeResponse.new options
-      end
+      initialize_response(error, response)
     end
 
     private
@@ -129,23 +116,41 @@ module Sepa
       # Returns path to WSDL file
       def wsdl
         case bank
-          when :nordea
-            if command == :get_certificate
-              file = "wsdl_nordea_cert.xml"
-            else
-              file = "wsdl_nordea.xml"
-            end
-          when :danske
-            if [:get_bank_certificate, :create_certificate].include? command
-              file = "wsdl_danske_cert.xml"
-            else
-              file = "wsdl_danske.xml"
-            end
+        when :nordea
+          if command == :get_certificate
+            file = "wsdl_nordea_cert.xml"
           else
-            return nil
+            file = "wsdl_nordea.xml"
+          end
+        when :danske
+          if [:get_bank_certificate, :create_certificate].include? command
+            file = "wsdl_danske_cert.xml"
+          else
+            file = "wsdl_danske.xml"
+          end
+        else
+          return nil
         end
 
         "#{WSDL_PATH}/#{file}"
+      end
+
+      def initialize_response(error, response)
+        options = {
+          response: response,
+          error: error,
+          command: command
+        }
+        if encryption_private_key && !encryption_private_key.empty?
+          options[:encryption_private_key] = rsa_key(encryption_private_key)
+        end
+
+        case bank
+        when :nordea
+          NordeaResponse.new options
+        when :danske
+          DanskeResponse.new options
+        end
       end
 
   end
