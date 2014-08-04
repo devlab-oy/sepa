@@ -2,6 +2,7 @@ module Sepa
   class DanskeResponse < Response
 
     validate :valid_get_bank_certificate_response
+    validate :can_be_decrypted_with_given_key
 
     def application_response
       @application_response ||= decrypt_application_response
@@ -67,15 +68,11 @@ module Sepa
       end
 
       def decrypt_application_response
-        encrypted_application_response = extract_application_response(BXD)
-        encrypted_application_response = xml_doc encrypted_application_response
-        enc_key = encrypted_application_response.css('CipherValue', 'xmlns' => XMLENC)[0].content
-        enc_key = decode enc_key
-        key = @encryption_private_key.private_decrypt(enc_key)
+        key = decrypt_embedded_key
 
         encypted_data = encrypted_application_response
-                        .css('CipherValue', 'xmlns' => XMLENC)[1]
-                        .content
+        .css('CipherValue', 'xmlns' => XMLENC)[1]
+        .content
 
         encypted_data = decode encypted_data
         iv = encypted_data[0, 8]
@@ -95,6 +92,30 @@ module Sepa
         if doc.at('xmlns|PKIFactoryServiceFault', xmlns: DANSKE_PKIF)
           errors.add(:base, "Did not get a proper response when trying to get bank's certificates")
         end
+      end
+
+      def encrypted_application_response
+        @encrypted_application_response ||= begin
+          encrypted_application_response = extract_application_response(BXD)
+          xml_doc encrypted_application_response
+        end
+      end
+
+      def can_be_decrypted_with_given_key
+        return if [:get_bank_certificate, :create_certificate].include? @command
+
+        unless decrypt_embedded_key
+          errors.add(:encryption_private_key, DECRYPTION_ERROR_MESSAGE)
+        end
+      end
+
+      def decrypt_embedded_key
+        enc_key = encrypted_application_response.css('CipherValue', 'xmlns' => XMLENC)[0].content
+        enc_key = decode enc_key
+        @encryption_private_key.private_decrypt(enc_key)
+
+      rescue OpenSSL::PKey::RSAError
+        nil
       end
 
   end

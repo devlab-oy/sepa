@@ -16,5 +16,9 @@ module Sepa
       The response from the bank suggested there was something wrong with your request,
       check your parameters and try again
     EOS
+    DECRYPTION_ERROR_MESSAGE = <<-EOS.gsub /\n+/, ' '
+      The response could not be decrypted with the private key that you gave. Check that the key
+      is the private key of your own encryption certificate
+    EOS
   end
 end
