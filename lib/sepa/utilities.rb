@@ -149,5 +149,13 @@ module Sepa
       OpenSSL::PKey::RSA.new key_as_string
     end
 
+    def set_node_id(document, namespace, node, position)
+      node_id = "#{node.downcase}-#{SecureRandom.uuid}"
+      document.at("xmlns|#{node}", xmlns: namespace)['wsu:Id'] = node_id
+      @header_template.css('dsig|Reference')[position]['URI'] = "##{node_id}"
+
+      node_id
+    end
+
   end
 end

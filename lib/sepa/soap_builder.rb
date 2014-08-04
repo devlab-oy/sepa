@@ -89,13 +89,13 @@ module Sepa
         set_node(@header_template, 'wsu|Created', iso_time)
         set_node(@header_template, 'wsu|Expires', (Time.now.utc + 300).iso8601)
 
-        timestamp_id = set_timestamp_id
+        timestamp_id = set_node_id(@header_template, OASIS_UTILITY, 'Timestamp', 0)
 
         timestamp_digest = calculate_digest(@header_template, 'wsu|Timestamp')
         dsig = "dsig|Reference[URI='##{timestamp_id}'] dsig|DigestValue"
         set_node(@header_template, dsig, timestamp_digest)
 
-        body_id = set_body_id
+        body_id = set_node_id(@template, ENVELOPE, 'Body', 1)
 
         body_digest = calculate_digest(@template, 'env|Body')
         dsig = "dsig|Reference[URI='##{body_id}'] dsig|DigestValue"
@@ -113,24 +113,6 @@ module Sepa
 
         @header_template.at('wsse|BinarySecurityToken')['wsu:Id'] = security_token_id
         @header_template.at('wsse|Reference')['URI'] = "##{security_token_id}"
-      end
-
-      def set_timestamp_id
-        timestamp_id = "timestamp-#{SecureRandom.uuid}"
-
-        @header_template.at('wsu|Timestamp')['wsu:Id'] = timestamp_id
-        @header_template.css('dsig|Reference')[0]['URI'] = "##{timestamp_id}"
-
-        timestamp_id
-      end
-
-      def set_body_id
-        body_id = "body-#{SecureRandom.uuid}"
-
-        @template.at('env|Body')['wsu:Id'] = body_id
-        @header_template.css('dsig|Reference')[1]['URI'] = "##{body_id}"
-
-        body_id
       end
 
   end
