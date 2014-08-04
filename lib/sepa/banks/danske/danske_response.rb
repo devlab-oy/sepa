@@ -49,6 +49,8 @@ module Sepa
         @certificate ||= begin
           extract_cert(doc, 'X509Certificate', DSIG)
         end
+      else
+        super
       end
     end
 
