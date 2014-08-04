@@ -34,6 +34,12 @@ $ gem install sepafm
 
 ## Usage
 
+### Require the gem
+
+```ruby
+require 'sepafm'
+```
+
 ### Communicating with the bank
 
 Define parameters hash for client, ie. get bank statement;
@@ -43,11 +49,11 @@ params = {
   bank: :nordea,
   command: :download_file,
   signing_private_key: "...your signing private key...",
-  signing_certificate: "...your signing certificate...",
+  own_signing_certificate: "...your signing certificate...",
   bank_encryption_certificate: "...banks encryption certificate... (Not used with Nordea, mandatory with Danske)",
-  own_encryption_private_key: "...your own encryption private key... (Not used with Nordea, mandatory with Danske)"
+  own_encryption_private_key: "...your own encryption private key... (Not used with Nordea, mandatory with Danske)",
   customer_id: '11111111',
-  file_type: 'NDCAMT53L',
+  file_type: 'TITO',
   file_reference: "11111111A12006030329501800000014",
   target_id: '11111111A1',
   status: 'NEW'
@@ -90,7 +96,7 @@ params = {
   bank: :nordea,
   command: :get_certificate,
   customer_id: '11111111',
-  environment: 'TEST',
+  environment: 'test',
   signing_csr: "...your signing certificate signing request..."
 }
 ```
@@ -99,7 +105,18 @@ Initialize a new instance of the client and pass the params hash
 
 ```ruby
 client = Sepa::Client.new params
+```
+
+Send request to bank
+
+```ruby
 response = client.send_request
+```
+
+Make sure the response is valid
+
+```ruby
+response.valid?
 ```
 
 Get the certificate from the response
@@ -120,7 +137,7 @@ params = {
   target_id: 'DABAFIHH',
   command: :get_bank_certificate,
   customer_id: '360817',
-  environment: 'TEST'
+  environment: 'test'
 }
 ```
 
@@ -128,7 +145,18 @@ Initialize a new instance of the client and pass the params hash
 
 ```ruby
 client = Sepa::Client.new params
+```
+
+Send request to bank
+
+```ruby
 response = client.send_request
+```
+
+Make sure the response is valid
+
+```ruby
+response.valid?
 ```
 
 Get the certificates from the response
@@ -165,7 +193,18 @@ Initialize a new instance of the client and pass the params hash
 
 ```ruby
 client = Sepa::Client.new params
+```
+
+Send request to bank
+
+```ruby
 response = client.send_request
+```
+
+Make sure the response is valid
+
+```ruby
+response.valid?
 ```
 
 Get the certificates from the response
