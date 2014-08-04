@@ -2,6 +2,7 @@ module Sepa
   class Response
     include ActiveModel::Validations
     include Utilities
+    include ErrorMessages
 
     attr_reader :soap, :error, :command
 
@@ -190,7 +191,7 @@ module Sepa
 
       def response_code_is_ok
         unless %w(00 24).include? response_code
-          errors.add(:base, 'The response from the bank was invalid, check your parameters and try again')
+          errors.add(:base, NOT_OK_RESPONSE_CODE_ERROR_MESSAGE)
         end
       end
 
