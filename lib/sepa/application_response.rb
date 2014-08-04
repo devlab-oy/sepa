@@ -32,14 +32,7 @@ module Sepa
 
     # Checks that the signature is signed with the private key of the certificate's public key.
     def signature_is_valid?
-      node = doc.at('xmlns|SignedInfo', xmlns: DSIG)
-      node = node.canonicalize
-
-      signature = doc.at('xmlns|SignatureValue', xmlns: DSIG).content
-      signature = decode(signature)
-
-      # Return true or false
-      certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
+      validate_signature(doc, certificate, :normal)
     end
 
     def to_s

@@ -51,15 +51,7 @@ module Sepa
     # Verifies the signature by extracting the public key from the certificate
     # embedded in the soap header and verifying the signature value with that.
     def signature_is_valid?
-      node = doc.at('xmlns|SignedInfo', xmlns: DSIG)
-
-      node = canonicalize_exclusively node
-
-      signature = doc.at('xmlns|SignatureValue', xmlns: DSIG).content
-
-      signature = decode(signature)
-
-      certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
+      validate_signature(doc, certificate, :exclusive)
     end
 
     # Gets the application response from the response as an xml document

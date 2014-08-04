@@ -157,5 +157,22 @@ module Sepa
       node_id
     end
 
+    def validate_signature(doc, certificate, canonicalization_method)
+      node = doc.at('xmlns|SignedInfo', xmlns: DSIG)
+
+      node = case canonicalization_method
+             when :normal
+               node.canonicalize
+             when :exclusive
+               canonicalize_exclusively node
+             end
+
+      signature = doc.at('xmlns|SignatureValue', xmlns: DSIG).content
+      signature = decode(signature)
+
+      # Return true or false
+      certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
+    end
+
   end
 end
