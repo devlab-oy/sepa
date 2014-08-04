@@ -254,12 +254,16 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test "should_check_pin_with_create_certificate" do
-    @danske_create_certificate_params[:command] = :create_certificate
-    @danske_create_certificate_params.delete(:pin)
+    invalid_pins = [nil, false, true]
 
-    sepa = Sepa::Client.new(@danske_create_certificate_params)
-    refute sepa.valid?
-    assert_includes sepa.errors.messages.to_s, PIN_ERROR_MESSAGE
+    invalid_pins.each do |invalid_pin|
+      @danske_create_certificate_params[:command] = :create_certificate
+      @danske_create_certificate_params[:pin] = invalid_pin
+
+      sepa = Sepa::Client.new(@danske_create_certificate_params)
+      refute sepa.valid?
+      assert_includes sepa.errors.messages.to_s, PIN_ERROR_MESSAGE
+    end
   end
 
   test "should_check_encryption_cert_with_create_certificate" do
