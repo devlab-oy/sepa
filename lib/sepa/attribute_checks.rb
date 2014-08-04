@@ -95,9 +95,9 @@ module Sepa
     end
 
     def check_pin
-      return unless command == :create_certificate
+      return unless [:create_certificate, :get_certificate].include? command
 
-      check_presence_and_length(:pin, 10, PIN_ERROR_MESSAGE)
+      check_presence_and_length(:pin, 20, PIN_ERROR_MESSAGE)
     end
 
     def check_environment

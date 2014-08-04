@@ -266,6 +266,18 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
+  test 'should check pin with get certificate' do
+    invalid_pins = [nil, false, true]
+
+    invalid_pins.each do |invalid_pin|
+      @nordea_get_certificate_params[:pin] = invalid_pin
+
+      sepa = Sepa::Client.new(@nordea_get_certificate_params)
+      refute sepa.valid?
+      assert_includes sepa.errors.messages.to_s, PIN_ERROR_MESSAGE
+    end
+  end
+
   test "should_check_encryption_cert_with_create_certificate" do
     @danske_create_certificate_params[:command] = :create_certificate
     @danske_create_certificate_params.delete(:bank_encryption_certificate)
@@ -306,7 +318,6 @@ class ClientTest < ActiveSupport::TestCase
 
   test 'bank encryption certificate is checked when bank is danske' do
     @danske_generic_params.delete :bank_encryption_certificate
-    puts @danske_generic_params
     client = Sepa::Client.new @danske_generic_params
     refute client.valid?
   end

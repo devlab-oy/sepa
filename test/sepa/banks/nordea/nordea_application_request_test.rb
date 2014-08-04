@@ -250,9 +250,7 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
   test 'upload file should validate against schema' do
     Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('application_request.xsd'))
-      xsd.validate(@doc_up).each do |error|
-        puts error
-      end
+      assert xsd.valid?(@doc_up)
     end
   end
 
