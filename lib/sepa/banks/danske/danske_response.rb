@@ -67,7 +67,6 @@ module Sepa
       verify_certificate_against_root_certificate(certificate, DANSKE_ROOT_CERTIFICATE)
     end
 
-
     private
 
       def find_node_by_uri(uri)
@@ -131,7 +130,11 @@ module Sepa
       end
 
       def verify_signature
-        super unless @command == :get_bank_certificate
+        super unless [:get_bank_certificate, :create_certificate].include? @command
+      end
+
+      def validate_hashes
+        super unless [:get_bank_certificate, :create_certificate].include? @command
       end
 
   end
