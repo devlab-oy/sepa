@@ -6,7 +6,6 @@ module Sepa
 
     attr_reader :soap, :error, :command
 
-    validates :soap, presence: true
     validate  :document_must_validate_against_schema
     validate  :client_errors
     validate  :response_code_is_ok
@@ -153,7 +152,7 @@ module Sepa
       end
 
       def document_must_validate_against_schema
-        return if command.to_sym == :get_bank_certificate
+        return if @error || command.to_sym == :get_bank_certificate
 
         check_validity_against_schema(doc, 'soap.xsd')
       end
@@ -175,6 +174,8 @@ module Sepa
       end
 
       def response_code_is_ok
+        return if @error
+
         unless %w(00 24).include? response_code
           errors.add(:base, NOT_OK_RESPONSE_CODE_ERROR_MESSAGE)
         end
