@@ -64,6 +64,8 @@ module Sepa
     private
 
       def find_node_by_uri(uri)
+        return super unless [:get_bank_certificate, :create_certificate].include? @command
+
         node = doc.at("[xml|id='#{uri}']")
         node.at('xmlns|Signature', xmlns: DSIG).remove
         node
