@@ -42,7 +42,7 @@ require 'sepafm'
 
 ### Communicating with the bank
 
-Define parameters hash for client, ie. get bank statement;
+Define parameters hash for client, ie. get Nordea bank statement;
 
 ```ruby
 params = {
@@ -50,13 +50,10 @@ params = {
   command: :download_file,
   signing_private_key: "...your signing private key...",
   own_signing_certificate: "...your signing certificate...",
-  bank_encryption_certificate: "...banks encryption certificate... (Not used with Nordea, mandatory with Danske)",
-  own_encryption_private_key: "...your own encryption private key... (Not used with Nordea, mandatory with Danske)",
   customer_id: '11111111',
-  file_type: 'TITO',
-  file_reference: "11111111A12006030329501800000014",
   target_id: '11111111A1',
-  status: 'NEW'
+  file_type: 'TITO',
+  file_reference: "11111111A12006030329501800000014"
 }
 ```
 
@@ -182,7 +179,7 @@ params = {
   bank_encryption_certificate: '...banks encryption certificate...',
   command: :create_certificate,
   customer_id: '360817',
-  environment: 'test',
+  environment: 'production',
   encryption_csr: '...encryption certificate signing request...',
   signing_csr: '...signing certificate signing request...',
   pin: '1234'
