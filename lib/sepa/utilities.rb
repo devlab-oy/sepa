@@ -95,17 +95,6 @@ module Sepa
       xml_doc(File.open(path))
     end
 
-    # Checks that the certificate in the application response is signed with the
-    # private key of the public key of the certificate as parameter.
-    def cert_is_trusted(root_cert)
-      if root_cert.subject == certificate.issuer
-        # Return true or false
-        certificate.verify(root_cert.public_key)
-      else
-        fail SecurityError, "false"
-      end
-    end
-
     def iso_time
       @iso_time ||= Time.now.utc.iso8601
     end
@@ -174,6 +163,12 @@ module Sepa
 
       # Return true or false
       certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
+    end
+
+    def verify_certificate_against_root_certificate(certificate, root_certificate)
+      return false unless root_certificate.subject == certificate.issuer
+
+      certificate.verify(root_certificate.public_key)
     end
 
   end

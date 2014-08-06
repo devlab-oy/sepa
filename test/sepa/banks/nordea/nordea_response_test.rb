@@ -115,15 +115,12 @@ class NordeaResponseTest < ActiveSupport::TestCase
     refute @body_altered.valid?
   end
 
-  def test_cert_check_should_work
-    keys_path = File.expand_path('../keys', __FILE__)
-    root_cert = x509_certificate File.read("#{keys_path}/root_cert.cer")
-    not_root_cert = x509_certificate File.read("#{keys_path}/nordea.crt")
+  test 'certificate verifying against root certificate works' do
+    root_certificate = x509_certificate NORDEA_ROOT_CERTIFICATE
+    not_root_certificate = x509_certificate NORDEA_SIGNING_CERTIFICATE
 
-    assert @dfl.cert_is_trusted(root_cert)
-    assert_raises(SecurityError) do
-     @dfl.cert_is_trusted(not_root_cert)
-   end
+    assert @dfl.certificate_is_trusted?(root_certificate)
+    refute @dfl.certificate_is_trusted?(not_root_certificate)
   end
 
   test 'signature should verify with correct responses' do

@@ -120,6 +120,10 @@ module Sepa
       node.content if node
     end
 
+    def certificate_is_trusted?(root_certificate)
+      verify_certificate_against_root_certificate(certificate, root_certificate)
+    end
+
     private
 
       # Finds all reference nodes with digest values in the document and returns

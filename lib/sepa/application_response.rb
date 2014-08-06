@@ -43,6 +43,10 @@ module Sepa
       extract_cert(doc, 'X509Certificate', DSIG)
     end
 
+    def certificate_is_trusted?(root_certificate)
+      verify_certificate_against_root_certificate(certificate, root_certificate)
+    end
+
     private
 
       def response_must_validate_against_schema

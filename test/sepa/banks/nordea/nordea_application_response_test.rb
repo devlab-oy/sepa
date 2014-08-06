@@ -221,20 +221,20 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
     end
   end
 
-  def test_cert_should_be_trusted_with_correct_root_cert
-    root_cert = x509_certificate File.read("#{KEYS_PATH}/root_cert.cer")
-    assert @dfl_ar.cert_is_trusted(root_cert)
-    assert @uf_ar.cert_is_trusted(root_cert)
-    assert @df_ar.cert_is_trusted(root_cert)
-    assert @gui_ar.cert_is_trusted(root_cert)
+  test 'certificate is trusted with correct root certificate' do
+    root_cert = x509_certificate NORDEA_ROOT_CERTIFICATE
+    assert @dfl_ar.certificate_is_trusted?(root_cert)
+    assert @uf_ar.certificate_is_trusted?(root_cert)
+    assert @df_ar.certificate_is_trusted?(root_cert)
+    assert @gui_ar.certificate_is_trusted?(root_cert)
   end
 
-  def test_should_fail_if_wrong_root_cert
-    not_root_cert = x509_certificate File.read("#{KEYS_PATH}/nordea.crt")
-    assert_raises(SecurityError) { @dfl_ar.cert_is_trusted(not_root_cert) }
-    assert_raises(SecurityError) { @uf_ar.cert_is_trusted(not_root_cert) }
-    assert_raises(SecurityError) { @df_ar.cert_is_trusted(not_root_cert) }
-    assert_raises(SecurityError) { @gui_ar.cert_is_trusted(not_root_cert) }
+  test 'certificate is not trusted with incorrect root certificate' do
+    not_root_cert = x509_certificate NORDEA_SIGNING_CERTIFICATE
+    refute @dfl_ar.certificate_is_trusted?(not_root_cert)
+    refute @uf_ar.certificate_is_trusted?(not_root_cert)
+    refute @df_ar.certificate_is_trusted?(not_root_cert)
+    refute @gui_ar.certificate_is_trusted?(not_root_cert)
   end
 
   test 'to_s works' do
