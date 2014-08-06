@@ -51,6 +51,18 @@ class NordeaResponseTest < ActiveSupport::TestCase
       command: :download_file_list
     }
     @response_with_code_24 = Sepa::NordeaResponse.new options
+
+    options = {
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/invalid/timestamp_altered.xml"),
+      command: :download_file_list
+    }
+    @timestamp_altered = Sepa::NordeaResponse.new options
+
+    options = {
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/invalid/body_altered.xml"),
+      command: :upload_file
+    }
+    @body_altered = Sepa::NordeaResponse.new options
   end
 
   def test_should_be_valid
@@ -72,11 +84,20 @@ class NordeaResponseTest < ActiveSupport::TestCase
     refute a.valid?
   end
 
-  def test_hashes_match_works
-    assert @gui.hashes_match?
-    assert @dfl.hashes_match?
-    assert @uf.hashes_match?
+  test 'hashes should match with correct responses' do
+    assert @df_ktl.hashes_match?
     assert @df_tito.hashes_match?
+    assert @dfl.hashes_match?
+    assert @response_with_code_24
+    assert @gc.hashes_match?
+    assert @gui.hashes_match?
+    assert @not_ok_response_code_response
+    assert @uf.hashes_match?
+  end
+
+  test 'hashes should not match with incorrect responses' do
+    refute @timestamp_altered.hashes_match?
+    refute @body_altered.hashes_match?
   end
 
   def test_cert_check_should_work
