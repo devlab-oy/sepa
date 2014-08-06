@@ -91,13 +91,28 @@ class NordeaResponseTest < ActiveSupport::TestCase
     assert @response_with_code_24
     assert @gc.hashes_match?
     assert @gui.hashes_match?
-    assert @not_ok_response_code_response
+    assert @not_ok_response_code_response.hashes_match?
     assert @uf.hashes_match?
+  end
+
+  test 'response should be valid if hashes match and otherwise valid' do
+    assert @df_ktl.valid?
+    assert @df_tito.valid?
+    assert @dfl.valid?
+    assert @response_with_code_24
+    assert @gc.valid?
+    assert @gui.valid?
+    assert @uf.valid?
   end
 
   test 'hashes should not match with incorrect responses' do
     refute @timestamp_altered.hashes_match?
     refute @body_altered.hashes_match?
+  end
+
+  test 'response should not be valid if hashes dont match' do
+    refute @timestamp_altered.valid?
+    refute @body_altered.valid?
   end
 
   def test_cert_check_should_work

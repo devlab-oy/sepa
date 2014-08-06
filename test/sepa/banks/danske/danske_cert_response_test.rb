@@ -77,7 +77,7 @@ class DanskeCertResponseTest < ActiveSupport::TestCase
   end
 
   test 'should be valid when response code is 00 in get bank certificate' do
-    assert @get_bank_cert_response.valid?
+    assert @get_bank_cert_response.valid?, @get_bank_cert_response.errors.messages
     assert_empty @get_bank_cert_response.errors.messages
   end
 
