@@ -20,5 +20,8 @@ module Sepa
 
     HASH_ERROR_MESSAGE = 'The hashes in the response did not match which means that the data in ' \
     'the response is not intact'
+
+    SIGNATURE_ERROR_MESSAGE = 'The signature in the response did not verify and the response ' \
+    'cannot be trusted'
   end
 end

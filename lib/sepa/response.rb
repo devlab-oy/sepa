@@ -10,6 +10,7 @@ module Sepa
     validate  :client_errors
     validate  :response_code_is_ok
     validate  :validate_hashes
+    validate  :verify_signature
 
     def initialize(hash = {})
       @soap = hash[:response]
@@ -185,6 +186,12 @@ module Sepa
       def validate_hashes
         unless hashes_match?
           errors.add(:base, HASH_ERROR_MESSAGE)
+        end
+      end
+
+      def verify_signature
+        unless signature_is_valid?
+          errors.add(:base, SIGNATURE_ERROR_MESSAGE)
         end
       end
 

@@ -123,5 +123,9 @@ module Sepa
         nil
       end
 
+      def verify_signature
+        super unless @command == :get_bank_certificate
+      end
+
   end
 end

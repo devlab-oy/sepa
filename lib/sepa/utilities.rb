@@ -160,6 +160,8 @@ module Sepa
     def validate_signature(doc, certificate, canonicalization_method)
       node = doc.at('xmlns|SignedInfo', xmlns: DSIG)
 
+      return false unless node
+
       node = case canonicalization_method
              when :normal
                node.canonicalize
