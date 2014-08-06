@@ -12,13 +12,13 @@ module Sepa
     STATUS_ERROR_MESSAGE = 'Status is required for this command and must be either NEW, DOWNLOADED or ALL'
     FILE_REFERENCE_ERROR_MESSAGE = 'File reference is required for this command and must be under 33 characters'
     ENCRYPTION_PRIVATE_KEY_ERROR_MESSAGE = 'Encryption private key is needed for this bank and this command'
-    NOT_OK_RESPONSE_CODE_ERROR_MESSAGE = <<-EOS.gsub /\n+/, ' '
-      The response from the bank suggested there was something wrong with your request,
-      check your parameters and try again
-    EOS
-    DECRYPTION_ERROR_MESSAGE = <<-EOS.gsub /\n+/, ' '
-      The response could not be decrypted with the private key that you gave. Check that the key
-      is the private key of your own encryption certificate
-    EOS
+    NOT_OK_RESPONSE_CODE_ERROR_MESSAGE = 'The response from the bank suggested there was ' \
+    'something wrong with your request, check your parameters and try again'
+
+    DECRYPTION_ERROR_MESSAGE = 'The response could not be decrypted with the private key ' \
+    'that you gave. Check that the key is the private key of your own encryption certificate'
+
+    HASH_ERROR_MESSAGE = 'The hashes in the response did not match which means that the data in ' \
+    'the response is not intact'
   end
 end

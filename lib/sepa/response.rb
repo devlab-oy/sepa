@@ -9,6 +9,7 @@ module Sepa
     validate  :document_must_validate_against_schema
     validate  :client_errors
     validate  :response_code_is_ok
+    validate  :validate_hashes
 
     def initialize(hash = {})
       @soap = hash[:response]
@@ -178,6 +179,12 @@ module Sepa
 
         unless %w(00 24).include? response_code
           errors.add(:base, NOT_OK_RESPONSE_CODE_ERROR_MESSAGE)
+        end
+      end
+
+      def validate_hashes
+        unless hashes_match?
+          errors.add(:base, HASH_ERROR_MESSAGE)
         end
       end
 
