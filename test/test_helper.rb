@@ -35,7 +35,6 @@ DANSKE_OWN_ENCRYPTION_CERT = File.read "#{DANSKE_TEST_KEYS_PATH}own_enc_cert.pem
 
 # Nordea test keys
 NORDEA_TEST_KEYS_PATH = "#{ROOT_PATH}/test/sepa/banks/nordea/keys/"
-NORDEA_ROOT_CERTIFICATE = File.read "#{NORDEA_TEST_KEYS_PATH}root_cert.cer"
 NORDEA_SIGNING_CERTIFICATE = File.read "#{NORDEA_TEST_KEYS_PATH}nordea.crt"
 
 I18n.enforce_available_locales = true

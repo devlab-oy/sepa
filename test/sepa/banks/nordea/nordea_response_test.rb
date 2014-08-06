@@ -116,11 +116,11 @@ class NordeaResponseTest < ActiveSupport::TestCase
   end
 
   test 'certificate verifying against root certificate works' do
-    root_certificate = x509_certificate NORDEA_ROOT_CERTIFICATE
-    not_root_certificate = x509_certificate NORDEA_SIGNING_CERTIFICATE
+    assert @dfl.certificate_is_trusted?
+  end
 
-    assert @dfl.certificate_is_trusted?(root_certificate)
-    refute @dfl.certificate_is_trusted?(not_root_certificate)
+  test 'response should not be valid when verified against wrong root certificate' do
+
   end
 
   test 'signature should verify with correct responses' do

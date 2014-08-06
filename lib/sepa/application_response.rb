@@ -7,8 +7,9 @@ module Sepa
 
     validate :response_must_validate_against_schema
 
-    def initialize(app_resp)
+    def initialize(app_resp, bank)
       @xml = app_resp
+      @bank = bank
     end
 
     def doc
@@ -43,7 +44,15 @@ module Sepa
       extract_cert(doc, 'X509Certificate', DSIG)
     end
 
-    def certificate_is_trusted?(root_certificate)
+    def certificate_is_trusted?
+      root_certificate =
+        case @bank
+        when :nordea
+          NORDEA_ROOT_CERTIFICATE
+        when :danske
+          DANSKE_ROOT_CERTIFICATE
+        end
+
       verify_certificate_against_root_certificate(certificate, root_certificate)
     end
 
