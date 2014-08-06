@@ -126,10 +126,7 @@ class NordeaResponseTest < ActiveSupport::TestCase
    end
   end
 
-  # TODO: Make test pass
   test 'signature should verify with correct responses' do
-    skip 'For some reason the signature verification fails even though the data seems to be correct'
-
     assert @df_ktl.signature_is_valid?
     assert @df_tito.signature_is_valid?
     assert @dfl.signature_is_valid?
@@ -140,8 +137,9 @@ class NordeaResponseTest < ActiveSupport::TestCase
     assert @uf.signature_is_valid?
   end
 
-  # TODO: Implement test
   test 'signature should not verify if its integrity has been compromised' do
+    refute @timestamp_altered.signature_is_valid?
+    refute @body_altered.signature_is_valid?
   end
 
   test 'to_s works' do
