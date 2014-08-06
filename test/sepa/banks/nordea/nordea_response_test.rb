@@ -75,12 +75,12 @@ class NordeaResponseTest < ActiveSupport::TestCase
   end
 
   def test_should_fail_with_improper_params
-    a = Sepa::Response.new({ response: "Jees", command: 'not'})
+    a = Sepa::NordeaResponse.new({ response: "Jees", command: 'not'})
     refute a.valid?
   end
 
   def test_should_complain_if_ar_not_valid_against_schema
-    a = Sepa::Response.new({ response: "<ar>text</ar>", command: 'notvalid' })
+    a = Sepa::NordeaResponse.new({ response: "<ar>text</ar>", command: 'notvalid' })
     refute a.valid?
   end
 
@@ -119,7 +119,8 @@ class NordeaResponseTest < ActiveSupport::TestCase
     assert @dfl.certificate_is_trusted?
   end
 
-  test 'response should not be valid when verified against wrong root certificate' do
+  # TODO: Implement test
+  test 'response should not be valid when wrong certificate is embedded in soap' do
 
   end
 

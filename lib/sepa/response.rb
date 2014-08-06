@@ -11,6 +11,7 @@ module Sepa
     validate  :response_code_is_ok
     validate  :validate_hashes
     validate  :verify_signature
+    validate  :verify_certificate
 
     def initialize(hash = {})
       @soap = hash[:response]
@@ -192,6 +193,12 @@ module Sepa
       def verify_signature
         unless signature_is_valid?
           errors.add(:base, SIGNATURE_ERROR_MESSAGE)
+        end
+      end
+
+      def verify_certificate
+        unless certificate_is_trusted?
+          errors.add(:base, 'The certificate in the response is not trusted')
         end
       end
 

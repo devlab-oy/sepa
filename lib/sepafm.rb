@@ -26,9 +26,12 @@ SCHEMA_FILE = "#{ROOT_PATH}/lib/sepa/xml_schemas/wsdl.xml"
 AR_TEMPLATE_PATH = "#{ROOT_PATH}/lib/sepa/xml_templates/application_request"
 SOAP_TEMPLATE_PATH = "#{ROOT_PATH}/lib/sepa/xml_templates/soap"
 
+# Certificates
 CERTIFICATE_PATH = "#{ROOT_PATH}/lib/sepa/certificates/"
 nordea_root_certificate_string = File.read("#{CERTIFICATE_PATH}nordea_root_certificate.cer")
 NORDEA_ROOT_CERTIFICATE = OpenSSL::X509::Certificate.new nordea_root_certificate_string
+danske_root_certificate_string = File.read("#{CERTIFICATE_PATH}danske_root_certificate.cer")
+DANSKE_ROOT_CERTIFICATE = OpenSSL::X509::Certificate.new danske_root_certificate_string
 
 # Common XML namespaces
 DSIG = 'http://www.w3.org/2000/09/xmldsig#'

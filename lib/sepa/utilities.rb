@@ -166,6 +166,7 @@ module Sepa
     end
 
     def verify_certificate_against_root_certificate(certificate, root_certificate)
+      return false unless certificate && root_certificate
       return false unless root_certificate.subject == certificate.issuer
 
       certificate.verify(root_certificate.public_key)

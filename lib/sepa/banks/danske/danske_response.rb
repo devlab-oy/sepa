@@ -61,6 +61,13 @@ module Sepa
       node.content if node
     end
 
+    def certificate_is_trusted?
+      return true if @command == :get_bank_certificate
+
+      verify_certificate_against_root_certificate(certificate, DANSKE_ROOT_CERTIFICATE)
+    end
+
+
     private
 
       def find_node_by_uri(uri)
