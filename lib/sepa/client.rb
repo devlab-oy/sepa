@@ -5,27 +5,173 @@ module Sepa
     include ErrorMessages
     include AttributeChecks
 
-    attr_accessor :bank,
-                  :command,
-                  :content,
-                  :customer_id,
-                  :target_id,
-                  :environment,
-                  :file_reference,
-                  :file_type,
-                  :language,
-                  :status,
-                  :pin,
-                  :signing_private_key,
-                  :own_signing_certificate,
-                  :signing_csr,
-                  :encryption_private_key,
-                  :bank_encryption_certificate,
-                  :encryption_csr
 
+    # The bank that is used in this client. One of {BANKS}.
+    #
+    # @return [Symbol]
+    attr_accessor :bank
+
+    # The command that is used with this client. One of {AttributeChecks#allowed_commands}.
+    #
+    # @return [Symbol]
+    attr_accessor :command
+
+    # The payload in base64 encoded form. Used with upload file command.
+    #
+    # @return [String]
+    # @example Dummy payload
+    #   'a2lzc2E='
+    attr_accessor :content
+
+    # Customer id got from the bank.
+    #
+    # @return [String]
+    # @example Nordea's testing customer id
+    #   '11111111'
+    attr_accessor :customer_id
+
+    # A file categorization id used by Nordea. Can be retrieved with get_user_info request. Not
+    # used with Danske Bank
+    #
+    # @return [String]
+    # @example Nordea's testing target id
+    #   '11111111A1'
+    attr_accessor :target_id
+
+    # The environment to be used. One of {ENVIRONMENTS}.
+    #
+    # @return [Symbol]
+    attr_accessor :environment
+
+    # File reference number used in download_file requests.
+    #
+    # @return [String]
+    # @example
+    #   '11111111A12006030319503000000010'
+    attr_accessor :file_reference
+
+    # The file type of the file that is about to be uploaded or downloaded. These vary by bank.
+    #
+    # @return [String]
+    # @example Nordea's electronic bank statement
+    #   'TITO'
+    attr_accessor :file_type
+
+    # The language to be used in this client. One of {LANGUAGES}.
+    #
+    # @return [String]
+    attr_accessor :language
+
+    # Used to filter files in download_file_list request. One of {STATUSES}.
+    #
+    # @return [String]
+    attr_accessor :status
+
+    # The one-time pin got for bank. Used with certificate requests.
+    #
+    # @return [String]
+    # @example Danske Bank's testing pin
+    #   '1234'
+    attr_accessor :pin
+
+    # Signing private key which is used to sign the request
+    #
+    # @return [String]
+    # @example Nordea's testing private key
+    #   '-----BEGIN RSA PRIVATE KEY-----
+    #   MIICXQIBAAKBgQDC0UR8C1sm4bNDDBG6ZmS9iHYGMZhWwAxR6Iq06d7dtlJ6Kx8K
+    #   r5NeovWAj0uh/J4BD0j+wObq0vzTKsPmJpJSpWboDvf0yyalb+LJlxV/uazzEA3n
+    #   URJSA3pqTBkJT2kfraeAkOPaBSyS1jR+myhWwBF2u84WTR9NJRcpZ3ottwIDAQAB
+    #   AoGBAKrfddv+8eI2kE68ZUhCyxVafXqNQXrFU4j8F7z6bBm28rxo2f87ZFzbPc2W
+    #   4dWghs2TJIkdlOxeRpbIqa5SIn+HBel8+6wo2gLO4g0bfT44Y1bqjRkdiPlSCJW0
+    #   PV1hSd5SRVt7+0yGfCWy559Fzhc/mQQUkhkytc0zYeEwULYxAkEA3uTN7rvZuEcE
+    #   sPUehmg8PyBUGYK9KFkr9FiI0cL8FpxZ0l9pW5DQI7pT9HWhrJp+78SKamcT8cHK
+    #   1OMBakxeXQJBAN/A52wpt2H6IM8Cxza3toQZhqo1mq4bcarUWq65IJ5jnfFtGdR2
+    #   9XUh65YlElUqyDWyuWXRFdeUabu1Qznj8yMCQDzLJUvvGpQDcskdIiVAuuXw2F9Y
+    #   5GTj5XQwzaiAyScVn/4cHe1mkw6bnJh5mQ4t2V9mOOaKlMsEs2DbRaCLkdUCQGWF
+    #   Gbsqpkiu+0nRgd+itQ30ovQBREAwtX8DwG08E7+phRTwImMS4kWV8VT7VvkLYzFx
+    #   +MpodleMv/hpwqm2ci8CQQCUEgwDBEp+FM+2Y5N1KwSGzGBL9LtpnAsqcLG9JxhO
+    #   f4Mwz4xhPXMVlvq1wESLPrDUFQpZ4eOZ4XX2MTo4GH39
+    #   -----END RSA PRIVATE KEY-----'
+    attr_accessor :signing_private_key
+
+    # Own signing certificate in "pem" format. Embedded in the request
+    #
+    # @return [String]
+    # @example Nordea's testing signing certificate
+    #   '-----BEGIN CERTIFICATE-----
+    #   MIIDwTCCAqmgAwIBAgIEAX1JuTANBgkqhkiG9w0BAQUFADBkMQswCQYDVQQGEwJT
+    #   RTEeMBwGA1UEChMVTm9yZGVhIEJhbmsgQUIgKHB1YmwpMR8wHQYDVQQDExZOb3Jk
+    #   ZWEgQ29ycG9yYXRlIENBIDAxMRQwEgYDVQQFEws1MTY0MDYtMDEyMDAeFw0xMzA1
+    #   MDIxMjI2MzRaFw0xNTA1MDIxMjI2MzRaMEQxCzAJBgNVBAYTAkZJMSAwHgYDVQQD
+    #   DBdOb3JkZWEgRGVtbyBDZXJ0aWZpY2F0ZTETMBEGA1UEBRMKNTc4MDg2MDIzODCB
+    #   nzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAwtFEfAtbJuGzQwwRumZkvYh2BjGY
+    #   VsAMUeiKtOne3bZSeisfCq+TXqL1gI9LofyeAQ9I/sDm6tL80yrD5iaSUqVm6A73
+    #   9MsmpW/iyZcVf7ms8xAN51ESUgN6akwZCU9pH62ngJDj2gUsktY0fpsoVsARdrvO
+    #   Fk0fTSUXKWd6LbcCAwEAAaOCAR0wggEZMAkGA1UdEwQCMAAwEQYDVR0OBAoECEBw
+    #   2cj7+XMAMBMGA1UdIAQMMAowCAYGKoVwRwEDMBMGA1UdIwQMMAqACEALddbbzwun
+    #   MDcGCCsGAQUFBwEBBCswKTAnBggrBgEFBQcwAYYbaHR0cDovL29jc3Aubm9yZGVh
+    #   LnNlL0NDQTAxMA4GA1UdDwEB/wQEAwIFoDCBhQYDVR0fBH4wfDB6oHigdoZ0bGRh
+    #   cCUzQS8vbGRhcC5uYi5zZS9jbiUzRE5vcmRlYStDb3Jwb3JhdGUrQ0ErMDElMkNv
+    #   JTNETm9yZGVhK0JhbmsrQUIrJTI4cHVibCUyOSUyQ2MlM0RTRSUzRmNlcnRpZmlj
+    #   YXRlcmV2b2NhdGlvbmxpc3QwDQYJKoZIhvcNAQEFBQADggEBACLUPB1Gmq6286/s
+    #   ROADo7N+w3eViGJ2fuOTLMy4R0UHOznKZNsuk4zAbS2KycbZsE5py4L8o+IYoaS8
+    #   8YHtEeckr2oqHnPpz/0Eg7wItj8Ad+AFWJqzbn6Hu/LQhlnl5JEzXzl3eZj9oiiJ
+    #   1q/2CGXvFomY7S4tgpWRmYULtCK6jode0NhgNnAgOI9uy76pSS16aDoiQWUJqQgV
+    #   ydowAnqS9h9aQ6gedwbOdtkWmwKMDVXU6aRz9Gvk+JeYJhtpuP3OPNGbbC5L7NVd
+    #   no+B6AtwxmG3ozd+mPcMeVuz6kKLAmQyIiBSrRNa5OrTkq/CUzxO9WUgTnm/Sri7
+    #   zReR6mU=
+    #     -----END CERTIFICATE-----'
+    attr_accessor :own_signing_certificate
+
+    # The signing certificate signing request. Used in certificate requests.
+    #
+    # @return [String]
+    # @example
+    #   '-----BEGIN CERTIFICATE REQUEST-----
+    #   MIIBczCB3QIBADA0MRIwEAYDVQQDEwlEZXZsYWIgT3kxETAPBgNVBAUTCDExMTEx
+    #   MTExMQswCQYDVQQGEwJGSTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAo9wU
+    #   c2Ys5hSso4nEanbc+RIhL71aS6GBGiWAegXjhlyb6dpwigrZBFPw4u6UZV/Vq7Y7
+    #   Ku3uBq5rfZwk+lA+c/B634Eu0zWdI+EYfQxKVRrBrmhiGplKEtglHXbNmmMOn07e
+    #   LPUaB0Ipx/6h/UczJGBINdtcuIbYVu0r7ZfyWbUCAwEAAaAAMA0GCSqGSIb3DQEB
+    #   BQUAA4GBAIhh2o8mN4Byn+w1jdbhq6lxEXYqdqdh1F6GCajt2lQMUBgYP23I5cS/
+    #     Z+SYNhu8vbj52cGQPAwEDN6mm5yLpcXu40wYzgWyfStLXV9d/b4hMy9qLMW00Dzb
+    #   jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
+    #   -----END CERTIFICATE REQUEST-----'
+    attr_accessor :signing_csr
+
+    # Own encryption private key. Used to decrypt the response. In "pem" format.
+    #
+    # @return [String]
+    # @see #signing_private_key The format is the same as in signing private key
+    attr_accessor :encryption_private_key
+
+    # Bank's encryption certificate. The request is encrypted with this so that the bank can decrypt
+    # the request with their private key. In "pem" format.
+    #
+    # @return [String]
+    # @see #own_signing_certificate The format is the same as in own signing certificate
+    attr_accessor :bank_encryption_certificate
+
+    # Encryption certificate signing request. This needs to be generated and is then sent to the
+    # bank to be signed.
+    #
+    # @return [String]
+    # @see #signing_csr The format is the same as in signing csr
+    attr_accessor :encryption_csr
+
+    # The list of banks that are currently supported by this gem
     BANKS = [:nordea, :danske]
+
+    # Languages that are currently supported by the gem
     LANGUAGES = ['FI', 'SE', 'EN']
+
+    # Environments that are currently supported by the gem
     ENVIRONMENTS = [:production, :test]
+
+    # Statuses that can be given to download file list command. When NEW is given, only those files
+    # that have not yet been downloaded will be listed. DOWNLOADED will list only downloaded files
+    # and ALL will list every file
     STATUSES = ['NEW', 'DOWNLOADED', 'ALL']
 
     validates :bank, inclusion: { in: BANKS }
