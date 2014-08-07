@@ -14,5 +14,16 @@ module Sepa
       cert.to_s
     end
 
+    def response_code
+      return super unless command == :get_certificate
+
+      node = doc.at('xmlns|ResponseCode', xmlns: NORDEA_PKI)
+      node.content if node
+    end
+
+    def certificate_is_trusted?
+      verify_certificate_against_root_certificate(certificate, NORDEA_ROOT_CERTIFICATE)
+    end
+
   end
 end

@@ -1,6 +1,9 @@
 module Sepa
   class DanskeResponse < Response
 
+    validate :valid_get_bank_certificate_response
+    validate :can_be_decrypted_with_given_key
+
     def application_response
       @application_response ||= decrypt_application_response
     end
@@ -46,27 +49,40 @@ module Sepa
         @certificate ||= begin
           extract_cert(doc, 'X509Certificate', DSIG)
         end
+      else
+        super
       end
+    end
+
+    def response_code
+      return super unless [:get_bank_certificate, :create_certificate].include? @command
+
+      node = doc.at('xmlns|ReturnCode', xmlns: DANSKE_PKI)
+      node.content if node
+    end
+
+    def certificate_is_trusted?
+      return true if @command == :get_bank_certificate
+
+      verify_certificate_against_root_certificate(certificate, DANSKE_ROOT_CERTIFICATE)
     end
 
     private
 
       def find_node_by_uri(uri)
-        node = doc.at("[xml|id='#{uri}']")
+        return super unless [:get_bank_certificate, :create_certificate].include? @command
+
+        node = doc.at("[xml|id='#{uri}']").clone
         node.at('xmlns|Signature', xmlns: DSIG).remove
         node
       end
 
       def decrypt_application_response
-        encrypted_application_response = extract_application_response(BXD)
-        encrypted_application_response = xml_doc encrypted_application_response
-        enc_key = encrypted_application_response.css('CipherValue', 'xmlns' => XMLENC)[0].content
-        enc_key = decode enc_key
-        key = @encryption_private_key.private_decrypt(enc_key)
+        key = decrypt_embedded_key
 
         encypted_data = encrypted_application_response
-                        .css('CipherValue', 'xmlns' => XMLENC)[1]
-                        .content
+        .css('CipherValue', 'xmlns' => XMLENC)[1]
+        .content
 
         encypted_data = decode encypted_data
         iv = encypted_data[0, 8]
@@ -78,6 +94,47 @@ module Sepa
         decipher.iv = iv
 
         decipher.update(encypted_data) + decipher.final
+      end
+
+      def valid_get_bank_certificate_response
+        return unless @command == :get_bank_certificate
+
+        if doc.at('xmlns|PKIFactoryServiceFault', xmlns: DANSKE_PKIF)
+          errors.add(:base, "Did not get a proper response when trying to get bank's certificates")
+        end
+      end
+
+      def encrypted_application_response
+        @encrypted_application_response ||= begin
+          encrypted_application_response = extract_application_response(BXD)
+          xml_doc encrypted_application_response
+        end
+      end
+
+      def can_be_decrypted_with_given_key
+        return if [:get_bank_certificate, :create_certificate].include? @command
+        return unless encrypted_application_response.css('CipherValue', 'xmlns' => XMLENC)[0]
+
+        unless decrypt_embedded_key
+          errors.add(:encryption_private_key, DECRYPTION_ERROR_MESSAGE)
+        end
+      end
+
+      def decrypt_embedded_key
+        enc_key = encrypted_application_response.css('CipherValue', 'xmlns' => XMLENC)[0].content
+        enc_key = decode enc_key
+        @encryption_private_key.private_decrypt(enc_key)
+
+      rescue OpenSSL::PKey::RSAError
+        nil
+      end
+
+      def verify_signature
+        super unless [:get_bank_certificate, :create_certificate].include? @command
+      end
+
+      def validate_hashes
+        super unless [:get_bank_certificate, :create_certificate].include? @command
       end
 
   end

@@ -2,13 +2,16 @@ module Sepa
   class Response
     include ActiveModel::Validations
     include Utilities
+    include ErrorMessages
 
     attr_reader :soap, :error, :command
 
-    validates :soap, presence: true
-    validate  :validate_document_format
     validate  :document_must_validate_against_schema
     validate  :client_errors
+    validate  :response_code_is_ok
+    validate  :validate_hashes
+    validate  :verify_signature
+    validate  :verify_certificate
 
     def initialize(hash = {})
       @soap = hash[:response]
@@ -41,7 +44,7 @@ module Sepa
       end
 
       if options[:verbose]
-        puts "These digests failed to verify: #{unverified_digests}."
+        puts "These digests failed to verify: #{unverified_digests}"
       end
 
       false
@@ -50,15 +53,7 @@ module Sepa
     # Verifies the signature by extracting the public key from the certificate
     # embedded in the soap header and verifying the signature value with that.
     def signature_is_valid?
-      node = doc.at('xmlns|SignedInfo', xmlns: DSIG)
-
-      node = canonicalize_exclusively node
-
-      signature = doc.at('xmlns|SignatureValue', xmlns: DSIG).content
-
-      signature = decode(signature)
-
-      certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
+      validate_signature(doc, certificate, :exclusive)
     end
 
     # Gets the application response from the response as an xml document
@@ -121,6 +116,11 @@ module Sepa
 
     def ca_certificate; end
 
+    def response_code
+      node = doc.at('xmlns|ResponseCode', xmlns: BXD)
+      node.content if node
+    end
+
     private
 
       # Finds all reference nodes with digest values in the document and returns
@@ -154,21 +154,17 @@ module Sepa
         nodes
       end
 
-      def validate_document_format
-        unless doc.respond_to?(:canonicalize)
-          errors.add(:base, 'Document must be a valid XML file')
-        end
-      end
-
       def document_must_validate_against_schema
-        return if command.to_sym == :get_bank_certificate
+        return if @error || command.to_sym == :get_bank_certificate
 
         check_validity_against_schema(doc, 'soap.xsd')
       end
 
       def extract_application_response(namespace)
         ar_node = doc.at('xmlns|ApplicationResponse', xmlns: namespace)
-        decode(ar_node.content)
+        if ar_node
+          decode(ar_node.content)
+        end
       end
 
       def client_errors
@@ -178,6 +174,32 @@ module Sepa
 
       def find_node_by_uri(uri)
         doc.at("[xmlns|Id='#{uri}']", xmlns: OASIS_UTILITY)
+      end
+
+      def response_code_is_ok
+        return if @error
+
+        unless %w(00 24).include? response_code
+          errors.add(:base, NOT_OK_RESPONSE_CODE_ERROR_MESSAGE)
+        end
+      end
+
+      def validate_hashes
+        unless hashes_match?
+          errors.add(:base, HASH_ERROR_MESSAGE)
+        end
+      end
+
+      def verify_signature
+        unless signature_is_valid?
+          errors.add(:base, SIGNATURE_ERROR_MESSAGE)
+        end
+      end
+
+      def verify_certificate
+        unless certificate_is_trusted?
+          errors.add(:base, 'The certificate in the response is not trusted')
+        end
       end
 
   end

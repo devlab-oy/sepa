@@ -46,6 +46,8 @@ module Sepa
     def extract_cert(doc, node, namespace)
       cert_raw = doc.at("xmlns|#{node}", 'xmlns' => namespace)
 
+      return nil unless cert_raw
+
       cert_raw = cert_raw.content.gsub(/\s+/, "")
 
       cert = process_cert_value(cert_raw)
@@ -93,17 +95,6 @@ module Sepa
       xml_doc(File.open(path))
     end
 
-    # Checks that the certificate in the application response is signed with the
-    # private key of the public key of the certificate as parameter.
-    def cert_is_trusted(root_cert)
-      if root_cert.subject == certificate.issuer
-        # Return true or false
-        certificate.verify(root_cert.public_key)
-      else
-        fail SecurityError, "false"
-      end
-    end
-
     def iso_time
       @iso_time ||= Time.now.utc.iso8601
     end
@@ -145,6 +136,40 @@ module Sepa
 
     def rsa_key(key_as_string)
       OpenSSL::PKey::RSA.new key_as_string
+    end
+
+    def set_node_id(document, namespace, node, position)
+      node_id = "#{node.downcase}-#{SecureRandom.uuid}"
+      document.at("xmlns|#{node}", xmlns: namespace)['wsu:Id'] = node_id
+      @header_template.css('dsig|Reference')[position]['URI'] = "##{node_id}"
+
+      node_id
+    end
+
+    def validate_signature(doc, certificate, canonicalization_method)
+      node = doc.at('xmlns|SignedInfo', xmlns: DSIG)
+
+      return false unless node
+
+      node = case canonicalization_method
+             when :normal
+               node.canonicalize
+             when :exclusive
+               canonicalize_exclusively node
+             end
+
+      signature = doc.at('xmlns|SignatureValue', xmlns: DSIG).content
+      signature = decode(signature)
+
+      # Return true or false
+      certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
+    end
+
+    def verify_certificate_against_root_certificate(certificate, root_certificate)
+      return false unless certificate && root_certificate
+      return false unless root_certificate.subject == certificate.issuer
+
+      certificate.verify(root_certificate.public_key)
     end
 
   end

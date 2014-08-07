@@ -60,7 +60,7 @@ class ClientTest < ActiveSupport::TestCase
     wrong_certs = ['Im not a cert', 99, :leppakerttu, nil]
 
     wrong_certs.each do |wrong_cert|
-      @nordea_generic_params[:signing_certificate] = wrong_cert
+      @nordea_generic_params[:own_signing_certificate] = wrong_cert
       sepa = Sepa::Client.new @nordea_generic_params
       refute sepa.valid?, sepa.errors.messages
     end
@@ -89,10 +89,14 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test 'environment defaults to production' do
-    @nordea_generic_params.delete :environment
-    sepa = Sepa::Client.new @nordea_generic_params
-    assert sepa.environment == :production
-    assert sepa.valid?
+    empty_environments = [nil, false, true]
+
+    empty_environments.each do |empty_environment|
+      @nordea_generic_params[:environment] = empty_environment
+      sepa = Sepa::Client.new @nordea_generic_params
+      assert sepa.environment == :production
+      assert sepa.valid?
+    end
   end
 
   test "status values are checked" do
@@ -106,8 +110,8 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not be valid without target id" do
-    wrong_ids = ["ready"*81, nil]
+  test 'target id is checked' do
+    wrong_ids = ["ready"*81, nil, false]
     @nordea_generic_params[:command] = :upload_file
 
     wrong_ids.each do |wrong_id|
@@ -129,7 +133,7 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test "file type is checked" do
-    wrong_types = ["kalle"*36, nil]
+    wrong_types = ["kalle"*36, nil, false]
 
     wrong_types.each do |wrong_type|
       [:upload_file, :download_file_list].each do |command|
@@ -142,24 +146,32 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
-  test "content is required for upload file" do
-    @nordea_generic_params[:command] = :upload_file
-    @nordea_generic_params.delete(:content)
-    sepa = Sepa::Client.new @nordea_generic_params
-    refute sepa.valid?, sepa.errors.messages
-    assert_includes sepa.errors.messages.to_s, CONTENT_ERROR_MESSAGE
+  test 'content is checked when command is upload file' do
+    invalid_contents = [nil, false, true]
+
+    invalid_contents.each do |invalid_content|
+      @nordea_generic_params[:command] = :upload_file
+      @nordea_generic_params[:content] = invalid_content
+      sepa = Sepa::Client.new @nordea_generic_params
+      refute sepa.valid?, sepa.errors.messages
+      assert_includes sepa.errors.messages.to_s, CONTENT_ERROR_MESSAGE
+    end
   end
 
   test 'file reference is required for download file' do
-    @nordea_generic_params.delete :file_reference
-    sepa = Sepa::Client.new @nordea_generic_params
-    refute sepa.valid?, sepa.errors.messages
-    assert_includes sepa.errors.messages.to_s, FILE_REFERENCE_ERROR_MESSAGE
+    invalid_file_references = [nil, false, true]
+
+    invalid_file_references.each do |invalid_file_reference|
+      @nordea_generic_params[:file_reference] = invalid_file_reference
+      sepa = Sepa::Client.new @nordea_generic_params
+      refute sepa.valid?, sepa.errors.messages
+      assert_includes sepa.errors.messages.to_s, FILE_REFERENCE_ERROR_MESSAGE
+    end
   end
 
   # # The response from savon will be the request to check that a proper request
   # # was made in the following four tests
-  test "should_send_proper_request_with_get_user_info" do
+  test "should_send_proper_request_with_nordea_get_user_info" do
     @nordea_generic_params[:command] = :get_user_info
     client = Sepa::Client.new(@nordea_generic_params)
     response = client.send_request
@@ -172,7 +184,7 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
-  test "should_send_proper_request_with_download_file_list" do
+  test "should_send_proper_request_with_nordea_download_file_list" do
     @nordea_generic_params[:command] = :download_file_list
     client = Sepa::Client.new(@nordea_generic_params)
     response = client.send_request
@@ -185,7 +197,7 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
-  test "should_send_proper_request_with_download_file" do
+  test "should_send_proper_request_with_nordea_download_file" do
     @nordea_generic_params[:command] = :download_file
     client = Sepa::Client.new(@nordea_generic_params)
     response = client.send_request
@@ -198,7 +210,7 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
-  test "should_send_proper_request_with_upload_file" do
+  test "should_send_proper_request_with_nordea_upload_file" do
     @nordea_generic_params[:command] = :upload_file
     client = Sepa::Client.new(@nordea_generic_params)
     response = client.send_request
@@ -211,11 +223,7 @@ class ClientTest < ActiveSupport::TestCase
     end
   end
 
-  test "should_initialize_with_proper_cert_params" do
-    assert Sepa::Client.new(@nordea_get_certificate_params)
-  end
-
-  test "should_send_proper_request_with_get_certificate" do
+  test 'should send proper request with nordea get certificate' do
     client = Sepa::Client.new(@nordea_get_certificate_params)
     response = client.send_request
 
@@ -226,6 +234,49 @@ class ClientTest < ActiveSupport::TestCase
       assert xsd.valid?(response.doc)
     end
   end
+
+  test 'should send proper request with danske download file list' do
+    @danske_generic_params[:command] = :download_file_list
+    client = Sepa::Client.new(@danske_generic_params)
+    response = client.send_request
+
+    Dir.chdir(SCHEMA_PATH) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(response.doc)
+    end
+  end
+
+  test 'should send proper request with danske download file' do
+    @danske_generic_params[:command] = :download_file
+    client = Sepa::Client.new(@danske_generic_params)
+    response = client.send_request
+
+    Dir.chdir(SCHEMA_PATH) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(response.doc)
+    end
+  end
+
+  test 'should send proper request with danske upload file' do
+    client = Sepa::Client.new(@danske_generic_params)
+    response = client.send_request
+
+    Dir.chdir(SCHEMA_PATH) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(response.doc)
+    end
+  end
+
+  test 'should send proper request with danske create certificate' do
+    client = Sepa::Client.new(@danske_create_certificate_params)
+    response = client.send_request
+
+    Dir.chdir(SCHEMA_PATH) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      assert xsd.valid?(response.doc)
+    end
+  end
+
 
   test "should_check_signing_cert_request_with_create_certificate" do
     @danske_create_certificate_params[:command] = :create_certificate
@@ -246,17 +297,33 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test "should_check_pin_with_create_certificate" do
-    @danske_create_certificate_params[:command] = :create_certificate
-    @danske_create_certificate_params.delete(:pin)
+    invalid_pins = [nil, false, true]
 
-    sepa = Sepa::Client.new(@danske_create_certificate_params)
-    refute sepa.valid?
-    assert_includes sepa.errors.messages.to_s, PIN_ERROR_MESSAGE
+    invalid_pins.each do |invalid_pin|
+      @danske_create_certificate_params[:command] = :create_certificate
+      @danske_create_certificate_params[:pin] = invalid_pin
+
+      sepa = Sepa::Client.new(@danske_create_certificate_params)
+      refute sepa.valid?
+      assert_includes sepa.errors.messages.to_s, PIN_ERROR_MESSAGE
+    end
+  end
+
+  test 'should check pin with get certificate' do
+    invalid_pins = [nil, false, true]
+
+    invalid_pins.each do |invalid_pin|
+      @nordea_get_certificate_params[:pin] = invalid_pin
+
+      sepa = Sepa::Client.new(@nordea_get_certificate_params)
+      refute sepa.valid?
+      assert_includes sepa.errors.messages.to_s, PIN_ERROR_MESSAGE
+    end
   end
 
   test "should_check_encryption_cert_with_create_certificate" do
     @danske_create_certificate_params[:command] = :create_certificate
-    @danske_create_certificate_params.delete(:encryption_certificate)
+    @danske_create_certificate_params.delete(:bank_encryption_certificate)
 
     sepa = Sepa::Client.new(@danske_create_certificate_params)
     refute sepa.valid?
@@ -292,10 +359,42 @@ class ClientTest < ActiveSupport::TestCase
     refute client.valid?
   end
 
-  test 'encryption certificate is checked when bank is danske' do
-    @danske_generic_params.delete :encryption_certificate
+  test 'bank encryption certificate is checked when bank is danske' do
+    @danske_generic_params.delete :bank_encryption_certificate
     client = Sepa::Client.new @danske_generic_params
     refute client.valid?
+  end
+
+  test 'presence of encryption private key is checked when bank is danske' do
+    @danske_generic_params.delete :encryption_private_key
+    client = Sepa::Client.new @danske_generic_params
+    refute client.valid?
+  end
+
+  test 'validity of encryption private key is checked when bank is danske' do
+    wrong_keys = [encode('kissa' * 1000), false]
+
+    wrong_keys.each do |wrong_key|
+      @danske_generic_params[:encryption_private_key] = wrong_key
+      client = Sepa::Client.new @danske_generic_params
+      refute client.valid?
+      refute_empty client.errors.messages
+    end
+  end
+
+  test 'validity of encryption certificate is checked when bank is danske' do
+    @danske_generic_params[:bank_encryption_certificate] = encode('kissa' * 1000)
+    client = Sepa::Client.new @danske_generic_params
+    refute client.valid?
+    refute_empty client.errors.messages
+  end
+
+  test 'signing csr is checked with nordea when command is get certificate' do
+    @nordea_get_certificate_params[:signing_csr] = encode('kissa' * 1000)
+    client = Sepa::Client.new @nordea_get_certificate_params
+
+    refute client.valid?
+    refute_empty client.errors.messages
   end
 
 end

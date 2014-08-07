@@ -26,12 +26,16 @@ include Sepa::Utilities
 NORDEA_TEST_RESPONSE_PATH = "#{ROOT_PATH}/test/sepa/banks/nordea/responses"
 DANSKE_TEST_RESPONSE_PATH = "#{ROOT_PATH}/test/sepa/banks/danske/responses/"
 
-# Test keys
+# Danske Test keys
 DANSKE_TEST_KEYS_PATH = "#{ROOT_PATH}/test/sepa/banks/danske/keys/"
 DANSKE_BANK_SIGNING_CERT = File.read "#{DANSKE_TEST_KEYS_PATH}bank_signing_cert.pem"
 DANSKE_BANK_ENCRYPTION_CERT = File.read "#{DANSKE_TEST_KEYS_PATH}bank_encryption_cert.pem"
 DANSKE_BANK_ROOT_CERT = File.read "#{DANSKE_TEST_KEYS_PATH}bank_root_cert.pem"
 DANSKE_OWN_ENCRYPTION_CERT = File.read "#{DANSKE_TEST_KEYS_PATH}own_enc_cert.pem"
+
+# Nordea test keys
+NORDEA_TEST_KEYS_PATH = "#{ROOT_PATH}/test/sepa/banks/nordea/keys/"
+NORDEA_SIGNING_CERTIFICATE = File.read "#{NORDEA_TEST_KEYS_PATH}nordea.crt"
 
 I18n.enforce_available_locales = true
 

@@ -39,6 +39,30 @@ class NordeaResponseTest < ActiveSupport::TestCase
       command: :get_certificate
     }
     @gc = Sepa::NordeaResponse.new options
+
+    options = {
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/not_ok_response_code.xml"),
+      command: :download_file_list
+    }
+    @not_ok_response_code_response = Sepa::NordeaResponse.new options
+
+    options = {
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/download_file_list_no_content.xml"),
+      command: :download_file_list
+    }
+    @response_with_code_24 = Sepa::NordeaResponse.new options
+
+    options = {
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/invalid/timestamp_altered.xml"),
+      command: :download_file_list
+    }
+    @timestamp_altered = Sepa::NordeaResponse.new options
+
+    options = {
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/invalid/body_altered.xml"),
+      command: :upload_file
+    }
+    @body_altered = Sepa::NordeaResponse.new options
   end
 
   def test_should_be_valid
@@ -51,37 +75,69 @@ class NordeaResponseTest < ActiveSupport::TestCase
   end
 
   def test_should_fail_with_improper_params
-    a = Sepa::Response.new({ response: "Jees", command: 'not'})
+    a = Sepa::NordeaResponse.new({ response: "Jees", command: 'not'})
     refute a.valid?
   end
 
   def test_should_complain_if_ar_not_valid_against_schema
-    a = Sepa::Response.new({ response: "<ar>text</ar>", command: 'notvalid' })
+    a = Sepa::NordeaResponse.new({ response: "<ar>text</ar>", command: 'notvalid' })
     refute a.valid?
   end
 
-  def test_hashes_match_works
-    assert @gui.hashes_match?
-    assert @dfl.hashes_match?
-    assert @uf.hashes_match?
+  test 'hashes should match with correct responses' do
+    assert @df_ktl.hashes_match?
     assert @df_tito.hashes_match?
+    assert @dfl.hashes_match?
+    assert @response_with_code_24
+    assert @gc.hashes_match?
+    assert @gui.hashes_match?
+    assert @not_ok_response_code_response.hashes_match?
+    assert @uf.hashes_match?
   end
 
-  def test_cert_check_should_work
-    keys_path = File.expand_path('../keys', __FILE__)
-    root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/root_cert.cer")
-    not_root_cert = OpenSSL::X509::Certificate.new File.read("#{keys_path}/nordea.crt")
-
-    assert @dfl.cert_is_trusted(root_cert)
-    assert_raises(SecurityError) do
-     @dfl.cert_is_trusted(not_root_cert)
-   end
+  test 'response should be valid if hashes match and otherwise valid' do
+    assert @df_ktl.valid?
+    assert @df_tito.valid?
+    assert @dfl.valid?
+    assert @response_with_code_24
+    assert @gc.valid?
+    assert @gui.valid?
+    assert @uf.valid?
   end
 
-  def test_signature_check_should_work
+  test 'hashes should not match with incorrect responses' do
+    refute @timestamp_altered.hashes_match?
+    refute @body_altered.hashes_match?
+  end
+
+  test 'response should not be valid if hashes dont match' do
+    refute @timestamp_altered.valid?
+    refute @body_altered.valid?
+  end
+
+  test 'certificate verifying against root certificate works' do
+    assert @dfl.certificate_is_trusted?
+  end
+
+  # TODO: Implement test
+  test 'response should not be valid when wrong certificate is embedded in soap' do
+
+  end
+
+  test 'signature should verify with correct responses' do
+    assert @df_ktl.signature_is_valid?
+    assert @df_tito.signature_is_valid?
     assert @dfl.signature_is_valid?
-    @dfl.doc.at('xmlns|SignatureValue', 'xmlns' => DSIG).content = "kissa"
-    refute @dfl.signature_is_valid?
+    assert @response_with_code_24.signature_is_valid?
+    assert @gc.signature_is_valid?
+    assert @gui.signature_is_valid?
+    assert @not_ok_response_code_response.signature_is_valid?
+    assert @uf.signature_is_valid?
+  end
+
+  test 'signature should not verify if its integrity has been compromised' do
+    refute @timestamp_altered.signature_is_valid?
+    refute @body_altered.signature_is_valid?
   end
 
   test 'to_s works' do
@@ -131,8 +187,18 @@ class NordeaResponseTest < ActiveSupport::TestCase
 
   test 'certificate can be extracted from get certificate response' do
     assert_nothing_raised do
-      OpenSSL::X509::Certificate.new @gc.own_signing_certificate
+      x509_certificate @gc.own_signing_certificate
     end
+  end
+
+  test 'response with a response code other than 00 or 24 is considered invalid' do
+    refute @not_ok_response_code_response.valid?
+    refute_empty @not_ok_response_code_response.errors.messages
+  end
+
+  test 'response with a response code of 24 is considered valid' do
+    assert @response_with_code_24.valid?
+    assert_empty @response_with_code_24.errors.messages
   end
 
 end

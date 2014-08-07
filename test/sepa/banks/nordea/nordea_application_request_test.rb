@@ -7,7 +7,7 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
     # Convert the keys here since the conversion is usually done by the client and these tests
     # bypass the client
     @nordea_generic_params[:signing_private_key] = rsa_key @nordea_generic_params[:signing_private_key]
-    @nordea_generic_params[:signing_certificate] = OpenSSL::X509::Certificate.new @nordea_generic_params[:signing_certificate]
+    @nordea_generic_params[:own_signing_certificate] = x509_certificate @nordea_generic_params[:own_signing_certificate]
 
     ar_file = Sepa::SoapBuilder.new(@nordea_generic_params).application_request
 
@@ -232,7 +232,7 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
       "dsig|X509Certificate", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
     ).content
 
-    actual_certificate = @nordea_generic_params.fetch(:signing_certificate).to_s
+    actual_certificate = @nordea_generic_params.fetch(:own_signing_certificate).to_s
     actual_certificate = actual_certificate.split('-----BEGIN CERTIFICATE-----')[1]
     actual_certificate = actual_certificate.split('-----END CERTIFICATE-----')[0]
     actual_certificate.gsub!(/\s+/, "")
@@ -250,9 +250,7 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
   test 'upload file should validate against schema' do
     Dir.chdir(SCHEMA_PATH) do
       xsd = Nokogiri::XML::Schema(IO.read('application_request.xsd'))
-      xsd.validate(@doc_up).each do |error|
-        puts error
-      end
+      assert xsd.valid?(@doc_up)
     end
   end
 

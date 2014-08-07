@@ -55,7 +55,7 @@ class DanskeCertSoapBuilderTest < ActiveSupport::TestCase
   def test_certificate_is_added_properly
     embedded_certificate = @doc.at("X509Certificate", 'xmlns' => @dsig).content.gsub(/\s+/, "")
 
-    actual_certificate = @danske_create_certificate_params[:encryption_certificate]
+    actual_certificate = @danske_create_certificate_params[:bank_encryption_certificate]
     actual_certificate = actual_certificate.split('-----BEGIN CERTIFICATE-----')[1]
     actual_certificate = actual_certificate.split('-----END CERTIFICATE-----')[0]
     actual_certificate.gsub!(/\s+/, "")

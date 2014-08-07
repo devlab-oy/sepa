@@ -6,10 +6,10 @@ module Sepa
     attr_reader :xml
 
     validate :response_must_validate_against_schema
-    validate :validate_document_format
 
-    def initialize(app_resp)
+    def initialize(app_resp, bank)
       @xml = app_resp
+      @bank = bank
     end
 
     def doc
@@ -33,14 +33,7 @@ module Sepa
 
     # Checks that the signature is signed with the private key of the certificate's public key.
     def signature_is_valid?
-      node = doc.at('xmlns|SignedInfo', 'xmlns' => DSIG)
-      node = node.canonicalize
-
-      signature = doc.at('xmlns|SignatureValue', 'xmlns' => DSIG).content
-      signature = decode(signature)
-
-      # Return true or false
-      certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
+      validate_signature(doc, certificate, :normal)
     end
 
     def to_s
@@ -51,13 +44,19 @@ module Sepa
       extract_cert(doc, 'X509Certificate', DSIG)
     end
 
-    private
-
-      def validate_document_format
-        unless doc.respond_to?(:canonicalize)
-          errors.add(:base, 'Document must be a valid XML file')
+    def certificate_is_trusted?
+      root_certificate =
+        case @bank
+        when :nordea
+          NORDEA_ROOT_CERTIFICATE
+        when :danske
+          DANSKE_ROOT_CERTIFICATE
         end
-      end
+
+      verify_certificate_against_root_certificate(certificate, root_certificate)
+    end
+
+    private
 
       def response_must_validate_against_schema
         check_validity_against_schema(doc, 'application_response.xsd')

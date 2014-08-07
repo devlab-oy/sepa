@@ -6,23 +6,23 @@ module Sepa
 
     # SoapBuilder creates the SOAP structure.
     def initialize(params)
-      @bank                   = params[:bank]
-      @signing_certificate    = params[:signing_certificate]
-      @command                = params[:command]
-      @content                = params[:content]
-      @customer_id            = params[:customer_id]
-      @encryption_certificate = params[:encryption_certificate]
-      @environment            = params[:environment]
-      @file_reference         = params[:file_reference]
-      @file_type              = params[:file_type]
-      @language               = params[:language]
-      @signing_private_key    = params[:signing_private_key]
-      @status                 = params[:status]
-      @target_id              = params[:target_id]
+      @bank                        = params[:bank]
+      @own_signing_certificate     = params[:own_signing_certificate]
+      @command                     = params[:command]
+      @content                     = params[:content]
+      @customer_id                 = params[:customer_id]
+      @bank_encryption_certificate = params[:bank_encryption_certificate]
+      @environment                 = params[:environment]
+      @file_reference              = params[:file_reference]
+      @file_type                   = params[:file_type]
+      @language                    = params[:language]
+      @signing_private_key         = params[:signing_private_key]
+      @status                      = params[:status]
+      @target_id                   = params[:target_id]
 
-      @application_request    = ApplicationRequest.new params
-      @header_template        = load_header_template
-      @template               = load_body_template SOAP_TEMPLATE_PATH
+      @application_request         = ApplicationRequest.new params
+      @header_template             = load_header_template
+      @template                    = load_body_template SOAP_TEMPLATE_PATH
 
       find_correct_bank_extension
     end
@@ -89,13 +89,13 @@ module Sepa
         set_node(@header_template, 'wsu|Created', iso_time)
         set_node(@header_template, 'wsu|Expires', (Time.now.utc + 300).iso8601)
 
-        timestamp_id = set_timestamp_id
+        timestamp_id = set_node_id(@header_template, OASIS_UTILITY, 'Timestamp', 0)
 
         timestamp_digest = calculate_digest(@header_template, 'wsu|Timestamp')
         dsig = "dsig|Reference[URI='##{timestamp_id}'] dsig|DigestValue"
         set_node(@header_template, dsig, timestamp_digest)
 
-        body_id = set_body_id
+        body_id = set_node_id(@template, ENVELOPE, 'Body', 1)
 
         body_digest = calculate_digest(@template, 'env|Body')
         dsig = "dsig|Reference[URI='##{body_id}'] dsig|DigestValue"
@@ -104,7 +104,7 @@ module Sepa
         signature = calculate_signature(@header_template, 'dsig|SignedInfo')
         set_node(@header_template, 'dsig|SignatureValue', signature)
 
-        formatted_cert = format_cert(@signing_certificate)
+        formatted_cert = format_cert(@own_signing_certificate)
         set_node(@header_template, 'wsse|BinarySecurityToken', formatted_cert)
       end
 
@@ -113,24 +113,6 @@ module Sepa
 
         @header_template.at('wsse|BinarySecurityToken')['wsu:Id'] = security_token_id
         @header_template.at('wsse|Reference')['URI'] = "##{security_token_id}"
-      end
-
-      def set_timestamp_id
-        timestamp_id = "timestamp-#{SecureRandom.uuid}"
-
-        @header_template.at('wsu|Timestamp')['wsu:Id'] = timestamp_id
-        @header_template.css('dsig|Reference')[0]['URI'] = "##{timestamp_id}"
-
-        timestamp_id
-      end
-
-      def set_body_id
-        body_id = "body-#{SecureRandom.uuid}"
-
-        @template.at('env|Body')['wsu:Id'] = body_id
-        @header_template.css('dsig|Reference')[1]['URI'] = "##{body_id}"
-
-        body_id
       end
 
   end

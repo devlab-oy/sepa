@@ -28,14 +28,14 @@ module Sepa
       end
 
       begin
-        OpenSSL::X509::Certificate.new signing_certificate
+        x509_certificate own_signing_certificate
       rescue
-        errors.add(:signing_certificate, "Invalid signing certificate")
+        errors.add(:own_signing_certificate, "Invalid signing certificate")
       end
     end
 
     def check_signing_csr
-      return unless command == :create_certificate
+      return unless [:get_certificate, :create_certificate].include? command
 
       unless cert_request_valid?(signing_csr)
         errors.add(:signing_csr, SIGNING_CERT_REQUEST_ERROR_MESSAGE)
@@ -50,22 +50,10 @@ module Sepa
       end
     end
 
-    def check_wsdl
-      return unless wsdl.present?
-
-      xsd = Nokogiri::XML::Schema(File.read(SCHEMA_FILE))
-      wsdl_file = File.read(wsdl)
-      xml = Nokogiri::XML(wsdl_file)
-
-      unless xsd.valid?(xml)
-        errors.add(:wsdl, "Invalid wsdl file")
-      end
-    end
-
     def check_file_type
       return unless [:upload_file, :download_file_list, :download_file].include? command
 
-      if file_type.nil? || file_type.size > 35
+      unless file_type && file_type.respond_to?(:size) && file_type.size < 35
         errors.add(:file_type, FILE_TYPE_ERROR_MESSAGE)
       end
     end
@@ -83,7 +71,7 @@ module Sepa
     end
 
     def check_presence_and_length(attribute, length, error_message)
-      if send(attribute).nil? || send(attribute).size > length
+      unless send(attribute) && send(attribute).respond_to?(:size) && send(attribute).size < length
         errors.add(attribute, error_message)
       end
     end
@@ -91,13 +79,13 @@ module Sepa
     def check_content
       return unless command == :upload_file
 
-      errors.add(:content, CONTENT_ERROR_MESSAGE) if content.nil?
+      errors.add(:content, CONTENT_ERROR_MESSAGE) unless content && content.respond_to?(:length)
     end
 
     def check_pin
-      return unless command == :create_certificate
+      return unless [:create_certificate, :get_certificate].include? command
 
-      check_presence_and_length(:pin, 10, PIN_ERROR_MESSAGE)
+      check_presence_and_length(:pin, 20, PIN_ERROR_MESSAGE)
     end
 
     def check_environment
@@ -109,7 +97,7 @@ module Sepa
     end
 
     def check_customer_id
-      unless customer_id && customer_id.length.between?(1, 16)
+      unless customer_id && customer_id.respond_to?(:length) && customer_id.length.between?(1, 16)
         errors.add(:customer_id, CUSTOMER_ID_ERROR_MESSAGE)
       end
     end
@@ -118,7 +106,14 @@ module Sepa
       return unless bank == :danske
       return if command == :get_bank_certificate
 
-      errors.add(:encryption_certificate, ENCRYPTION_CERT_ERROR_MESSAGE) unless encryption_certificate
+      unless bank_encryption_certificate
+        return errors.add(:bank_encryption_certificate, ENCRYPTION_CERT_ERROR_MESSAGE)
+      end
+
+      x509_certificate bank_encryption_certificate
+
+    rescue
+      errors.add(:bank_encryption_certificate, ENCRYPTION_CERT_ERROR_MESSAGE)
     end
 
     def check_status
@@ -132,9 +127,7 @@ module Sepa
     def check_file_reference
       return unless command == :download_file
 
-      unless file_reference && file_reference.length <= 32
-        errors.add :file_reference, FILE_REFERENCE_ERROR_MESSAGE
-      end
+      check_presence_and_length :file_reference, 33, FILE_REFERENCE_ERROR_MESSAGE
     end
 
     def check_encryption_private_key

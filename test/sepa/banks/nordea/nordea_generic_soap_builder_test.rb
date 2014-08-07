@@ -8,7 +8,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
     # Convert the keys here since the conversion is usually done by the client and these tests
     # bypass the client
     @nordea_generic_params[:signing_private_key] = rsa_key @nordea_generic_params[:signing_private_key]
-    @nordea_generic_params[:signing_certificate] = OpenSSL::X509::Certificate.new @nordea_generic_params[:signing_certificate]
+    @nordea_generic_params[:own_signing_certificate] = x509_certificate @nordea_generic_params[:own_signing_certificate]
 
     @soap_request = Sepa::SoapBuilder.new(@nordea_generic_params)
     @doc = Nokogiri::XML(@soap_request.to_xml)
@@ -137,7 +137,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
       "//wsse:BinarySecurityToken", 'wsse' => wsse
     ).first.content
 
-    actual_certificate = @nordea_generic_params.fetch(:signing_certificate).to_s
+    actual_certificate = @nordea_generic_params.fetch(:own_signing_certificate).to_s
     actual_certificate = actual_certificate.split('-----BEGIN CERTIFICATE-----')[1]
     actual_certificate = actual_certificate.split('-----END CERTIFICATE-----')[0]
     actual_certificate = actual_certificate.gsub(/\s+/, "")
