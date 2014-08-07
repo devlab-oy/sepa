@@ -297,7 +297,7 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test "should_check_pin_with_create_certificate" do
-    invalid_pins = [nil, false, true]
+    invalid_pins = [nil, false, true, ""]
 
     invalid_pins.each do |invalid_pin|
       @danske_create_certificate_params[:command] = :create_certificate

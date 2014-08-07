@@ -71,9 +71,13 @@ module Sepa
     end
 
     def check_presence_and_length(attribute, length, error_message)
-      unless send(attribute) && send(attribute).respond_to?(:size) && send(attribute).size < length
-        errors.add(attribute, error_message)
-      end
+      check = true
+      check &&= send(attribute)
+      check &&= send(attribute).respond_to? :size
+      check &&= send(attribute).size < length
+      check &&= send(attribute).size > 0
+
+      errors.add(attribute, error_message) unless check
     end
 
     def check_content
