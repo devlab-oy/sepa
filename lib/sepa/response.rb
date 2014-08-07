@@ -29,6 +29,9 @@ module Sepa
     # i.e. verbose: true
     def hashes_match?(options = {})
       digests = find_digest_values
+
+      return false if digests.empty?
+
       nodes = find_nodes_to_verify(digests)
 
       verified_digests = digests.select do |uri, digest|

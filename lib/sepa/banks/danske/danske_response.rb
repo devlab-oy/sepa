@@ -45,7 +45,7 @@ module Sepa
     end
 
     def certificate
-      if @command == :create_certificate
+      if [:get_bank_certificate, :create_certificate].include? @command
         @certificate ||= begin
           extract_cert(doc, 'X509Certificate', DSIG)
         end
@@ -127,10 +127,6 @@ module Sepa
 
       rescue OpenSSL::PKey::RSAError
         nil
-      end
-
-      def verify_signature
-        super unless [:get_bank_certificate, :create_certificate].include? @command
       end
 
   end
