@@ -8,7 +8,7 @@ module Sepa
 
     validate  :document_must_validate_against_schema
     validate  :client_errors
-    validate  :response_code_is_ok
+    validate  :validate_response_code
     validate  :validate_hashes
     validate  :verify_signature
     validate  :verify_certificate
@@ -179,7 +179,7 @@ module Sepa
         doc.at("[xmlns|Id='#{uri}']", xmlns: OASIS_UTILITY)
       end
 
-      def response_code_is_ok
+      def validate_response_code
         return if @error
 
         unless %w(00 24).include? response_code
@@ -188,21 +188,35 @@ module Sepa
       end
 
       def validate_hashes
+        return if @error
+        return unless response_code_is_ok?
         unless hashes_match?
           errors.add(:base, HASH_ERROR_MESSAGE)
         end
       end
 
       def verify_signature
+        return if @error
+        return unless response_code_is_ok?
+
         unless signature_is_valid?
           errors.add(:base, SIGNATURE_ERROR_MESSAGE)
         end
       end
 
       def verify_certificate
+        return if @error
+        return unless response_code_is_ok?
+
         unless certificate_is_trusted?
           errors.add(:base, 'The certificate in the response is not trusted')
         end
+      end
+
+      def response_code_is_ok?
+        return true if %w(00 24).include? response_code
+
+        false
       end
 
   end

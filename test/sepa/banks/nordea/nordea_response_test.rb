@@ -65,7 +65,7 @@ class NordeaResponseTest < ActiveSupport::TestCase
     @body_altered = Sepa::NordeaResponse.new options
   end
 
-  def test_should_be_valid
+  test 'valid responses should be valid' do
     assert @dfl.valid?, @dfl.errors.messages
     assert @uf.valid?, @uf.errors.messages
     assert @df_tito.valid?, @df_tito.errors.messages
@@ -74,12 +74,12 @@ class NordeaResponseTest < ActiveSupport::TestCase
     assert @gc.valid?, @gc.errors.messages
   end
 
-  def test_should_fail_with_improper_params
+  test 'should fail with improper params' do
     a = Sepa::NordeaResponse.new({ response: "Jees", command: 'not'})
     refute a.valid?
   end
 
-  def test_should_complain_if_ar_not_valid_against_schema
+  test 'should complain if application response is not valid against schema' do
     a = Sepa::NordeaResponse.new({ response: "<ar>text</ar>", command: 'notvalid' })
     refute a.valid?
   end
@@ -121,7 +121,6 @@ class NordeaResponseTest < ActiveSupport::TestCase
 
   # TODO: Implement test
   test 'response should not be valid when wrong certificate is embedded in soap' do
-
   end
 
   test 'signature should verify with correct responses' do
@@ -144,9 +143,6 @@ class NordeaResponseTest < ActiveSupport::TestCase
     assert_equal File.read("#{NORDEA_TEST_RESPONSE_PATH}/dfl.xml"), @dfl.to_s
   end
 
-  ##
-  # Tests for download file command
-
   # tito: Electronic account statement
   def test_content_can_be_extracted_when_file_type_is_tito
     refute_nil @df_tito.content
@@ -157,9 +153,6 @@ class NordeaResponseTest < ActiveSupport::TestCase
     refute_nil @df_ktl.content
   end
 
-  ##
-  # Tests for download file list command
-
   test 'content can be extracted from download file list response' do
     refute_nil @dfl.content
   end
@@ -168,22 +161,13 @@ class NordeaResponseTest < ActiveSupport::TestCase
     assert_equal 14, @dfl.file_references.length
   end
 
-  ##
-  # Tests for upload file list command
-
   test 'upload file list command returns a response' do
     refute_nil @uf.content
   end
 
-  ##
-  # Tests for get user info command
-
   test 'content can be extracted from get user info response' do
     refute_nil @gui.content
   end
-
-  ##
-  # Tests for get certificate command
 
   test 'certificate can be extracted from get certificate response' do
     assert_nothing_raised do
