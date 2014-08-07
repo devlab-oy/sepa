@@ -65,21 +65,29 @@ class DanskeCertResponseTest < ActiveSupport::TestCase
     assert ca_certificate.respond_to? :sign
   end
 
-  # TODO: Get test to pass
   test 'hashes should match' do
-    skip 'for some reason the digest verification does not work with danske certificate responses'
-
+    assert @get_bank_cert_response.hashes_match?
     assert @create_certificate_response.hashes_match?
   end
 
-  # TODO: Get test to pass
-  test 'hashes shouldnt match when data is corrupted' do
-    skip 'for some reason the digest verification does not work with danske certificate responses'
+  test 'hashes shouldnt match if they are not found' do
+    refute @get_bank_certificate_not_ok_response.hashes_match?
+  end
 
+  test 'hashes shouldnt match when data is corrupted' do
     assert_output /These digests failed to verify: {"#response"=>"2vCYl3h7ksRgk7IyV2axgpXxTWM="}/ do
       @create_certificate_response.doc.at('xmlns|ReturnText', xmlns: DANSKE_PKI).content = 'kana'
       refute @create_certificate_response.hashes_match?({ verbose: true })
     end
+  end
+
+  test 'signatures in correct responses should verify' do
+    assert @get_bank_cert_response.signature_is_valid?
+    assert @create_certificate_response.signature_is_valid?
+  end
+
+  test 'signature should not verify if not found' do
+    refute @get_bank_certificate_not_ok_response.signature_is_valid?
   end
 
   test 'should not be valid when response code is not 00 in get bank certificate' do
