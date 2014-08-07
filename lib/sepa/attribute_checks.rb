@@ -83,7 +83,12 @@ module Sepa
     def check_content
       return unless command == :upload_file
 
-      errors.add(:content, CONTENT_ERROR_MESSAGE) unless content && content.respond_to?(:length)
+      check = true
+      check &&= content
+      check &&= content.respond_to? :length
+      check &&= content.length > 0
+
+      errors.add(:content, CONTENT_ERROR_MESSAGE) unless check
     end
 
     def check_pin
