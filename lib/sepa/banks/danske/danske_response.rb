@@ -72,9 +72,9 @@ module Sepa
       def find_node_by_uri(uri)
         return super unless [:get_bank_certificate, :create_certificate].include? @command
 
-        node = doc.at("[xml|id='#{uri}']").clone
-        node.at('xmlns|Signature', xmlns: DSIG).remove
-        node
+        doc_without_signature = doc.dup
+        doc_without_signature.at('xmlns|Signature', xmlns: DSIG).remove
+        doc_without_signature.at("[xml|id='#{uri}']")
       end
 
       def decrypt_application_response
@@ -130,10 +130,6 @@ module Sepa
       end
 
       def verify_signature
-        super unless [:get_bank_certificate, :create_certificate].include? @command
-      end
-
-      def validate_hashes
         super unless [:get_bank_certificate, :create_certificate].include? @command
       end
 

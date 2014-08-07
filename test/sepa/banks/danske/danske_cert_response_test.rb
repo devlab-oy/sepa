@@ -65,17 +65,11 @@ class DanskeCertResponseTest < ActiveSupport::TestCase
     assert ca_certificate.respond_to? :sign
   end
 
-  # TODO: Get test to pass
   test 'hashes should match' do
-    skip 'for some reason the digest verification does not work with danske certificate responses'
-
     assert @create_certificate_response.hashes_match?
   end
 
-  # TODO: Get test to pass
   test 'hashes shouldnt match when data is corrupted' do
-    skip 'for some reason the digest verification does not work with danske certificate responses'
-
     assert_output /These digests failed to verify: {"#response"=>"2vCYl3h7ksRgk7IyV2axgpXxTWM="}/ do
       @create_certificate_response.doc.at('xmlns|ReturnText', xmlns: DANSKE_PKI).content = 'kana'
       refute @create_certificate_response.hashes_match?({ verbose: true })
