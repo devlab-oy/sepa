@@ -17,19 +17,29 @@ module Sepa
     # The certificate is only present in `:get_bank_certificate` responess.
     #
     # @return [OpenSSL::X509::Certificate] if {#command} is `:get_bank_certificate`
-    # @return [nil] with other commands
+    # @return [nil] if command is any other
     def bank_encryption_certificate
       return unless @command == :get_bank_certificate
 
       @bank_encryption_certificate ||= extract_cert(doc, 'BankEncryptionCert', DANSKE_PKI)
     end
 
+    # Returns the bank's signing certificate which is used by the bank to sign the responses. The
+    # certificate is only present in `:get_bank_certificate` responses
+    #
+    # @return [OpenSSL::X509::Certificate] if {#command} is `:get_bank_certificate`
+    # @return [nil] if {#command} is any other
     def bank_signing_certificate
       return unless @command == :get_bank_certificate
 
       @bank_signing_certificate ||= extract_cert(doc, 'BankSigningCert', DANSKE_PKI)
     end
 
+    # Returns the bank's root certificate which is the certificate that is used to sign bank's other
+    # certificates. Only present in `:get_bank_certificate` responses.
+    #
+    # @return [OpenSSL::X509::Certificate] if {#command} is `:get_bank_certificate`
+    # @return [nil] if {#command} is any other
     def bank_root_certificate
       return unless @command == :get_bank_certificate
 
