@@ -26,6 +26,16 @@ module Sepa
     validate  :verify_signature
     validate  :verify_certificate
 
+    # Initializes the response with a options hash
+    #
+    # @param hash [Hash] Hash of options
+    # @example Possible keys in options hash
+    #   {
+    #     response: "something",
+    #     command: :get_user_info,
+    #     error: "I'm error",
+    #     encryption_private_key: OpenSSL::PKey::RSA
+    #   }
     def initialize(hash = {})
       @soap = hash[:response]
       @command = hash[:command]
@@ -33,13 +43,27 @@ module Sepa
       @encryption_private_key = hash[:encryption_private_key]
     end
 
+    # Returns the soap of the response as a Nokogiri document
+    #
+    # @return [Nokogiri::XML] The soap as Nokogiri document
     def doc
       @doc ||= xml_doc @soap
     end
 
-    # Verifies that all digest values in the response match the actual ones.
-    # Takes an optional verbose parameter to show which digests didn't match
-    # i.e. verbose: true
+    # Verifies that all digest values in the response match the actual ones. Takes an optional
+    # verbose parameter to show which digests didn't match. The digest embedded in the document are
+    # first retrieved with {#find_digest_values} method and if none are found, false is returned.
+    # After this, nodes to calculate hashes from are retrieved and hashes using
+    # {#find_nodes_to_verify} method and after this the calculated digests are compared with the
+    # embedded ones. If the all match, true is returned. If some digests failed to verify and
+    # verbose parameter was passed, digests that failed to verify are printed to screen and
+    # false is returned. Otherwise just false is returned.
+    #
+    # @param options [Hash]
+    # @return [false] if hashes don't match or aren't found
+    # @return [true] if hashes match
+    # @example Options hash
+    #   { verbose: true }
     def hashes_match?(options = {})
       digests = find_digest_values
 
