@@ -1,10 +1,20 @@
 module Sepa
+
+  # Builds a soap message with given parameters. This class is extended with proper bank module
+  # depending on bank.
   class SoapBuilder
     include Utilities
 
+    # Application request built with the same parameters as the soap
+    #
+    # @return [ApplicationRequest]
     attr_reader :application_request
 
-    # SoapBuilder creates the SOAP structure.
+    # Initializes the {SoapBuilder} with the params hash and then extends the {SoapBuilder} with the
+    # correct bank module. The {SoapBuilder} class is usually created by the client which handles
+    # parameter validation.
+    #
+    # @param params [Hash] options hash
     def initialize(params)
       @bank                        = params[:bank]
       @own_signing_certificate     = params[:own_signing_certificate]
@@ -27,13 +37,16 @@ module Sepa
       find_correct_bank_extension
     end
 
+    # Returns the soap as raw xml
+    #
+    # @return [String] the soap as xml
     def to_xml
-      # Returns a complete SOAP message in xml format
       find_correct_build.to_xml
     end
 
     private
 
+      # Extends the class with proper module depending on bank
       def find_correct_bank_extension
         case @bank
         when :danske
@@ -43,6 +56,13 @@ module Sepa
         end
       end
 
+      # Calculates digest hash for the given node in the given document. The node is canonicalized
+      # exclusively before digest calculation.
+      #
+      # @param doc [Nokogiri::XML] Document that contains the node
+      # @param node [String] The name of the node
+      # @return [String] the base64 encoded string
+      # @todo remove this method and use {Utilities#calculate_digest}
       def calculate_digest(doc, node)
         sha1 = OpenSSL::Digest::SHA1.new
         node = doc.at_css(node)
@@ -55,6 +75,14 @@ module Sepa
         encode(sha1.digest(canon_node)).gsub(/\s+/, "")
       end
 
+      # Calculates signature for the given node in the given document. Uses the signing private key
+      # given to SoapBuilder for the signing. The node is canonicalized exclusively before signature
+      # calculation.
+      #
+      # @param doc [Nokogiri::XML] Document that contains the node
+      # @param node [String] Name of the node to calculate signature from
+      # @return [String] the base64 encoded signature
+      # @todo refactor to use canonicalization from utilities
       def calculate_signature(doc, node)
         sha1 = OpenSSL::Digest::SHA1.new
         node = doc.at_css(node)
@@ -68,21 +96,43 @@ module Sepa
         encode(signature).gsub(/\s+/, "")
       end
 
+      # Loads soap header template to be later populated
+      #
+      # @return [Nokogiri::XML] the header as Nokogiri document
       def load_header_template
         path = File.open("#{SOAP_TEMPLATE_PATH}/header.xml")
         Nokogiri::XML(path)
       end
 
+      # Sets value to a node's content in the given document
+      # @param doc [Nokogiri::XML] The document that contains the node
+      # @param node [String] The name of the node which value is about to be set
+      # @param value [#to_s] The value which will be set to the node
       def set_node(doc, node, value)
         doc.at_css(node).content = value
       end
 
+      # Adds soap body to header template
+      #
+      # @return [Nokogiri::XML] the soap with added body as a nokogiri document
       def add_body_to_header
         body = @template.at_css('env|Body')
         @header_template.root.add_child(body)
         @header_template
       end
 
+      # Add needed information to soap header. Mainly security related stuff. The process is as
+      # follows:
+      # 1. The reference id of the security token is set using {#set_token_id} method
+      # 2. Created and expires timestamps are set. Expires is set to be 5 minutes after creation.
+      # 3. Timestamp reference id is set with {#set_node_id} method
+      # 4. The digest of timestamp node is calculated and set to correct node
+      # 5. The reference id of body is set with {#set_node_id}
+      # 6. The digest of body is calculated and set to correct node
+      # 7. The signature of SignedInfo node is calculated and added to correct node
+      # 8. Own signing certificate is formatted (Begin and end certificate removed and linebreaks
+      #    removed) and embedded in the soap
+      # @todo split into smaller methods
       def process_header
         set_token_id
 
@@ -108,6 +158,7 @@ module Sepa
         set_node(@header_template, 'wsse|BinarySecurityToken', formatted_cert)
       end
 
+      # Generates a random token id and sets it to correct node
       def set_token_id
         security_token_id = "token-#{SecureRandom.uuid}"
 

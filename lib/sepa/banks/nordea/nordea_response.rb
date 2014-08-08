@@ -33,7 +33,8 @@ module Sepa
       node.content if node
     end
 
-    # Checks whether the certificate embedded in the response soap has been signed with Nordea's root certificate.
+    # Checks whether the certificate embedded in the response soap has been signed with Nordea's
+    # root certificate.
     #
     # @return [true] if certificate is trusted
     # @return [false] if certificate fails to verify
