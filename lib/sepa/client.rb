@@ -135,7 +135,7 @@ module Sepa
     #   Ku3uBq5rfZwk+lA+c/B634Eu0zWdI+EYfQxKVRrBrmhiGplKEtglHXbNmmMOn07e
     #   LPUaB0Ipx/6h/UczJGBINdtcuIbYVu0r7ZfyWbUCAwEAAaAAMA0GCSqGSIb3DQEB
     #   BQUAA4GBAIhh2o8mN4Byn+w1jdbhq6lxEXYqdqdh1F6GCajt2lQMUBgYP23I5cS/
-    #     Z+SYNhu8vbj52cGQPAwEDN6mm5yLpcXu40wYzgWyfStLXV9d/b4hMy9qLMW00Dzb
+    #   Z+SYNhu8vbj52cGQPAwEDN6mm5yLpcXu40wYzgWyfStLXV9d/b4hMy9qLMW00Dzb
     #   jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
     #   -----END CERTIFICATE REQUEST-----'
     attr_accessor :signing_csr
@@ -192,6 +192,10 @@ module Sepa
     validate :check_file_reference
     validate :check_encryption_private_key
 
+    # Initializes the class. An optional hash of attributes can be given. Environment is set to
+    # production if not given, language to 'EN' and status to 'NEW'.
+    #
+    # @param hash [Hash] All the attributes of the client can be given to the construcor in a hash
     def initialize(hash = {})
       self.attributes hash
       self.environment ||= :production
@@ -213,12 +217,29 @@ module Sepa
       @environment = value.downcase.to_sym
     end
 
+    # Sets the attributes given in a hash
+    #
+    # @param hash [Hash] Hash of parameters
+    # @example
+    #   {
+    #     bank: :nordea,
+    #     command: :download_file_list
+    #   }
     def attributes(hash)
       hash.each do |name, value|
         send("#{name}=", value)
       end
     end
 
+    # Sends request to the bank specified in the attributes. First a new {SoapBuilder} class is
+    # initialized with a hash of the parameters given to the client with the {#create_hash} method.
+    # After this, a Savon client is initialized with a WSDL file got from {#wsdl}. After this, the
+    # Savon client makes the actual call to the server with the {command} and the constructed
+    # {SoapBuilder}. After the call, the xml is extracted from the Savon response and the response
+    # is then checked for any {Savon::Error} errors. After this a {Response} is initialized using
+    # the {#initialize_response} method with the xml response and possible errors.
+    # @raise [ArgumentError] if some of the parameters are not valid
+    # @return [Response]
     def send_request
       raise ArgumentError, errors.messages unless valid?
 
