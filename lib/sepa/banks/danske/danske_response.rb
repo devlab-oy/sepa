@@ -1,13 +1,23 @@
 module Sepa
+
+  # Handles Danske Bank specific {Response} functionality. Mainly decryption and certificate
+  # specific stuff.
   class DanskeResponse < Response
 
     validate :valid_get_bank_certificate_response
     validate :can_be_decrypted_with_given_key
 
+    # @return [String]
+    # @see Response#application_response
     def application_response
       @application_response ||= decrypt_application_response
     end
 
+    # Returns the bank's encryption certificate which is used to encrypt messages sent to the bank.
+    # The certificate is only present in `:get_bank_certificate` responess.
+    #
+    # @return [OpenSSL::X509::Certificate] if {#command} is `:get_bank_certificate`
+    # @return [nil] with other commands
     def bank_encryption_certificate
       return unless @command == :get_bank_certificate
 
