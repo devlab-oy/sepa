@@ -198,8 +198,10 @@ module Sepa
 
     private
 
-      # Finds all reference nodes with digest values in the document and returns
-      # a hash with uri as the key and digest as the value.
+      # Finds all reference nodes with digest values in the document and returns a hash with uri as
+      # the key and digest as the value.
+      #
+      # @return [Hash] hash of digests with reference uri as the key
       def find_digest_values
         references = {}
         reference_nodes = doc.css('xmlns|Reference', xmlns: DSIG)
@@ -214,8 +216,11 @@ module Sepa
         references
       end
 
-      # Finds nodes to verify by comparing their id's to the uris' in the
-      # references hash.
+      # Finds nodes to verify by comparing their id's to the uris' in the references hash. Then
+      # calculates the hashes of those nodes and returns them in a hash
+      #
+      # @param references [Hash]
+      # @return [Hash] hash of calculated digests with reference uri as the key
       def find_nodes_to_verify(references)
         nodes = {}
 
@@ -229,12 +234,18 @@ module Sepa
         nodes
       end
 
+      # Validates the document against soap schema unless {#error} is present or command is
+      # `:get_bank_certificate`
       def document_must_validate_against_schema
         return if @error || command.to_sym == :get_bank_certificate
 
         check_validity_against_schema(doc, 'soap.xsd')
       end
 
+      # Extracts and returns application response from the response
+      #
+      # @return [String] application response as raw xml if it can be found
+      # @return [nil] if application response cannot be found
       def extract_application_response(namespace)
         ar_node = doc.at('xmlns|ApplicationResponse', xmlns: namespace)
         if ar_node
