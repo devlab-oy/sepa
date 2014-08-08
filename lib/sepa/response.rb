@@ -90,17 +90,28 @@ module Sepa
       false
     end
 
-    # Verifies the signature by extracting the public key from the certificate
-    # embedded in the soap header and verifying the signature value with that.
+    # Verifies the signature by extracting the public key from the certificate embedded in the
+    # response and verifying the signature value with that. Makes a call to {#validate_signature}
+    # to do the actual verification. Passes `:exclusive` to {#validate_signature} so that exclusive
+    # mode of xml canonicalization is used.
+    #
+    # @return [true] if signature is valid
+    # @return [false] if signature fails to verify
     def signature_is_valid?
       validate_signature(doc, certificate, :exclusive)
     end
 
-    # Gets the application response from the response as an xml document
+    # Gets the application response from the response as an xml document. Makes a call to
+    # {#extract_application_response} to do the extraction.
+    #
+    # @return [String] The application response as a raw xml document
     def application_response
       @application_response ||= extract_application_response(BXD)
     end
 
+    # Returns the file references in a download file list response
+    #
+    # @return [Array] File references
     def file_references
       return unless @command == :download_file_list
 
@@ -111,12 +122,23 @@ module Sepa
       end
     end
 
+    # Returns the certificate embedded in the response
+    #
+    # @return [OpenSSL::X509::Certificate] if the certificate is found
+    # @return [nil] if the certificate can't be found
+    # @raise [OpenSSL::X509::CertificateError] if the certificate cannot be processed
     def certificate
       @certificate ||= begin
         extract_cert(doc, 'BinarySecurityToken', OASIS_SECEXT)
       end
     end
 
+    # Returns the content of the response according to {#command}. When command is `:download_file`,
+    # content is returned as a base64 encoded string, when {#command} is `:download_file_list`, the
+    # content is returned as xml, when {#command} is `:get_user_info`, the content is returned as xml
+    # and when {#command} is `:upload_file`, content is returned as xml
+    #
+    # @return [String] the content as xml or base64 encoded string
     def content
       @content ||= begin
         xml = xml_doc(application_response)
@@ -140,22 +162,35 @@ module Sepa
       end
     end
 
+    # Returns the raw soap as xml
+    #
+    # @return [String]
     def to_s
       @soap
     end
 
+    # @abstract
     def bank_encryption_certificate; end
 
+    # @abstract
     def bank_signing_certificate; end
 
+    # @abstract
     def bank_root_certificate; end
 
+    # @abstract
     def own_encryption_certificate; end
 
+    # @abstract
     def own_signing_certificate; end
 
+    # @abstract
     def ca_certificate; end
 
+    # Returns the response code of the response
+    #
+    # @return [String] if the response code can be found
+    # @return [nil] if the response code cannot be found
     def response_code
       node = doc.at('xmlns|ResponseCode', xmlns: BXD)
       node.content if node
