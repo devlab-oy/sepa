@@ -139,11 +139,20 @@ module Sepa
         doc_without_signature.at("[xml|id='#{uri}']")
       end
 
+      # Decrypts the application response in the response. Starts by calling {#decrypt_embedded_key}
+      # method to get the key used in encrypting the application response. After this the encrypted
+      # data is retrieved from the document and base64 decoded. After this the iv
+      # (initialization vector) is extracted from the encrypted data and a decipher with the
+      # 'DES-EDE3-CBC' algorithm is initialized (This is used by banks as encryption algorithm) and
+      # its key and iv set accordingly and mode changes to decrypt. After this the data is decrypted
+      # and returned as string.
+      #
+      # @return [String] the decrypted application response as raw xml
       def decrypt_application_response
         key = decrypt_embedded_key
 
         encypted_data = encrypted_application_response
-        .css('CipherValue', 'xmlns' => XMLENC)[1]
+        .css('CipherValue', xmlns: XMLENC)[1]
         .content
 
         encypted_data = decode encypted_data
@@ -158,6 +167,8 @@ module Sepa
         decipher.update(encypted_data) + decipher.final
       end
 
+      # Validates get bank certificate response. Response is valid if service fault is not returned
+      # from the bank.
       def valid_get_bank_certificate_response
         return unless @command == :get_bank_certificate
 
@@ -166,6 +177,11 @@ module Sepa
         end
       end
 
+      # Extracts the encrypted application response from the response and returns it as a nokogiri
+      # document
+      #
+      # @return [Nokogiri::XML] the encrypted application response if it is found
+      # @return [nil] if the application response cannot be found
       def encrypted_application_response
         @encrypted_application_response ||= begin
           encrypted_application_response = extract_application_response(BXD)
@@ -173,6 +189,8 @@ module Sepa
         end
       end
 
+      # Validates that the encrypted key in the response can be decrypted with the private key given
+      # to the response in the parameters. Response is invalid if this cannot be done.
       def can_be_decrypted_with_given_key
         return if [:get_bank_certificate, :create_certificate].include? @command
         return unless encrypted_application_response.css('CipherValue', 'xmlns' => XMLENC)[0]
@@ -182,8 +200,14 @@ module Sepa
         end
       end
 
+      # Decrypts (assymetrically) the symmetric encryption key embedded in the response with the
+      # private key given to the response in the parameters. The key is later used to decrypt the
+      # application response.
+      #
+      # @return [String] the encryption key as a string
+      # @return [nil] if the key cannot be decrypted with the given key
       def decrypt_embedded_key
-        enc_key = encrypted_application_response.css('CipherValue', 'xmlns' => XMLENC)[0].content
+        enc_key = encrypted_application_response.css('CipherValue', xmlns: XMLENC)[0].content
         enc_key = decode enc_key
         @encryption_private_key.private_decrypt(enc_key)
 
