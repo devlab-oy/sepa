@@ -4,7 +4,20 @@ module Sepa
     include Utilities
     include ErrorMessages
 
-    attr_reader :soap, :error, :command
+    # The raw soap response in xml
+    #
+    # @return [String]
+    attr_reader :soap
+
+    # Possible {Savon::Error} with which the {Response} was initialized
+    #
+    # @return [String]
+    attr_reader :error
+
+    # The command with which the response was initialized
+    #
+    # @return [Symbol]
+    attr_reader :command
 
     validate  :document_must_validate_against_schema
     validate  :client_errors
