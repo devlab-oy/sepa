@@ -266,7 +266,7 @@ module Sepa
       # Find node by it's reference URI in soap header
       #
       # @param uri [String] the node's URI
-      # @return [Nokogiri::Node]
+      # @return [Nokogiri::XML::Node]
       def find_node_by_uri(uri)
         doc.at("[xmlns|Id='#{uri}']", xmlns: OASIS_UTILITY)
       end

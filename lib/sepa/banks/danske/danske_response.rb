@@ -46,24 +46,45 @@ module Sepa
       @bank_root_certificate ||= extract_cert(doc, 'BankRootCert', DANSKE_PKI)
     end
 
+    # Returns own encryption certificate which has been signed by the bank. Only present in
+    # `:create_certificate` responses
+    #
+    # @return [OpenSSL::X509::Certificate] if {#command} is `:create_certificate`
+    # @return [nil] if command is any other
     def own_encryption_certificate
       return unless @command == :create_certificate
 
       @own_encryption_certificate ||= extract_cert(doc, 'EncryptionCert', DANSKE_PKI)
     end
 
+    # Returns own signing certificate which has been signed by the bank. Is used to sign requests
+    # sent to the bank. Is only present in `:create_certificate` responses.
+    #
+    # @return [OpenSSL::X509::Certificate] if {#command} is `:create_certificate`
+    # @return [nil] if command is any other
     def own_signing_certificate
       return unless @command == :create_certificate
 
       @own_signing_certificate ||= extract_cert(doc, 'SigningCert', DANSKE_PKI)
     end
 
+    # Returns the CA certificate that has been used to sign own signing and encryption certificates.
+    # Only present in `:create_certificate` responses
+    #
+    # @return [OpenSSL::X509::Certificate] if {#command} is `:create_certificate`
+    # @return [nil] if command is any other
     def ca_certificate
       return unless @command == :create_certificate
 
       @ca_certificate ||= extract_cert(doc, 'CACert', DANSKE_PKI)
     end
 
+    # Extract certificate that has been used to sign the response. This overrides
+    # {Response#certificate} method with specific functionality for `:get_bank_certificate` and
+    # `:create_certificate` commands. Otherwise just calls {Response#certificate}
+    #
+    # @return [OpenSSL::X509::Certificate]
+    # @raise [OpenSSL::X509::CertificateError] if certificate cannot be processed
     def certificate
       if [:get_bank_certificate, :create_certificate].include? @command
         @certificate ||= begin
@@ -74,6 +95,13 @@ module Sepa
       end
     end
 
+    # Extract response code from the response. Overrides super method when {#command} is
+    # `:get_bank_certificate` or `:create_certificate` because response code node is named
+    # differently in those responses.
+    #
+    # @return [String] if response code is found
+    # @return [nil] if response code cannot be found
+    # @see Response#response_code
     def response_code
       return super unless [:get_bank_certificate, :create_certificate].include? @command
 
@@ -81,6 +109,12 @@ module Sepa
       node.content if node
     end
 
+    # Checks whether certificate embedded in the response has been signed with the bank's root
+    # certificate. Always returns true when {#command} is `:get_bank_certificate`, because the
+    # certificate is not present with that command.
+    #
+    # @return [true] if certificate is trusted
+    # @return [false] if certificate is not trusted
     def certificate_is_trusted?
       return true if @command == :get_bank_certificate
 
@@ -89,6 +123,14 @@ module Sepa
 
     private
 
+      # Finds a node by its reference URI from Danske Bank's certificate responses. If {#command} is
+      # other than `:get_bank_certificate` or `:create_certificate` returns super. This method is
+      # needed because Danske Bank uses a different way to reference nodes in their certificate
+      # responses.
+      #
+      # @param uri [String] reference URI of the node to find
+      # @return [Nokogiri::XML::Node] node with signature removed from its document since signature
+      #   has to be removed for canonicalization and hash calculation
       def find_node_by_uri(uri)
         return super unless [:get_bank_certificate, :create_certificate].include? @command
 
