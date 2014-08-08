@@ -260,6 +260,11 @@ module Sepa
 
     private
 
+      # Creates a hash of all instance variables and their values. Before the actual hash is
+      # created, the {#signing_private_key} is converted to {OpenSSL::PKey::RSA} using
+      # {#initialize_signing_private_key} method.
+      #
+      # @return [Hash] All instance variables in a hash with their names as symbols as keys
       def create_hash
         initialize_signing_private_key
         iv = {}
@@ -275,11 +280,14 @@ module Sepa
         iv
       end
 
+      # Converts the {#signing_private_key} from String to OpenSSL::PKey::RSA
+      # @return [OpenSSL::PKey::RSA]
       def initialize_signing_private_key
         @signing_private_key = rsa_key(@signing_private_key) if @signing_private_key
       end
 
-      # Returns path to WSDL file
+      # Returns path to WSDL file according to {#bank} and {#command}
+      # @return [String] Path to the WSDL file of the bank and command
       def wsdl
         case bank
         when :nordea
@@ -299,6 +307,12 @@ module Sepa
         "#{WSDL_PATH}/#{file}"
       end
 
+      # Initializes {Response} as correct class for a bank. Also converts possible
+      # {#encryption_private_key} from String to OpenSSL::PKey::RSA.
+      #
+      # @param error [String] Possible error got from {#send_request}
+      # @param response [String] A soap response in plain xml
+      # @return [Response] A {Response} with a correct class for a bank
       def initialize_response(error, response)
         options = {
           response: response,
