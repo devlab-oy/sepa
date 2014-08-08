@@ -152,7 +152,7 @@ module Sepa
         key = decrypt_embedded_key
 
         encypted_data = encrypted_application_response
-        .css('CipherValue', xmlns: XMLENC)[1]
+        .css('CipherValue', 'xmlns' => XMLENC)[1]
         .content
 
         encypted_data = decode encypted_data
@@ -207,7 +207,7 @@ module Sepa
       # @return [String] the encryption key as a string
       # @return [nil] if the key cannot be decrypted with the given key
       def decrypt_embedded_key
-        enc_key = encrypted_application_response.css('CipherValue', xmlns: XMLENC)[0].content
+        enc_key = encrypted_application_response.css('CipherValue', 'xmlns' => XMLENC)[0].content
         enc_key = decode enc_key
         @encryption_private_key.private_decrypt(enc_key)
 
