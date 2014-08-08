@@ -1,4 +1,8 @@
 module Sepa
+
+  # Handles soap responses got back from the bank. Bank specific functionality is defined in
+  # subclasses. Handles i.e. logic to make sure the response's integrity has not been compromised
+  # and has methods to extract content from the response.
   class Response
     include ActiveModel::Validations
     include Utilities
@@ -253,15 +257,22 @@ module Sepa
         end
       end
 
+      # Handles errors that have been passed from client
       def client_errors
         client_error = error.to_s
         errors.add(:base, client_error) unless client_error.empty?
       end
 
+      # Find node by it's reference URI in soap header
+      #
+      # @param uri [String] the node's URI
+      # @return [Nokogiri::Node]
       def find_node_by_uri(uri)
         doc.at("[xmlns|Id='#{uri}']", xmlns: OASIS_UTILITY)
       end
 
+      # Validates response code in response. "00" and "24" are currently considered valid.
+      # Validation is not run if {#error} is present
       def validate_response_code
         return if @error
 
@@ -270,14 +281,19 @@ module Sepa
         end
       end
 
+      # Validates hashes in the response. {#hashes_match?} must return true for validation to pass.
+      # Is not run if {#error} is present or response code is not ok.
       def validate_hashes
         return if @error
         return unless response_code_is_ok?
+
         unless hashes_match?
           errors.add(:base, HASH_ERROR_MESSAGE)
         end
       end
 
+      # Validate signature in the response. Validation is not run if {#error} is present or response
+      # is not ok.
       def verify_signature
         return if @error
         return unless response_code_is_ok?
@@ -287,6 +303,9 @@ module Sepa
         end
       end
 
+      # Validates certificate in the soap. The certificate must be present and signed by the bank's
+      # root certificate for the validation to pass. Is not run if {#error} is present or response
+      # code is not ok.
       def verify_certificate
         return if @error
         return unless response_code_is_ok?
@@ -296,6 +315,11 @@ module Sepa
         end
       end
 
+      # Checks whether response code in the response is ok. Response code is considered ok if it is
+      # "00" or "24".
+      #
+      # @return [true] if response code is ok
+      # @return [false] if response code is not ok
       def response_code_is_ok?
         return true if %w(00 24).include? response_code
 
