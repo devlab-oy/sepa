@@ -1,8 +1,14 @@
 module Sepa
+
+  # Contains Nordea specific soap building functionality
   module NordeaSoapRequest
 
     private
 
+      # Determines which soap request to build based on command. Certificate requests are built
+      # differently than generic requests.
+      #
+      # @return [Nokogiri::XML] the soap as a nokogiri document
       def find_correct_build
         case @command
         when :get_certificate
@@ -12,11 +18,17 @@ module Sepa
         end
       end
 
-      # Builds : Get Certificate
+      # Sets contents for certificate request
+      #
+      # @return [Nokogiri::XML] the template with contents added to it
       def build_certificate_request
         set_body_contents
       end
 
+      # Sets soap body contents. Application request is base64 encoded here.
+      #
+      # @return [Nokogiri::XML] the soap with contents added to it
+      # @todo rename, because apparently only sets certificate contents
       def set_body_contents
         set_node(@template, 'cer|ApplicationRequest', @application_request.to_base64)
         set_node(@template, 'cer|SenderId', @customer_id)
@@ -26,13 +38,20 @@ module Sepa
         @template
       end
 
-      # Builds : Get User Info, Download File, Download File List, Upload File
+      # Builds generic request which is a request made with commands:
+      # * Get User Info
+      # * Download File
+      # * Download File List
+      # * Upload File
+      #
+      # @return [Nokogiri::XML] the generic request soap
       def build_common_request
         common_set_body_contents
         process_header
         add_body_to_header
       end
 
+      # Sets nodes for generic requests, application request is base64 encoded here.
       def common_set_body_contents
         set_node(@template, 'bxd|ApplicationRequest', @application_request.to_base64)
         set_node(@template, 'bxd|SenderId', @customer_id)
@@ -43,6 +62,10 @@ module Sepa
         set_node(@template, 'bxd|ReceiverId', @target_id)
       end
 
+      # Generates a random request id for Nordea request
+      #
+      # @return [String] hexnumeric request id
+      # @todo move to utilities
       def request_id
         SecureRandom.hex(17)
       end
