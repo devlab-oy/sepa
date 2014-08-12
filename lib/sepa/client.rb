@@ -1,4 +1,8 @@
+# Main module for this gem
 module Sepa
+
+  # Handles parameter validation, key initialization, {SoapBuilder} initialization, communicating
+  # with the bank and {Response} initialization.
   class Client
     include ActiveModel::Validations
     include Utilities
