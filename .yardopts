@@ -1,4 +1,6 @@
+lib/**/*.rb
 --private
 --readme readme.md
 --markup markdown
 --title "Documentation for Sepa"
+- LICENSE
