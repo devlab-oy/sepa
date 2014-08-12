@@ -238,9 +238,9 @@ module Sepa
     # Sends request to the bank specified in the attributes. First a new {SoapBuilder} class is
     # initialized with a hash of the parameters given to the client with the {#create_hash} method.
     # After this, a Savon client is initialized with a WSDL file got from {#wsdl}. After this, the
-    # Savon client makes the actual call to the server with the {command} and the constructed
+    # Savon client makes the actual call to the server with the {#command} and the constructed
     # {SoapBuilder}. After the call, the xml is extracted from the Savon response and the response
-    # is then checked for any {Savon::Error} errors. After this a {Response} is initialized using
+    # is then checked for any Savon::Error errors. After this a {Response} is initialized using
     # the {#initialize_response} method with the xml response and possible errors.
     # @raise [ArgumentError] if some of the parameters are not valid
     # @return [Response]
@@ -265,7 +265,7 @@ module Sepa
     private
 
       # Creates a hash of all instance variables and their values. Before the actual hash is
-      # created, the {#signing_private_key} is converted to {OpenSSL::PKey::RSA} using
+      # created, the {#signing_private_key} is converted to OpenSSL::PKey::RSA using
       # {#initialize_signing_private_key} method.
       #
       # @return [Hash] All instance variables in a hash with their names as symbols as keys

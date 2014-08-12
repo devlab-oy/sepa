@@ -56,11 +56,11 @@ CERTIFICATE_PATH = "#{ROOT_PATH}/lib/sepa/certificates/"
 
 nordea_root_certificate_string = File.read("#{CERTIFICATE_PATH}nordea_root_certificate.cer")
 
-# Nordea's root certificate as an {OpenSSL::X509::Certificate}
+# Nordea's root certificate as an OpenSSL::X509::Certificate
 NORDEA_ROOT_CERTIFICATE = OpenSSL::X509::Certificate.new nordea_root_certificate_string
 danske_root_certificate_string = File.read("#{CERTIFICATE_PATH}danske_root_certificate.cer")
 
-# Danske Bank's root certificate as an {OpenSSL::X509::Certificate}
+# Danske Bank's root certificate as an OpenSSL::X509::Certificate
 DANSKE_ROOT_CERTIFICATE = OpenSSL::X509::Certificate.new danske_root_certificate_string
 
 # @!endgroup

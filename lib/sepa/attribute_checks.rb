@@ -1,7 +1,7 @@
 module Sepa
 
   # Contains functionality to check the attributes passed to {Client}. Uses
-  # {ActiveModel::Validations} for the actual validation.
+  # ActiveModel::Validations for the actual validation.
   module AttributeChecks
     include ErrorMessages
 

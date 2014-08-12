@@ -1,1 +1,4 @@
---private -r readme.md
+--private
+--readme readme.md
+--markup markdown
+--title "Documentation for Sepa"

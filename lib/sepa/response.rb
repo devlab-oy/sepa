@@ -13,7 +13,7 @@ module Sepa
     # @return [String]
     attr_reader :soap
 
-    # Possible {Savon::Error} with which the {Response} was initialized
+    # Possible Savon::Error with which the {Response} was initialized
     #
     # @return [String]
     attr_reader :error
