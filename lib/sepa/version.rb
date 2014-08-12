@@ -1,5 +1,5 @@
 module Sepa
 
   # The current version of the gem
-  VERSION = "0.1.5"
+  VERSION = "1.0.0"
 end
