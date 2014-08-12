@@ -7,42 +7,40 @@
 
 This project aims to create an open source implementation of SEPA Financial Messages using Web Services. Project implementation is done in Ruby.
 
-Currently we have support for SEPA Web Services for:
+Currently we have support for SEPA Web Services for
 
 * Nordea
 * Danske Bank
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add this line to your application's Gemfile
 
 ```ruby
 gem 'sepafm'
 ```
 
-And then execute:
+And then execute
 
 ```bash
 $ bundle
 ```
 
-Or install it with:
+**Or** install gem with
 
 ```bash
 $ gem install sepafm
 ```
 
-## Usage
-
-### Require the gem
+And require it in your code
 
 ```ruby
 require 'sepafm'
 ```
 
-### Communicating with the bank
+## Using the Gem
 
-Define parameters hash for client, ie. get Nordea bank statement;
+Define parameters hash for client, ie. get Nordea bank statement
 
 ```ruby
 params = {
@@ -69,8 +67,6 @@ Send request to bank
 response = client.send_request
 ```
 
-### Interacting with the response
-
 Make sure response is valid
 
 ```ruby
@@ -83,7 +79,38 @@ Get response content
 response.content
 ```
 
-### Downloading Nordea certificate
+## Getting Started
+
+First, you need certificates from your bank. For basic requests you'll need
+
+* Your signing certificate
+* Private key for your signing certificate
+* Your encryption certificate (Danske Only)
+* Private key for your encryption certificate (Danske Only)
+* Banks encryption certificate (Danske Only)
+
+You have to get your bank to sign your signing/encryption certificate(s). For this you need to make
+
+* Your signing certificate signing request
+* Your encryption certificate signing request (Danske Only)
+
+You can generate your certificate signing requests with `openssl`
+
+```bash
+openssl req -out encryption.csr -new -newkey rsa:2048 -nodes -keyout encryption.key
+openssl req -out signing.csr -new -newkey rsa:2048 -nodes -keyout signing.key
+```
+
+Enter your information and you should have four files
+
+```
+encryption.csr
+encryption.key
+signing.csr
+signing.key
+```
+
+### Downloading Nordea Certificate
 
 Define parameters hash for client
 
@@ -94,7 +121,7 @@ params = {
   command: :get_certificate,
   customer_id: '11111111',
   environment: 'test',
-  signing_csr: "...your signing certificate signing request..."
+  signing_csr: "...your signing.csr content..."
 }
 ```
 
@@ -116,15 +143,15 @@ Make sure the response is valid
 response.valid?
 ```
 
-Get the certificate from the response
+Get the certificate from the response and save it in a safe place
 
 ```ruby
 response.own_signing_certificate
 ```
 
-### Downloading Danske bank certificates
+### Downloading Danske Bank Certificates
 
-#### Bank's certificates
+**Bank's certificates**
 
 Define parameters hash for client
 
@@ -156,7 +183,7 @@ Make sure the response is valid
 response.valid?
 ```
 
-Get the certificates from the response
+Get the certificates from the response and save them in a safe place
 
 ```ruby
 # Bank's encryption certificate
@@ -169,19 +196,19 @@ response.bank_signing_certificate
 response.bank_root_certificate
 ```
 
-#### Own certificates
+**Own certificates**
 
 Define parameters hash
 
 ``` ruby
 params = {
   bank: :danske,
-  bank_encryption_certificate: '...banks encryption certificate...',
+  bank_encryption_certificate: '...banks encryption certificate content from above...',
   command: :create_certificate,
   customer_id: '360817',
   environment: 'production',
-  encryption_csr: '...encryption certificate signing request...',
-  signing_csr: '...signing certificate signing request...',
+  encryption_csr: '...your encryption.csr content ...',
+  signing_csr: '...your signing.csr content...',
   pin: '1234'
 }
 ```
@@ -204,7 +231,7 @@ Make sure the response is valid
 response.valid?
 ```
 
-Get the certificates from the response
+Get the certificates from the response and save them in a safe place
 
 ```ruby
 # Own encryption certificate
@@ -217,42 +244,31 @@ response.own_signing_certificate
 response.ca_certificate
 ```
 
----
+## Client Parameters
 
-### Parameter breakdown
+Not all parameters are needed in every request.
 
-* **bank** - The bank you want to send the request to as a symbol. Either :nordea or :danske
-* **signing_private_key** - Your signing private key in plain text format
-* **signing_certificate** - Your signing certificate in plain text format
-* **encryption/signing_csr** - Your certificate signing request in plain text format
-* **command** - Must be one of:
-    * download_file_list
-    * upload_file
-    * download_file
-    * get_user_info
-    * get_certificate
-    * get_bank_certificate
-    * create_certificate
-* **customer_id** - Your customer id with the bank.
-* **environment** - Must be either production or test
-* **status** - For filtering stuff. Must be either NEW, DOWNLOADED or ALL
-* **target_id** - Some specification of the folder which to access in the bank (Nordea only)
-* **language** - Language must be either FI, EN or SV
-* **file_type** - File types to upload or download:
-    * LMP300 = Laskujen maksupalvelu (lähtevä)
-    * LUM2 = Valuuttamaksut (lähtevä)
-    * KTL = Saapuvat viitemaksut (saapuva)
-    * TITO = Konekielinen tiliote (saapuva)
-    * NDCORPAYS = Yrityksen maksut XML (lähtevä)
-    * NDCAMT53L = Konekielinen XML-tiliote (saapuva)
-    * NDCAMT54L = Saapuvat XML viitemaksu (saapuva)
-* **content** - The payload to send.
-* **file_reference** - File reference for :download_file command
-* **pin** - Your personal pin-code provided by the bank
+Parameter | Description
+--- | ---
+bank | Bank you want to send the request to. Either `:nordea` or `:danske`
+customer_id | Customer id from bank.
+command | Must be one of: `download_file_list`, `upload_file`, `download_file`, `get_user_info`, `get_certificate`, `get_bank_certificate`, `create_certificate`.
+content | Content to be sent to the bank in `upload_file`.
+environment | Bank's environment where the request is sent. Has to be `production` or `test`.
+language | Language of the response. Must be either `FI`, `EN` or `SV`.
+target_id | Code used to categorize files. Can be retrieved with `get_user_info` -command. Only used by Nordea.
+file_type | Type of the file(s) your are going to download or send. These differ by bank. With Nordea they can be retrieved with `get_user_info` -command.
+file_reference | File's unique identification for downloading a file. Retrieved with `download_file_list` -command.
+status | Status for the file to be retrieved. Has to be `NEW`, `DOWNLOADED` or `ALL`.
+signing_private_key | Your private key of your signing certificate for signing the request.
+encryption_private_key | Your private key of your encryption certificate for decrypting the response.
+own_signing_certificate | Your signing certificate, signed by the bank.
+bank_encryption_certificate | Encryption certificate of the bank for encrypting the request.
+pin | One-time code retrieved from bank which can be used to download new certificates.
+signing_csr | Signing certificate signing request.
+encryption_csr | Encryption certificate signing request.
 
----
-
-## Upcoming features
+## Upcoming Features
 
 * Parse responses
     * Bank-to-Customer Statement
@@ -265,8 +281,6 @@ response.ca_certificate
     * Customer-to-Bank Statement
         * ISO standard "CustomerCreditTransferInitiationV03"
         * XML schema "pain.001.001.03"
-
----
 
 ## Contributing
 
