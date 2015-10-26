@@ -22,6 +22,8 @@ require 'sepa/fixtures'
 
 include Sepa::Utilities
 
+ActiveSupport::TestCase.test_order = :random
+
 # Test responses
 NORDEA_TEST_RESPONSE_PATH = "#{ROOT_PATH}/test/sepa/banks/nordea/responses"
 DANSKE_TEST_RESPONSE_PATH = "#{ROOT_PATH}/test/sepa/banks/danske/responses/"
