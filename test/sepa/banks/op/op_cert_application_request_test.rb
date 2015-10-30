@@ -37,10 +37,6 @@ class OpCertApplicationRequestTest < ActiveSupport::TestCase
     assert timestamp <= Time.now && timestamp > (Time.now - 60), "Timestamp was not set correctly"
   end
 
-  test "command is set correctly" do
-    assert_equal @xml.at_css("Command").content, "GetCertificate"
-  end
-
   test "environment is set correctly" do
     expected_environment = @op_get_certificate_params[:environment].upcase
     assert_equal expected_environment, @xml.at_css("Environment").content
@@ -56,6 +52,10 @@ class OpCertApplicationRequestTest < ActiveSupport::TestCase
 
   test "content is set correctly" do
     assert_equal format_cert_request(@op_get_certificate_params[:signing_csr]), @xml.at_css("Content").content
+  end
+
+  test "transfer key is set correctly" do
+    assert_equal @op_get_certificate_params[:pin], @xml.at("TransferKey").content
   end
 
   test "hmac is not set" do
