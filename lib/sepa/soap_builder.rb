@@ -53,6 +53,8 @@ module Sepa
           self.extend(DanskeSoapRequest)
         when :nordea
           self.extend(NordeaSoapRequest)
+        when :op
+          self.extend(OpSoapRequest)
         end
       end
 
