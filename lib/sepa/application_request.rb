@@ -139,6 +139,7 @@ module Sepa
       def set_get_certificate_nodes
         if @bank == :op
           set_node("Service", "MATU")
+          set_node "TransferKey", @pin
         else
           set_node("HMAC", hmac(@pin, csr_to_binary(@signing_csr)))
         end
@@ -174,7 +175,7 @@ module Sepa
         set_node("CustomerId", @customer_id)
         set_node("Timestamp", iso_time)
         set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
-        set_node("Command", pretty_command)
+        set_node("Command", pretty_command) unless @bank == :op
       end
 
       # Removes a node from {#application_request}
