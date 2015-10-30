@@ -137,9 +137,13 @@ module Sepa
       # @todo Raise error if {#bank} is other than Nordea like in {#set_get_bank_certificate_nodes}
       # @todo Check further into what service actually is
       def set_get_certificate_nodes
-        set_node("Service", '')
+        if @bank == :op
+          set_node("Service", "MATU")
+        else
+          set_node("HMAC", hmac(@pin, csr_to_binary(@signing_csr)))
+        end
+
         set_node("Content", format_cert_request(@signing_csr))
-        set_node("HMAC", hmac(@pin, csr_to_binary(@signing_csr)))
       end
 
       # Sets nodes' contents for Danske Bank's create certificate request. Environment is set to
