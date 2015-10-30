@@ -132,7 +132,11 @@ module Sepa
       when :download_file
         path << "download_file.xml"
       when :get_certificate
-        path << "get_certificate.xml"
+        if @bank == :op
+          path << "op/get_certificate.xml"
+        else
+          path << "get_certificate.xml"
+        end
       when :get_bank_certificate
         path << "danske_get_bank_certificate.xml"
       when :create_certificate
