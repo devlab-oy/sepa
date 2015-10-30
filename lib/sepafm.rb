@@ -17,6 +17,7 @@ require 'sepa/banks/danske/danske_response'
 require 'sepa/soap_builder'
 require 'sepa/banks/danske/soap_danske'
 require 'sepa/banks/nordea/soap_nordea'
+require 'sepa/banks/op/soap_op'
 require 'sepa/version'
 
 # The root path of where the gem is installed
