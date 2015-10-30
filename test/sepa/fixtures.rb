@@ -110,6 +110,35 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
   }
 end
 
+def op_get_certificate_params
+  signing_csr = "-----BEGIN CERTIFICATE REQUEST-----
+MIICpDCCAYwCAQAwXzELMAkGA1UEBhMCRkkxEzARBgNVBAgTClNvbWUtU3RhdGUx
+ETAPBgNVBAcTCEhlbHNpbmtpMRMwEQYDVQQKEwpUZXN0aW5nIE95MRMwEQYDVQQD
+EwpUZXN0aW5nIE95MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAszXd
+O+NEu5skMqz/cnAHYs9tmqFc3oJHwtRz4HXujhtekWekqN7vNsracEonrYIx4T18
+/DkgNtazqgjC0e+yere+Izzoj+n+Uns+R/AmADy9Ixul0GrnuxjkH9SOOIZhFRp3
+9rd2RgYAcdid3C1a5+44gFdR8qKUTLB2FYljXNoYPtk3GNTvIlnfZsBmmQe/dGH0
+EpDw+HFIhgfBMuSDivTgIdA9WU6EO4vIm5416vpcK8QrL8rVMLv8otWoJ5gFnPnN
+1U+2N3PZ2i7O7k7KWVu2jfwrqVOuzZsnjKhpIZ0EVG9SMCTPyybLRt+p6dvQrV9o
+ZvaLlwrUR6chgeNzRwIDAQABoAAwDQYJKoZIhvcNAQEFBQADggEBAF+ocDt4h56D
+TOL9mEUo1b0C8y4PwrpAhW6uPF4OXV8WxGwmhLLxk+QNBNtTN2an3tcxvCkhdENB
+Cxmimy78jMOlf3lN14z3B+pn9gtpezOnYNxBdMwfmeu647m+wCIrBeHlLl8IUys8
+zzaBQS8cDfIzQYemiEFQEQdepTHSaGv4Xfzi6IgqeFf05cmAHh1R6XxAMz+npZkg
+cHwl+R7lXx8KiuhJPmI8C6bvohD6Vh4mqNVwgLmCCrFxgs1BGzKCW77koBAjP3td
+xN/+dTCX8PEiFFrtQx3e9o1616cbG3ZmI1pFhsENx7xB8YDMkhZ3G8Q3Blv0KnUY
+JKANfY/enO0=
+-----END CERTIFICATE REQUEST-----"
+
+  {
+    bank:        :op,
+    command:     :get_certificate,
+    customer_id: '1000010583',
+    environment: 'test',
+    signing_csr: signing_csr,
+    pin:         '2251401483958635'
+  }
+end
+
 def danske_get_bank_cert_params
   {
       bank: :danske,
