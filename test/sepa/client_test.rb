@@ -23,6 +23,30 @@ class ClientTest < ActiveSupport::TestCase
     assert_equal [:danske, :nordea, :op].sort, Sepa::Client::BANKS.sort
   end
 
+  test "correct allowed commands for nordea" do
+    c = Sepa::Client.new(bank: :nordea)
+
+    commands = STANDARD_COMMANDS + [:get_certificate]
+
+    assert_same_items commands, c.allowed_commands
+  end
+
+  test "correct allowed commands for op" do
+    c = Sepa::Client.new(bank: :op)
+
+    commands = STANDARD_COMMANDS + [:get_certificate]
+
+    assert_same_items commands, c.allowed_commands
+  end
+
+  test "correct allowed commands for danske" do
+    c = Sepa::Client.new(bank: :danske)
+
+    commands = STANDARD_COMMANDS - [:get_user_info] + [:get_bank_certificate, :create_certificate]
+
+    assert_same_items commands, c.allowed_commands
+  end
+
   test "should initialize with attributes" do
     assert Sepa::Client.new @nordea_generic_params
   end
