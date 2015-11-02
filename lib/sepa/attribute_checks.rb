@@ -10,7 +10,7 @@ module Sepa
     # @return [Array<Symbol>] the commands which are allowed for {Client#bank}.
     def allowed_commands
       case bank
-      when :nordea
+      when :nordea, :op
         [:get_certificate, :get_user_info, :download_file_list, :download_file, :upload_file]
       when :danske
         [:get_bank_certificate, :download_file_list, :download_file,
