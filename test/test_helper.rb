@@ -17,6 +17,7 @@ SimpleCov.start do
   add_filter "/vendor/"
 end
 
+require 'custom_assertions'
 require 'sepafm'
 require 'sepa/fixtures'
 
