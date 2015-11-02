@@ -102,4 +102,7 @@ DANSKE_PKI  = 'http://danskebank.dk/PKI/PKIFactoryService/elements'
 # Namespace used in Danske Bank's certificate services soap
 DANSKE_PKIF = 'http://danskebank.dk/PKI/PKIFactoryService'
 
+# Namespace used in OP's certificate requests and responses soap
+OP_PKI = 'http://mlp.op.fi/OPCertificateService'
+
 # @!endgroup
