@@ -306,6 +306,14 @@ module Sepa
           else
             file = "wsdl_danske.xml"
           end
+        when :op
+          if command == :get_certificate
+            if environment == :test
+              file = "wsdl_op_cert_test.xml"
+            end
+          end
+        else
+          raise "WSDL file could not be loaded"
         end
 
         "#{WSDL_PATH}/#{file}"
