@@ -1,6 +1,6 @@
 module Sepa
 
-  # Contains Nordea specific soap building functionality
+  # Contains OP specific soap building functionality
   module OpSoapRequest
 
     private
@@ -30,10 +30,10 @@ module Sepa
     # @return [Nokogiri::XML] the soap with contents added to it
     # @todo rename, because apparently only sets certificate contents
     def set_body_contents
-      set_node(@template, 'cer|ApplicationRequest', @application_request.to_base64)
-      set_node(@template, 'cer|SenderId', @customer_id)
-      set_node(@template, 'cer|RequestId', request_id)
-      set_node(@template, 'cer|Timestamp', iso_time)
+      set_node(@template, 'opc|ApplicationRequest', @application_request.to_base64)
+      set_node(@template, 'opc|SenderId', @customer_id)
+      set_node(@template, 'opc|RequestId', request_id)
+      set_node(@template, 'opc|Timestamp', iso_time)
 
       @template
     end
