@@ -19,6 +19,10 @@ class ClientTest < ActiveSupport::TestCase
     assert Sepa::Client.new
   end
 
+  test "correct banks are supported" do
+    assert_equal [:danske, :nordea, :op].sort, Sepa::Client::BANKS.sort
+  end
+
   test "should initialize with attributes" do
     assert Sepa::Client.new @nordea_generic_params
   end
