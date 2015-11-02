@@ -165,7 +165,7 @@ module Sepa
     attr_accessor :encryption_csr
 
     # The list of banks that are currently supported by this gem
-    BANKS = [:nordea, :danske]
+    BANKS = [:danske, :nordea, :op]
 
     # Languages that are currently supported by the gem
     LANGUAGES = ['FI', 'SE', 'EN']
