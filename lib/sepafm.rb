@@ -67,6 +67,19 @@ DANSKE_ROOT_CERTIFICATE = OpenSSL::X509::Certificate.new danske_root_certificate
 # @!endgroup
 
 
+# @!group Commands
+
+# Commands described in the standard
+STANDARD_COMMANDS = [
+  :download_file,
+  :download_file_list,
+  :get_user_info,
+  :upload_file
+]
+
+# @!endgroup
+
+
 # @!group XML Namespaces
 
 # Namespace used by XML digital signature
