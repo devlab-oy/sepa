@@ -54,6 +54,13 @@ module Sepa
       @doc ||= xml_doc @soap
     end
 
+    # Returns the error of the response as a Nokogiri document
+    #
+    # @return [Nokogiri::XML] The error as Nokogiri document
+    def error_doc
+      @error_doc ||= xml_doc @error
+    end
+
     # Verifies that all digest values in the response match the actual ones. Takes an optional
     # verbose parameter to show which digests didn't match. The digest embedded in the document are
     # first retrieved with {#find_digest_values} method and if none are found, false is returned.
@@ -197,6 +204,7 @@ module Sepa
     # @return [nil] if the response code cannot be found
     def response_code
       node = doc.at('xmlns|ResponseCode', xmlns: BXD)
+      node = error_doc.at('xmlns|ResponseCode', xmlns: BXD) unless node
       node.content if node
     end
 

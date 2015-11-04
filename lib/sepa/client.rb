@@ -256,7 +256,7 @@ module Sepa
         response &&= response.to_xml
       rescue Savon::Error => e
         response = nil
-        error = e.to_s
+        error = e.http.body
       end
 
       initialize_response(error, response)

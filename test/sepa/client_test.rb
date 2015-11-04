@@ -376,7 +376,7 @@ class ClientTest < ActiveSupport::TestCase
     response = client.send_request
 
     refute response.valid?, response.errors.messages
-    assert_includes response.errors.messages.to_s, "HTTP error (500): THE ERROR!"
+    assert_includes response.errors.messages.to_s, "THE ERROR!"
 
     Savon.observers.pop
   end
