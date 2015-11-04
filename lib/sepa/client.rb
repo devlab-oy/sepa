@@ -344,6 +344,10 @@ module Sepa
           NordeaResponse.new options
         when :danske
           DanskeResponse.new options
+        when :op
+          OpResponse.new options
+        else
+          raise "Cannot process #{bank}'s responses"
         end
       end
 
