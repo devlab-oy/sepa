@@ -106,6 +106,8 @@ module Sepa
       return super unless [:get_bank_certificate, :create_certificate].include? @command
 
       node = doc.at('xmlns|ReturnCode', xmlns: DANSKE_PKI)
+      node = doc.at('xmlns|ReturnCode', xmlns: DANSKE_PKIF) unless node
+
       node.content if node
     end
 
