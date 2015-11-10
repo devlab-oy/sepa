@@ -33,6 +33,19 @@ module Sepa
       node.content if node
     end
 
+    # Returns the response text in the response. Overrides {Response#response_text} if {#command} is
+    # `:get_certificate`, because the namespace is different with that command.
+    #
+    # @return [String] response text if it is found
+    # @return [nil] if response text cannot be found
+    # @see Response#response_text
+    def response_text
+      return super unless command == :get_certificate
+
+      node = doc.at('xmlns|ResponseText', xmlns: NORDEA_PKI)
+      node.content if node
+    end
+
     # Checks whether the certificate embedded in the response soap has been signed with Nordea's
     # root certificate.
     #
