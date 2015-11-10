@@ -208,6 +208,16 @@ module Sepa
       node.content if node
     end
 
+    # Returns the response text of the response
+    #
+    # @return [String] if the response text can be found
+    # @return [nil] if the response text cannot be found
+    def response_text
+      node = doc.at('xmlns|ResponseText', xmlns: BXD)
+      node = error_doc.at('xmlns|ResponseText', xmlns: BXD) unless node
+      node.content if node
+    end
+
     private
 
       # Finds all reference nodes with digest values in the document and returns a hash with uri as
@@ -280,12 +290,9 @@ module Sepa
       end
 
       # Validates response code in response. "00" and "24" are currently considered valid.
-      # Validation is not run if {#error} is present
       def validate_response_code
-        return if @error
-
         unless %w(00 24).include? response_code
-          errors.add(:base, NOT_OK_RESPONSE_CODE_ERROR_MESSAGE)
+          errors.add(:base, { response_code: response_code, response_text: response_text })
         end
       end
 
