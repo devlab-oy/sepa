@@ -175,7 +175,7 @@ module Sepa
         set_node("CustomerId", @customer_id)
         set_node("Timestamp", iso_time)
         set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
-        set_node("Command", pretty_command) unless @bank == :op
+        set_node("Command", pretty_command)
       end
 
       # Removes a node from {#application_request}
