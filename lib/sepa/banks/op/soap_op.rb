@@ -59,7 +59,7 @@ module Sepa
       set_node(@template, 'bxd|Timestamp', iso_time)
       set_node(@template, 'bxd|Language', @language)
       set_node(@template, 'bxd|UserAgent', "Sepa Transfer Library version #{VERSION}")
-      set_node(@template, 'bxd|ReceiverId', @target_id)
+      set_node(@template, 'bxd|ReceiverId', 'OKOYFIHH')
     end
 
     # Generates a random request id for Nordea request
