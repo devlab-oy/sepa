@@ -334,9 +334,10 @@ module Sepa
       # @return [Response] A {Response} with a correct class for a bank
       def initialize_response(error, response)
         options = {
-          response: response,
+          command: command,
+          environment: environment,
           error: error,
-          command: command
+          response: response,
         }
         if encryption_private_key && !encryption_private_key.empty?
           options[:encryption_private_key] = rsa_key(encryption_private_key)

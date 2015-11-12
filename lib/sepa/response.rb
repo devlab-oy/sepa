@@ -23,6 +23,11 @@ module Sepa
     # @return [Symbol]
     attr_reader :command
 
+    # The environment in which the request was sent
+    #
+    # @return [Symbol]
+    attr_reader :environment
+
     validate  :document_must_validate_against_schema
     validate  :client_errors
     validate  :validate_response_code
@@ -41,10 +46,11 @@ module Sepa
     #     encryption_private_key: OpenSSL::PKey::RSA
     #   }
     def initialize(hash = {})
-      @soap = hash[:response]
-      @command = hash[:command]
-      @error = hash[:error]
+      @command                = hash[:command]
       @encryption_private_key = hash[:encryption_private_key]
+      @environment            = hash[:environment]
+      @error                  = hash[:error]
+      @soap                   = hash[:response]
     end
 
     # Returns the soap of the response as a Nokogiri document
