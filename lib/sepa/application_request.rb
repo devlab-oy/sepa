@@ -100,7 +100,7 @@ module Sepa
       def set_download_file_nodes
         add_target_id_after 'FileReferences'
         set_node("Status", @status)
-        set_node("FileType", @file_type)
+        add_node_to_root 'FileType', content: @file_type unless @bank == :op
         set_node("FileReference", @file_reference)
       end
 
@@ -187,11 +187,17 @@ module Sepa
         @application_request.at_css("xmlns|#{node}", 'xmlns' => xmlns).remove
       end
 
-      # Adds node to the root of the application request
+      # Adds node to the root of the application request and content to it if specified
       #
       # @todo Move to {Utilities} and move document to parameters
-      def add_node_to_root(node)
-        @application_request.root.add_child(node)
+      def add_node_to_root(node, content: nil)
+        unless node.is_a? Nokogiri::XML::Node
+          node = Nokogiri::XML::Node.new node, @application_request
+        end
+
+        @application_request.root.add_child node
+
+        set_node(node.name, content) if content
       end
 
       # Calculates the digest of {#application_request}
