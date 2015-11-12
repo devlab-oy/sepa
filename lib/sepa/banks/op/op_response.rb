@@ -46,12 +46,14 @@ module Sepa
     end
 
     # Checks whether the certificate embedded in the response soap has been signed with OP's
-    # root certificate.
+    # root certificate. The check is skipped in test environment, because a different root
+    # certificate is used
     #
     # @return [true] if certificate is trusted
     # @return [false] if certificate fails to verify
     # @see DanskeResponse#certificate_is_trusted?
     def certificate_is_trusted?
+      return true if environment == :test
       verify_certificate_against_root_certificate(certificate, OP_ROOT_CERTIFICATE)
     end
   end
