@@ -85,6 +85,8 @@ module Sepa
           set_create_certificate_nodes
         when :get_certificate
           set_get_certificate_nodes
+        when :get_service_certificates
+          set_service_certificates_nodes
         when :download_file_list
           set_download_file_list_nodes
         when :download_file
@@ -145,6 +147,11 @@ module Sepa
         end
 
         set_node("Content", format_cert_request(@signing_csr))
+      end
+
+      # Sets nodes' contents for OP's get service certificates request
+      def set_service_certificates_nodes
+        set_node("Service", "MATU")
       end
 
       # Sets nodes' contents for Danske Bank's create certificate request. Environment is set to
@@ -239,9 +246,12 @@ module Sepa
       # {#own_signing_certificate} to the signature node.
       def process_signature
         # No signature for Certificate Requests
-        return if @command == :get_certificate
-        return if @command == :get_bank_certificate
-        return if @command == :create_certificate
+        return if %i(
+          create_certificate
+          get_bank_certificate
+          get_certificate
+          get_service_certificates
+        ).include? @command
 
         signature_node = remove_node('Signature', 'http://www.w3.org/2000/09/xmldsig#')
         digest = calculate_digest

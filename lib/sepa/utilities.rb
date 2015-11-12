@@ -141,6 +141,8 @@ module Sepa
         path << "danske_get_bank_certificate.xml"
       when :create_certificate
         path << "create_certificate.xml"
+      when :get_service_certificates
+        path << "op/get_service_certificates.xml"
       else
         fail ArgumentError
       end

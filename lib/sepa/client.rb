@@ -307,7 +307,10 @@ module Sepa
             file = "wsdl_danske.xml"
           end
         when :op
-          if command == :get_certificate
+          if %i(
+            get_certificate
+            get_service_certificates
+          ).include? command
             if environment == :test
               file = "wsdl_op_cert_test.xml"
             end

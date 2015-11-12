@@ -11,7 +11,7 @@ module Sepa
     # @return [Nokogiri::XML] the soap as a nokogiri document
     def find_correct_build
       case @command
-      when :get_certificate
+      when :get_certificate, :get_service_certificates
         build_certificate_request
       when :get_user_info, :download_file_list, :download_file, :upload_file
         build_common_request

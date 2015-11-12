@@ -10,11 +10,31 @@ module Sepa
     # @return [Array<Symbol>] the commands which are allowed for {Client#bank}.
     def allowed_commands
       case bank
-      when :nordea, :op
-        [:get_certificate, :get_user_info, :download_file_list, :download_file, :upload_file]
+      when :nordea
+        %i(
+          download_file
+          download_file_list
+          get_certificate
+          get_user_info
+          upload_file
+        )
       when :danske
-        [:get_bank_certificate, :download_file_list, :download_file,
-         :upload_file, :create_certificate]
+        %i(
+          create_certificate
+          download_file
+          download_file_list
+          get_bank_certificate
+          upload_file
+         )
+      when :op
+        %i(
+          download_file
+          download_file_list
+          get_certificate
+          get_service_certificates
+          get_user_info
+          upload_file
+         )
       else
         []
       end
@@ -27,7 +47,12 @@ module Sepa
 
     # Checks that signing keys and certificates can be initialized properly.
     def check_keys
-      return if [:get_certificate, :get_bank_certificate, :create_certificate].include? command
+      return if %i(
+        create_certificate
+        get_bank_certificate
+        get_certificate
+        get_service_certificates
+      ).include? command
 
       begin
         rsa_key signing_private_key
@@ -44,6 +69,7 @@ module Sepa
 
     # Checks that signing certificate signing request can be initialized properly.
     def check_signing_csr
+      return if bank == :op && command == :get_service_certificates
       return unless [:get_certificate, :create_certificate].include? command
 
       unless cert_request_valid?(signing_csr)
