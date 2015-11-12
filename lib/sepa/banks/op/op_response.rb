@@ -26,7 +26,10 @@ module Sepa
     # @return [nil] if response code cannot be found
     # @see Response#response_code
     def response_code
-      return super unless command == :get_certificate
+      return super unless %i(
+        get_certificate
+        get_service_certificates
+      ).include? command
 
       node = doc.at('xmlns|ResponseCode', xmlns: OP_PKI)
       node.content if node
@@ -39,7 +42,10 @@ module Sepa
     # @return [nil] if response text cannot be found
     # @see Response#response_text
     def response_text
-      return super unless command == :get_certificate
+      return super unless %i(
+        get_certificate
+        get_service_certificates
+      ).include? command
 
       node = doc.at('xmlns|ResponseText', xmlns: OP_PKI)
       node.content if node
@@ -55,6 +61,16 @@ module Sepa
     def certificate_is_trusted?
       return true if environment == :test
       verify_certificate_against_root_certificate(certificate, OP_ROOT_CERTIFICATE)
+    end
+
+    # OP's get service certificates response isn't signed
+    def validate_hashes
+      super unless command == :get_service_certificates
+    end
+
+    # OP's get service certificates response isn't signed
+    def verify_signature
+      super unless command == :get_service_certificates
     end
   end
 end
