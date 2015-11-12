@@ -92,7 +92,7 @@ module Sepa
                                   download_file_list).include?(command)
       return unless [:upload_file, :download_file_list, :download_file].include? command
 
-      unless file_type && file_type.respond_to?(:size) && file_type.size < 35
+      unless file_type.present? && file_type.respond_to?(:size) && file_type.size < 35
         errors.add(:file_type, FILE_TYPE_ERROR_MESSAGE)
       end
     end
