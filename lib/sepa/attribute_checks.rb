@@ -62,6 +62,8 @@ module Sepa
 
     # Checks that {Client#file_type} is proper
     def check_file_type
+      return if bank == :op && %i(download_file
+                                  download_file_list).include?(command)
       return unless [:upload_file, :download_file_list, :download_file].include? command
 
       unless file_type && file_type.respond_to?(:size) && file_type.size < 35
@@ -76,8 +78,8 @@ module Sepa
                  :create_certificate,
                  :get_bank_certificate].include? command
 
-      # Danske Bank does not use target_id
-      return if bank == :danske
+      # Danske Bank and OP do not use target_id
+      return if %i(danske op).include? bank
 
       check_presence_and_length(:target_id, 80, TARGET_ID_ERROR_MESSAGE)
     end
