@@ -129,7 +129,7 @@ module Sepa
       def set_download_file_list_nodes
         add_target_id_after 'Environment'
         set_node("Status", @status)
-        set_node("FileType", @file_type)
+        add_node_to_root 'FileType', content: @file_type unless @bank == :op
       end
 
       # Sets nodes' contents for Nordea's get certificate request
