@@ -119,7 +119,10 @@ module Sepa
     # @return [nil] if response text cannot be found
     # @see Response#response_text
     def response_text
-      return super unless [:get_bank_certificate, :create_certificate].include? @command
+      return super unless %i(
+          create_certificate
+          get_bank_certificate
+        ).include? @command
 
       node = doc.at('xmlns|ReturnText', xmlns: DANSKE_PKI)
       node = doc.at('xmlns|ReturnText', xmlns: DANSKE_PKIF) unless node
