@@ -79,13 +79,20 @@ module Sepa
 
     # Checks that {Client#file_type} is proper
     def check_file_type
-      return if bank == :op && %i(download_file
+      if file_type.present?
+        valid = file_type.size < 35
+      else
+        return if bank == :op && %i(download_file
                                   download_file_list).include?(command)
-      return unless [:upload_file, :download_file_list, :download_file].include? command
 
-      unless file_type.present? && file_type.respond_to?(:size) && file_type.size < 35
-        errors.add(:file_type, FILE_TYPE_ERROR_MESSAGE)
+        valid = !(%i(
+          download_file
+          download_file_list
+          upload_file
+        ).include? command)
       end
+
+      errors.add(:file_type, FILE_TYPE_ERROR_MESSAGE) unless valid
     end
 
     # Checks that {Client#target_id} is valid.
