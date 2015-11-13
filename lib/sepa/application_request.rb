@@ -134,19 +134,12 @@ module Sepa
         add_node_to_root 'FileType', content: @file_type if @file_type.present?
       end
 
-      # Sets nodes' contents for Nordea's get certificate request
-      #
-      # @todo Raise error if {#bank} is other than Nordea like in {#set_get_bank_certificate_nodes}
-      # @todo Check further into what service actually is
+      # Sets nodes' contents for Nordea's and OP's get certificate request
       def set_get_certificate_nodes
-        if @bank == :op
-          set_node("Service", "MATU")
-          set_node "TransferKey", @pin
-        else
-          set_node("HMAC", hmac(@pin, csr_to_binary(@signing_csr)))
-        end
-
-        set_node("Content", format_cert_request(@signing_csr))
+        set_node "Service", "MATU" if @bank == :op
+        set_node "TransferKey", @pin if @bank == :op
+        set_node "HMAC", hmac(@pin, csr_to_binary(@signing_csr)) if @bank == :nordea
+        set_node "Content", format_cert_request(@signing_csr)
       end
 
       # Sets nodes' contents for OP's get service certificates request
