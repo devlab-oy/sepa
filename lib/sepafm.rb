@@ -77,12 +77,12 @@ OP_ROOT_CERTIFICATE = OpenSSL::X509::Certificate.new op_root_certificate_string
 # @!group Commands
 
 # Commands described in the standard
-STANDARD_COMMANDS = [
-  :download_file,
-  :download_file_list,
-  :get_user_info,
-  :upload_file
-]
+STANDARD_COMMANDS = %i(
+  download_file
+  download_file_list
+  get_user_info
+  upload_file
+)
 
 # @!endgroup
 
