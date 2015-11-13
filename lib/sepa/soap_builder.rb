@@ -168,5 +168,12 @@ module Sepa
         @header_template.at('wsse|Reference')['URI'] = "##{security_token_id}"
       end
 
+      # Generates a random request id
+      #
+      # @return [String] hexnumeric request id
+      def request_id
+        SecureRandom.hex(17)
+      end
+
   end
 end

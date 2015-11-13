@@ -1,5 +1,5 @@
 module Sepa
-  
+
   # Contains Danske Bank specific soap building functionality
   module DanskeSoapRequest
 
@@ -204,7 +204,6 @@ module Sepa
       # Generates a random 10-character request id for Danske Bank's requests.
       #
       # @return [String] 10-character hexnumeric request id
-      # @todo move to utilities
       def request_id
         SecureRandom.hex(5)
       end

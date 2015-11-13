@@ -62,13 +62,5 @@ module Sepa
         set_node(@template, 'bxd|ReceiverId', @target_id)
       end
 
-      # Generates a random request id for Nordea request
-      #
-      # @return [String] hexnumeric request id
-      # @todo move to utilities
-      def request_id
-        SecureRandom.hex(17)
-      end
-
   end
 end
