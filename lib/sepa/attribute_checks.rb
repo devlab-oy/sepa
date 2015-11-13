@@ -11,29 +11,21 @@ module Sepa
     def allowed_commands
       case bank
       when :nordea
-        %i(
-          download_file
-          download_file_list
-          get_certificate
-          get_user_info
-          upload_file
-        )
+        STANDARD_COMMANDS +
+        %i(get_certificate)
       when :danske
+        STANDARD_COMMANDS -
+        %i(get_user_info) +
         %i(
           create_certificate
-          download_file
-          download_file_list
           get_bank_certificate
-          upload_file
          )
       when :op
+        STANDARD_COMMANDS -
+        %i(get_user_info) +
         %i(
-          download_file
-          download_file_list
           get_certificate
           get_service_certificates
-          get_user_info
-          upload_file
          )
       else
         []
