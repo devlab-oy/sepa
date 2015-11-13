@@ -61,7 +61,6 @@ module Sepa
 
     # Checks that signing certificate signing request can be initialized properly.
     def check_signing_csr
-      return if bank == :op && command == :get_service_certificates
       return unless [:get_certificate, :create_certificate].include? command
 
       unless cert_request_valid?(signing_csr)
