@@ -85,21 +85,6 @@ module Sepa
         ar
       end
 
-      # Sets contents for generic request's nodes. Generic requests are:
-      # * Upload file
-      # * Download file
-      # * Download file list
-      #
-      # @todo make ReceiverId dynamic
-      def set_generic_request_contents
-        set_node(@template, 'bxd|SenderId', @customer_id)
-        set_node(@template, 'bxd|RequestId', request_id)
-        set_node(@template, 'bxd|Timestamp', iso_time)
-        set_node(@template, 'bxd|Language', @language)
-        set_node(@template, 'bxd|UserAgent', "Sepa Transfer Library version " + VERSION)
-        set_node(@template, 'bxd|ReceiverId', "DABAFIHH")
-      end
-
       # Sets contents for create certificate requests.
       #
       # @todo rename
@@ -132,7 +117,8 @@ module Sepa
       #
       # @return [Nokogiri::XML] the complete soap
       def build_danske_generic_request
-        set_generic_request_contents
+        common_set_body_contents
+        set_receiver_id
         encrypted_request = encrypt_application_request
         add_encrypted_generic_request_to_soap(encrypted_request)
 
@@ -206,6 +192,10 @@ module Sepa
       # @return [String] 10-character hexnumeric request id
       def request_id
         SecureRandom.hex(5)
+      end
+
+      def set_receiver_id
+        set_node(@template, 'bxd|ReceiverId', 'DABAFIHH')
       end
 
   end

@@ -47,18 +47,12 @@ module Sepa
       # @return [Nokogiri::XML] the generic request soap
       def build_common_request
         common_set_body_contents
+        set_receiver_id
         process_header
         add_body_to_header
       end
 
-      # Sets nodes for generic requests, application request is base64 encoded here.
-      def common_set_body_contents
-        set_node(@template, 'bxd|ApplicationRequest', @application_request.to_base64)
-        set_node(@template, 'bxd|SenderId', @customer_id)
-        set_node(@template, 'bxd|RequestId', request_id)
-        set_node(@template, 'bxd|Timestamp', iso_time)
-        set_node(@template, 'bxd|Language', @language)
-        set_node(@template, 'bxd|UserAgent', "Sepa Transfer Library version #{VERSION}")
+      def set_receiver_id
         set_node(@template, 'bxd|ReceiverId', @target_id)
       end
 
