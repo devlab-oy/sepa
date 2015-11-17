@@ -1,60 +1,14 @@
 module Sepa
-
   # Contains Nordea specific soap building functionality
   module NordeaSoapRequest
-
     private
 
-      # Determines which soap request to build based on command. Certificate requests are built
-      # differently than generic requests.
-      #
-      # @return [Nokogiri::XML] the soap as a nokogiri document
-      def find_correct_build
-        case @command
-        when :get_certificate
-          build_certificate_request
-        when :get_user_info, :download_file_list, :download_file, :upload_file
-          build_common_request
-        end
-      end
+    def set_receiver_id
+      set_node(@template, 'bxd|ReceiverId', @target_id)
+    end
 
-      # Sets contents for certificate request
-      #
-      # @return [Nokogiri::XML] the template with contents added to it
-      def build_certificate_request
-        set_body_contents
-      end
-
-      # Sets soap body contents. Application request is base64 encoded here.
-      #
-      # @return [Nokogiri::XML] the soap with contents added to it
-      # @todo rename, because apparently only sets certificate contents
-      def set_body_contents
-        set_node(@template, 'cer|ApplicationRequest', @application_request.to_base64)
-        set_node(@template, 'cer|SenderId', @customer_id)
-        set_node(@template, 'cer|RequestId', request_id)
-        set_node(@template, 'cer|Timestamp', iso_time)
-
-        @template
-      end
-
-      # Builds generic request which is a request made with commands:
-      # * Get User Info
-      # * Download File
-      # * Download File List
-      # * Upload File
-      #
-      # @return [Nokogiri::XML] the generic request soap
-      def build_common_request
-        common_set_body_contents
-        set_receiver_id
-        process_header
-        add_body_to_header
-      end
-
-      def set_receiver_id
-        set_node(@template, 'bxd|ReceiverId', @target_id)
-      end
-
+    def cert_ns
+      NORDEA_PKI
+    end
   end
 end

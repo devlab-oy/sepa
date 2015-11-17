@@ -58,6 +58,56 @@ module Sepa
         end
       end
 
+      # Determines which soap request to build based on command. Certificate requests are built
+      # differently than generic requests.
+      #
+      # @return [Nokogiri::XML] the soap as a nokogiri document
+      def find_correct_build
+        case @command
+        when :get_certificate,
+             :get_service_certificates
+          build_certificate_request
+        when :download_file,
+             :download_file_list,
+             :get_user_info,
+             :upload_file
+          build_common_request
+        end
+      end
+
+      # Builds generic request which is a request made with commands:
+      # * Get User Info
+      # * Download File
+      # * Download File List
+      # * Upload File
+      #
+      # @return [Nokogiri::XML] the generic request soap
+      def build_common_request
+        common_set_body_contents
+        set_receiver_id
+        process_header
+        add_body_to_header
+      end
+
+      # Sets contents for certificate request
+      #
+      # @return [Nokogiri::XML] the template with contents added to it
+      def build_certificate_request
+        set_body_contents
+      end
+
+      # Sets soap body contents. Application request is base64 encoded here.
+      #
+      # @return [Nokogiri::XML] the soap with contents added to it
+      def set_body_contents
+        set_node @template, "ApplicationRequest", @application_request.to_base64, namespace: cert_ns
+        set_node @template, "SenderId",           @customer_id,                   namespace: cert_ns
+        set_node @template, "RequestId",          request_id,                     namespace: cert_ns
+        set_node @template, "Timestamp",          iso_time,                       namespace: cert_ns
+
+        @template
+      end
+
       # Calculates digest hash for the given node in the given document. The node is canonicalized
       # exclusively before digest calculation.
       #
@@ -110,8 +160,12 @@ module Sepa
       # @param doc [Nokogiri::XML] The document that contains the node
       # @param node [String] The name of the node which value is about to be set
       # @param value [#to_s] The value which will be set to the node
-      def set_node(doc, node, value)
-        doc.at_css(node).content = value
+      def set_node(doc, node, value, namespace: nil)
+        if namespace
+          doc.at("xmlns|#{node}", xmlns: namespace).content = value
+        else
+          doc.at(node).content = value
+        end
       end
 
       # Adds soap body to header template
