@@ -165,7 +165,11 @@ module Sepa
     attr_accessor :encryption_csr
 
     # The list of banks that are currently supported by this gem
-    BANKS = [:danske, :nordea, :op]
+    BANKS = %i(
+      danske
+      nordea
+      op
+    )
 
     # Languages that are currently supported by the gem
     LANGUAGES = ['FI', 'SE', 'EN']
@@ -334,25 +338,16 @@ module Sepa
       # @return [Response] A {Response} with a correct class for a bank
       def initialize_response(error, response)
         options = {
-          command: command,
+          command:     command,
           environment: environment,
-          error: error,
-          response: response,
+          error:       error,
+          response:    response
         }
         if encryption_private_key && !encryption_private_key.empty?
           options[:encryption_private_key] = rsa_key(encryption_private_key)
         end
 
-        case bank
-        when :nordea
-          NordeaResponse.new options
-        when :danske
-          DanskeResponse.new options
-        when :op
-          OpResponse.new options
-        else
-          raise "Cannot process #{bank}'s responses"
-        end
+        "Sepa::#{bank.capitalize}Response".safe_constantize.new(options)
       end
 
   end

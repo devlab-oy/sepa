@@ -188,8 +188,6 @@ module Sepa
       end
 
       # Adds node to the root of the application request and content to it if specified
-      #
-      # @todo Move to {Utilities} and move document to parameters
       def add_node_to_root(node, content: nil)
         unless node.is_a? Nokogiri::XML::Node
           node = Nokogiri::XML::Node.new node, @application_request
