@@ -297,35 +297,11 @@ module Sepa
       # Returns path to WSDL file according to {#bank} and {#command}
       # @return [String] Path to the WSDL file of the bank and command
       def wsdl
-        case bank
-        when :nordea
-          if command == :get_certificate
-            file = "wsdl_nordea_cert.xml"
-          else
-            file = "wsdl_nordea.xml"
-          end
-        when :danske
-          if [:get_bank_certificate, :create_certificate].include? command
-            file = "wsdl_danske_cert.xml"
-          else
-            file = "wsdl_danske.xml"
-          end
-        when :op
-          if %i(
-            get_certificate
-            get_service_certificates
-          ).include? command
-            if environment == :test
-              file = "wsdl_op_cert_test.xml"
-            end
-          else
-            if environment == :test
-              file = "wsdl_op_test.xml"
-            end
-          end
-        else
-          raise "WSDL file could not be loaded"
-        end
+        file = if STANDARD_COMMANDS.include?(command)
+                "wsdl_#{bank}.xml"
+               else
+                "wsdl_#{bank}_cert.xml"
+               end
 
         "#{WSDL_PATH}/#{file}"
       end
