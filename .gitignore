@@ -3,7 +3,6 @@
 /.config
 /coverage/
 /InstalledFiles
-/logs
 /pkg/
 /spec/reports/
 /test/tmp/
