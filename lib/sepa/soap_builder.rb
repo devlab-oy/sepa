@@ -48,14 +48,7 @@ module Sepa
 
       # Extends the class with proper module depending on bank
       def find_correct_bank_extension
-        case @bank
-        when :danske
-          self.extend(DanskeSoapRequest)
-        when :nordea
-          self.extend(NordeaSoapRequest)
-        when :op
-          self.extend(OpSoapRequest)
-        end
+        extend("Sepa::#{@bank.capitalize}SoapRequest".constantize)
       end
 
       # Determines which soap request to build based on command. Certificate requests are built
