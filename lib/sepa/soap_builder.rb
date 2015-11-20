@@ -56,16 +56,7 @@ module Sepa
       #
       # @return [Nokogiri::XML] the soap as a nokogiri document
       def find_correct_build
-        case @command
-        when :get_certificate,
-             :get_service_certificates
-          build_certificate_request
-        when :download_file,
-             :download_file_list,
-             :get_user_info,
-             :upload_file
-          build_common_request
-        end
+        STANDARD_COMMANDS.include?(@command) ? build_common_request : build_certificate_request
       end
 
       # Builds generic request which is a request made with commands:
