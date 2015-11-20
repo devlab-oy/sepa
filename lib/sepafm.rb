@@ -84,6 +84,15 @@ STANDARD_COMMANDS = %i(
   upload_file
 )
 
+SUPPORTED_COMMANDS =
+  STANDARD_COMMANDS +
+  %i(
+    create_certificate
+    get_bank_certificate
+    get_certificate
+    get_service_certificates
+  )
+
 # @!endgroup
 
 

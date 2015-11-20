@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CertApplicationRequest xmlns="http://filetransfer.nordea.com/xmldata/">
+  <CustomerId/>
+  <Timestamp/>
+  <Environment/>
+  <SoftwareId/>
+  <Command/>
+  <Service/>
+  <Content/>
+  <HMAC/>
+</CertApplicationRequest>

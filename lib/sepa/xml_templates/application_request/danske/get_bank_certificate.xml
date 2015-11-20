@@ -6,9 +6,9 @@
   <soapenv:Body>
     <elem:GetBankCertificateRequest
             xmlns:elem="http://danskebank.dk/PKI/PKIFactoryService/elements">
-      <elem:BankRootCertificateSerialNo></elem:BankRootCertificateSerialNo>
-      <elem:Timestamp></elem:Timestamp>
-      <elem:RequestId></elem:RequestId>
+      <elem:BankRootCertificateSerialNo/>
+      <elem:Timestamp/>
+      <elem:RequestId/>
     </elem:GetBankCertificateRequest>
   </soapenv:Body>
 </soapenv:Envelope>

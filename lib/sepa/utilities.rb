@@ -120,34 +120,15 @@ module Sepa
     # @return [Nokogiri::XML::Document] the loaded template
     # @raise [ArgumentError] if a template cannot be found for a command
     def load_body_template(template)
-      path = "#{template}/"
+      fail ArgumentError, 'Unsupported command' unless SUPPORTED_COMMANDS.include?(@command)
 
-      case @command
-      when :download_file_list
-        path << "download_file_list.xml"
-      when :get_user_info
-        path << "get_user_info.xml"
-      when :upload_file
-        path << "upload_file.xml"
-      when :download_file
-        path << "download_file.xml"
-      when :get_certificate
-        if @bank == :op
-          path << "op/get_certificate.xml"
-        else
-          path << "get_certificate.xml"
-        end
-      when :get_bank_certificate
-        path << "danske_get_bank_certificate.xml"
-      when :create_certificate
-        path << "create_certificate.xml"
-      when :get_service_certificates
-        path << "op/get_service_certificates.xml"
-      else
-        fail ArgumentError
-      end
+      file = if STANDARD_COMMANDS.include?(@command)
+               "#{template}/#{@command}.xml"
+             else
+               "#{template}/#{@bank}/#{@command}.xml"
+             end
 
-      xml_doc(File.open(path))
+      xml_doc(File.open(file))
     end
 
     # Gets current utc time in iso-format
