@@ -3,12 +3,12 @@ module Sepa
   module NordeaSoapRequest
     private
 
-    def set_receiver_id
-      set_node(@template, 'bxd|ReceiverId', @target_id)
-    end
+      def set_receiver_id
+        set_node(@template, 'bxd|ReceiverId', @target_id)
+      end
 
-    def cert_ns
-      NORDEA_PKI
-    end
+      def cert_ns
+        NORDEA_PKI
+      end
   end
 end
