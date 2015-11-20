@@ -323,7 +323,7 @@ module Sepa
           options[:encryption_private_key] = rsa_key(encryption_private_key)
         end
 
-        "Sepa::#{bank.capitalize}Response".safe_constantize.new(options)
+        "Sepa::#{bank.capitalize}Response".constantize.new(options)
       end
 
   end
