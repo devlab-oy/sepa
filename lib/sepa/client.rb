@@ -298,12 +298,15 @@ module Sepa
       # @return [String] Path to the WSDL file of the bank and command
       def wsdl
         file = if STANDARD_COMMANDS.include?(command)
-                "wsdl_#{bank}.xml"
+                 "wsdl_#{bank}"
                else
-                "wsdl_#{bank}_cert.xml"
+                 "wsdl_#{bank}_cert"
                end
 
-        "#{WSDL_PATH}/#{file}"
+        path  = "#{WSDL_PATH}/#{file}"
+        path2 = "#{path}_#{environment}.xml"
+
+        File.exist?(path2) ? path2 : "#{path}.xml"
       end
 
       # Initializes {Response} as correct class for a bank. Also converts possible
