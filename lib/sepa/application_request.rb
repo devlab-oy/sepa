@@ -80,22 +80,9 @@ module Sepa
 
       # Determines which content setting method to call depending on {#command}
       def set_nodes_contents
-        case @command
-        when :create_certificate
-          set_create_certificate_nodes
-        when :get_certificate
-          set_get_certificate_nodes
-        when :get_service_certificates
-          set_service_certificates_nodes
-        when :download_file_list
-          set_download_file_list_nodes
-        when :download_file
-          set_download_file_nodes
-        when :upload_file
-          set_upload_file_nodes
-        when :get_bank_certificate
-          set_get_bank_certificate_nodes
-        end
+        method = "set_#{@command}_nodes"
+
+        send(method) if self.class.private_method_defined? method
       end
 
       # Sets nodes' values for download file request
