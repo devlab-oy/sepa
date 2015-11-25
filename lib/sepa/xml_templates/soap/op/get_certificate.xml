@@ -1,0 +1,14 @@
+<env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+              xmlns:opc="http://mlp.op.fi/OPCertificateService">
+  <env:Header/>
+  <env:Body>
+    <opc:getCertificatein>
+      <opc:RequestHeader>
+        <opc:SenderId/>
+        <opc:RequestId/>
+        <opc:Timestamp/>
+      </opc:RequestHeader>
+      <opc:ApplicationRequest/>
+    </opc:getCertificatein>
+  </env:Body>
+</env:Envelope>

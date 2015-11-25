@@ -165,7 +165,11 @@ module Sepa
     attr_accessor :encryption_csr
 
     # The list of banks that are currently supported by this gem
-    BANKS = [:nordea, :danske]
+    BANKS = %i(
+      danske
+      nordea
+      op
+    )
 
     # Languages that are currently supported by the gem
     LANGUAGES = ['FI', 'SE', 'EN']
@@ -256,7 +260,7 @@ module Sepa
         response &&= response.to_xml
       rescue Savon::Error => e
         response = nil
-        error = e.to_s
+        error = e.http.body
       end
 
       initialize_response(error, response)
@@ -293,22 +297,16 @@ module Sepa
       # Returns path to WSDL file according to {#bank} and {#command}
       # @return [String] Path to the WSDL file of the bank and command
       def wsdl
-        case bank
-        when :nordea
-          if command == :get_certificate
-            file = "wsdl_nordea_cert.xml"
-          else
-            file = "wsdl_nordea.xml"
-          end
-        when :danske
-          if [:get_bank_certificate, :create_certificate].include? command
-            file = "wsdl_danske_cert.xml"
-          else
-            file = "wsdl_danske.xml"
-          end
-        end
+        file = if STANDARD_COMMANDS.include?(command)
+                 "wsdl_#{bank}"
+               else
+                 "wsdl_#{bank}_cert"
+               end
 
-        "#{WSDL_PATH}/#{file}"
+        path  = "#{WSDL_PATH}/#{file}"
+        path2 = "#{path}_#{environment}.xml"
+
+        File.exist?(path2) ? path2 : "#{path}.xml"
       end
 
       # Initializes {Response} as correct class for a bank. Also converts possible
@@ -319,20 +317,16 @@ module Sepa
       # @return [Response] A {Response} with a correct class for a bank
       def initialize_response(error, response)
         options = {
-          response: response,
-          error: error,
-          command: command
+          command:     command,
+          environment: environment,
+          error:       error,
+          response:    response
         }
         if encryption_private_key && !encryption_private_key.empty?
           options[:encryption_private_key] = rsa_key(encryption_private_key)
         end
 
-        case bank
-        when :nordea
-          NordeaResponse.new options
-        when :danske
-          DanskeResponse.new options
-        end
+        "Sepa::#{bank.capitalize}Response".constantize.new(options)
       end
 
   end

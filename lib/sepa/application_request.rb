@@ -80,27 +80,16 @@ module Sepa
 
       # Determines which content setting method to call depending on {#command}
       def set_nodes_contents
-        case @command
-        when :create_certificate
-          set_create_certificate_nodes
-        when :get_certificate
-          set_get_certificate_nodes
-        when :download_file_list
-          set_download_file_list_nodes
-        when :download_file
-          set_download_file_nodes
-        when :upload_file
-          set_upload_file_nodes
-        when :get_bank_certificate
-          set_get_bank_certificate_nodes
-        end
+        method = "set_#{@command}_nodes"
+
+        send(method) if self.class.private_method_defined? method
       end
 
       # Sets nodes' values for download file request
       def set_download_file_nodes
         add_target_id_after 'FileReferences'
         set_node("Status", @status)
-        set_node("FileType", @file_type)
+        add_node_to_root 'FileType', content: @file_type if @file_type.present?
         set_node("FileReference", @file_reference)
       end
 
@@ -129,17 +118,20 @@ module Sepa
       def set_download_file_list_nodes
         add_target_id_after 'Environment'
         set_node("Status", @status)
-        set_node("FileType", @file_type)
+        add_node_to_root 'FileType', content: @file_type if @file_type.present?
       end
 
-      # Sets nodes' contents for Nordea's get certificate request
-      #
-      # @todo Raise error if {#bank} is other than Nordea like in {#set_get_bank_certificate_nodes}
-      # @todo Check further into what service actually is
+      # Sets nodes' contents for Nordea's and OP's get certificate request
       def set_get_certificate_nodes
-        set_node("Service", '')
-        set_node("Content", format_cert_request(@signing_csr))
-        set_node("HMAC", hmac(@pin, csr_to_binary(@signing_csr)))
+        set_node "Service", "MATU" if @bank == :op
+        set_node "TransferKey", @pin if @bank == :op
+        set_node "HMAC", hmac(@pin, csr_to_binary(@signing_csr)) if @bank == :nordea
+        set_node "Content", format_cert_request(@signing_csr)
+      end
+
+      # Sets nodes' contents for OP's get service certificates request
+      def set_service_certificates_nodes
+        set_node("Service", "MATU")
       end
 
       # Sets nodes' contents for Danske Bank's create certificate request. Environment is set to
@@ -182,11 +174,15 @@ module Sepa
         @application_request.at_css("xmlns|#{node}", 'xmlns' => xmlns).remove
       end
 
-      # Adds node to the root of the application request
-      #
-      # @todo Move to {Utilities} and move document to parameters
-      def add_node_to_root(node)
-        @application_request.root.add_child(node)
+      # Adds node to the root of the application request and content to it if specified
+      def add_node_to_root(node, content: nil)
+        unless node.is_a? Nokogiri::XML::Node
+          node = Nokogiri::XML::Node.new node, @application_request
+        end
+
+        @application_request.root.add_child node
+
+        set_node(node.name, content) if content
       end
 
       # Calculates the digest of {#application_request}
@@ -228,9 +224,12 @@ module Sepa
       # {#own_signing_certificate} to the signature node.
       def process_signature
         # No signature for Certificate Requests
-        return if @command == :get_certificate
-        return if @command == :get_bank_certificate
-        return if @command == :create_certificate
+        return if %i(
+          create_certificate
+          get_bank_certificate
+          get_certificate
+          get_service_certificates
+        ).include? @command
 
         signature_node = remove_node('Signature', 'http://www.w3.org/2000/09/xmldsig#')
         digest = calculate_digest

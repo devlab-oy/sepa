@@ -5,11 +5,11 @@
   <soapenv:Body>
     <pkif:GetBankCertificateIn xmlns:pkif="http://danskebank.dk/PKI/PKIFactoryService">
       <pkif:RequestHeader xmlns:pkif="http://danskebank.dk/PKI/PKIFactoryService">
-        <pkif:SenderId></pkif:SenderId>
-        <pkif:CustomerId></pkif:CustomerId>
-        <pkif:RequestId></pkif:RequestId>
-        <pkif:Timestamp></pkif:Timestamp>
-        <pkif:InterfaceVersion></pkif:InterfaceVersion>
+        <pkif:SenderId/>
+        <pkif:CustomerId/>
+        <pkif:RequestId/>
+        <pkif:Timestamp/>
+        <pkif:InterfaceVersion/>
       </pkif:RequestHeader>
     </pkif:GetBankCertificateIn>
   </soapenv:Body>

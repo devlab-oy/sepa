@@ -14,9 +14,11 @@ require 'sepa/client'
 require 'sepa/response'
 require 'sepa/banks/nordea/nordea_response'
 require 'sepa/banks/danske/danske_response'
+require 'sepa/banks/op/op_response'
 require 'sepa/soap_builder'
 require 'sepa/banks/danske/soap_danske'
 require 'sepa/banks/nordea/soap_nordea'
+require 'sepa/banks/op/soap_op'
 require 'sepa/version'
 
 # The root path of where the gem is installed
@@ -58,10 +60,38 @@ nordea_root_certificate_string = File.read("#{CERTIFICATE_PATH}nordea_root_certi
 
 # Nordea's root certificate as an OpenSSL::X509::Certificate
 NORDEA_ROOT_CERTIFICATE = OpenSSL::X509::Certificate.new nordea_root_certificate_string
+
 danske_root_certificate_string = File.read("#{CERTIFICATE_PATH}danske_root_certificate.cer")
 
 # Danske Bank's root certificate as an OpenSSL::X509::Certificate
 DANSKE_ROOT_CERTIFICATE = OpenSSL::X509::Certificate.new danske_root_certificate_string
+
+op_root_certificate_string = File.read("#{CERTIFICATE_PATH}op_root_certificate.cer")
+
+# OP's root certificate as an OpenSSL::X509::Certificate
+OP_ROOT_CERTIFICATE = OpenSSL::X509::Certificate.new op_root_certificate_string
+
+# @!endgroup
+
+
+# @!group Commands
+
+# Commands described in the standard
+STANDARD_COMMANDS = %i(
+  download_file
+  download_file_list
+  get_user_info
+  upload_file
+)
+
+SUPPORTED_COMMANDS =
+  STANDARD_COMMANDS +
+  %i(
+    create_certificate
+    get_bank_certificate
+    get_certificate
+    get_service_certificates
+  )
 
 # @!endgroup
 
@@ -100,5 +130,11 @@ DANSKE_PKI  = 'http://danskebank.dk/PKI/PKIFactoryService/elements'
 
 # Namespace used in Danske Bank's certificate services soap
 DANSKE_PKIF = 'http://danskebank.dk/PKI/PKIFactoryService'
+
+# Namespace used in OP's certificate requests and responses soap
+OP_PKI = 'http://mlp.op.fi/OPCertificateService'
+
+# Namespace used in OP's certificate application requests and responses
+OP_XML_DATA = 'http://op.fi/mlp/xmldata/'
 
 # @!endgroup

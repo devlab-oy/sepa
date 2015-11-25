@@ -17,3 +17,9 @@ Gemfile.lock
 .ruby-version
 
 /.env
+
+# Test client
+/test_client/data/certs.rb
+/test_client/data/params.rb
+/test_client/data/payload.xml
+/test_client/log/

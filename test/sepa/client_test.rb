@@ -19,6 +19,40 @@ class ClientTest < ActiveSupport::TestCase
     assert Sepa::Client.new
   end
 
+  test "correct banks are supported" do
+    assert_equal [:danske, :nordea, :op].sort, Sepa::Client::BANKS.sort
+  end
+
+  test "correct allowed commands for nordea" do
+    c = Sepa::Client.new(bank: :nordea)
+
+    commands = STANDARD_COMMANDS + [:get_certificate]
+
+    assert_same_items commands, c.allowed_commands
+  end
+
+  test "correct allowed commands for op" do
+    c = Sepa::Client.new(bank: :op)
+
+    commands =
+      STANDARD_COMMANDS -
+      %i(get_user_info) +
+      %i(
+        get_certificate
+        get_service_certificates
+      )
+
+    assert_same_items commands, c.allowed_commands
+  end
+
+  test "correct allowed commands for danske" do
+    c = Sepa::Client.new(bank: :danske)
+
+    commands = STANDARD_COMMANDS - [:get_user_info] + [:get_bank_certificate, :create_certificate]
+
+    assert_same_items commands, c.allowed_commands
+  end
+
   test "should initialize with attributes" do
     assert Sepa::Client.new @nordea_generic_params
   end
@@ -348,7 +382,7 @@ class ClientTest < ActiveSupport::TestCase
     response = client.send_request
 
     refute response.valid?, response.errors.messages
-    assert_includes response.errors.messages.to_s, "HTTP error (500): THE ERROR!"
+    assert_includes response.errors.messages.to_s, "THE ERROR!"
 
     Savon.observers.pop
   end

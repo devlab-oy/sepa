@@ -88,6 +88,61 @@ Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
   }
 end
 
+def op_generic_params
+  own_signing_certificate = "-----BEGIN CERTIFICATE-----
+MIIDwTCCAqmgAwIBAgIEAX1JuTANBgkqhkiG9w0BAQUFADBkMQswCQYDVQQGEwJT
+RTEeMBwGA1UEChMVTm9yZGVhIEJhbmsgQUIgKHB1YmwpMR8wHQYDVQQDExZOb3Jk
+ZWEgQ29ycG9yYXRlIENBIDAxMRQwEgYDVQQFEws1MTY0MDYtMDEyMDAeFw0xMzA1
+MDIxMjI2MzRaFw0xNTA1MDIxMjI2MzRaMEQxCzAJBgNVBAYTAkZJMSAwHgYDVQQD
+DBdOb3JkZWEgRGVtbyBDZXJ0aWZpY2F0ZTETMBEGA1UEBRMKNTc4MDg2MDIzODCB
+nzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAwtFEfAtbJuGzQwwRumZkvYh2BjGY
+VsAMUeiKtOne3bZSeisfCq+TXqL1gI9LofyeAQ9I/sDm6tL80yrD5iaSUqVm6A73
+9MsmpW/iyZcVf7ms8xAN51ESUgN6akwZCU9pH62ngJDj2gUsktY0fpsoVsARdrvO
+Fk0fTSUXKWd6LbcCAwEAAaOCAR0wggEZMAkGA1UdEwQCMAAwEQYDVR0OBAoECEBw
+2cj7+XMAMBMGA1UdIAQMMAowCAYGKoVwRwEDMBMGA1UdIwQMMAqACEALddbbzwun
+MDcGCCsGAQUFBwEBBCswKTAnBggrBgEFBQcwAYYbaHR0cDovL29jc3Aubm9yZGVh
+LnNlL0NDQTAxMA4GA1UdDwEB/wQEAwIFoDCBhQYDVR0fBH4wfDB6oHigdoZ0bGRh
+cCUzQS8vbGRhcC5uYi5zZS9jbiUzRE5vcmRlYStDb3Jwb3JhdGUrQ0ErMDElMkNv
+JTNETm9yZGVhK0JhbmsrQUIrJTI4cHVibCUyOSUyQ2MlM0RTRSUzRmNlcnRpZmlj
+YXRlcmV2b2NhdGlvbmxpc3QwDQYJKoZIhvcNAQEFBQADggEBACLUPB1Gmq6286/s
+ROADo7N+w3eViGJ2fuOTLMy4R0UHOznKZNsuk4zAbS2KycbZsE5py4L8o+IYoaS8
+8YHtEeckr2oqHnPpz/0Eg7wItj8Ad+AFWJqzbn6Hu/LQhlnl5JEzXzl3eZj9oiiJ
+1q/2CGXvFomY7S4tgpWRmYULtCK6jode0NhgNnAgOI9uy76pSS16aDoiQWUJqQgV
+ydowAnqS9h9aQ6gedwbOdtkWmwKMDVXU6aRz9Gvk+JeYJhtpuP3OPNGbbC5L7NVd
+no+B6AtwxmG3ozd+mPcMeVuz6kKLAmQyIiBSrRNa5OrTkq/CUzxO9WUgTnm/Sri7
+zReR6mU=
+-----END CERTIFICATE-----"
+  signing_private_key = "-----BEGIN PRIVATE KEY-----
+MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAMLRRHwLWybhs0MM
+EbpmZL2IdgYxmFbADFHoirTp3t22UnorHwqvk16i9YCPS6H8ngEPSP7A5urS/NMq
+w+YmklKlZugO9/TLJqVv4smXFX+5rPMQDedRElIDempMGQlPaR+tp4CQ49oFLJLW
+NH6bKFbAEXa7zhZNH00lFylnei23AgMBAAECgYEAqt912/7x4jaQTrxlSELLFVp9
+eo1BesVTiPwXvPpsGbbyvGjZ/ztkXNs9zZbh1aCGzZMkiR2U7F5GlsiprlIif4cF
+6Xz7rCjaAs7iDRt9PjhjVuqNGR2I+VIIlbQ9XWFJ3lJFW3v7TIZ8JbLnn0XOFz+Z
+BBSSGTK1zTNh4TBQtjECQQDe5M3uu9m4RwSw9R6GaDw/IFQZgr0oWSv0WIjRwvwW
+nFnSX2lbkNAjulP0daGsmn7vxIpqZxPxwcrU4wFqTF5dAkEA38DnbCm3YfogzwLH
+Nre2hBmGqjWarhtxqtRarrkgnmOd8W0Z1Hb1dSHrliUSVSrINbK5ZdEV15Rpu7VD
+OePzIwJAPMslS+8alANyyR0iJUC65fDYX1jkZOPldDDNqIDJJxWf/hwd7WaTDpuc
+mHmZDi3ZX2Y45oqUywSzYNtFoIuR1QJAZYUZuyqmSK77SdGB36K1DfSi9AFEQDC1
+fwPAbTwTv6mFFPAiYxLiRZXxVPtW+QtjMXH4ymh2V4y/+GnCqbZyLwJBAJQSDAME
+Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
+45nhdfYxOjgYff0=
+-----END PRIVATE KEY-----"
+
+  {
+    bank:                    :op,
+    command:                 :download_file,
+    content:                 encode('kissa'),
+    customer_id:             '1111111111',
+    environment:             'production',
+    file_reference:          '11111111A12006030329501800000014',
+    file_type:               'pain.001.001.02',
+    own_signing_certificate: own_signing_certificate,
+    signing_private_key:     signing_private_key,
+    status:                  'ALL',
+  }
+end
+
 def nordea_get_certificate_params
   signing_csr = "-----BEGIN CERTIFICATE REQUEST-----
 MIIBczCB3QIBADA0MRIwEAYDVQQDEwlEZXZsYWIgT3kxETAPBgNVBAUTCDExMTEx
@@ -107,6 +162,33 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
     environment: 'test',
     signing_csr: signing_csr,
     pin: '1234567890'
+  }
+end
+
+def op_get_certificate_params
+  signing_csr = "-----BEGIN CERTIFICATE REQUEST-----
+MIICZzCCAU8CAQAwIjELMAkGA1UEBhMCRkkxEzARBgNVBAMTCjEwMDAwMTA1ODMw
+ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDFIQFuGnCPMLquHTfXj+ef
+31w+7qILkGsPcf24udpDy2AmP0PNrPAdB4S/gW9UXqR4ZiJPnEQIP6y/OGDxd6la
+0T/wNIVbLIJlPP5YgEZ1HYaV+6CsOa/n5PhXyC8Uy9BK9Txew8MqLakYvOfzKNuD
+oi9Fdfj7NjT2OgeyL5UMpzPvFxunbOwNT7QEGdZ4+Um5pJOvNWTuUGqYq1J9MAyU
+2PPBsvQ3fOOxR5t8QnMlbxC+JZkaaO14ELi4riAaFW0Q/MbwKCEXSX6Erb3F+o8l
+DDqITxfgBRr0crhYicLy7aMZzMJHqXoaSHZHUZBpCxRhnlgykCcErLJxC3S8m0rT
+AgMBAAGgADANBgkqhkiG9w0BAQUFAAOCAQEAkDsDiweg4oi52zSZZvGTlbEf3Mly
+rTKXNToBZ6n5DrChsc6Rk8VySVpFFOiiLGKwB9YHzNIipWDZ8CVXPPNZAtWJMPPW
+sJjgx2EMUxlimGKW6Ipd7PL2jQA5tpEao9CNdVPSrm5fs4Wd40A1JWJeUGKi4KKJ
+ZZn3Um8Lu5n6nAkT+v2jXI94nPFckMMuEpVml/hdT8zg4EuC6ilo9OEBiOdMzVO1
+5pK4Dp6ZHeTKoyUiwnVMssT5kCAovLYrmd0/qRVZ1JeEKN9t20APfpHVeu0WfWSE
+GuNaWLWOhkOqCtAdNkSGeq/ZKbjYHolGo5FBQqdJnuz0r3I5nfLUNAHXNg==
+-----END CERTIFICATE REQUEST-----"
+
+  {
+    bank:        :op,
+    command:     :get_certificate,
+    customer_id: '1000010583',
+    environment: 'test',
+    signing_csr: signing_csr,
+    pin:         '2251401483958635'
   }
 end
 

@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ApplicationRequest xmlns="http://bxd.fi/xmldata/">
-  <CustomerId></CustomerId>
-  <Command></Command>
-  <Timestamp></Timestamp>
-  <Status></Status>
-  <Environment></Environment>
-  <SoftwareId></SoftwareId>
-  <FileType></FileType>
+  <CustomerId/>
+  <Command/>
+  <Timestamp/>
+  <Status/>
+  <Environment/>
+  <SoftwareId/>
   <dsig:Signature xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">
     <dsig:SignedInfo>
       <dsig:CanonicalizationMethod
@@ -17,13 +16,13 @@
           <dsig:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
-        <dsig:DigestValue></dsig:DigestValue>
+        <dsig:DigestValue/>
       </dsig:Reference>
     </dsig:SignedInfo>
-    <dsig:SignatureValue></dsig:SignatureValue>
+    <dsig:SignatureValue/>
     <dsig:KeyInfo>
       <dsig:X509Data>
-        <dsig:X509Certificate></dsig:X509Certificate>
+        <dsig:X509Certificate/>
       </dsig:X509Data>
     </dsig:KeyInfo>
   </dsig:Signature>

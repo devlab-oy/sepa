@@ -11,10 +11,22 @@ module Sepa
     def allowed_commands
       case bank
       when :nordea
-        [:get_certificate, :get_user_info, :download_file_list, :download_file, :upload_file]
+        STANDARD_COMMANDS +
+        %i(get_certificate)
       when :danske
-        [:get_bank_certificate, :download_file_list, :download_file,
-         :upload_file, :create_certificate]
+        STANDARD_COMMANDS -
+        %i(get_user_info) +
+        %i(
+          create_certificate
+          get_bank_certificate
+         )
+      when :op
+        STANDARD_COMMANDS -
+        %i(get_user_info) +
+        %i(
+          get_certificate
+          get_service_certificates
+         )
       else
         []
       end
@@ -27,7 +39,12 @@ module Sepa
 
     # Checks that signing keys and certificates can be initialized properly.
     def check_keys
-      return if [:get_certificate, :get_bank_certificate, :create_certificate].include? command
+      return if %i(
+        create_certificate
+        get_bank_certificate
+        get_certificate
+        get_service_certificates
+      ).include? command
 
       begin
         rsa_key signing_private_key
@@ -62,22 +79,34 @@ module Sepa
 
     # Checks that {Client#file_type} is proper
     def check_file_type
-      return unless [:upload_file, :download_file_list, :download_file].include? command
+      if file_type.present?
+        valid = file_type.size < 35
+      else
+        return if bank == :op && %i(download_file
+                                  download_file_list).include?(command)
 
-      unless file_type && file_type.respond_to?(:size) && file_type.size < 35
-        errors.add(:file_type, FILE_TYPE_ERROR_MESSAGE)
+        valid = !(%i(
+          download_file
+          download_file_list
+          upload_file
+        ).include? command)
       end
+
+      errors.add(:file_type, FILE_TYPE_ERROR_MESSAGE) unless valid
     end
 
     # Checks that {Client#target_id} is valid.
     def check_target_id
-      return if [:get_user_info,
-                 :get_certificate,
-                 :create_certificate,
-                 :get_bank_certificate].include? command
-
-      # Danske Bank does not use target_id
-      return if bank == :danske
+      return if %i(
+          create_certificate
+          get_bank_certificate
+          get_certificate
+          get_user_info
+        ).include?(command) ||
+        %i(
+          danske
+          op
+        ).include?(bank)
 
       check_presence_and_length(:target_id, 80, TARGET_ID_ERROR_MESSAGE)
     end

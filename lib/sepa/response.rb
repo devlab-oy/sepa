@@ -23,6 +23,11 @@ module Sepa
     # @return [Symbol]
     attr_reader :command
 
+    # The environment in which the request was sent
+    #
+    # @return [Symbol]
+    attr_reader :environment
+
     validate  :document_must_validate_against_schema
     validate  :client_errors
     validate  :validate_response_code
@@ -41,10 +46,11 @@ module Sepa
     #     encryption_private_key: OpenSSL::PKey::RSA
     #   }
     def initialize(hash = {})
-      @soap = hash[:response]
-      @command = hash[:command]
-      @error = hash[:error]
+      @command                = hash[:command]
       @encryption_private_key = hash[:encryption_private_key]
+      @environment            = hash[:environment]
+      @error                  = hash[:error]
+      @soap                   = hash[:response]
     end
 
     # Returns the soap of the response as a Nokogiri document
@@ -52,6 +58,13 @@ module Sepa
     # @return [Nokogiri::XML] The soap as Nokogiri document
     def doc
       @doc ||= xml_doc @soap
+    end
+
+    # Returns the error of the response as a Nokogiri document
+    #
+    # @return [Nokogiri::XML] The error as Nokogiri document
+    def error_doc
+      @error_doc ||= xml_doc @error
     end
 
     # Verifies that all digest values in the response match the actual ones. Takes an optional
@@ -197,6 +210,17 @@ module Sepa
     # @return [nil] if the response code cannot be found
     def response_code
       node = doc.at('xmlns|ResponseCode', xmlns: BXD)
+      node = error_doc.at('xmlns|ResponseCode', xmlns: BXD) unless node
+      node.content if node
+    end
+
+    # Returns the response text of the response
+    #
+    # @return [String] if the response text can be found
+    # @return [nil] if the response text cannot be found
+    def response_text
+      node = doc.at('xmlns|ResponseText', xmlns: BXD)
+      node = error_doc.at('xmlns|ResponseText', xmlns: BXD) unless node
       node.content if node
     end
 
@@ -272,12 +296,9 @@ module Sepa
       end
 
       # Validates response code in response. "00" and "24" are currently considered valid.
-      # Validation is not run if {#error} is present
       def validate_response_code
-        return if @error
-
         unless %w(00 24).include? response_code
-          errors.add(:base, NOT_OK_RESPONSE_CODE_ERROR_MESSAGE)
+          errors.add(:base, { response_code: response_code, response_text: response_text })
         end
       end
 

@@ -106,6 +106,27 @@ module Sepa
       return super unless [:get_bank_certificate, :create_certificate].include? @command
 
       node = doc.at('xmlns|ReturnCode', xmlns: DANSKE_PKI)
+      node = doc.at('xmlns|ReturnCode', xmlns: DANSKE_PKIF) unless node
+
+      node.content if node
+    end
+
+    # Extract response text from the response. Overrides super method when {#command} is
+    # `:get_bank_certificate` or `:create_certificate` because response text node is named
+    # differently in those responses.
+    #
+    # @return [String] if response text is found
+    # @return [nil] if response text cannot be found
+    # @see Response#response_text
+    def response_text
+      return super unless %i(
+          create_certificate
+          get_bank_certificate
+        ).include? @command
+
+      node = doc.at('xmlns|ReturnText', xmlns: DANSKE_PKI)
+      node = doc.at('xmlns|ReturnText', xmlns: DANSKE_PKIF) unless node
+
       node.content if node
     end
 

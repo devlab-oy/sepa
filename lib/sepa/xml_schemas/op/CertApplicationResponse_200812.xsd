@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v5 rel. 3 U (http://www.xmlspy.com) by Trung Nguyen (FD Finanssidata OY) -->
+<!-- edited with XMLSpy v2008 sp1 (http://www.altova.com) by Lauri kenttä (Fidenta Oy) -->
+<xs:schema targetNamespace="http://op.fi/mlp/xmldata/" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:bxd="http://op.fi/mlp/xmldata/" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="xmldsig-core-schema.xsd"/>
+	<xs:element name="CertApplicationResponse">
+		<xs:annotation>
+			<xs:documentation>Wrapper for data. Used for transmitting data. Can be XML Digital Signed.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="CustomerId" nillable="false">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="16"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="Timestamp" type="xs:dateTime"/>
+				<xs:element name="ResponseCode" nillable="false">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="16"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="ResponseText" nillable="false">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="80"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="ExecutionSerial" minOccurs="0">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="32"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="Encrypted" type="xs:boolean" minOccurs="0"/>
+				<xs:element name="EncryptionMethod" minOccurs="0">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="35"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="Compressed" type="xs:boolean" minOccurs="0"/>
+				<xs:element name="CompressionMethod" minOccurs="0">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="35"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="CustomerExtension" type="xs:anyType" minOccurs="0"/>
+				<xs:element name="Certificates" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element ref="bxd:Certificate" minOccurs="0" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element ref="ds:Signature" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Certificate">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Name" type="xs:string" nillable="false">
+					<xs:annotation>
+						<xs:documentation>Kertoo varmenteen käyttötarkoituksen. Voi olla CommonName tai muu nimi</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="Certificate" type="xs:base64Binary" nillable="false"/>
+				<xs:element name="CertificateFormat" type="xs:string" default="X509v3"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
