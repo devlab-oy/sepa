@@ -253,16 +253,16 @@ Not all parameters are needed in every request.
 
 Parameter | Description
 --- | ---
-bank | Bank you want to send the request to. Either `:nordea`, `:danske` or `:op`
+bank | Bank you want to send the request to. Either `:nordea`, `:danske`, or `:op`
 customer_id | Customer id from bank.
-command | Must be one of: `:download_file_list`, `:upload_file`, `:download_file`, `:get_user_info`, `:get_certificate`, `:get_bank_certificate`, `:create_certificate` or `:get_service_certificates`.
+command | Must be one of: `:download_file_list`, `:upload_file`, `:download_file`, `:get_user_info`, `:get_certificate`, `:get_bank_certificate`, `:create_certificate`, or `:get_service_certificates`.
 content | Content to be sent to the bank in `upload_file`.
 environment | Bank's environment where the request is sent. Has to be `production` or `test`.
-language | Language of the response. Must be either `FI`, `EN` or `SV`.
+language | Language of the response. Must be either `FI`, `EN`, or `SV`.
 target_id | Code used to categorize files. Can be retrieved with `get_user_info` -command. Only used by Nordea.
 file_type | Type of the file(s) your are going to download or send. These differ by bank. With Nordea they can be retrieved with `get_user_info` -command.
 file_reference | File's unique identification for downloading a file. Retrieved with `download_file_list` -command.
-status | Status for the file to be retrieved. Has to be `NEW`, `DOWNLOADED` or `ALL`.
+status | Status for the file to be retrieved. Has to be `NEW`, `DOWNLOADED`, or `ALL`.
 signing_private_key | Your private key of your signing certificate for signing the request.
 encryption_private_key | Your private key of your encryption certificate for decrypting the response.
 own_signing_certificate | Your signing certificate, signed by the bank.
