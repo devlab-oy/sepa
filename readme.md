@@ -11,6 +11,7 @@ Currently we have support for SEPA Web Services for
 
 * Nordea
 * Danske Bank
+* OP
 
 ## Installation
 
@@ -101,6 +102,8 @@ openssl req -out encryption.csr -new -newkey rsa:2048 -nodes -keyout encryption.
 openssl req -out signing.csr -new -newkey rsa:2048 -nodes -keyout signing.key
 ```
 
+*(For Nordea the key is 1024 bits)*
+
 Enter your information and you should have four files
 
 ```
@@ -110,14 +113,14 @@ signing.csr
 signing.key
 ```
 
-### Downloading Nordea Certificate
+### Downloading Nordea and OP Certificates
 
 Define parameters hash for client
 
 ```ruby
 params = {
   pin: '1234567890',
-  bank: :nordea,
+  bank: :nordea|:op,
   command: :get_certificate,
   customer_id: '11111111',
   environment: 'test',
@@ -250,9 +253,9 @@ Not all parameters are needed in every request.
 
 Parameter | Description
 --- | ---
-bank | Bank you want to send the request to. Either `:nordea` or `:danske`
+bank | Bank you want to send the request to. Either `:nordea`, `:danske` or `:op`
 customer_id | Customer id from bank.
-command | Must be one of: `download_file_list`, `upload_file`, `download_file`, `get_user_info`, `get_certificate`, `get_bank_certificate`, `create_certificate`.
+command | Must be one of: `:download_file_list`, `:upload_file`, `:download_file`, `:get_user_info`, `:get_certificate`, `:get_bank_certificate`, `:create_certificate` or `:get_service_certificates`.
 content | Content to be sent to the bank in `upload_file`.
 environment | Bank's environment where the request is sent. Has to be `production` or `test`.
 language | Language of the response. Must be either `FI`, `EN` or `SV`.
