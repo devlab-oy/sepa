@@ -16,16 +16,16 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
 
-  spec.required_ruby_version = '>= 2.0.0'
+  spec.required_ruby_version = '>= 2.1.7'
 
   spec.add_dependency 'activemodel', '~> 4.2'
-  spec.add_dependency 'nokogiri', '~> 1.6'
-  spec.add_dependency 'savon', '~> 2.11'
+  spec.add_dependency 'nokogiri',    '~> 1.6'
+  spec.add_dependency 'savon',       '~> 2.11'
 
-  spec.add_development_dependency 'bundler', '~> 1.7'
+  spec.add_development_dependency 'bundler',                   '~> 1.10'
   spec.add_development_dependency 'codeclimate-test-reporter', '~> 0.4'
-  spec.add_development_dependency 'dotenv', '~> 2.0'
-  spec.add_development_dependency 'minitest', '~> 5.8'
-  spec.add_development_dependency 'rake', '~> 10.4'
-  spec.add_development_dependency 'rubyntlm', '~> 0.5'
+  spec.add_development_dependency 'dotenv',                    '~> 2.0'
+  spec.add_development_dependency 'minitest',                  '~> 5.8'
+  spec.add_development_dependency 'rake',                      '~> 10.4'
+  spec.add_development_dependency 'rubyntlm',                  '~> 0.5'
 end
