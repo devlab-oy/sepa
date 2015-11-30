@@ -198,5 +198,7 @@ module Sepa
         set_node(@template, 'bxd|ReceiverId', 'DABAFIHH')
       end
 
+      def set_application_request; end
+
   end
 end

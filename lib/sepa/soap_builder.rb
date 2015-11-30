@@ -215,12 +215,16 @@ module Sepa
 
       # Sets nodes for generic requests, application request is base64 encoded here.
       def common_set_body_contents
-        set_node @template, 'bxd|ApplicationRequest', @application_request.to_base64
+        set_application_request
         set_node @template, 'bxd|SenderId',           @customer_id
         set_node @template, 'bxd|RequestId',          request_id
         set_node @template, 'bxd|Timestamp',          iso_time
         set_node @template, 'bxd|Language',           @language
         set_node @template, 'bxd|UserAgent',          "Sepa Transfer Library version #{VERSION}"
+      end
+
+      def set_application_request
+        set_node @template, 'bxd|ApplicationRequest', @application_request.to_base64
       end
 
   end
