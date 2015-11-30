@@ -260,4 +260,12 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
     end
   end
 
+  test 'application request is encrypted' do
+    application_request = decode(@doc.at('bxd|ApplicationRequest', bxd: BXD).content)
+    application_request = Nokogiri::XML(application_request)
+
+    assert_nil     application_request.at('ApplicationRequest')
+    assert_not_nil application_request.at('xenc|EncryptedData')
+  end
+
 end
