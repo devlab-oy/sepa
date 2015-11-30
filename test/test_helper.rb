@@ -4,7 +4,7 @@ require 'dotenv'
 Dotenv.load
 
 if ENV['CODECLIMATE_REPO_TOKEN']
-  SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+  SimpleCov.formatters = [
     SimpleCov::Formatter::HTMLFormatter,
     CodeClimate::TestReporter::Formatter
   ]
