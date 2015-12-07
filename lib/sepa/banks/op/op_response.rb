@@ -3,6 +3,11 @@ module Sepa
   class OpResponse < Response
     include Utilities
 
+    BYPASS_COMMANDS = %i(
+      get_certificate
+      get_service_certificates
+    )
+
     # Extracts own signing certificate from the response.
     #
     # @return [String] own signing certificate as string it it is found
@@ -63,14 +68,14 @@ module Sepa
       verify_certificate_against_root_certificate(certificate, OP_ROOT_CERTIFICATE)
     end
 
-    # OP's get service certificates response isn't signed
+    # Some OP's certificate responses aren't signed
     def validate_hashes
-      super unless command == :get_service_certificates
+      super unless BYPASS_COMMANDS.include?(command)
     end
 
-    # OP's get service certificates response isn't signed
+    # Some OP's certificate responses aren't signed
     def verify_signature
-      super unless command == :get_service_certificates
+      super unless BYPASS_COMMANDS.include?(command)
     end
   end
 end
