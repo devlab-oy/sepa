@@ -18,6 +18,7 @@ module Testing
     danske_create_cert:          Sepa::Client.new(DANSKE_CREATE_CERT_PARAMS),
     danske_get_bank_cert:        Sepa::Client.new(DANSKE_GET_BANK_CERT_PARAMS),
     nordea_get_certificate:      Sepa::Client.new(NORDEA_GET_CERTIFICATE_PARAMS),
+    op_get_certificate:          Sepa::Client.new(OP_GET_CERTIFICATE_PARAMS),
     op_get_service_certificates: Sepa::Client.new(OP_GET_SERVICE_CERTIFICATES_PARAMS)
   }
 
