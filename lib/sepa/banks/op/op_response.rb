@@ -65,9 +65,8 @@ module Sepa
     # @return [false] if certificate fails to verify
     # @see DanskeResponse#certificate_is_trusted?
     def certificate_is_trusted?
-      if environment == :test || BYPASS_COMMANDS.include?(command)
-        return true
-      end
+      return true if environment == :test || BYPASS_COMMANDS.include?(command)
+
       verify_certificate_against_root_certificate(certificate, OP_ROOT_CERTIFICATE)
     end
 
