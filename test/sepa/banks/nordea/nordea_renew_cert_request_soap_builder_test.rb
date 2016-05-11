@@ -2,7 +2,7 @@ require 'test_helper'
 
 class NordeaRenewCertRequestSoapBuilderTest < ActiveSupport::TestCase
   setup do
-    @params      = nordea_renew_certificate_params
+    @params = nordea_renew_certificate_params
 
     # Convert the keys here since the conversion is usually done by the client and these tests
     # bypass the client
