@@ -36,4 +36,11 @@ class NordeaRenewCertRequestSoapBuilderTest < ActiveSupport::TestCase
     assert request_id_node.content =~ /^[0-9A-F]+$/i
     assert_equal 34, request_id_node.content.length
   end
+
+  test 'timestamp is set correctly' do
+    timestamp_node   = @doc.at("xmlns|Timestamp", xmlns: 'http://bxd.fi/CertificateService')
+    timestamp        = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
+
+    assert timestamp <= Time.now && timestamp > (Time.now - 60)
+  end
 end
