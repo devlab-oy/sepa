@@ -129,6 +129,12 @@ module Sepa
         set_node "Content", format_cert_request(@signing_csr)
       end
 
+      # Sets nodes' contents for Nordea's and OP's renew certificate request
+      def set_renew_certificate_nodes
+        set_node "Service", "service" if @bank == :nordea
+        set_node "Content", format_cert_request(@signing_csr)
+      end
+
       # Sets nodes' contents for OP's get service certificates request
       def set_service_certificates_nodes
         set_node("Service", "MATU")
