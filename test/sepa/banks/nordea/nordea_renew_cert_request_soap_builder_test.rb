@@ -25,4 +25,8 @@ class NordeaRenewCertRequestSoapBuilderTest < ActiveSupport::TestCase
 
     assert errors.empty?, "The following schema validations failed:\n#{errors.join("\n")}"
   end
+
+  test 'sender id is properly set' do
+    assert_equal @params[:customer_id], @doc.at("xmlns|SenderId", xmlns: 'http://bxd.fi/CertificateService').content
+  end
 end
