@@ -46,4 +46,8 @@ class NordeaRenewCertApplicationRequestTest < ActiveSupport::TestCase
   test "service is set correctly" do
     assert_equal "service", @doc.at_css("Service").content
   end
+
+  test "content is set correctly" do
+    assert_equal format_cert_request(@params[:signing_csr]), @doc.at_css("Content").content
+  end
 end
