@@ -2,14 +2,14 @@ require 'test_helper'
 
 class NordeaRenewCertApplicationRequestTest < ActiveSupport::TestCase
   setup do
-    params = nordea_renew_certificate_params
+    @params = nordea_renew_certificate_params
 
     # Convert the keys here since the conversion is usually done by the client and these tests
     # bypass the client
-    params[:own_signing_certificate] = x509_certificate(params[:own_signing_certificate])
-    params[:signing_private_key]     = rsa_key(params[:signing_private_key])
+    @params[:own_signing_certificate] = x509_certificate(@params[:own_signing_certificate])
+    @params[:signing_private_key]     = rsa_key(@params[:signing_private_key])
 
-    application_request = Sepa::SoapBuilder.new(params).application_request
+    application_request = Sepa::SoapBuilder.new(@params).application_request
     @doc                = Nokogiri::XML(application_request.to_xml)
   end
 
@@ -24,5 +24,9 @@ class NordeaRenewCertApplicationRequestTest < ActiveSupport::TestCase
     end
 
     assert errors.empty?, "The following schema validations failed:\n#{errors.join("\n")}"
+  end
+
+  test "customer id is set correctly" do
+    assert_equal @doc.at_css("CustomerId").content, @params[:customer_id]
   end
 end
