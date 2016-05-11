@@ -29,4 +29,11 @@ class NordeaRenewCertRequestSoapBuilderTest < ActiveSupport::TestCase
   test 'sender id is properly set' do
     assert_equal @params[:customer_id], @doc.at("xmlns|SenderId", xmlns: 'http://bxd.fi/CertificateService').content
   end
+
+  test 'request id is properly_set' do
+    request_id_node = @doc.at('xmlns|RequestId', xmlns: 'http://bxd.fi/CertificateService')
+
+    assert request_id_node.content =~ /^[0-9A-F]+$/i
+    assert_equal 34, request_id_node.content.length
+  end
 end
