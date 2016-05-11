@@ -6,10 +6,11 @@ class ClientTest < ActiveSupport::TestCase
   def setup
 
     # Get params hashes from fixtures for different banks and for different request types
-    @nordea_generic_params = nordea_generic_params
-    @nordea_get_certificate_params = nordea_get_certificate_params
+    @nordea_generic_params            = nordea_generic_params
+    @nordea_get_certificate_params    = nordea_get_certificate_params
+    @nordea_renew_certificate_params  = nordea_get_certificate_params
     @danske_create_certificate_params = danske_create_certificate_params
-    @danske_generic_params = danske_generic_params
+    @danske_generic_params            = danske_generic_params
 
     # Namespaces
     @cor = 'http://bxd.fi/CorporateFileService'
@@ -267,6 +268,24 @@ class ClientTest < ActiveSupport::TestCase
       xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
       assert xsd.valid?(response.doc)
     end
+  end
+
+  test 'sends a proper request with nordea renew certificate' do
+    client   = Sepa::Client.new(@nordea_renew_certificate_params)
+    response = client.send_request
+
+    assert response.doc.at('cer|getCertificatein')
+
+    errors = []
+
+    Dir.chdir(SCHEMA_PATH) do
+      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
+      xsd.validate(response.doc).each do |error|
+        errors << error
+      end
+    end
+
+    assert errors.empty?, "The following schema validations failed:\n#{errors.join("\n")}"
   end
 
   test 'should send proper request with danske download file list' do
