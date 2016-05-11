@@ -90,6 +90,7 @@ SUPPORTED_COMMANDS =
     create_certificate
     get_bank_certificate
     get_certificate
+    renew_certificate
     get_service_certificates
   )
 
