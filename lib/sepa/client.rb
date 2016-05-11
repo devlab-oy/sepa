@@ -256,7 +256,7 @@ module Sepa
 
       begin
         error = nil
-        response = client.call(command, xml: soap)
+        response = client.call(soap_command, xml: soap)
         response &&= response.to_xml
       rescue Savon::Error => e
         response = nil
@@ -329,5 +329,13 @@ module Sepa
         "Sepa::#{bank.capitalize}Response".constantize.new(options)
       end
 
+      def soap_command
+        case @command
+        when :renew_certificate
+          :get_certificate
+        else
+          @command
+        end
+      end
   end
 end
