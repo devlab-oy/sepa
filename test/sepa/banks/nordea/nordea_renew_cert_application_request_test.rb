@@ -38,4 +38,8 @@ class NordeaRenewCertApplicationRequestTest < ActiveSupport::TestCase
   test "environment is set correctly" do
     assert_equal @params[:environment].upcase, @doc.at_css("Environment").content
   end
+
+  test "software id is set correctly" do
+    assert_equal "Sepa Transfer Library version #{Sepa::VERSION}", @doc.at_css("SoftwareId").content
+  end
 end
