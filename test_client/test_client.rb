@@ -29,11 +29,11 @@ module Testing
     if response.response_code == "00"
       puts "\e[32m#{response.response_code} #{response.response_text}\e[0m #{name}"
       puts "\e[31m#{response.errors.full_messages}\e[0m" unless response.valid?
-      puts "\n"
     else
       puts "\e[31m#{response.response_code} #{response.response_text}\e[0m #{name}"
-      puts "\n"
     end
+
+    puts "\n"
 
     File.write "#{ROOT_PATH}/test_client/log/#{name}.log.xml", response.content
   end
@@ -44,11 +44,11 @@ module Testing
     if response.response_code == "00"
       puts "\e[32m#{response.response_code} #{response.response_text}\e[0m #{name}"
       puts "\e[31m#{response.errors.full_messages}\e[0m" unless response.valid?
-      puts "\n"
     else
       puts "\e[31m#{response.response_code} #{response.response_text}\e[0m #{name}"
-      puts "\n"
     end
+
+    puts "\n"
 
     contents =
       "# Bank Encryption Certificate:\n#{response.bank_encryption_certificate}\n\n" \
