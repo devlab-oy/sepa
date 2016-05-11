@@ -3,7 +3,7 @@ require 'test_helper'
 class NordeaResponseTest < ActiveSupport::TestCase
   include Sepa::Utilities
 
-  def setup
+  setup do
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/dfl.xml"),
       command: :download_file_list
@@ -41,6 +41,12 @@ class NordeaResponseTest < ActiveSupport::TestCase
     @gc = Sepa::NordeaResponse.new options
 
     options = {
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/rc.xml"),
+      command: :renew_certificate
+    }
+    @rc = Sepa::NordeaResponse.new options
+
+    options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/not_ok_response_code.xml"),
       command: :download_file_list
     }
@@ -65,52 +71,55 @@ class NordeaResponseTest < ActiveSupport::TestCase
     @body_altered = Sepa::NordeaResponse.new options
   end
 
-  test 'valid responses should be valid' do
-    assert @dfl.valid?, @dfl.errors.messages
-    assert @uf.valid?, @uf.errors.messages
+  test 'valid responses are valid' do
+    assert @dfl.valid?,     @dfl.errors.messages
+    assert @uf.valid?,      @uf.errors.messages
     assert @df_tito.valid?, @df_tito.errors.messages
-    assert @df_ktl.valid?, @df_ktl.errors.messages
-    assert @gui.valid?, @gui.errors.messages
-    assert @gc.valid?, @gc.errors.messages
+    assert @df_ktl.valid?,  @df_ktl.errors.messages
+    assert @gui.valid?,     @gui.errors.messages
+    assert @gc.valid?,      @gc.errors.messages
+    assert @rc.valid?,      @rc.errors.messages
   end
 
-  test 'should fail with improper params' do
-    a = Sepa::NordeaResponse.new({ response: "Jees", command: 'not'})
+  test 'fails with improper params' do
+    a = Sepa::NordeaResponse.new(response: "Jees", command: 'not')
     refute a.valid?
   end
 
-  test 'should complain if application response is not valid against schema' do
-    a = Sepa::NordeaResponse.new({ response: "<ar>text</ar>", command: 'notvalid' })
+  test 'complains if application response is not valid against schema' do
+    a = Sepa::NordeaResponse.new(response: "<ar>text</ar>", command: 'notvalid')
     refute a.valid?
   end
 
-  test 'hashes should match with correct responses' do
+  test 'hashes match with correct responses' do
     assert @df_ktl.hashes_match?
     assert @df_tito.hashes_match?
     assert @dfl.hashes_match?
     assert @response_with_code_24
     assert @gc.hashes_match?
+    assert @rc.hashes_match?
     assert @gui.hashes_match?
     assert @not_ok_response_code_response.hashes_match?
     assert @uf.hashes_match?
   end
 
-  test 'response should be valid if hashes match and otherwise valid' do
+  test 'response is valid if hashes match and otherwise valid' do
     assert @df_ktl.valid?
     assert @df_tito.valid?
     assert @dfl.valid?
     assert @response_with_code_24
     assert @gc.valid?
+    assert @rc.valid?
     assert @gui.valid?
     assert @uf.valid?
   end
 
-  test 'hashes should not match with incorrect responses' do
+  test 'hashes dont match with incorrect responses' do
     refute @timestamp_altered.hashes_match?
     refute @body_altered.hashes_match?
   end
 
-  test 'response should not be valid if hashes dont match' do
+  test 'response is not valid if hashes dont match' do
     refute @timestamp_altered.valid?
     refute @body_altered.valid?
   end
@@ -123,12 +132,13 @@ class NordeaResponseTest < ActiveSupport::TestCase
   test 'response should not be valid when wrong certificate is embedded in soap' do
   end
 
-  test 'signature should verify with correct responses' do
+  test 'signature verifies with correct responses' do
     assert @df_ktl.signature_is_valid?
     assert @df_tito.signature_is_valid?
     assert @dfl.signature_is_valid?
     assert @response_with_code_24.signature_is_valid?
     assert @gc.signature_is_valid?
+    assert @rc.signature_is_valid?
     assert @gui.signature_is_valid?
     assert @not_ok_response_code_response.signature_is_valid?
     assert @uf.signature_is_valid?
@@ -143,13 +153,13 @@ class NordeaResponseTest < ActiveSupport::TestCase
     assert_equal File.read("#{NORDEA_TEST_RESPONSE_PATH}/dfl.xml"), @dfl.to_s
   end
 
-  # tito: Electronic account statement
-  def test_content_can_be_extracted_when_file_type_is_tito
+  # TITO: Electronic account statement
+  test 'content can be extracted when file type is TITO' do
     refute_nil @df_tito.content
   end
 
-  # ktl: Incoming reference payments
-  def test_content_can_be_extracted_when_file_type_is_ktl
+  # KTL: Incoming reference payments
+  test 'test content can be extracted when file type is KTL' do
     refute_nil @df_ktl.content
   end
 
@@ -170,9 +180,11 @@ class NordeaResponseTest < ActiveSupport::TestCase
   end
 
   test 'certificate can be extracted from get certificate response' do
-    assert_nothing_raised do
-      x509_certificate @gc.own_signing_certificate
-    end
+    assert_nothing_raised { x509_certificate @gc.own_signing_certificate }
+  end
+
+  test 'certificate can be extracted from renew certificate response' do
+    assert_nothing_raised { x509_certificate @rc.own_signing_certificate }
   end
 
   test 'response with a response code other than 00 or 24 is considered invalid' do
@@ -184,5 +196,4 @@ class NordeaResponseTest < ActiveSupport::TestCase
     assert @response_with_code_24.valid?
     assert_empty @response_with_code_24.errors.messages
   end
-
 end
