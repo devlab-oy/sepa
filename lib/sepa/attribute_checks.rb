@@ -12,7 +12,10 @@ module Sepa
       case bank
       when :nordea
         STANDARD_COMMANDS +
-        %i(get_certificate)
+        %i(
+          get_certificate
+          renew_certificate
+        )
       when :danske
         STANDARD_COMMANDS -
         %i(get_user_info) +
