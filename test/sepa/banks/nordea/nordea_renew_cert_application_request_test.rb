@@ -29,4 +29,9 @@ class NordeaRenewCertApplicationRequestTest < ActiveSupport::TestCase
   test "customer id is set correctly" do
     assert_equal @doc.at_css("CustomerId").content, @params[:customer_id]
   end
+
+  test "timestamp is set correctly" do
+    timestamp = Time.strptime(@doc.at_css("Timestamp").content, '%Y-%m-%dT%H:%M:%S%z')
+    assert timestamp <= Time.now && timestamp > (Time.now - 60), "Timestamp was not set correctly"
+  end
 end
