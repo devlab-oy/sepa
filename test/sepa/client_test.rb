@@ -449,5 +449,4 @@ class ClientTest < ActiveSupport::TestCase
     refute client.valid?
     refute_empty client.errors.messages
   end
-
 end
