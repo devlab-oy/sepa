@@ -26,7 +26,7 @@ class ClientTest < ActiveSupport::TestCase
   test "correct allowed commands for nordea" do
     c = Sepa::Client.new(bank: :nordea)
 
-    commands = STANDARD_COMMANDS + [:get_certificate]
+    commands = STANDARD_COMMANDS + [:get_certificate, :renew_certificate]
 
     assert_same_items commands, c.allowed_commands
   end
