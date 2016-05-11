@@ -43,4 +43,12 @@ class NordeaRenewCertRequestSoapBuilderTest < ActiveSupport::TestCase
 
     assert timestamp <= Time.now && timestamp > (Time.now - 60)
   end
+
+  test 'application request is inserted properly' do
+    ar_node = @doc.at("xmlns|ApplicationRequest", xmlns: 'http://bxd.fi/CertificateService')
+    ar_doc  = Nokogiri::XML(decode(ar_node.content))
+
+    assert ar_doc.respond_to?(:canonicalize)
+    assert_equal @params[:customer_id], ar_doc.at_css("CustomerId").content
+  end
 end
