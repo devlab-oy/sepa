@@ -255,7 +255,7 @@ Parameter | Description
 --- | ---
 bank | Bank you want to send the request to. Either `:nordea`, `:danske`, or `:op`
 customer_id | Customer id from bank.
-command | Must be one of: `:download_file_list`, `:upload_file`, `:download_file`, `:get_user_info`, `:get_certificate`, `:get_bank_certificate`, `:create_certificate`, or `:get_service_certificates`.
+command | Must be one of: `:download_file_list`, `:upload_file`, `:download_file`, `:get_user_info`, `:get_certificate`, `:get_bank_certificate`, `:create_certificate`, `:get_service_certificates` or `:renew_certificate`.
 content | Content to be sent to the bank in `upload_file`.
 environment | Bank's environment where the request is sent. Has to be `production` or `test`.
 language | Language of the response. Must be either `FI`, `EN`, or `SV`.

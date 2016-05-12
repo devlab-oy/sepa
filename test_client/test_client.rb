@@ -18,8 +18,9 @@ module Testing
     danske_create_cert:          Sepa::Client.new(DANSKE_CREATE_CERT_PARAMS),
     danske_get_bank_cert:        Sepa::Client.new(DANSKE_GET_BANK_CERT_PARAMS),
     nordea_get_certificate:      Sepa::Client.new(NORDEA_GET_CERTIFICATE_PARAMS),
+    nordea_renew_certificate:    Sepa::Client.new(NORDEA_RENEW_CERTIFICATE_PARAMS),
     op_get_certificate:          Sepa::Client.new(OP_GET_CERTIFICATE_PARAMS),
-    op_get_service_certificates: Sepa::Client.new(OP_GET_SERVICE_CERTIFICATES_PARAMS)
+    op_get_service_certificates: Sepa::Client.new(OP_GET_SERVICE_CERTIFICATES_PARAMS),
   }
 
   content_clients.each do |name, client|
@@ -28,11 +29,11 @@ module Testing
     if response.response_code == "00"
       puts "\e[32m#{response.response_code} #{response.response_text}\e[0m #{name}"
       puts "\e[31m#{response.errors.full_messages}\e[0m" unless response.valid?
-      puts "\n"
     else
       puts "\e[31m#{response.response_code} #{response.response_text}\e[0m #{name}"
-      puts "\n"
     end
+
+    puts "\n"
 
     File.write "#{ROOT_PATH}/test_client/log/#{name}.log.xml", response.content
   end
@@ -43,11 +44,11 @@ module Testing
     if response.response_code == "00"
       puts "\e[32m#{response.response_code} #{response.response_text}\e[0m #{name}"
       puts "\e[31m#{response.errors.full_messages}\e[0m" unless response.valid?
-      puts "\n"
     else
       puts "\e[31m#{response.response_code} #{response.response_text}\e[0m #{name}"
-      puts "\n"
     end
+
+    puts "\n"
 
     contents =
       "# Bank Encryption Certificate:\n#{response.bank_encryption_certificate}\n\n" \

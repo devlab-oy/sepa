@@ -27,7 +27,7 @@ module Sepa
     # @return [nil] if response code cannot be found
     # @see Response#response_code
     def response_code
-      return super unless command == :get_certificate
+      return super unless [:get_certificate, :renew_certificate].include? command
 
       node = doc.at('xmlns|ResponseCode', xmlns: NORDEA_PKI)
       node.content if node
@@ -40,7 +40,7 @@ module Sepa
     # @return [nil] if response text cannot be found
     # @see Response#response_text
     def response_text
-      return super unless command == :get_certificate
+      return super unless [:get_certificate, :renew_certificate].include? command
 
       node = doc.at('xmlns|ResponseText', xmlns: NORDEA_PKI)
       node.content if node
