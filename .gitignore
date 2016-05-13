@@ -13,6 +13,7 @@
 /.bundle/
 /lib/bundler/man/
 
+Gemfile.lock
 .ruby-version
 
 /.env
