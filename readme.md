@@ -2,7 +2,7 @@
 
 [![Code Climate](https://codeclimate.com/github/devlab-oy/sepa/badges/gpa.svg)](https://codeclimate.com/github/devlab-oy/sepa)
 [![Test Coverage](https://codeclimate.com/github/devlab-oy/sepa/badges/coverage.svg)](https://codeclimate.com/github/devlab-oy/sepa)
-[![Build Status](https://travis-ci.org/devlab-oy/sepa.svg?branch=master)](https://travis-ci.org/devlab-oy/sepa)
+[![Build Status](https://semaphoreci.com/api/v1/devlab/sepa/branches/master/badge.svg)](https://semaphoreci.com/devlab/sepa)
 [![Gem Version](https://badge.fury.io/rb/sepafm.svg)](http://badge.fury.io/rb/sepafm)
 
 This project aims to create an open source implementation of SEPA Financial Messages using Web Services. Project implementation is done in Ruby.
