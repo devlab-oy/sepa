@@ -1,7 +1,7 @@
 # Devlab / SEPA
 
-[![Code Climate](https://codeclimate.com/github/devlab-oy/sepa/badges/gpa.svg)](https://codeclimate.com/github/devlab-oy/sepa)
-[![Test Coverage](https://codeclimate.com/github/devlab-oy/sepa/badges/coverage.svg)](https://codeclimate.com/github/devlab-oy/sepa)
+[![Code Climate](https://codeclimate.com/repos/577f932c113b7263ba004849/badges/3728d42150003eafa174/gpa.svg)](https://codeclimate.com/repos/577f932c113b7263ba004849/feed)
+[![Test Coverage](https://codeclimate.com/repos/577f932c113b7263ba004849/badges/3728d42150003eafa174/coverage.svg)](https://codeclimate.com/repos/577f932c113b7263ba004849/coverage)
 [![Build Status](https://semaphoreci.com/api/v1/devlab/sepa/branches/master/badge.svg)](https://semaphoreci.com/devlab/sepa)
 [![Gem Version](https://badge.fury.io/rb/sepafm.svg)](http://badge.fury.io/rb/sepafm)
 
