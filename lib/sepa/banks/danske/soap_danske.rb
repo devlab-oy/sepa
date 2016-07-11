@@ -150,6 +150,8 @@ module Sepa
       def build_renew_certificate_request
         set_cert_contents
         add_encrypted_request_to_soap(encrypt_application_request, parent_node: 'pkif|RenewCertificateIn')
+        process_header
+        add_body_to_header
       end
 
       # Adds encrypted application request xml structure to the soap. This method is used when
@@ -205,6 +207,5 @@ module Sepa
       end
 
       def set_application_request; end
-
   end
 end

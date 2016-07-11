@@ -16,4 +16,13 @@ class DanskeRenewCertRequestSoapBuilderTest < ActiveSupport::TestCase
   test "validates against schema" do
     assert_valid_against_schema 'soap.xsd', @doc
   end
+
+  test 'validates against ws security schema' do
+    wsse    = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+    ws_node = @doc.at('wsse|Security', 'wsse': wsse)
+    ws_node = ws_node.to_xml
+    ws_node = Nokogiri::XML(ws_node)
+
+    assert_valid_against_schema 'oasis-200401-wss-wssecurity-secext-1.0.xsd', ws_node
+  end
 end
