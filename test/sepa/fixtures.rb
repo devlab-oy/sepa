@@ -378,13 +378,13 @@ CsajqZag/Aoxv/Y=
   bank_encryption_certificate = File.read "#{DANSKE_TEST_KEYS_PATH}own_enc_cert.pem"
 
   {
-      bank: :danske,
-      bank_encryption_certificate: bank_encryption_certificate,
-      command: :create_certificate,
-      customer_id: '360817',
-      environment: 'test',
-      encryption_csr: encryption_csr,
-      signing_csr: signing_csr,
-      pin: '1234',
+    bank: :danske,
+    bank_encryption_certificate: bank_encryption_certificate,
+    command: :create_certificate,
+    customer_id: '360817',
+    environment: :test,
+    encryption_csr: encryption_csr,
+    signing_csr: signing_csr,
+    pin: '1234',
   }
 end
