@@ -134,6 +134,8 @@ module Sepa
           set_node "Service", "service" if @bank == :nordea
           set_node "Content", format_cert_request(@signing_csr)
         elsif [:danske].include?(@bank)
+          @environment = 'customertest' if @environment == :test
+
           set_node 'tns|CustomerId', @customer_id
           set_node 'tns|EncryptionCertPKCS10', format_cert_request(@encryption_csr)
           set_node 'tns|SigningCertPKCS10', format_cert_request(@signing_csr)
