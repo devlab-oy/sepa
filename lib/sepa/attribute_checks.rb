@@ -1,5 +1,4 @@
 module Sepa
-
   # Contains functionality to check the attributes passed to {Client}. Uses
   # ActiveModel::Validations for the actual validation.
   module AttributeChecks
@@ -12,24 +11,25 @@ module Sepa
       case bank
       when :nordea
         STANDARD_COMMANDS +
-        %i(
-          get_certificate
-          renew_certificate
-        )
+          %i(
+            get_certificate
+            renew_certificate
+          )
       when :danske
         STANDARD_COMMANDS -
-        %i(get_user_info) +
-        %i(
-          create_certificate
-          get_bank_certificate
-         )
+          %i(get_user_info) +
+          %i(
+            create_certificate
+            get_bank_certificate
+            renew_certificate
+          )
       when :op
         STANDARD_COMMANDS -
-        %i(get_user_info) +
-        %i(
-          get_certificate
-          get_service_certificates
-         )
+          %i(get_user_info) +
+          %i(
+            get_certificate
+            get_service_certificates
+          )
       else
         []
       end

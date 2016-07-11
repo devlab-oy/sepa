@@ -4,12 +4,12 @@ class ClientTest < ActiveSupport::TestCase
   include Sepa::ErrorMessages
 
   def setup
-
     # Get params hashes from fixtures for different banks and for different request types
     @nordea_generic_params            = nordea_generic_params
     @nordea_get_certificate_params    = nordea_get_certificate_params
     @nordea_renew_certificate_params  = nordea_get_certificate_params
     @danske_create_certificate_params = danske_create_certificate_params
+    @danske_renew_certificate_params  = danske_renew_cert_params
     @danske_generic_params            = danske_generic_params
 
     # Namespaces
@@ -49,7 +49,10 @@ class ClientTest < ActiveSupport::TestCase
   test "correct allowed commands for danske" do
     c = Sepa::Client.new(bank: :danske)
 
-    commands = STANDARD_COMMANDS - [:get_user_info] + [:get_bank_certificate, :create_certificate]
+    commands = [
+      STANDARD_COMMANDS - [:get_user_info],
+      [:get_bank_certificate, :create_certificate, :renew_certificate],
+    ].flatten
 
     assert_same_items commands, c.allowed_commands
   end
@@ -288,6 +291,13 @@ class ClientTest < ActiveSupport::TestCase
     assert_valid_against_schema 'soap.xsd', response.doc
   end
 
+  test 'sends a proper request with danske renew certificate' do
+    client   = Sepa::Client.new(@danske_renew_certificate_params)
+    response = client.send_request
+
+    assert response.doc.at('pkif|RenewCertificateIn', pkif: 'http://danskebank.dk/PKI/PKIFactoryService')
+    assert_valid_against_schema 'soap.xsd', response.doc
+  end
 
   test "should_check_signing_cert_request_with_create_certificate" do
     @danske_create_certificate_params[:command] = :create_certificate

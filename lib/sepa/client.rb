@@ -1,6 +1,5 @@
 # Main module for this gem
 module Sepa
-
   # Handles parameter validation, key initialization, {SoapBuilder} initialization, communicating
   # with the bank and {Response} initialization.
   class Client
@@ -8,7 +7,6 @@ module Sepa
     include Utilities
     include ErrorMessages
     include AttributeChecks
-
 
     # The bank that is used in this client. One of {BANKS}.
     #
@@ -169,18 +167,18 @@ module Sepa
       danske
       nordea
       op
-    )
+    ).freeze
 
     # Languages that are currently supported by the gem
-    LANGUAGES = ['FI', 'SE', 'EN']
+    LANGUAGES = %w(FI SE EN).freeze
 
     # Environments that are currently supported by the gem
-    ENVIRONMENTS = [:production, :test]
+    ENVIRONMENTS = [:production, :test].freeze
 
     # Statuses that can be given to download file list command. When NEW is given, only those files
     # that have not yet been downloaded will be listed. DOWNLOADED will list only downloaded files
     # and ALL will list every file
-    STATUSES = ['NEW', 'DOWNLOADED', 'ALL']
+    STATUSES = %w(NEW DOWNLOADED ALL).freeze
 
     validates :bank, inclusion: { in: BANKS }
     validates :language, inclusion: { in: LANGUAGES }, allow_nil: true
@@ -205,10 +203,10 @@ module Sepa
     #
     # @param hash [Hash] All the attributes of the client can be given to the construcor in a hash
     def initialize(hash = {})
-      self.attributes hash
+      attributes(hash)
       self.environment ||= :production
-      self.language ||= 'EN'
-      self.status ||= 'NEW'
+      self.language    ||= 'EN'
+      self.status      ||= 'NEW'
     end
 
     def bank=(value)
@@ -331,7 +329,7 @@ module Sepa
 
       def soap_command
         case @command
-        when :renew_certificate
+        when :renew_certificate && [:nordea, :op].include?(@bank)
           :get_certificate
         else
           @command
