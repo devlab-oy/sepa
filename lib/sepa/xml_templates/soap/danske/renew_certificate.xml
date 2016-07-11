@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-                  xmlns:pkif="http://danskebank.dk/PKI/PKIFactoryService">
-  <soapenv:Header/>
-  <soapenv:Body>
+<env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+              xmlns:pkif="http://danskebank.dk/PKI/PKIFactoryService">
+  <env:Header/>
+  <env:Body>
     <pkif:RenewCertificateIn>
       <pkif:RequestHeader>
         <pkif:SenderId/>
@@ -13,5 +13,5 @@
         <pkif:Environment/>
       </pkif:RequestHeader>
     </pkif:RenewCertificateIn>
-  </soapenv:Body>
-</soapenv:Envelope>
+  </env:Body>
+</env:Envelope>
