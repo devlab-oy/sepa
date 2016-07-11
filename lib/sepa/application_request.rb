@@ -1,5 +1,4 @@
 module Sepa
-
   # Contains functionality to build the application request
   #
   # @todo Add return values for content modifying methods to signal whether they succeeded or not
@@ -22,7 +21,7 @@ module Sepa
         instance_variable_set("@#{key}", value)
       end
 
-      @application_request = load_body_template AR_TEMPLATE_PATH
+      @application_request = load_body_template(AR_TEMPLATE_PATH)
     end
 
     # Sets the nodes in the application request, processes signature and then returns the
@@ -129,10 +128,18 @@ module Sepa
         set_node "Content", format_cert_request(@signing_csr)
       end
 
-      # Sets nodes' contents for Nordea's and OP's renew certificate request
+      # Sets nodes' contents for renew certificate request
       def set_renew_certificate_nodes
-        set_node "Service", "service" if @bank == :nordea
-        set_node "Content", format_cert_request(@signing_csr)
+        if [:nordea, :op].include?(@bank)
+          set_node "Service", "service" if @bank == :nordea
+          set_node "Content", format_cert_request(@signing_csr)
+        elsif [:danske].include?(@bank)
+          set_node 'tns|CustomerId', @customer_id
+          set_node 'tns|EncryptionCertPKCS10', format_cert_request(@encryption_csr)
+          set_node 'tns|SigningCertPKCS10', format_cert_request(@signing_csr)
+          set_node 'tns|Timestamp', iso_time
+          set_node 'tns|Environment', @environment
+        end
       end
 
       # Sets nodes' contents for OP's get service certificates request
@@ -163,6 +170,7 @@ module Sepa
       def set_common_nodes
         return if @command == :get_bank_certificate
         return if @command == :create_certificate
+        return if @bank == :danske && @command == :renew_certificate
 
         set_node('Environment', @environment.to_s.upcase)
         set_node("CustomerId", @customer_id)
@@ -256,6 +264,5 @@ module Sepa
         target_id.content = @target_id
         @application_request.at(node).add_next_sibling target_id
       end
-
   end
 end
