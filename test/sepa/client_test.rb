@@ -212,11 +212,7 @@ class ClientTest < ActiveSupport::TestCase
     response = client.send_request
 
     assert response.doc.at_css('cor|getUserInfoin', cor: @cor)
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.doc)
-    end
+    assert_valid_against_schema 'soap.xsd', response.doc
   end
 
   test "should_send_proper_request_with_nordea_download_file_list" do
@@ -225,11 +221,7 @@ class ClientTest < ActiveSupport::TestCase
     response = client.send_request
 
     assert response.doc.at_css('cor|downloadFileListin', cor: @cor)
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.doc)
-    end
+    assert_valid_against_schema 'soap.xsd', response.doc
   end
 
   test "should_send_proper_request_with_nordea_download_file" do
@@ -238,11 +230,7 @@ class ClientTest < ActiveSupport::TestCase
     response = client.send_request
 
     assert response.doc.at_css('cor|downloadFilein', cor: @cor)
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.doc)
-    end
+    assert_valid_against_schema 'soap.xsd', response.doc
   end
 
   test "should_send_proper_request_with_nordea_upload_file" do
@@ -251,11 +239,7 @@ class ClientTest < ActiveSupport::TestCase
     response = client.send_request
 
     assert response.doc.at_css('cor|uploadFilein', cor: @cor)
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.doc)
-    end
+    assert_valid_against_schema 'soap.xsd', response.doc
   end
 
   test 'should send proper request with nordea get certificate' do
@@ -263,11 +247,7 @@ class ClientTest < ActiveSupport::TestCase
     response = client.send_request
 
     assert response.doc.at_css('cer|getCertificatein')
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.doc)
-    end
+    assert_valid_against_schema 'soap.xsd', response.doc
   end
 
   test 'sends a proper request with nordea renew certificate' do
@@ -275,17 +255,7 @@ class ClientTest < ActiveSupport::TestCase
     response = client.send_request
 
     assert response.doc.at('cer|getCertificatein')
-
-    errors = []
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      xsd.validate(response.doc).each do |error|
-        errors << error
-      end
-    end
-
-    assert errors.empty?, "The following schema validations failed:\n#{errors.join("\n")}"
+    assert_valid_against_schema 'soap.xsd', response.doc
   end
 
   test 'should send proper request with danske download file list' do
@@ -293,10 +263,7 @@ class ClientTest < ActiveSupport::TestCase
     client = Sepa::Client.new(@danske_generic_params)
     response = client.send_request
 
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.doc)
-    end
+    assert_valid_against_schema 'soap.xsd', response.doc
   end
 
   test 'should send proper request with danske download file' do
@@ -304,30 +271,21 @@ class ClientTest < ActiveSupport::TestCase
     client = Sepa::Client.new(@danske_generic_params)
     response = client.send_request
 
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.doc)
-    end
+    assert_valid_against_schema 'soap.xsd', response.doc
   end
 
   test 'should send proper request with danske upload file' do
     client = Sepa::Client.new(@danske_generic_params)
     response = client.send_request
 
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.doc)
-    end
+    assert_valid_against_schema 'soap.xsd', response.doc
   end
 
   test 'should send proper request with danske create certificate' do
     client = Sepa::Client.new(@danske_create_certificate_params)
     response = client.send_request
 
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.doc)
-    end
+    assert_valid_against_schema 'soap.xsd', response.doc
   end
 
 
