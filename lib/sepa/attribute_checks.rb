@@ -10,26 +10,24 @@ module Sepa
     def allowed_commands
       case bank
       when :nordea
-        STANDARD_COMMANDS +
-          %i(
-            get_certificate
-            renew_certificate
-          )
+        [
+          STANDARD_COMMANDS,
+          :get_certificate,
+          :renew_certificate
+        ].flatten
       when :danske
-        STANDARD_COMMANDS -
-          %i(get_user_info) +
-          %i(
-            create_certificate
-            get_bank_certificate
-            renew_certificate
-          )
+        [
+          STANDARD_COMMANDS - [:get_user_info],
+          :create_certificate,
+          :get_bank_certificate,
+          :renew_certificate,
+        ].flatten
       when :op
-        STANDARD_COMMANDS -
-          %i(get_user_info) +
-          %i(
-            get_certificate
-            get_service_certificates
-          )
+        [
+          STANDARD_COMMANDS - [:get_user_info],
+          :get_certificate,
+          :get_service_certificates,
+        ].flatten
       else
         []
       end

@@ -130,17 +130,18 @@ module Sepa
 
       # Sets nodes' contents for renew certificate request
       def set_renew_certificate_nodes
-        if [:nordea, :op].include?(@bank)
+        case @bank
+        when :nordea, :op
           set_node "Service", "service" if @bank == :nordea
           set_node "Content", format_cert_request(@signing_csr)
-        elsif [:danske].include?(@bank)
+        when :danske
           @environment = 'customertest' if @environment == :test
 
-          set_node 'tns|CustomerId', @customer_id
+          set_node 'tns|CustomerId',           @customer_id
           set_node 'tns|EncryptionCertPKCS10', format_cert_request(@encryption_csr)
-          set_node 'tns|SigningCertPKCS10', format_cert_request(@signing_csr)
-          set_node 'tns|Timestamp', iso_time
-          set_node 'tns|Environment', @environment
+          set_node 'tns|SigningCertPKCS10',    format_cert_request(@signing_csr)
+          set_node 'tns|Timestamp',            iso_time
+          set_node 'tns|Environment',          @environment
         end
       end
 
@@ -170,8 +171,7 @@ module Sepa
       # Sets contents for nodes that are common to all requests except when {#command} is
       # `:get_bank_certificate` or `:create_certificate`. {#environment} is upcased here.
       def set_common_nodes
-        return if @command == :get_bank_certificate
-        return if @command == :create_certificate
+        return if [:get_bank_certificate, :create_certificate].include?(@command)
         return if @bank == :danske && @command == :renew_certificate
 
         set_node('Environment', @environment.to_s.upcase)
