@@ -1,33 +1,26 @@
 def danske_generic_params
   keys_path = "#{ROOT_PATH}/test/sepa/banks/danske/keys"
 
-  signing_private_key_path = "#{keys_path}/signing_key.pem"
-  signing_private_key = File.read signing_private_key_path
-
-  encryption_private_key_path = "#{keys_path}/enc_private_key.pem"
-  encryption_private_key = File.read encryption_private_key_path
-
-  signing_certificate_path = "#{keys_path}/own_signing_cert.pem"
-  own_signing_certificate = File.read signing_certificate_path
-
-  encryption_certificate_path = "#{keys_path}/own_enc_cert.pem"
-  bank_encryption_certificate = File.read encryption_certificate_path
+  signing_private_key         = File.read("#{keys_path}/signing_key.pem")
+  encryption_private_key      = File.read("#{keys_path}/enc_private_key.pem")
+  own_signing_certificate     = File.read("#{keys_path}/own_signing_cert.pem")
+  bank_encryption_certificate = File.read("#{keys_path}/own_enc_cert.pem")
 
   {
     bank: :danske,
-    signing_private_key: signing_private_key,
-    encryption_private_key: encryption_private_key,
     command: :upload_file,
     customer_id: '360817',
     environment: 'test',
-    bank_encryption_certificate: bank_encryption_certificate,
-    own_signing_certificate: own_signing_certificate,
     language: 'FI',
     status: 'ALL',
     target_id: 'DABAFIHH',
     file_type: 'pain.001.001.02',
     content: encode('kissa'),
     file_reference: '11111111A12006030329501800000014',
+    own_signing_certificate: own_signing_certificate,
+    bank_encryption_certificate: bank_encryption_certificate,
+    signing_private_key: signing_private_key,
+    encryption_private_key: encryption_private_key,
   }
 end
 
@@ -386,5 +379,25 @@ CsajqZag/Aoxv/Y=
     encryption_csr: encryption_csr,
     signing_csr: signing_csr,
     pin: '1234',
+  }
+end
+
+def danske_renew_cert_params
+  keys_path = "#{ROOT_PATH}/test/sepa/banks/danske/keys"
+
+  signing_private_key         = File.read("#{keys_path}/signing_key.pem")
+  encryption_private_key      = File.read("#{keys_path}/enc_private_key.pem")
+  own_signing_certificate     = File.read("#{keys_path}/own_signing_cert.pem")
+  bank_encryption_certificate = File.read("#{keys_path}/own_enc_cert.pem")
+
+  {
+    bank: :danske,
+    command: :renew_certificate,
+    customer_id: '360817',
+    environment: :test,
+    own_signing_certificate: own_signing_certificate,
+    bank_encryption_certificate: bank_encryption_certificate,
+    signing_private_key: signing_private_key,
+    encryption_private_key: encryption_private_key,
   }
 end
