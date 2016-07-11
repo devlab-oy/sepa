@@ -1,8 +1,6 @@
 module Sepa
-
   # Contains Danske Bank specific soap building functionality
   module DanskeSoapRequest
-
     private
 
       # Determines which kind of request to build depending on command. Certificate requests differ
@@ -13,11 +11,13 @@ module Sepa
       def find_correct_build
         case @command
         when :create_certificate
-          build_certificate_request
+          build_create_certificate_request
         when :upload_file, :download_file, :get_user_info, :download_file_list
           build_danske_generic_request
         when :get_bank_certificate
           build_get_bank_certificate_request
+        when :renew_certificate
+          build_renew_certificate_request
         end
       end
 
@@ -85,16 +85,16 @@ module Sepa
         ar
       end
 
-      # Sets contents for create certificate requests.
-      #
-      # @todo rename
-      def set_create_cert_contents
-        set_node(@template, 'pkif|SenderId', @customer_id)
-        set_node(@template, 'pkif|CustomerId', @customer_id)
-        set_node(@template, 'pkif|RequestId', request_id)
-        set_node(@template, 'pkif|Timestamp', iso_time)
-        set_node(@template, 'pkif|InterfaceVersion', 1)
-        set_node(@template, 'pkif|Environment', @environment)
+      # Sets contents for certificate requests.
+      def set_cert_contents
+        @environment = :customertest if @environment == :test
+
+        set_node @template, 'pkif|SenderId',         @customer_id
+        set_node @template, 'pkif|CustomerId',       @customer_id
+        set_node @template, 'pkif|RequestId',        request_id
+        set_node @template, 'pkif|Timestamp',        iso_time
+        set_node @template, 'pkif|InterfaceVersion', 1
+        set_node @template, 'pkif|Environment',      @environment
       end
 
       # Sets contents for get bank certificate requests
@@ -130,12 +130,9 @@ module Sepa
       # if set to `:test`. This request is encrypted but not signed.
       #
       # @return [Nokogiri::XML] the complete soap
-      # @todo rename
-      def build_certificate_request
-        @environment = :customertest if @environment == :test
-        set_create_cert_contents
-        encrypted_request = encrypt_application_request
-        add_encrypted_request_to_soap(encrypted_request)
+      def build_create_certificate_request
+        set_cert_contents
+        add_encrypted_request_to_soap(encrypt_application_request)
       end
 
       # Builds get bank certificate request soap. This request is neither signed nor encrypted.
@@ -146,16 +143,25 @@ module Sepa
         add_bank_certificate_body_to_soap
       end
 
+      # Builds Danske Bank's renew certificate request soap. Environment is set to `:customertest`
+      # if set to `:test`. This request is encrypted and signed
+      #
+      # @return [Nokogiri::XML] the complete soap
+      def build_renew_certificate_request
+        set_cert_contents
+        add_encrypted_request_to_soap(encrypt_application_request, parent_node: 'pkif|RenewCertificateIn')
+      end
+
       # Adds encrypted application request xml structure to the soap. This method is used when
-      # building create certificate requests and the encrypted application request xml structure
+      # building create & renew certificate requests and the encrypted application request xml structure
       # will not be base64 encoded.
       #
       # @param encrypted_request [Nokogiri::XML] the encrypted application request xml structure
       # @return [Nokogiri::XML] the soap with the encrypted application request added to it
-      def add_encrypted_request_to_soap(encrypted_request)
+      def add_encrypted_request_to_soap(encrypted_request, parent_node: 'pkif|CreateCertificateIn')
         encrypted_request = Nokogiri::XML(encrypted_request.to_xml)
         encrypted_request = encrypted_request.root
-        @template.at_css('pkif|CreateCertificateIn').add_child(encrypted_request)
+        @template.at_css(parent_node).add_child(encrypted_request)
 
         @template
       end
