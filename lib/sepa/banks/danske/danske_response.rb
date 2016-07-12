@@ -45,9 +45,9 @@ module Sepa
     end
 
     # Returns own encryption certificate which has been signed by the bank. Only present in
-    # `:create_certificate` responses
+    # `:create_certificate` & `:renew_certificate` responses
     #
-    # @return [OpenSSL::X509::Certificate] if {#command} is `:create_certificate`
+    # @return [OpenSSL::X509::Certificate] if {#command} is `:create_certificate` or `:renew_certificate`
     # @return [nil] if command is any other
     def own_encryption_certificate
       return unless [:create_certificate, :renew_certificate].include?(@command)
@@ -56,9 +56,9 @@ module Sepa
     end
 
     # Returns own signing certificate which has been signed by the bank. Is used to sign requests
-    # sent to the bank. Is only present in `:create_certificate` responses.
+    # sent to the bank. Is only present in `:create_certificate` & `:renew_certificate` responses.
     #
-    # @return [OpenSSL::X509::Certificate] if {#command} is `:create_certificate`
+    # @return [OpenSSL::X509::Certificate] if {#command} is `:create_certificate` or `:renew_certificate`
     # @return [nil] if command is any other
     def own_signing_certificate
       return unless [:create_certificate, :renew_certificate].include?(@command)
@@ -67,9 +67,9 @@ module Sepa
     end
 
     # Returns the CA certificate that has been used to sign own signing and encryption certificates.
-    # Only present in `:create_certificate` responses
+    # Only present in `:create_certificate` & `:renew_certificate` responses
     #
-    # @return [OpenSSL::X509::Certificate] if {#command} is `:create_certificate`
+    # @return [OpenSSL::X509::Certificate] if {#command} is `:create_certificate` or `:renew_certificate`
     # @return [nil] if command is any other
     def ca_certificate
       return unless [:create_certificate, :renew_certificate].include?(@command)
@@ -78,8 +78,8 @@ module Sepa
     end
 
     # Extract certificate that has been used to sign the response. This overrides
-    # {Response#certificate} method with specific functionality for `:get_bank_certificate` and
-    # `:create_certificate` commands. Otherwise just calls {Response#certificate}
+    # {Response#certificate} method with specific functionality for `:get_bank_certificate`,
+    # `:create_certificate` & `:renew_certificate` commands. Otherwise just calls {Response#certificate}
     #
     # @return [OpenSSL::X509::Certificate]
     # @raise [OpenSSL::X509::CertificateError] if certificate cannot be processed
@@ -90,7 +90,7 @@ module Sepa
     end
 
     # Extract response code from the response. Overrides super method when {#command} is
-    # `:get_bank_certificate` or `:create_certificate` because response code node is named
+    # `:get_bank_certificate`, `:create_certificate` or `:renew_certificate` because response code node is named
     # differently in those responses.
     #
     # @return [String] if response code is found
@@ -106,7 +106,7 @@ module Sepa
     end
 
     # Extract response text from the response. Overrides super method when {#command} is
-    # `:get_bank_certificate` or `:create_certificate` because response text node is named
+    # `:get_bank_certificate`, `:create_certificate` or `:renew_certificate` because response text node is named
     # differently in those responses.
     #
     # @return [String] if response text is found
@@ -136,7 +136,7 @@ module Sepa
     private
 
       # Finds a node by its reference URI from Danske Bank's certificate responses. If {#command} is
-      # other than `:get_bank_certificate` or `:create_certificate` returns super. This method is
+      # other than `:get_bank_certificate`, `:create_certificate` or `:renew_certificate` returns super. This method is
       # needed because Danske Bank uses a different way to reference nodes in their certificate
       # responses.
       #
