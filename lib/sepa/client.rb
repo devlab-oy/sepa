@@ -328,8 +328,7 @@ module Sepa
       end
 
       def soap_command
-        case @command
-        when :renew_certificate && [:nordea, :op].include?(@bank)
+        if @command == :renew_certificate && [:nordea, :op].include?(@bank)
           :get_certificate
         else
           @command
