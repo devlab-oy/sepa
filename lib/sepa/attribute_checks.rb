@@ -70,6 +70,7 @@ module Sepa
 
     # Checks that encryption certificate signing request can be initialized properly.
     def check_encryption_cert_request
+      return unless bank == :danske
       return unless [:create_certificate, :renew_certificate].include? command
       return if cert_request_valid?(encryption_csr)
 
