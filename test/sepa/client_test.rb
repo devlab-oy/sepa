@@ -299,22 +299,30 @@ class ClientTest < ActiveSupport::TestCase
     assert_valid_against_schema 'soap.xsd', response.doc
   end
 
-  test "should_check_signing_cert_request_with_create_certificate" do
-    @danske_create_certificate_params[:command] = :create_certificate
-    @danske_create_certificate_params.delete(:signing_csr)
+  test "signing csr is checked correctly with danske cert requests" do
+    [
+      @danske_create_certificate_params,
+      @danske_renew_certificate_params,
+    ].each do |params|
+      params.delete(:signing_csr)
 
-    sepa = Sepa::Client.new(@danske_create_certificate_params)
-    refute sepa.valid?
-    assert_includes sepa.errors.messages.to_s, SIGNING_CERT_REQUEST_ERROR_MESSAGE
+      sepa = Sepa::Client.new(params)
+      refute sepa.valid?
+      assert_includes sepa.errors.messages.to_s, SIGNING_CERT_REQUEST_ERROR_MESSAGE
+    end
   end
 
-  test "should_check_encryption_cert_request_with_create_certificate" do
-    @danske_create_certificate_params[:command] = :create_certificate
-    @danske_create_certificate_params.delete(:encryption_csr)
+  test "encryption csr is checked correctly with danske cert requests" do
+    [
+      @danske_create_certificate_params,
+      @danske_renew_certificate_params,
+    ].each do |params|
+      params.delete(:encryption_csr)
 
-    sepa = Sepa::Client.new(@danske_create_certificate_params)
-    refute sepa.valid?
-    assert_includes sepa.errors.messages.to_s, ENCRYPTION_CERT_REQUEST_ERROR_MESSAGE
+      sepa = Sepa::Client.new(params)
+      refute sepa.valid?
+      assert_includes sepa.errors.messages.to_s, ENCRYPTION_CERT_REQUEST_ERROR_MESSAGE
+    end
   end
 
   test "should_check_pin_with_create_certificate" do

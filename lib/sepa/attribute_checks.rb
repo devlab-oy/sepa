@@ -62,20 +62,18 @@ module Sepa
 
     # Checks that signing certificate signing request can be initialized properly.
     def check_signing_csr
-      return unless [:get_certificate, :create_certificate].include? command
+      return unless [:get_certificate, :create_certificate, :renew_certificate].include? command
+      return if cert_request_valid?(signing_csr)
 
-      unless cert_request_valid?(signing_csr)
-        errors.add(:signing_csr, SIGNING_CERT_REQUEST_ERROR_MESSAGE)
-      end
+      errors.add(:signing_csr, SIGNING_CERT_REQUEST_ERROR_MESSAGE)
     end
 
     # Checks that encryption certificate signing request can be initialized properly.
     def check_encryption_cert_request
-      return unless command == :create_certificate
+      return unless [:create_certificate, :renew_certificate].include? command
+      return if cert_request_valid?(encryption_csr)
 
-      unless cert_request_valid?(encryption_csr)
-        errors.add(:encryption_csr, ENCRYPTION_CERT_REQUEST_ERROR_MESSAGE)
-      end
+      errors.add(:encryption_csr, ENCRYPTION_CERT_REQUEST_ERROR_MESSAGE)
     end
 
     # Checks that {Client#file_type} is proper
