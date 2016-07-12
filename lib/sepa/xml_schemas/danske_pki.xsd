@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSpy v2009 sp1 (http://www.altova.com) by Danske Bank (Danske Bank A/S) -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:tns="http://danskebank.dk/PKI/PKIFactoryService/elements" xmlns:xml="http://www.w3.org/XML/1998/namespace" targetNamespace="http://danskebank.dk/PKI/PKIFactoryService/elements" elementFormDefault="qualified" attributeFormDefault="unqualified">
-    <xs:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="http://www.w3.org/TR/2002/REC-xmldsig-core-20020212/xmldsig-core-schema.xsd"/>
+    <xs:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="xmldsig-core-schema.xsd"/>
     <!--xs:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="store:///schemas/xmldsig-core-schema.xsd"/-->
     <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml_id.xsd"/>
     <!-- SHARED TYPES SECTION -->

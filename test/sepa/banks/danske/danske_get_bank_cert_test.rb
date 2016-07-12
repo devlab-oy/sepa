@@ -80,20 +80,14 @@ class DanskeGetBankCertTest < ActiveSupport::TestCase
   end
 
   def test_should_validate_against_soap_schema
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(@doc)
-    end
+    assert_valid_against_schema 'soap.xsd', @doc
   end
 
   def test_request_should_validate_against_pki_service_schema
     request = @doc.css('GetBankCertificateRequest', 'xmlns' => @elem).to_xml
     request = Nokogiri::XML(request)
 
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('PKIFactory.xsd'))
-      assert xsd.valid?(request)
-    end
+    assert_valid_against_schema 'PKIFactory.xsd', request
   end
 
   def test_invalid_bank_root_cert_serial_should_fail_schema_validation
@@ -102,10 +96,6 @@ class DanskeGetBankCertTest < ActiveSupport::TestCase
     request = @doc.css('GetBankCertificateRequest', 'xmlns' => @elem).to_xml
     request = Nokogiri::XML(request)
 
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('PKIFactory.xsd'))
-      refute xsd.valid?(request)
-    end
+    refute_valid_against_schema 'PKIFactory.xsd', request
   end
-
 end

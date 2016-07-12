@@ -48,15 +48,6 @@ class OpCertRequestSoapBuilderTest < ActiveSupport::TestCase
   end
 
   test "validates against schema" do
-    errors = []
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      xsd.validate(@xml).each do |error|
-        errors << error
-      end
-    end
-
-    assert errors.empty?, "The following schema validations failed:\n#{errors.join("\n")}"
+    assert_valid_against_schema 'soap.xsd', @xml
   end
 end

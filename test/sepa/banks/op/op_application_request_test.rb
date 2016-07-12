@@ -23,41 +23,14 @@ class OpApplicationRequestTest < ActiveSupport::TestCase
   end
 
   test 'download file validates against schema' do
-    errors = []
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('op/ApplicationRequest_20080918.xsd'))
-      xsd.validate(@doc_file).each do |error|
-        errors << error
-      end
-    end
-
-    assert errors.empty?, "The following schema validations failed:\n#{errors.join("\n")}"
+    assert_valid_against_schema 'op/ApplicationRequest_20080918.xsd', @doc_file
   end
 
   test 'upload file validates against schema' do
-    errors = []
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('op/ApplicationRequest_20080918.xsd'))
-      xsd.validate(@doc_up).each do |error|
-        errors << error
-      end
-    end
-
-    assert errors.empty?, "The following schema validations failed:\n#{errors.join("\n")}"
+    assert_valid_against_schema 'op/ApplicationRequest_20080918.xsd', @doc_up
   end
 
   test 'download file list validates against schema' do
-    errors = []
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('op/ApplicationRequest_20080918.xsd'))
-      xsd.validate(@doc_list).each do |error|
-        errors << error
-      end
-    end
-
-    assert errors.empty?, "The following schema validations failed:\n#{errors.join("\n")}"
+    assert_valid_against_schema 'op/ApplicationRequest_20080918.xsd', @doc_list
   end
 end

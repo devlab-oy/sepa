@@ -237,40 +237,24 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_should_validate_against_schema
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(@doc)
-    end
+    assert_valid_against_schema 'soap.xsd', @doc
   end
 
   def test_schema_validation_should_fail_with_wrong_must_understand_value
-    wsse = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
-    security_node = @doc.xpath(
-      '//wsse:Security', 'wsse' => wsse
-    ).first
+    wsse          = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+    security_node = @doc.xpath('//wsse:Security', 'wsse' => wsse).first
 
     security_node['env:mustUnderstand'] = '3'
 
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      refute xsd.valid?(@doc)
-    end
+    refute_valid_against_schema 'soap.xsd', @doc
   end
 
   def test_should_validate_against_ws_security_schema
-    wsse = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
-
-    ws_node = @doc.xpath(
-      '//wsse:Security', 'wsse' => wsse
-    )
-
+    wsse    = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+    ws_node = @doc.xpath('//wsse:Security', 'wsse' => wsse)
     ws_node = ws_node.to_xml
     ws_node = Nokogiri::XML(ws_node)
 
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema IO.read 'oasis-200401-wss-wssecurity-secext-1.0.xsd'
-      assert xsd.valid?(ws_node)
-    end
+    assert_valid_against_schema 'oasis-200401-wss-wssecurity-secext-1.0.xsd', ws_node
   end
-
 end

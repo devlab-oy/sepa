@@ -11,6 +11,27 @@ module Minitest::Assertions
            "Expected #{ expected.inspect } and #{ actual.inspect } would not have the same items"
   end
 
+  def assert_valid_against_schema(schema, document)
+    errors = []
+
+    Dir.chdir(SCHEMA_PATH) do
+      xsd = Nokogiri::XML::Schema(IO.read(schema))
+      xsd.validate(document).each do |error|
+        errors << error
+      end
+    end
+
+    assert errors.empty?, "The following schema validations failed:\n#{errors.join("\n")}"
+  end
+
+  def refute_valid_against_schema(schema, document)
+    Dir.chdir(SCHEMA_PATH) do
+      xsd = Nokogiri::XML::Schema(IO.read(schema))
+
+      refute xsd.valid?(document)
+    end
+  end
+
   private
 
     def same_items(expected, actual)

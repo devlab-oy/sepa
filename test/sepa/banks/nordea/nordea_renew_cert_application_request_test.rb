@@ -14,16 +14,7 @@ class NordeaRenewCertApplicationRequestTest < ActiveSupport::TestCase
   end
 
   test "validates against schema" do
-    errors = []
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('cert_application_request.xsd'))
-      xsd.validate(@doc).each do |error|
-        errors << error
-      end
-    end
-
-    assert errors.empty?, "The following schema validations failed:\n#{errors.join("\n")}"
+    assert_valid_against_schema 'cert_application_request.xsd', @doc
   end
 
   test "customer id is set correctly" do

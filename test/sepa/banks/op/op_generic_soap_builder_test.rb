@@ -19,16 +19,7 @@ class OpGenericSoapBuilderTest < ActiveSupport::TestCase
   end
 
   test 'validates against schema' do
-    errors = []
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      xsd.validate(@doc).each do |error|
-        errors << error
-      end
-    end
-
-    assert errors.empty?, "The following schema validations failed:\n#{errors.join("\n")}"
+    assert_valid_against_schema 'soap.xsd', @doc
   end
 
   test 'validates against ws security schema' do
@@ -38,15 +29,6 @@ class OpGenericSoapBuilderTest < ActiveSupport::TestCase
     ws_node = ws_node.to_xml
     ws_node = Nokogiri::XML(ws_node)
 
-    errors = []
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('oasis-200401-wss-wssecurity-secext-1.0.xsd'))
-      xsd.validate(ws_node).each do |error|
-        errors << error
-      end
-    end
-
-    assert errors.empty?, "The following schema validations failed:\n#{errors.join("\n")}"
+    assert_valid_against_schema 'oasis-200401-wss-wssecurity-secext-1.0.xsd', ws_node
   end
 end

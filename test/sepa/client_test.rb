@@ -4,12 +4,12 @@ class ClientTest < ActiveSupport::TestCase
   include Sepa::ErrorMessages
 
   def setup
-
     # Get params hashes from fixtures for different banks and for different request types
     @nordea_generic_params            = nordea_generic_params
     @nordea_get_certificate_params    = nordea_get_certificate_params
     @nordea_renew_certificate_params  = nordea_get_certificate_params
     @danske_create_certificate_params = danske_create_certificate_params
+    @danske_renew_certificate_params  = danske_renew_cert_params
     @danske_generic_params            = danske_generic_params
 
     # Namespaces
@@ -49,7 +49,10 @@ class ClientTest < ActiveSupport::TestCase
   test "correct allowed commands for danske" do
     c = Sepa::Client.new(bank: :danske)
 
-    commands = STANDARD_COMMANDS - [:get_user_info] + [:get_bank_certificate, :create_certificate]
+    commands = [
+      STANDARD_COMMANDS - [:get_user_info],
+      [:get_bank_certificate, :create_certificate, :renew_certificate],
+    ].flatten
 
     assert_same_items commands, c.allowed_commands
   end
@@ -212,11 +215,7 @@ class ClientTest < ActiveSupport::TestCase
     response = client.send_request
 
     assert response.doc.at_css('cor|getUserInfoin', cor: @cor)
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.doc)
-    end
+    assert_valid_against_schema 'soap.xsd', response.doc
   end
 
   test "should_send_proper_request_with_nordea_download_file_list" do
@@ -225,11 +224,7 @@ class ClientTest < ActiveSupport::TestCase
     response = client.send_request
 
     assert response.doc.at_css('cor|downloadFileListin', cor: @cor)
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.doc)
-    end
+    assert_valid_against_schema 'soap.xsd', response.doc
   end
 
   test "should_send_proper_request_with_nordea_download_file" do
@@ -238,11 +233,7 @@ class ClientTest < ActiveSupport::TestCase
     response = client.send_request
 
     assert response.doc.at_css('cor|downloadFilein', cor: @cor)
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.doc)
-    end
+    assert_valid_against_schema 'soap.xsd', response.doc
   end
 
   test "should_send_proper_request_with_nordea_upload_file" do
@@ -251,11 +242,7 @@ class ClientTest < ActiveSupport::TestCase
     response = client.send_request
 
     assert response.doc.at_css('cor|uploadFilein', cor: @cor)
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.doc)
-    end
+    assert_valid_against_schema 'soap.xsd', response.doc
   end
 
   test 'should send proper request with nordea get certificate' do
@@ -263,11 +250,7 @@ class ClientTest < ActiveSupport::TestCase
     response = client.send_request
 
     assert response.doc.at_css('cer|getCertificatein')
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.doc)
-    end
+    assert_valid_against_schema 'soap.xsd', response.doc
   end
 
   test 'sends a proper request with nordea renew certificate' do
@@ -275,17 +258,7 @@ class ClientTest < ActiveSupport::TestCase
     response = client.send_request
 
     assert response.doc.at('cer|getCertificatein')
-
-    errors = []
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      xsd.validate(response.doc).each do |error|
-        errors << error
-      end
-    end
-
-    assert errors.empty?, "The following schema validations failed:\n#{errors.join("\n")}"
+    assert_valid_against_schema 'soap.xsd', response.doc
   end
 
   test 'should send proper request with danske download file list' do
@@ -293,10 +266,7 @@ class ClientTest < ActiveSupport::TestCase
     client = Sepa::Client.new(@danske_generic_params)
     response = client.send_request
 
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.doc)
-    end
+    assert_valid_against_schema 'soap.xsd', response.doc
   end
 
   test 'should send proper request with danske download file' do
@@ -304,49 +274,55 @@ class ClientTest < ActiveSupport::TestCase
     client = Sepa::Client.new(@danske_generic_params)
     response = client.send_request
 
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.doc)
-    end
+    assert_valid_against_schema 'soap.xsd', response.doc
   end
 
   test 'should send proper request with danske upload file' do
     client = Sepa::Client.new(@danske_generic_params)
     response = client.send_request
 
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.doc)
-    end
+    assert_valid_against_schema 'soap.xsd', response.doc
   end
 
   test 'should send proper request with danske create certificate' do
     client = Sepa::Client.new(@danske_create_certificate_params)
     response = client.send_request
 
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(response.doc)
+    assert_valid_against_schema 'soap.xsd', response.doc
+  end
+
+  test 'sends a proper request with danske renew certificate' do
+    client   = Sepa::Client.new(@danske_renew_certificate_params)
+    response = client.send_request
+
+    assert response.doc.at('pkif|RenewCertificateIn', pkif: 'http://danskebank.dk/PKI/PKIFactoryService')
+    assert_valid_against_schema 'soap.xsd', response.doc
+  end
+
+  test "signing csr is checked correctly with danske cert requests" do
+    [
+      @danske_create_certificate_params,
+      @danske_renew_certificate_params,
+    ].each do |params|
+      params.delete(:signing_csr)
+
+      sepa = Sepa::Client.new(params)
+      refute sepa.valid?
+      assert_includes sepa.errors.messages.to_s, SIGNING_CERT_REQUEST_ERROR_MESSAGE
     end
   end
 
+  test "encryption csr is checked correctly with danske cert requests" do
+    [
+      @danske_create_certificate_params,
+      @danske_renew_certificate_params,
+    ].each do |params|
+      params.delete(:encryption_csr)
 
-  test "should_check_signing_cert_request_with_create_certificate" do
-    @danske_create_certificate_params[:command] = :create_certificate
-    @danske_create_certificate_params.delete(:signing_csr)
-
-    sepa = Sepa::Client.new(@danske_create_certificate_params)
-    refute sepa.valid?
-    assert_includes sepa.errors.messages.to_s, SIGNING_CERT_REQUEST_ERROR_MESSAGE
-  end
-
-  test "should_check_encryption_cert_request_with_create_certificate" do
-    @danske_create_certificate_params[:command] = :create_certificate
-    @danske_create_certificate_params.delete(:encryption_csr)
-
-    sepa = Sepa::Client.new(@danske_create_certificate_params)
-    refute sepa.valid?
-    assert_includes sepa.errors.messages.to_s, ENCRYPTION_CERT_REQUEST_ERROR_MESSAGE
+      sepa = Sepa::Client.new(params)
+      refute sepa.valid?
+      assert_includes sepa.errors.messages.to_s, ENCRYPTION_CERT_REQUEST_ERROR_MESSAGE
+    end
   end
 
   test "should_check_pin_with_create_certificate" do

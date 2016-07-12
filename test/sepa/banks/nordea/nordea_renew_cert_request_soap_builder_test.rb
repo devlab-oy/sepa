@@ -14,16 +14,7 @@ class NordeaRenewCertRequestSoapBuilderTest < ActiveSupport::TestCase
   end
 
   test "validates against schema" do
-    errors = []
-
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      xsd.validate(@doc).each do |error|
-        errors << error
-      end
-    end
-
-    assert errors.empty?, "The following schema validations failed:\n#{errors.join("\n")}"
+    assert_valid_against_schema 'soap.xsd', @doc
   end
 
   test 'sender id is properly set' do

@@ -56,10 +56,7 @@ class NordeaCertRequestSoapBuilderTest < ActiveSupport::TestCase
   end
 
   def test_should_validate_against_schema
-    Dir.chdir(SCHEMA_PATH) do
-      xsd = Nokogiri::XML::Schema(IO.read('soap.xsd'))
-      assert xsd.valid?(@xml)
-    end
+    assert_valid_against_schema 'soap.xsd', @xml
   end
 
 end
