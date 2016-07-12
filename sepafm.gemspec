@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.2.5'
 
-  spec.add_dependency 'activemodel', '~> 5.0'
+  spec.add_dependency 'activemodel', '~> 4.2'
   spec.add_dependency 'nokogiri',    '~> 1.6'
   spec.add_dependency 'savon',       '~> 2.11'
 
