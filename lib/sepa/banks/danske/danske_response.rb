@@ -1,9 +1,7 @@
 module Sepa
-
   # Handles Danske Bank specific {Response} functionality. Mainly decryption and certificate
   # specific stuff.
   class DanskeResponse < Response
-
     validate :valid_get_bank_certificate_response
     validate :can_be_decrypted_with_given_key
 
@@ -52,7 +50,7 @@ module Sepa
     # @return [OpenSSL::X509::Certificate] if {#command} is `:create_certificate`
     # @return [nil] if command is any other
     def own_encryption_certificate
-      return unless @command == :create_certificate
+      return unless [:create_certificate, :renew_certificate].include?(@command)
 
       @own_encryption_certificate ||= extract_cert(doc, 'EncryptionCert', DANSKE_PKI)
     end
@@ -63,7 +61,7 @@ module Sepa
     # @return [OpenSSL::X509::Certificate] if {#command} is `:create_certificate`
     # @return [nil] if command is any other
     def own_signing_certificate
-      return unless @command == :create_certificate
+      return unless [:create_certificate, :renew_certificate].include?(@command)
 
       @own_signing_certificate ||= extract_cert(doc, 'SigningCert', DANSKE_PKI)
     end
@@ -74,7 +72,7 @@ module Sepa
     # @return [OpenSSL::X509::Certificate] if {#command} is `:create_certificate`
     # @return [nil] if command is any other
     def ca_certificate
-      return unless @command == :create_certificate
+      return unless [:create_certificate, :renew_certificate].include?(@command)
 
       @ca_certificate ||= extract_cert(doc, 'CACert', DANSKE_PKI)
     end
@@ -86,13 +84,9 @@ module Sepa
     # @return [OpenSSL::X509::Certificate]
     # @raise [OpenSSL::X509::CertificateError] if certificate cannot be processed
     def certificate
-      if [:get_bank_certificate, :create_certificate].include? @command
-        @certificate ||= begin
-          extract_cert(doc, 'X509Certificate', DSIG)
-        end
-      else
-        super
-      end
+      return super unless [:get_bank_certificate, :create_certificate, :renew_certificate].include? @command
+
+      @certificate ||= extract_cert(doc, 'X509Certificate', DSIG)
     end
 
     # Extract response code from the response. Overrides super method when {#command} is
@@ -103,7 +97,7 @@ module Sepa
     # @return [nil] if response code cannot be found
     # @see Response#response_code
     def response_code
-      return super unless [:get_bank_certificate, :create_certificate].include? @command
+      return super unless [:get_bank_certificate, :create_certificate, :renew_certificate].include? @command
 
       node = doc.at('xmlns|ReturnCode', xmlns: DANSKE_PKI)
       node = doc.at('xmlns|ReturnCode', xmlns: DANSKE_PKIF) unless node
@@ -119,10 +113,7 @@ module Sepa
     # @return [nil] if response text cannot be found
     # @see Response#response_text
     def response_text
-      return super unless %i(
-          create_certificate
-          get_bank_certificate
-        ).include? @command
+      return super unless [:get_bank_certificate, :create_certificate, :renew_certificate].include? @command
 
       node = doc.at('xmlns|ReturnText', xmlns: DANSKE_PKI)
       node = doc.at('xmlns|ReturnText', xmlns: DANSKE_PKIF) unless node
@@ -153,7 +144,7 @@ module Sepa
       # @return [Nokogiri::XML::Node] node with signature removed from its document since signature
       #   has to be removed for canonicalization and hash calculation
       def find_node_by_uri(uri)
-        return super unless [:get_bank_certificate, :create_certificate].include? @command
+        return super unless [:get_bank_certificate, :create_certificate, :renew_certificate].include? @command
 
         doc_without_signature = doc.dup
         doc_without_signature.at('xmlns|Signature', xmlns: DSIG).remove
@@ -173,11 +164,11 @@ module Sepa
         key = decrypt_embedded_key
 
         encypted_data = encrypted_application_response
-        .css('CipherValue', 'xmlns' => XMLENC)[1]
-        .content
+                        .css('CipherValue', 'xmlns' => XMLENC)[1]
+                        .content
 
         encypted_data = decode encypted_data
-        iv = encypted_data[0, 8]
+        iv            = encypted_data[0, 8]
         encypted_data = encypted_data[8, encypted_data.length]
 
         decipher = OpenSSL::Cipher.new('DES-EDE3-CBC')
@@ -192,10 +183,9 @@ module Sepa
       # from the bank.
       def valid_get_bank_certificate_response
         return unless @command == :get_bank_certificate
+        return unless doc.at('xmlns|PKIFactoryServiceFault', xmlns: DANSKE_PKIF)
 
-        if doc.at('xmlns|PKIFactoryServiceFault', xmlns: DANSKE_PKIF)
-          errors.add(:base, "Did not get a proper response when trying to get bank's certificates")
-        end
+        errors.add(:base, "Did not get a proper response when trying to get bank's certificates")
       end
 
       # Extracts the encrypted application response from the response and returns it as a nokogiri
@@ -206,19 +196,18 @@ module Sepa
       def encrypted_application_response
         @encrypted_application_response ||= begin
           encrypted_application_response = extract_application_response(BXD)
-          xml_doc encrypted_application_response
+          xml_doc(encrypted_application_response)
         end
       end
 
       # Validates that the encrypted key in the response can be decrypted with the private key given
       # to the response in the parameters. Response is invalid if this cannot be done.
       def can_be_decrypted_with_given_key
-        return if [:get_bank_certificate, :create_certificate].include? @command
+        return if [:get_bank_certificate, :create_certificate, :renew_certificate].include? @command
         return unless encrypted_application_response.css('CipherValue', 'xmlns' => XMLENC)[0]
+        return if decrypt_embedded_key
 
-        unless decrypt_embedded_key
-          errors.add(:encryption_private_key, DECRYPTION_ERROR_MESSAGE)
-        end
+        errors.add(:encryption_private_key, DECRYPTION_ERROR_MESSAGE)
       end
 
       # Decrypts (assymetrically) the symmetric encryption key embedded in the response with the
@@ -235,6 +224,5 @@ module Sepa
       rescue OpenSSL::PKey::RSAError
         nil
       end
-
   end
 end

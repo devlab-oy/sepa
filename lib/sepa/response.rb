@@ -1,5 +1,4 @@
 module Sepa
-
   # Handles soap responses got back from the bank. Bank specific functionality is defined in
   # subclasses. Handles i.e. logic to make sure the response's integrity has not been compromised
   # and has methods to extract content from the response.
@@ -276,9 +275,10 @@ module Sepa
       # @return [nil] if application response cannot be found
       def extract_application_response(namespace)
         ar_node = doc.at('xmlns|ApplicationResponse', xmlns: namespace)
-        if ar_node
-          decode(ar_node.content)
-        end
+
+        return unless ar_node
+
+        decode(ar_node.content)
       end
 
       # Handles errors that have been passed from client
@@ -297,43 +297,34 @@ module Sepa
 
       # Validates response code in response. "00" and "24" are currently considered valid.
       def validate_response_code
-        unless %w(00 24).include? response_code
-          errors.add(:base, { response_code: response_code, response_text: response_text })
-        end
+        return if %w(00 24).include? response_code
+
+        errors.add(:base, response_code: response_code, response_text: response_text)
       end
 
       # Validates hashes in the response. {#hashes_match?} must return true for validation to pass.
       # Is not run if {#error} is present or response code is not ok.
       def validate_hashes
-        return if @error
-        return unless response_code_is_ok?
+        return if @error || !response_code_is_ok? || hashes_match?
 
-        unless hashes_match?
-          errors.add(:base, HASH_ERROR_MESSAGE)
-        end
+        errors.add(:base, HASH_ERROR_MESSAGE)
       end
 
       # Validate signature in the response. Validation is not run if {#error} is present or response
       # is not ok.
       def verify_signature
-        return if @error
-        return unless response_code_is_ok?
+        return if @error || !response_code_is_ok? || signature_is_valid?
 
-        unless signature_is_valid?
-          errors.add(:base, SIGNATURE_ERROR_MESSAGE)
-        end
+        errors.add(:base, SIGNATURE_ERROR_MESSAGE)
       end
 
       # Validates certificate in the soap. The certificate must be present and signed by the bank's
       # root certificate for the validation to pass. Is not run if {#error} is present or response
       # code is not ok.
       def verify_certificate
-        return if @error
-        return unless response_code_is_ok?
+        return if @error || !response_code_is_ok? || certificate_is_trusted?
 
-        unless certificate_is_trusted?
-          errors.add(:base, 'The certificate in the response is not trusted')
-        end
+        errors.add(:base, 'The certificate in the response is not trusted')
       end
 
       # Checks whether response code in the response is ok. Response code is considered ok if it is
@@ -346,6 +337,5 @@ module Sepa
 
         false
       end
-
   end
 end

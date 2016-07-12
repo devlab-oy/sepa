@@ -1,8 +1,6 @@
 module Sepa
-
   # Contains utility methods that are used in this gem.
   module Utilities
-
     # Calculates a SHA1 digest for a given node. Before the calculation, the node is canonicalized
     # exclusively.
     #
@@ -11,7 +9,7 @@ module Sepa
     def calculate_digest(node)
       sha1 = OpenSSL::Digest::SHA1.new
 
-      canon_node = canonicalize_exclusively node
+      canon_node = canonicalize_exclusively(node)
 
       encode(sha1.digest(canon_node)).gsub(/\s+/, "")
     end
@@ -189,9 +187,7 @@ module Sepa
     # @param value [Nokogiri::XML::Node, #canonicalize] the node to be canonicalized
     # @return [String] the canonicalized node
     def canonicalize_exclusively(value)
-      value.canonicalize(mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
-                         inclusive_namespaces = nil,
-                         with_comments = false)
+      value.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0)
     end
 
     # Creates a new OpenSSL X509 certificate from a string
