@@ -208,7 +208,7 @@ module Sepa
       # @return [String] the base64 encoded digest of the {#application_request}
       def calculate_digest
         sha1 = OpenSSL::Digest::SHA1.new
-        encode(sha1.digest(@application_request.canonicalize))
+        encode(sha1.digest(@application_request.canonicalize(canonicalization_mode)))
       end
 
       # Adds value to signature node
@@ -231,7 +231,7 @@ module Sepa
         sha1 = OpenSSL::Digest::SHA1.new
         dsig = 'http://www.w3.org/2000/09/xmldsig#'
         node = @application_request.at_css("dsig|SignedInfo", 'dsig' => dsig)
-        signature = @signing_private_key.sign(sha1, node.canonicalize)
+        signature = @signing_private_key.sign(sha1, node.canonicalize(canonicalization_mode))
         encode signature
       end
 
@@ -265,6 +265,12 @@ module Sepa
         target_id = Nokogiri::XML::Node.new 'TargetId', @application_request
         target_id.content = @target_id
         @application_request.at(node).add_next_sibling target_id
+      end
+
+      def canonicalization_mode
+        return Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0 if @bank == :danske && @command == :renew_certificate
+
+        Nokogiri::XML::XML_C14N_1_0
       end
   end
 end

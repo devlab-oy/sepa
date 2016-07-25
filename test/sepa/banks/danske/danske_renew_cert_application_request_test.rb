@@ -18,12 +18,13 @@ class DanskeRenewCertApplicationRequestTest < ActiveSupport::TestCase
   end
 
   test 'signature is calculated correctly' do
-    sha1        = OpenSSL::Digest::SHA1.new
-    keys_path   = File.expand_path('../keys', __FILE__)
-    private_key = rsa_key(File.read("#{keys_path}/signing_key.pem"))
+    sha1                  = OpenSSL::Digest::SHA1.new
+    keys_path             = File.expand_path('../keys', __FILE__)
+    private_key           = rsa_key(File.read("#{keys_path}/signing_key.pem"))
+    canonicalization_mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0
 
     signed_info_node = @doc.at("dsig|SignedInfo", dsig: 'http://www.w3.org/2000/09/xmldsig#')
-    actual_signature = encode(private_key.sign(sha1, signed_info_node.canonicalize))
+    actual_signature = encode(private_key.sign(sha1, signed_info_node.canonicalize(canonicalization_mode)))
 
     calculated_signature = @doc.at("dsig|SignatureValue", dsig: 'http://www.w3.org/2000/09/xmldsig#').content
 
