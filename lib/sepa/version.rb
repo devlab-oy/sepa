@@ -1,4 +1,9 @@
 module Sepa
   # The current version of the gem
-  VERSION = "1.1.6".freeze
+  MAJOR = 1
+  MINOR = 1
+  TINY  = 7
+  PRE   = nil
+
+  VERSION = [MAJOR, MINOR, TINY, PRE].compact.join('.')
 end
