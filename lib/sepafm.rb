@@ -139,4 +139,6 @@ OP_PKI = 'http://mlp.op.fi/OPCertificateService'
 # Namespace used in OP's certificate application requests and responses
 OP_XML_DATA = 'http://op.fi/mlp/xmldata/'
 
+SAMLINK_PKI = 'http://mlp.op.fi/OPCertificateService'
+
 # @!endgroup
