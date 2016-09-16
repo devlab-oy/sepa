@@ -13,7 +13,7 @@ module Sepa
         [
           STANDARD_COMMANDS,
           :get_certificate,
-          :renew_certificate
+          :renew_certificate,
         ].flatten
       when :danske
         [

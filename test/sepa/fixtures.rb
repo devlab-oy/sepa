@@ -77,7 +77,7 @@ Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
     language: 'FI',
     file_type: 'TITO',
     content: encode("haisuli"),
-    file_reference: "11111111A12006030329501800000014"
+    file_reference: "11111111A12006030329501800000014",
   }
 end
 
@@ -154,7 +154,7 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
     customer_id: '11111111',
     environment: 'test',
     signing_csr: signing_csr,
-    pin: '1234567890'
+    pin: '1234567890',
   }
 end
 
@@ -245,7 +245,7 @@ GuNaWLWOhkOqCtAdNkSGeq/ZKbjYHolGo5FBQqdJnuz0r3I5nfLUNAHXNg==
     customer_id: '1000010583',
     environment: 'test',
     signing_csr: signing_csr,
-    pin:         '2251401483958635'
+    pin:         '2251401483958635',
   }
 end
 

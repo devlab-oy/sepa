@@ -36,7 +36,7 @@ l+Ul4l4+FfAysq3a7b3xoQ59kN1CrEWqDo2KqndxGv6wQft3n/dxnQ==
     options = {
       response: File.read("#{DANSKE_TEST_RESPONSE_PATH}/download_file_list.xml"),
       command: :download_file_list,
-      encryption_private_key: rsa_key(encryption_private_key)
+      encryption_private_key: rsa_key(encryption_private_key),
     }
     @download_file_list_response = Sepa::DanskeResponse.new options
   end
@@ -86,7 +86,7 @@ ufGDBuk6Qe7BSx+/iYvjK1o/IP42RSwj7Ar/IaQuzzfxsflqrGA=
     options = {
       response: File.read("#{DANSKE_TEST_RESPONSE_PATH}/download_file_list.xml"),
       command: :download_file_list,
-      encryption_private_key: rsa_key(wrong_encryption_private_key)
+      encryption_private_key: rsa_key(wrong_encryption_private_key),
     }
     response = Sepa::DanskeResponse.new options
 

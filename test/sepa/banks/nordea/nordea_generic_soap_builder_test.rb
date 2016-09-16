@@ -229,7 +229,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
     )
 
     actual_signature = encode(
-      signing_private_key.sign(sha1, signed_info_node)
+      signing_private_key.sign(sha1, signed_info_node),
     ).gsub(/\s+/, "")
 
     assert_equal actual_signature, added_signature

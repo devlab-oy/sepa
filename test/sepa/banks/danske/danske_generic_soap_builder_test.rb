@@ -119,7 +119,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
     ).content
 
     actual_certificate = x509_certificate(
-      @danske_generic_params.fetch(:own_signing_certificate)
+      @danske_generic_params.fetch(:own_signing_certificate),
     ).to_s
 
     actual_certificate = actual_certificate.split('-----BEGIN CERTIFICATE-----')[1]
@@ -204,7 +204,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
 
     added_signature = @doc.at(
       "//dsig:SignatureValue",
-      'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+      'dsig' => 'http://www.w3.org/2000/09/xmldsig#',
     ).content
 
     signed_info_node = @doc.at("//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
@@ -215,7 +215,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
     )
 
     actual_signature = encode(
-      private_key.sign(sha1, signed_info_node)
+      private_key.sign(sha1, signed_info_node),
     ).gsub(/\s+/, "")
 
     assert_equal actual_signature, added_signature

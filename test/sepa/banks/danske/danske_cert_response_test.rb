@@ -4,19 +4,19 @@ class DanskeCertResponseTest < ActiveSupport::TestCase
   setup do
     options = {
       response: File.read("#{DANSKE_TEST_RESPONSE_PATH}get_bank_cert.xml"),
-      command: :get_bank_certificate
+      command: :get_bank_certificate,
     }
     @get_bank_cert_response = Sepa::DanskeResponse.new options
 
     options = {
       response: File.read("#{DANSKE_TEST_RESPONSE_PATH}create_cert.xml"),
-      command: :create_certificate
+      command: :create_certificate,
     }
     @create_certificate_response = Sepa::DanskeResponse.new options
 
     options = {
       response: File.read("#{DANSKE_TEST_RESPONSE_PATH}get_bank_certificate_not_ok.xml"),
-      command: :get_bank_certificate
+      command: :get_bank_certificate,
     }
     @get_bank_certificate_not_ok_response = Sepa::DanskeResponse.new options
   end

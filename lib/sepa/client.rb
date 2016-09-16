@@ -319,7 +319,7 @@ module Sepa
           command:     command,
           environment: environment,
           error:       error,
-          response:    response
+          response:    response,
         }
         if encryption_private_key && !encryption_private_key.empty?
           options[:encryption_private_key] = rsa_key(encryption_private_key)

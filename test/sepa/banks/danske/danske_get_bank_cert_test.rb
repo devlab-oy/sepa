@@ -7,7 +7,7 @@ class DanskeGetBankCertTest < ActiveSupport::TestCase
       command: :get_bank_certificate,
       bank_root_cert_serial: '1111110002',
       customer_id: '360817',
-      request_id: SecureRandom.hex(5)
+      request_id: SecureRandom.hex(5),
     }
 
     @doc = Sepa::SoapBuilder.new(@get_bank_cert_params)

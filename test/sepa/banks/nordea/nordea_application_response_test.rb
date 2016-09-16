@@ -8,28 +8,28 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   def setup
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/dfl.xml"),
-      command: :download_file_list
+      command: :download_file_list,
     }
     @dfl = Sepa::NordeaResponse.new(options).application_response
     @dfl_doc = xml_doc @dfl
 
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/uf.xml"),
-      command: :upload_file
+      command: :upload_file,
     }
     @uf = Sepa::NordeaResponse.new(options).application_response
     @uf_doc = xml_doc @dfl
 
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_tito.xml"),
-      command: :download_file
+      command: :download_file,
     }
     @df_tito = Sepa::NordeaResponse.new(options).application_response
     @df_tito_doc = xml_doc @df_tito
 
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/gui.xml"),
-      command: :get_user_info
+      command: :get_user_info,
     }
     @gui = Sepa::NordeaResponse.new(options).application_response
     @gui_doc = xml_doc @gui
@@ -90,7 +90,7 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   def test_invalid_df_hash_check_should_not_verify
     digest_value_node = @df_tito_doc.at_css(
       'xmlns|DigestValue',
-      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
     )
 
     digest_value_node.content = digest_value_node.content[4..-1]
@@ -101,7 +101,7 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   def test_invalid_gui_hash_check_should_not_verify
     digest_value_node = @gui_doc.at_css(
       'xmlns|DigestValue',
-      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
     )
 
     digest_value_node.content = '1234' + digest_value_node.content
@@ -128,7 +128,7 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   def test_corrupted_signature_in_dfl_should_fail_signature_verification
     signature_node = @dfl_doc.at_css(
       'xmlns|SignatureValue',
-      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
     )
 
     signature_node.content = signature_node.content[4..-1]
@@ -139,7 +139,7 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   def test_corrupted_signature_in_uf_should_fail_signature_verification
     signature_node = @uf_doc.at_css(
       'xmlns|SignatureValue',
-      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
     )
 
     signature_node.content = signature_node.content[0..-5]
@@ -150,7 +150,7 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   def test_corrupted_signature_in_df_should_fail_signature_verification
     signature_node = @df_tito_doc.at_css(
       'xmlns|SignatureValue',
-      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
     )
 
     signature_node.content = 'a' + signature_node.content[1..-1]
@@ -161,7 +161,7 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   def test_corrupted_signature_in_gui_should_fail_signature_verification
     signature_node = @gui_doc.at_css(
       'xmlns|SignatureValue',
-      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
     )
 
     signature_node.content = 'zombi' + signature_node.content[1..-1]
@@ -172,7 +172,7 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   def test_should_raise_error_if_certificate_corrupted_in_dfl
     cert_node = @dfl_doc.at_css(
       'xmlns|X509Certificate',
-      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
     )
 
     cert_node.content = cert_node.content[0..-5]
@@ -185,7 +185,7 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   def test_should_raise_error_if_certificate_corrupted_in_uf
     cert_node = @uf_doc.at_css(
       'xmlns|X509Certificate',
-      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
     )
 
     cert_node.content = cert_node.content[4..-1]
@@ -198,7 +198,7 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   def test_should_raise_error_if_certificate_corrupted_in_df
     cert_node = @df_tito_doc.at_css(
       'xmlns|X509Certificate',
-      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
     )
 
     cert_node.content = "n5iw#{cert_node.content}"
@@ -211,7 +211,7 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   def test_should_raise_error_if_certificate_corrupted_in_gui
     cert_node = @gui_doc.at_css(
       'xmlns|X509Certificate',
-      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#'
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
     )
 
     cert_node.content = encode 'voivoi'

@@ -6,67 +6,67 @@ class NordeaResponseTest < ActiveSupport::TestCase
   setup do
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/dfl.xml"),
-      command: :download_file_list
+      command: :download_file_list,
     }
     @dfl = Sepa::NordeaResponse.new options
 
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/uf.xml"),
-      command: :upload_file
+      command: :upload_file,
     }
     @uf = Sepa::NordeaResponse.new options
 
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_tito.xml"),
-      command: :download_file
+      command: :download_file,
     }
     @df_tito = Sepa::NordeaResponse.new options
 
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_ktl.xml"),
-      command: :download_file
+      command: :download_file,
     }
     @df_ktl = Sepa::NordeaResponse.new options
 
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/gui.xml"),
-      command: :get_user_info
+      command: :get_user_info,
     }
     @gui = Sepa::NordeaResponse.new options
 
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/gc.xml"),
-      command: :get_certificate
+      command: :get_certificate,
     }
     @gc = Sepa::NordeaResponse.new options
 
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/rc.xml"),
-      command: :renew_certificate
+      command: :renew_certificate,
     }
     @rc = Sepa::NordeaResponse.new options
 
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/not_ok_response_code.xml"),
-      command: :download_file_list
+      command: :download_file_list,
     }
     @not_ok_response_code_response = Sepa::NordeaResponse.new options
 
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/download_file_list_no_content.xml"),
-      command: :download_file_list
+      command: :download_file_list,
     }
     @response_with_code_24 = Sepa::NordeaResponse.new options
 
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/invalid/timestamp_altered.xml"),
-      command: :download_file_list
+      command: :download_file_list,
     }
     @timestamp_altered = Sepa::NordeaResponse.new options
 
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/invalid/body_altered.xml"),
-      command: :upload_file
+      command: :upload_file,
     }
     @body_altered = Sepa::NordeaResponse.new options
   end
