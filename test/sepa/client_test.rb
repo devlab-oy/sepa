@@ -21,7 +21,7 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test "correct banks are supported" do
-    assert_equal [:danske, :nordea, :op].sort, Sepa::Client::BANKS.sort
+    assert_equal [:danske, :nordea, :op, :samlink].sort, Sepa::Client::BANKS.sort
   end
 
   test "correct allowed commands for nordea" do
@@ -52,6 +52,17 @@ class ClientTest < ActiveSupport::TestCase
     commands = [
       STANDARD_COMMANDS - [:get_user_info],
       [:get_bank_certificate, :create_certificate, :renew_certificate],
+    ].flatten
+
+    assert_same_items commands, c.allowed_commands
+  end
+
+  test "correct allowed commands for samlink" do
+    c = Sepa::Client.new(bank: :samlink)
+
+    commands = [
+      STANDARD_COMMANDS - [:get_user_info],
+      [:get_certificate],
     ].flatten
 
     assert_same_items commands, c.allowed_commands

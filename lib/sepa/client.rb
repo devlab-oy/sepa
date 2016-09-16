@@ -167,6 +167,7 @@ module Sepa
       danske
       nordea
       op
+      samlink
     ).freeze
 
     # Languages that are currently supported by the gem

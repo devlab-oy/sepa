@@ -28,6 +28,11 @@ module Sepa
           :get_certificate,
           :get_service_certificates,
         ].flatten
+      when :samlink
+        [
+          STANDARD_COMMANDS - [:get_user_info],
+          :get_certificate,
+        ].flatten
       else
         []
       end
