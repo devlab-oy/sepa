@@ -1,5 +1,4 @@
 module Sepa
-
   # Handles Nordea specific response logic. Mainly certificate specific stuff.
   class NordeaResponse < Response
     include Utilities
@@ -55,6 +54,5 @@ module Sepa
     def certificate_is_trusted?
       verify_certificate_against_root_certificate(certificate, NORDEA_ROOT_CERTIFICATE)
     end
-
   end
 end

@@ -3,12 +3,12 @@ require 'minitest/assertions'
 module Minitest::Assertions
   def assert_same_items(expected, actual)
     assert same_items(expected, actual),
-           "Expected #{ expected.inspect } and #{ actual.inspect } to have the same items"
+           "Expected #{expected.inspect} and #{actual.inspect} to have the same items"
   end
 
   def refute_same_items(expected, actual)
     refute same_items(expected, actual),
-           "Expected #{ expected.inspect } and #{ actual.inspect } would not have the same items"
+           "Expected #{expected.inspect} and #{actual.inspect} would not have the same items"
   end
 
   def assert_valid_against_schema(schema, document)

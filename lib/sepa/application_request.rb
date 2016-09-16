@@ -74,7 +74,7 @@ module Sepa
       # @example Example input and output
       #   :get_user_info --> GetUserInfo
       def pretty_command
-        @command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join
+        @command.to_s.split(/[\W_]/).map(&:capitalize).join
       end
 
       # Determines which content setting method to call depending on {#command}

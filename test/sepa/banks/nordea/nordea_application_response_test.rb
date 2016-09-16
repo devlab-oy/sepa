@@ -235,5 +235,4 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   test 'to_s works' do
     assert_equal @uf, @uf_ar.to_s
   end
-
 end

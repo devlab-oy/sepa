@@ -88,7 +88,7 @@ module Sepa
         valid = file_type.size < 35
       else
         return if bank == :op && %i(download_file
-                                  download_file_list).include?(command)
+                                    download_file_list).include?(command)
 
         valid = !(%i(
           download_file
@@ -103,16 +103,16 @@ module Sepa
     # Checks that {Client#target_id} is valid.
     def check_target_id
       return if %i(
-          create_certificate
-          get_bank_certificate
-          get_certificate
-          renew_certificate
-          get_user_info
-        ).include?(command) ||
-        %i(
-          danske
-          op
-        ).include?(bank)
+        create_certificate
+        get_bank_certificate
+        get_certificate
+        renew_certificate
+        get_user_info
+      ).include?(command) ||
+                %i(
+                  danske
+                  op
+                ).include?(bank)
 
       check_presence_and_length(:target_id, 80, TARGET_ID_ERROR_MESSAGE)
     end
@@ -127,7 +127,7 @@ module Sepa
       check &&= send(attribute)
       check &&= send(attribute).respond_to? :size
       check &&= send(attribute).size < length
-      check &&= send(attribute).size > 0
+      check &&= !send(attribute).empty?
 
       errors.add(attribute, error_message) unless check
     end
@@ -140,7 +140,7 @@ module Sepa
       check = true
       check &&= content
       check &&= content.respond_to? :length
-      check &&= content.length > 0
+      check &&= !content.empty?
 
       errors.add(:content, CONTENT_ERROR_MESSAGE) unless check
     end
@@ -213,6 +213,5 @@ module Sepa
     rescue
       errors.add :encryption_private_key, ENCRYPTION_PRIVATE_KEY_ERROR_MESSAGE
     end
-
   end
 end

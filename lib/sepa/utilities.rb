@@ -89,9 +89,9 @@ module Sepa
       begin
         x509_certificate(cert)
       rescue => e
-        fail OpenSSL::X509::CertificateError,
-             "The certificate could not be processed. It's most likely corrupted. " \
-             "OpenSSL had this to say: #{e}."
+        raise OpenSSL::X509::CertificateError,
+              "The certificate could not be processed. It's most likely corrupted. " \
+              "OpenSSL had this to say: #{e}."
       end
     end
 
@@ -118,7 +118,7 @@ module Sepa
     # @return [Nokogiri::XML::Document] the loaded template
     # @raise [ArgumentError] if a template cannot be found for a command
     def load_body_template(template)
-      fail ArgumentError, 'Unsupported command' unless SUPPORTED_COMMANDS.include?(@command)
+      raise ArgumentError, 'Unsupported command' unless SUPPORTED_COMMANDS.include?(@command)
 
       file = if STANDARD_COMMANDS.include?(@command)
                "#{template}/#{@command}.xml"
@@ -315,6 +315,5 @@ module Sepa
 
       certificate.verify(root_certificate.public_key)
     end
-
   end
 end

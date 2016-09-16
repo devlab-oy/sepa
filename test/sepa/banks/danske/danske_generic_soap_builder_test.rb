@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
-
   def setup
     keys_path = File.expand_path('../keys', __FILE__)
 
@@ -77,7 +76,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
 
   def test_sender_id_is_properly_set
     assert_equal @danske_generic_params[:customer_id],
-      @doc.at("//bxd:SenderId", 'bxd' => 'http://model.bxd.fi').content
+                 @doc.at("//bxd:SenderId", 'bxd' => 'http://model.bxd.fi').content
   end
 
   def test_request_id_is_properly_set
@@ -173,7 +172,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
     timestamp = Time.strptime(timestamp_node.content, '%Y-%m-%dT%H:%M:%S%z')
 
     assert timestamp <= (Time.now + 300) &&
-      timestamp > ((Time.now + 300) - 60)
+           timestamp > ((Time.now + 300) - 60)
   end
 
   def test_header_timestamps_digest_is_calculated_correctly
@@ -251,5 +250,4 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
     assert_nil     application_request.at('ApplicationRequest')
     assert_not_nil application_request.at('xenc|EncryptedData')
   end
-
 end

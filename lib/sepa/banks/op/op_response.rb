@@ -6,7 +6,7 @@ module Sepa
     BYPASS_COMMANDS = %i(
       get_certificate
       get_service_certificates
-    )
+    ).freeze
 
     # Extracts own signing certificate from the response.
     #

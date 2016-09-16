@@ -116,7 +116,7 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test "customer id is correct" do
-    wrong_ids = ["a"*17, nil]
+    wrong_ids = ["a" * 17, nil]
 
     wrong_ids.each do |wrong_id|
       @nordea_generic_params[:customer_id] = wrong_id
@@ -160,7 +160,7 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test 'target id is checked' do
-    wrong_ids = ["ready"*81, nil, false]
+    wrong_ids = ["ready" * 81, nil, false]
     @nordea_generic_params[:command] = :upload_file
 
     wrong_ids.each do |wrong_id|
@@ -182,7 +182,7 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test "file type is checked" do
-    wrong_types = ["kalle"*36, nil, false]
+    wrong_types = ["kalle" * 36, nil, false]
 
     wrong_types.each do |wrong_type|
       [:upload_file, :download_file_list].each do |command|
@@ -372,7 +372,7 @@ class ClientTest < ActiveSupport::TestCase
 
   test "response should be invalid on savon exception" do
     # Create an observer to fake sending requests to bank
-    observer = Class.new {
+    observer = Class.new do
       def notify(operation_name, builder, globals, locals)
         @operation_name = operation_name
         @builder = builder
@@ -380,7 +380,7 @@ class ClientTest < ActiveSupport::TestCase
         @locals  = locals
         HTTPI::Response.new(500, {}, 'THE ERROR!')
       end
-    }.new
+    end.new
 
     Savon.observers << observer
 

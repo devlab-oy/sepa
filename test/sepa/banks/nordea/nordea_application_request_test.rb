@@ -201,10 +201,11 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_signature_is_constructed_correctly
-    #private_key = @params.fetch(:private_key)
+    # private_key = @params.fetch(:private_key)
 
     signed_info_node = @doc_file.at_css(
-    "dsig|SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
+      "dsig|SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
+    )
 
     # The value of the signature node in the constructed ar
     calculated_signature = @doc_file.at_css(
@@ -217,7 +218,8 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
 
     sha1 = OpenSSL::Digest::SHA1.new
     actual_signature = encode(private_key.sign(
-    sha1, signed_info_node.canonicalize))
+                                sha1, signed_info_node.canonicalize
+    ))
 
     # And then of course assert the two are equal
     assert_equal calculated_signature, actual_signature

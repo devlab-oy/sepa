@@ -1,5 +1,4 @@
 module Sepa
-
   # Contains functionality for the application response embedded in {Response}
   # @todo Use functionality from this class more when validating response
   class ApplicationResponse
@@ -96,6 +95,5 @@ module Sepa
       def response_must_validate_against_schema
         check_validity_against_schema(doc, 'application_response.xsd')
       end
-
   end
 end

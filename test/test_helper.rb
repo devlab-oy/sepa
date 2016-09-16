@@ -26,24 +26,24 @@ include Sepa::Utilities
 ActiveSupport::TestCase.test_order = :random
 
 # Test responses
-NORDEA_TEST_RESPONSE_PATH = "#{ROOT_PATH}/test/sepa/banks/nordea/responses"
-DANSKE_TEST_RESPONSE_PATH = "#{ROOT_PATH}/test/sepa/banks/danske/responses/"
+NORDEA_TEST_RESPONSE_PATH = "#{ROOT_PATH}/test/sepa/banks/nordea/responses".freeze
+DANSKE_TEST_RESPONSE_PATH = "#{ROOT_PATH}/test/sepa/banks/danske/responses/".freeze
 
 # Danske Test keys
-DANSKE_TEST_KEYS_PATH = "#{ROOT_PATH}/test/sepa/banks/danske/keys/"
+DANSKE_TEST_KEYS_PATH = "#{ROOT_PATH}/test/sepa/banks/danske/keys/".freeze
 DANSKE_BANK_SIGNING_CERT = File.read "#{DANSKE_TEST_KEYS_PATH}bank_signing_cert.pem"
 DANSKE_BANK_ENCRYPTION_CERT = File.read "#{DANSKE_TEST_KEYS_PATH}bank_encryption_cert.pem"
 DANSKE_BANK_ROOT_CERT = File.read "#{DANSKE_TEST_KEYS_PATH}bank_root_cert.pem"
 DANSKE_OWN_ENCRYPTION_CERT = File.read "#{DANSKE_TEST_KEYS_PATH}own_enc_cert.pem"
 
 # Nordea test keys
-NORDEA_TEST_KEYS_PATH = "#{ROOT_PATH}/test/sepa/banks/nordea/keys/"
+NORDEA_TEST_KEYS_PATH = "#{ROOT_PATH}/test/sepa/banks/nordea/keys/".freeze
 NORDEA_SIGNING_CERTIFICATE = File.read "#{NORDEA_TEST_KEYS_PATH}nordea.crt"
 
 I18n.enforce_available_locales = true
 
 # Create an observer to fake sending requests to bank
-observer = Class.new {
+observer = Class.new do
   def notify(operation_name, builder, globals, locals)
     @operation_name = operation_name
     @builder = builder
@@ -51,6 +51,6 @@ observer = Class.new {
     @locals  = locals
     HTTPI::Response.new(200, { "Reponse is actually" => "the request, w0000t" }, locals[:xml])
   end
-}.new
+end.new
 
 Savon.observers << observer

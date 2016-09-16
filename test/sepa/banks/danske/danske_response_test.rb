@@ -3,7 +3,6 @@ require 'test_helper'
 # Tests Danske Bank specific response stuff
 class DanskeResponseTest < ActiveSupport::TestCase
   setup do
-
     # The private key of the certificate used to encrypt
     # the response which can be used to decrypt it
     encryption_private_key = '-----BEGIN RSA PRIVATE KEY-----

@@ -26,36 +26,33 @@ require 'sepa/version'
 # @todo Put all constants under Sepa namespace
 ROOT_PATH = File.expand_path('../../', __FILE__)
 
-
 # @!group Schemas
 
 # The path where the WSDL-files for different banks are located
-WSDL_PATH = "#{ROOT_PATH}/lib/sepa/wsdl"
+WSDL_PATH = "#{ROOT_PATH}/lib/sepa/wsdl".freeze
 
 # The path where the xml schemas are located
-SCHEMA_PATH = "#{ROOT_PATH}/lib/sepa/xml_schemas"
+SCHEMA_PATH = "#{ROOT_PATH}/lib/sepa/xml_schemas".freeze
 
 # Path to the WSDL schema
-SCHEMA_FILE = "#{ROOT_PATH}/lib/sepa/xml_schemas/wsdl.xml"
+SCHEMA_FILE = "#{ROOT_PATH}/lib/sepa/xml_schemas/wsdl.xml".freeze
 
 # @!endgroup
-
 
 # @!group Templates
 
 # Path to the application request templates
-AR_TEMPLATE_PATH = "#{ROOT_PATH}/lib/sepa/xml_templates/application_request"
+AR_TEMPLATE_PATH = "#{ROOT_PATH}/lib/sepa/xml_templates/application_request".freeze
 
 # Path to the soap templates
-SOAP_TEMPLATE_PATH = "#{ROOT_PATH}/lib/sepa/xml_templates/soap"
+SOAP_TEMPLATE_PATH = "#{ROOT_PATH}/lib/sepa/xml_templates/soap".freeze
 
 # @!endgroup
-
 
 # @!group Certificates
 
 # Path to where the certificates are located
-CERTIFICATE_PATH = "#{ROOT_PATH}/lib/sepa/certificates/"
+CERTIFICATE_PATH = "#{ROOT_PATH}/lib/sepa/certificates/".freeze
 
 nordea_root_certificate_string = File.read("#{CERTIFICATE_PATH}nordea_root_certificate.pem")
 
@@ -74,7 +71,6 @@ OP_ROOT_CERTIFICATE = OpenSSL::X509::Certificate.new op_root_certificate_string
 
 # @!endgroup
 
-
 # @!group Commands
 
 # Commands described in the standard
@@ -83,7 +79,7 @@ STANDARD_COMMANDS = %i(
   download_file_list
   get_user_info
   upload_file
-)
+).freeze
 
 SUPPORTED_COMMANDS =
   STANDARD_COMMANDS +
@@ -97,48 +93,47 @@ SUPPORTED_COMMANDS =
 
 # @!endgroup
 
-
 # @!group XML Namespaces
 
 # Namespace used by XML digital signature
-DSIG = 'http://www.w3.org/2000/09/xmldsig#'
+DSIG = 'http://www.w3.org/2000/09/xmldsig#'.freeze
 
 # Oasis utility namespace used in soap header for security purposes
-OASIS_UTILITY = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
+OASIS_UTILITY = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'.freeze
 
 # Oasis secext namespace used in soap header for security purposes
-OASIS_SECEXT = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+OASIS_SECEXT = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'.freeze
 
 # Namespace used in application requests and application responses
-XML_DATA = 'http://bxd.fi/xmldata/'
+XML_DATA = 'http://bxd.fi/xmldata/'.freeze
 
 # Namespace of the node that contains application request or application response
-BXD = 'http://model.bxd.fi'
+BXD = 'http://model.bxd.fi'.freeze
 
 # Namespace for XML encryption syntax and processing
-XMLENC = 'http://www.w3.org/2001/04/xmlenc#'
+XMLENC = 'http://www.w3.org/2001/04/xmlenc#'.freeze
 
 # Soap envelope namespace
-ENVELOPE = 'http://schemas.xmlsoap.org/soap/envelope/'
+ENVELOPE = 'http://schemas.xmlsoap.org/soap/envelope/'.freeze
 
 # Namespace used in Nordea's certificate requests and responses soap
-NORDEA_PKI = 'http://bxd.fi/CertificateService'
+NORDEA_PKI = 'http://bxd.fi/CertificateService'.freeze
 
 # Namespace used in Nordea's certificate application requests and responses
-NORDEA_XML_DATA = 'http://filetransfer.nordea.com/xmldata/'
+NORDEA_XML_DATA = 'http://filetransfer.nordea.com/xmldata/'.freeze
 
 # Namespace used in Danske Bank's certificate services application requests and responses
-DANSKE_PKI  = 'http://danskebank.dk/PKI/PKIFactoryService/elements'
+DANSKE_PKI  = 'http://danskebank.dk/PKI/PKIFactoryService/elements'.freeze
 
 # Namespace used in Danske Bank's certificate services soap
-DANSKE_PKIF = 'http://danskebank.dk/PKI/PKIFactoryService'
+DANSKE_PKIF = 'http://danskebank.dk/PKI/PKIFactoryService'.freeze
 
 # Namespace used in OP's certificate requests and responses soap
-OP_PKI = 'http://mlp.op.fi/OPCertificateService'
+OP_PKI = 'http://mlp.op.fi/OPCertificateService'.freeze
 
 # Namespace used in OP's certificate application requests and responses
-OP_XML_DATA = 'http://op.fi/mlp/xmldata/'
+OP_XML_DATA = 'http://op.fi/mlp/xmldata/'.freeze
 
-SAMLINK_PKI = 'http://mlp.op.fi/OPCertificateService'
+SAMLINK_PKI = 'http://mlp.op.fi/OPCertificateService'.freeze
 
 # @!endgroup

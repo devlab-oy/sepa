@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
-
   def setup
     @nordea_generic_params = nordea_generic_params
 
@@ -68,7 +67,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
 
   def test_sender_id_is_properly_set
     assert_equal @nordea_generic_params[:customer_id],
-      @doc.xpath("//bxd:SenderId", 'bxd' => 'http://model.bxd.fi').first.content
+                 @doc.xpath("//bxd:SenderId", 'bxd' => 'http://model.bxd.fi').first.content
   end
 
   # Just testing that the content of the node is an actual hex number and that

@@ -1,17 +1,16 @@
 require 'test_helper'
 
 class DanskeCertResponseTest < ActiveSupport::TestCase
-
   setup do
     options = {
-        response: File.read("#{DANSKE_TEST_RESPONSE_PATH}get_bank_cert.xml"),
-        command: :get_bank_certificate
+      response: File.read("#{DANSKE_TEST_RESPONSE_PATH}get_bank_cert.xml"),
+      command: :get_bank_certificate
     }
     @get_bank_cert_response = Sepa::DanskeResponse.new options
 
     options = {
-        response: File.read("#{DANSKE_TEST_RESPONSE_PATH}create_cert.xml"),
-        command: :create_certificate
+      response: File.read("#{DANSKE_TEST_RESPONSE_PATH}create_cert.xml"),
+      command: :create_certificate
     }
     @create_certificate_response = Sepa::DanskeResponse.new options
 
@@ -77,7 +76,7 @@ class DanskeCertResponseTest < ActiveSupport::TestCase
   test 'hashes shouldnt match when data is corrupted' do
     assert_output /These digests failed to verify: {"#response"=>"2vCYl3h7ksRgk7IyV2axgpXxTWM="}/ do
       @create_certificate_response.doc.at('xmlns|ReturnText', xmlns: DANSKE_PKI).content = 'kana'
-      refute @create_certificate_response.hashes_match?({ verbose: true })
+      refute @create_certificate_response.hashes_match?(verbose: true)
     end
   end
 
@@ -107,5 +106,4 @@ class DanskeCertResponseTest < ActiveSupport::TestCase
       x509_certificate certificate
     end
   end
-
 end

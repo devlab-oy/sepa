@@ -1,5 +1,4 @@
 module Sepa
-
   # Builds a soap message with given parameters. This class is extended with proper bank module
   # depending on bank.
   class SoapBuilder
@@ -226,6 +225,5 @@ module Sepa
       def set_application_request
         set_node @template, 'bxd|ApplicationRequest', @application_request.to_base64
       end
-
   end
 end
