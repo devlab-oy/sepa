@@ -28,10 +28,7 @@ Style/IndentationConsistency:
   EnforcedStyle: rails
 
 Style/StringLiterals:
-  SupportedStyles:
-    - single_quotes
-    - double_quotes
-  ConsistentQuotesInMultiline: true
+  Enabled: false
 
 Style/TrailingCommaInLiteral:
   EnforcedStyleForMultiline: comma
