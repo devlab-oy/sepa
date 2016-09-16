@@ -58,11 +58,9 @@ module Sepa
         errors.add(:signing_private_key, "Invalid signing private key")
       end
 
-      begin
-        x509_certificate own_signing_certificate
-      rescue
-        errors.add(:own_signing_certificate, "Invalid signing certificate")
-      end
+      x509_certificate own_signing_certificate
+    rescue
+      errors.add(:own_signing_certificate, "Invalid signing certificate")
     end
 
     # Checks that signing certificate signing request can be initialized properly.
@@ -87,8 +85,7 @@ module Sepa
       if file_type.present?
         valid = file_type.size < 35
       else
-        return if bank == :op && %i(download_file
-                                    download_file_list).include?(command)
+        return if bank == :op && %i(download_file download_file_list).include?(command)
 
         valid = !(%i(
           download_file
@@ -102,17 +99,20 @@ module Sepa
 
     # Checks that {Client#target_id} is valid.
     def check_target_id
-      return if %i(
-        create_certificate
-        get_bank_certificate
-        get_certificate
-        renew_certificate
-        get_user_info
-      ).include?(command) ||
-                %i(
-                  danske
-                  op
-                ).include?(bank)
+      commands = [
+        :create_certificate,
+        :get_bank_certificate,
+        :get_certificate,
+        :get_user_info,
+        :renew_certificate,
+      ]
+
+      banks = [
+        :danske,
+        :op,
+      ]
+
+      return if commands.include?(command) || banks.include?(bank)
 
       check_presence_and_length(:target_id, 80, TARGET_ID_ERROR_MESSAGE)
     end
@@ -156,10 +156,9 @@ module Sepa
     # {Client#command} is `:get_bank_certificate`.
     def check_environment
       return if command == :get_bank_certificate
+      return if Client::ENVIRONMENTS.include?(environment)
 
-      unless Client::ENVIRONMENTS.include? environment
-        errors.add(:environment, ENVIRONMENT_ERROR_MESSAGE)
-      end
+      errors.add(:environment, ENVIRONMENT_ERROR_MESSAGE)
     end
 
     # Checks that {Client#customer_id} is valid
@@ -188,10 +187,9 @@ module Sepa
     # Checks that {Client#status} is included in {Client::STATUSES}.
     def check_status
       return unless [:download_file_list, :download_file].include? command
+      return if status && Client::STATUSES.include?(status)
 
-      unless status && Client::STATUSES.include?(status)
-        errors.add :status, STATUS_ERROR_MESSAGE
-      end
+      errors.add :status, STATUS_ERROR_MESSAGE
     end
 
     # Checks presence and length of {Client#file_reference} if {Client#command} is `:download_file`
