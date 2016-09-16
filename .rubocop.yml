@@ -25,11 +25,16 @@ Style/Documentation:
     - 'test/**/*'
 
 Style/IndentationConsistency:
-  SupportedStyles: rails
+  EnforcedStyle: rails
 
 Style/StringLiterals:
-  SupportedStyles: single_quotes, double_quotes
+  SupportedStyles:
+    - single_quotes
+    - double_quotes
   ConsistentQuotesInMultiline: true
 
 Style/TrailingCommaInLiteral:
-  SupportedStyles: comma
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: comma
