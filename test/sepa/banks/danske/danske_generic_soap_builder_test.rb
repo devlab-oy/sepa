@@ -2,17 +2,6 @@ require 'test_helper'
 
 class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   def setup
-    keys_path = File.expand_path('../keys', __FILE__)
-
-    signing_private_key_path = "#{keys_path}/signing_key.pem"
-    signing_private_key = File.read signing_private_key_path
-
-    signing_certificate_path = "#{keys_path}/own_signing_cert.pem"
-    signing_certificate = File.read signing_certificate_path
-
-    encryption_certificate_path = "#{keys_path}/own_enc_cert.pem"
-    encryption_certificate = File.read encryption_certificate_path
-
     @danske_generic_params = danske_generic_params
 
     # Convert keys in danske generic params, because this is usually done by the client
@@ -70,7 +59,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
     @danske_generic_params[:command] = :wrong_command
 
     assert_raises(ArgumentError) do
-      soap = Sepa::SoapBuilder.new(@danske_generic_params)
+      Sepa::SoapBuilder.new(@danske_generic_params)
     end
   end
 
@@ -140,10 +129,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
       "//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/'
     )
 
-    body_node = body_node.canonicalize(
-      mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
-      inclusive_namespaces = nil, with_comments = false
-    )
+    body_node = canonicalize_exclusively(body_node)
 
     actual_digest = encode(sha1.digest(body_node)).strip
 
@@ -187,10 +173,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
       "//wsu:Timestamp", 'wsu' => wsu
     )
 
-    timestamp_node = timestamp_node.canonicalize(
-      mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, inclusive_namespaces = nil,
-      with_comments = false
-    )
+    timestamp_node = canonicalize_exclusively(timestamp_node)
 
     actual_digest = encode(sha1.digest(timestamp_node)).strip
 
@@ -209,10 +192,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
 
     signed_info_node = @doc.at("//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
 
-    signed_info_node = signed_info_node.canonicalize(
-      mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, inclusive_namespaces = nil,
-      with_comments = false
-    )
+    signed_info_node = canonicalize_exclusively(signed_info_node)
 
     actual_signature = encode(
       private_key.sign(sha1, signed_info_node),

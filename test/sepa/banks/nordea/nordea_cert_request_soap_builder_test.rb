@@ -29,7 +29,7 @@ class NordeaCertRequestSoapBuilderTest < ActiveSupport::TestCase
   def test_should_raise_error_if_command_not_correct
     @nordea_get_certificate_params[:command] = :wrong_command
     assert_raises(ArgumentError) do
-      soap = Sepa::SoapBuilder.new(@nordea_get_certificate_params).to_xml
+      Sepa::SoapBuilder.new(@nordea_get_certificate_params).to_xml
     end
   end
 

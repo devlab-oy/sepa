@@ -178,7 +178,7 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
     assert_raises(ArgumentError) do
       @nordea_generic_params[:command] = :wrong_kind_of_command
       ar = Sepa::ApplicationRequest.new(@nordea_generic_params)
-      doc = ar.get_as_base64
+      ar.get_as_base64
     end
   end
 

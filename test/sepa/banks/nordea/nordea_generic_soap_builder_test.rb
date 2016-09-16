@@ -61,7 +61,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
     @nordea_generic_params[:command] = :wrong_command
 
     assert_raises(ArgumentError) do
-      soap = Sepa::SoapBuilder.new(@nordea_generic_params)
+      Sepa::SoapBuilder.new(@nordea_generic_params)
     end
   end
 
@@ -155,10 +155,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
       "//env:Body", 'env' => 'http://schemas.xmlsoap.org/soap/envelope/'
     ).first
 
-    body_node = body_node.canonicalize(
-      mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, inclusive_namespaces = nil,
-      with_comments = false
-    )
+    body_node = canonicalize_exclusively(body_node)
 
     actual_digest = encode(sha1.digest(body_node)).strip
 
@@ -201,10 +198,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
       "//wsu:Timestamp", 'wsu' => wsu
     ).first
 
-    timestamp_node = timestamp_node.canonicalize(
-      mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, inclusive_namespaces = nil,
-      with_comments = false
-    )
+    timestamp_node = canonicalize_exclusively(timestamp_node)
 
     actual_digest = encode(sha1.digest(timestamp_node)).strip
 
@@ -223,10 +217,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
       "//dsig:SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'
     ).first
 
-    signed_info_node = signed_info_node.canonicalize(
-      mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, inclusive_namespaces = nil,
-      with_comments = false
-    )
+    signed_info_node = canonicalize_exclusively(signed_info_node)
 
     actual_signature = encode(
       signing_private_key.sign(sha1, signed_info_node),

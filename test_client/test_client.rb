@@ -1,3 +1,4 @@
+# Client for testing the gem against banks' test environments
 module Testing
   require          "base64"
   require          "sepafm"
