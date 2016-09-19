@@ -8,11 +8,19 @@ class SamlinkResponseTest < ActiveSupport::TestCase
     )
   end
 
-  test 'response code can be retrieved' do
+  test '#response_code' do
     assert_equal "30", @gc_error_30.response_code
   end
 
-  test 'response text can be retrieved' do
+  test '#response_text' do
     assert_equal "Asiakkaan palvelusopimuksen tarkistuksessa virhe:A00", @gc_error_30.response_text
+  end
+
+  test '#hashes_match' do
+    assert @gc_error_30.hashes_match?
+  end
+
+  test '#signature_is_valid?' do
+    assert @gc_error_30.signature_is_valid?
   end
 end
