@@ -56,7 +56,7 @@ module Sepa
     #
     # @return [Nokogiri::XML] The soap as Nokogiri document
     def doc
-      @doc ||= xml_doc @soap
+      @doc = @soap ? xml_doc(@soap) : xml_doc(@error)
     end
 
     # Returns the error of the response as a Nokogiri document
