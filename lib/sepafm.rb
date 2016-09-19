@@ -1,3 +1,4 @@
+# 3rd party dependencies
 require 'active_model'
 require 'base64'
 require 'nokogiri'
@@ -5,21 +6,27 @@ require 'openssl'
 require 'savon'
 require 'securerandom'
 require 'time'
+
+# Used throughout project so it's important that these be required first
 require 'sepa/utilities'
+
+# Common, again important to require in this order
 require 'sepa/error_messages'
-require 'sepa/attribute_checks'
+require 'sepa/response'
+
 require 'sepa/application_request'
 require 'sepa/application_response'
-require 'sepa/client'
-require 'sepa/response'
-require 'sepa/banks/nordea/nordea_response'
+require 'sepa/attribute_checks'
 require 'sepa/banks/danske/danske_response'
-require 'sepa/banks/op/op_response'
-require 'sepa/soap_builder'
 require 'sepa/banks/danske/soap_danske'
+require 'sepa/banks/nordea/nordea_response'
 require 'sepa/banks/nordea/soap_nordea'
+require 'sepa/banks/op/op_response'
 require 'sepa/banks/op/soap_op'
+require 'sepa/banks/samlink/samlink_response'
 require 'sepa/banks/samlink/soap_samlink'
+require 'sepa/client'
+require 'sepa/soap_builder'
 require 'sepa/version'
 
 # The root path of where the gem is installed

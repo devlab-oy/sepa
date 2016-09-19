@@ -26,8 +26,9 @@ include Sepa::Utilities
 ActiveSupport::TestCase.test_order = :random
 
 # Test responses
-NORDEA_TEST_RESPONSE_PATH = "#{ROOT_PATH}/test/sepa/banks/nordea/responses".freeze
-DANSKE_TEST_RESPONSE_PATH = "#{ROOT_PATH}/test/sepa/banks/danske/responses/".freeze
+DANSKE_TEST_RESPONSE_PATH  = "#{ROOT_PATH}/test/sepa/banks/danske/responses/".freeze
+NORDEA_TEST_RESPONSE_PATH  = "#{ROOT_PATH}/test/sepa/banks/nordea/responses".freeze
+SAMLINK_TEST_RESPONSE_PATH = "#{ROOT_PATH}/test/sepa/banks/samlink/responses/".freeze
 
 # Danske Test keys
 DANSKE_TEST_KEYS_PATH = "#{ROOT_PATH}/test/sepa/banks/danske/keys/".freeze
