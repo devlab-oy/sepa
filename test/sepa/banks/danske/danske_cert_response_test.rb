@@ -15,6 +15,12 @@ class DanskeCertResponseTest < ActiveSupport::TestCase
     @create_certificate_response = Sepa::DanskeResponse.new options
 
     options = {
+      response: File.read("#{DANSKE_TEST_RESPONSE_PATH}create_cert_corrupted.xml"),
+      command: :create_certificate,
+    }
+    @create_certificate_corrupted_response = Sepa::DanskeResponse.new options
+
+    options = {
       response: File.read("#{DANSKE_TEST_RESPONSE_PATH}get_bank_certificate_not_ok.xml"),
       command: :get_bank_certificate,
     }
@@ -75,8 +81,7 @@ class DanskeCertResponseTest < ActiveSupport::TestCase
 
   test 'hashes shouldnt match when data is corrupted' do
     assert_output(/These digests failed to verify: {"#response"=>"2vCYl3h7ksRgk7IyV2axgpXxTWM="}/) do
-      @create_certificate_response.doc.at('xmlns|ReturnText', xmlns: DANSKE_PKI).content = 'kana'
-      refute @create_certificate_response.hashes_match?(verbose: true)
+      refute @create_certificate_corrupted_response.hashes_match?(verbose: true)
     end
   end
 
