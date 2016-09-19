@@ -436,4 +436,10 @@ class ClientTest < ActiveSupport::TestCase
     refute client.valid?
     refute_empty client.errors.messages
   end
+
+  test 'savon options can be passed to client and accessed' do
+    client = Sepa::Client.new
+    assert client.respond_to?(:savon_options)
+    assert client.respond_to?(:savon_options=)
+  end
 end

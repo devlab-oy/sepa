@@ -162,6 +162,21 @@ module Sepa
     # @see #signing_csr The format is the same as in signing csr
     attr_accessor :encryption_csr
 
+    # Options to be passed directly to the underlying savon client. Format is as follows:
+    # {
+    #    globals: {
+    #      ssl_verify_mode: :none,
+    #      ...,
+    #    },
+    #    locals: {
+    #      xml: "<envelope></envelope>",
+    #      ...,
+    #    },
+    # }
+    #
+    # @return [Hash]
+    attr_accessor :savon_options
+
     # The list of banks that are currently supported by this gem
     BANKS = %i(
       danske
@@ -205,9 +220,13 @@ module Sepa
     # @param hash [Hash] All the attributes of the client can be given to the construcor in a hash
     def initialize(hash = {})
       attributes(hash)
-      self.environment ||= :production
-      self.language    ||= 'EN'
-      self.status      ||= 'NEW'
+      self.environment   ||= :production
+      self.language      ||= 'EN'
+      self.status        ||= 'NEW'
+      self.savon_options ||= {
+        globals: {},
+        locals: {},
+      }
     end
 
     def bank=(value)
@@ -250,12 +269,12 @@ module Sepa
     def send_request
       raise ArgumentError, errors.messages unless valid?
 
-      soap = SoapBuilder.new(create_hash).to_xml
-      client = Savon.client(wsdl: wsdl)
+      soap   = SoapBuilder.new(create_hash).to_xml
+      client = Savon.client({ wsdl: wsdl }.merge(savon_options[:globals]))
 
       begin
         error = nil
-        response = client.call(soap_command, xml: soap)
+        response = client.call(soap_command, { xml: soap }.merge(savon_options[:locals]))
         response &&= response.to_xml
       rescue Savon::Error => e
         response = nil
