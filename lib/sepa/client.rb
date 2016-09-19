@@ -269,12 +269,11 @@ module Sepa
     def send_request
       raise ArgumentError, errors.messages unless valid?
 
-      soap   = SoapBuilder.new(create_hash).to_xml
-      client = Savon.client({ wsdl: wsdl }.merge(savon_options[:globals]))
+      client = Savon.client(savon_globals)
 
       begin
         error = nil
-        response = client.call(soap_command, { xml: soap }.merge(savon_options[:locals]))
+        response = client.call(soap_command, savon_locals)
         response &&= response.to_xml
       rescue Savon::Error => e
         response = nil
@@ -353,6 +352,14 @@ module Sepa
         else
           @command
         end
+      end
+
+      def savon_globals
+        { wsdl: wsdl }.merge(savon_options[:globals] || {})
+      end
+
+      def savon_locals
+        { xml: SoapBuilder.new(create_hash).to_xml }.merge(savon_options[:locals] || {})
       end
   end
 end

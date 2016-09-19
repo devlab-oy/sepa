@@ -438,8 +438,17 @@ class ClientTest < ActiveSupport::TestCase
   end
 
   test 'savon options can be passed to client and accessed' do
-    client = Sepa::Client.new
+    client = Sepa::Client.new(@nordea_get_certificate_params)
+
     assert client.respond_to?(:savon_options)
     assert client.respond_to?(:savon_options=)
+
+    client.savon_options = {
+      globals: {
+        ssl_verify_mode: :none,
+      },
+    }
+
+    assert_nothing_raised { client.send_request }
   end
 end
