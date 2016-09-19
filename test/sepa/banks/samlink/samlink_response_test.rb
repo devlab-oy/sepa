@@ -11,4 +11,8 @@ class SamlinkResponseTest < ActiveSupport::TestCase
   test 'response code can be retrieved' do
     assert_equal "30", @gc_error_30.response_code
   end
+
+  test 'response text can be retrieved' do
+    assert_equal "Asiakkaan palvelusopimuksen tarkistuksessa virhe:A00", @gc_error_30.response_text
+  end
 end
