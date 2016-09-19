@@ -23,4 +23,8 @@ class SamlinkResponseTest < ActiveSupport::TestCase
   test '#signature_is_valid?' do
     assert @gc_error_30.signature_is_valid?
   end
+
+  test '#certificate' do
+    assert_equal OpenSSL::X509::Certificate, @gc_error_30.certificate.class
+  end
 end
