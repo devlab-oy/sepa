@@ -2,6 +2,7 @@ module Sepa
   # Handles Danske Bank specific {Response} functionality. Mainly decryption and certificate
   # specific stuff.
   class DanskeResponse < Response
+    CERTIFICATE_COMMANDS = [:get_bank_certificate, :create_certificate, :renew_certificate].freeze
     validate :valid_get_bank_certificate_response
     validate :can_be_decrypted_with_given_key
 
@@ -84,21 +85,21 @@ module Sepa
     # @return [OpenSSL::X509::Certificate]
     # @raise [OpenSSL::X509::CertificateError] if certificate cannot be processed
     def certificate
-      return super unless [:get_bank_certificate, :create_certificate, :renew_certificate].include? @command
+      return super unless CERTIFICATE_COMMANDS.include? @command
 
       @certificate ||= extract_cert(doc, 'X509Certificate', DSIG)
     end
 
     # @see Response#response_code
     def response_code
-      return super unless [:get_bank_certificate, :create_certificate, :renew_certificate].include? @command
+      return super unless CERTIFICATE_COMMANDS.include? @command
 
       super(namespace: DANSKE_PKI, node_name: 'ReturnCode') || super(namespace: DANSKE_PKIF, node_name: 'ReturnCode')
     end
 
     # @see Response#response_text
     def response_text
-      return super unless [:get_bank_certificate, :create_certificate, :renew_certificate].include? @command
+      return super unless CERTIFICATE_COMMANDS.include? @command
 
       super(namespace: DANSKE_PKI, node_name: 'ReturnText') || super(namespace: DANSKE_PKIF, node_name: 'ReturnText')
     end
@@ -126,7 +127,7 @@ module Sepa
       # @return [Nokogiri::XML::Node] node with signature removed from its document since signature
       #   has to be removed for canonicalization and hash calculation
       def find_node_by_uri(uri)
-        return super unless [:get_bank_certificate, :create_certificate, :renew_certificate].include? @command
+        return super unless CERTIFICATE_COMMANDS.include? @command
 
         doc_without_signature = doc.dup
         doc_without_signature.at('xmlns|Signature', xmlns: DSIG).remove
@@ -185,7 +186,7 @@ module Sepa
       # Validates that the encrypted key in the response can be decrypted with the private key given
       # to the response in the parameters. Response is invalid if this cannot be done.
       def can_be_decrypted_with_given_key
-        return if [:get_bank_certificate, :create_certificate, :renew_certificate].include? @command
+        return if CERTIFICATE_COMMANDS.include? @command
         return unless encrypted_application_response.css('CipherValue', 'xmlns' => XMLENC)[0]
         return if decrypt_embedded_key
 
