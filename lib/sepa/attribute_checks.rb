@@ -99,7 +99,7 @@ module Sepa
 
     # Checks that {Client#target_id} is valid.
     def check_target_id
-      commands = [
+      exclude_commands = [
         :create_certificate,
         :get_bank_certificate,
         :get_certificate,
@@ -107,12 +107,13 @@ module Sepa
         :renew_certificate,
       ]
 
-      banks = [
+      exclude_banks = [
         :danske,
         :op,
+        :samlink,
       ]
 
-      return if commands.include?(command) || banks.include?(bank)
+      return if exclude_commands.include?(command) || exclude_banks.include?(bank)
 
       check_presence_and_length(:target_id, 80, TARGET_ID_ERROR_MESSAGE)
     end
