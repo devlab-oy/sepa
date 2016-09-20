@@ -24,36 +24,18 @@ module Sepa
       cert.to_s
     end
 
-    # Returns the response code in the response. Overrides {Response#response_code} if {#command} is
-    # `:get_certificate`, because the namespace is different with that command.
-    #
-    # @return [String] response code if it is found
-    # @return [nil] if response code cannot be found
     # @see Response#response_code
     def response_code
-      return super unless %i(
-        get_certificate
-        get_service_certificates
-      ).include? command
+      return super unless [:get_certificate, :get_service_certificates].include? command
 
-      node = doc.at('xmlns|ResponseCode', xmlns: OP_PKI)
-      node.content if node
+      super(namespace: OP_PKI)
     end
 
-    # Returns the response text in the response. Overrides {Response#response_text} if {#command} is
-    # `:get_certificate`, because the namespace is different with that command.
-    #
-    # @return [String] response text if it is found
-    # @return [nil] if response text cannot be found
     # @see Response#response_text
     def response_text
-      return super unless %i(
-        get_certificate
-        get_service_certificates
-      ).include? command
+      return super unless [:get_certificate, :get_service_certificates].include? command
 
-      node = doc.at('xmlns|ResponseText', xmlns: OP_PKI)
-      node.content if node
+      super(namespace: OP_PKI)
     end
 
     # Checks whether the certificate embedded in the response soap has been signed with OP's

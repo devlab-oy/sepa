@@ -207,20 +207,16 @@ module Sepa
     #
     # @return [String] if the response code can be found
     # @return [nil] if the response code cannot be found
-    def response_code
-      node = doc.at('xmlns|ResponseCode', xmlns: BXD)
-      node = error_doc.at('xmlns|ResponseCode', xmlns: BXD) unless node
-      node.content if node
+    def response_code(namespace: BXD, node_name: 'ResponseCode')
+      (node = doc.at("xmlns|#{node_name}", xmlns: namespace)) && node.content
     end
 
     # Returns the response text of the response
     #
     # @return [String] if the response text can be found
     # @return [nil] if the response text cannot be found
-    def response_text
-      node = doc.at('xmlns|ResponseText', xmlns: BXD)
-      node = error_doc.at('xmlns|ResponseText', xmlns: BXD) unless node
-      node.content if node
+    def response_text(namespace: BXD, node_name: 'ResponseText')
+      (node = doc.at("xmlns|#{node_name}", xmlns: namespace)) && node.content
     end
 
     private

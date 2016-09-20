@@ -89,36 +89,18 @@ module Sepa
       @certificate ||= extract_cert(doc, 'X509Certificate', DSIG)
     end
 
-    # Extract response code from the response. Overrides super method when {#command} is
-    # `:get_bank_certificate`, `:create_certificate` or `:renew_certificate` because response code node is named
-    # differently in those responses.
-    #
-    # @return [String] if response code is found
-    # @return [nil] if response code cannot be found
     # @see Response#response_code
     def response_code
       return super unless [:get_bank_certificate, :create_certificate, :renew_certificate].include? @command
 
-      node = doc.at('xmlns|ReturnCode', xmlns: DANSKE_PKI)
-      node = doc.at('xmlns|ReturnCode', xmlns: DANSKE_PKIF) unless node
-
-      node.content if node
+      super(namespace: DANSKE_PKI, node_name: 'ReturnCode') || super(namespace: DANSKE_PKIF, node_name: 'ReturnCode')
     end
 
-    # Extract response text from the response. Overrides super method when {#command} is
-    # `:get_bank_certificate`, `:create_certificate` or `:renew_certificate` because response text node is named
-    # differently in those responses.
-    #
-    # @return [String] if response text is found
-    # @return [nil] if response text cannot be found
     # @see Response#response_text
     def response_text
       return super unless [:get_bank_certificate, :create_certificate, :renew_certificate].include? @command
 
-      node = doc.at('xmlns|ReturnText', xmlns: DANSKE_PKI)
-      node = doc.at('xmlns|ReturnText', xmlns: DANSKE_PKIF) unless node
-
-      node.content if node
+      super(namespace: DANSKE_PKI, node_name: 'ReturnText') || super(namespace: DANSKE_PKIF, node_name: 'ReturnText')
     end
 
     # Checks whether certificate embedded in the response has been signed with the bank's root
