@@ -27,17 +27,13 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_schemas_are_unmodified
-    sha1 = OpenSSL::Digest::SHA1.new
+    ar_schema             = File.read("#{SCHEMA_PATH}/application_request.xsd")
+    xmldsig_schema        = File.read("#{SCHEMA_PATH}/xmldsig-core-schema.xsd")
+    ar_schema_digest      = Digest::MD5.hexdigest(ar_schema)
+    xmldsig_schema_digest = Digest::MD5.hexdigest(xmldsig_schema)
 
-    ar_schema = File.read("#{SCHEMA_PATH}/application_request.xsd")
-    xmldsig_schema = File.read("#{SCHEMA_PATH}/xmldsig-core-schema.xsd")
-    ar_schema_digest = sha1.digest(ar_schema)
-
-    sha1.reset
-
-    xmldsig_schema_digest = sha1.digest(xmldsig_schema)
-    assert_equal encode(ar_schema_digest).strip, "1O24A7+/6S7CFYVlhH1jEZh1ARs="
-    assert_equal encode(xmldsig_schema_digest).strip, "bmG0+2KykgkLeWsXsl6CFbyo4Yc="
+    assert_equal ar_schema_digest,      "8ac85e57fc3af6bf44d629b9ab73c5ff"
+    assert_equal xmldsig_schema_digest, "541dd8dc113f715c166f6f1a5b54c2f1"
   end
 
   def test_ar_should_initialize_with_proper_params
