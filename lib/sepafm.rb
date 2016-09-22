@@ -56,17 +56,17 @@ SOAP_TEMPLATE_PATH = "#{ROOT_PATH}/lib/sepa/xml_templates/soap"
 # Path to where the certificates are located
 CERTIFICATE_PATH = "#{ROOT_PATH}/lib/sepa/certificates/"
 
-nordea_root_certificate_string = File.read("#{CERTIFICATE_PATH}nordea_root_certificate.cer")
+nordea_root_certificate_string = File.read("#{CERTIFICATE_PATH}nordea_root_certificate.pem")
 
 # Nordea's root certificate as an OpenSSL::X509::Certificate
 NORDEA_ROOT_CERTIFICATE = OpenSSL::X509::Certificate.new nordea_root_certificate_string
 
-danske_root_certificate_string = File.read("#{CERTIFICATE_PATH}danske_root_certificate.cer")
+danske_root_certificate_string = File.read("#{CERTIFICATE_PATH}danske_root_certificate.pem")
 
 # Danske Bank's root certificate as an OpenSSL::X509::Certificate
 DANSKE_ROOT_CERTIFICATE = OpenSSL::X509::Certificate.new danske_root_certificate_string
 
-op_root_certificate_string = File.read("#{CERTIFICATE_PATH}op_root_certificate.cer")
+op_root_certificate_string = File.read("#{CERTIFICATE_PATH}op_root_certificate.pem")
 
 # OP's root certificate as an OpenSSL::X509::Certificate
 OP_ROOT_CERTIFICATE = OpenSSL::X509::Certificate.new op_root_certificate_string
