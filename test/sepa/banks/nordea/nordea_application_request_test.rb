@@ -32,8 +32,8 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
     ar_schema_digest      = Digest::MD5.hexdigest(ar_schema)
     xmldsig_schema_digest = Digest::MD5.hexdigest(xmldsig_schema)
 
-    assert_equal ar_schema_digest,      "8ac85e57fc3af6bf44d629b9ab73c5ff"
-    assert_equal xmldsig_schema_digest, "541dd8dc113f715c166f6f1a5b54c2f1"
+    assert_equal "8ac85e57fc3af6bf44d629b9ab73c5ff", ar_schema_digest
+    assert_equal "541dd8dc113f715c166f6f1a5b54c2f1", xmldsig_schema_digest
   end
 
   def test_ar_should_initialize_with_proper_params
