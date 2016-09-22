@@ -27,8 +27,8 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_schemas_are_unmodified
-    ar_schema             = File.read("#{SCHEMA_PATH}/application_request.xsd")
-    xmldsig_schema        = File.read("#{SCHEMA_PATH}/xmldsig-core-schema.xsd")
+    ar_schema             = File.read("#{SCHEMA_PATH}/application_request.xsd", mode: 'rb')
+    xmldsig_schema        = File.read("#{SCHEMA_PATH}/xmldsig-core-schema.xsd", mode: 'rb')
     ar_schema_digest      = Digest::MD5.hexdigest(ar_schema)
     xmldsig_schema_digest = Digest::MD5.hexdigest(xmldsig_schema)
 

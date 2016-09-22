@@ -10,7 +10,7 @@ class NordeaCertApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_schemas_are_unmodified
-    cert_schema = File.read("#{SCHEMA_PATH}/cert_application_request.xsd")
+    cert_schema = File.read("#{SCHEMA_PATH}/cert_application_request.xsd", mode: 'rb')
     cert_digest = Digest::MD5.hexdigest(cert_schema)
 
     assert_equal cert_digest, "840eb9631ee4f7018f8765bf039717b6"
