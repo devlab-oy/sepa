@@ -62,7 +62,7 @@ class ClientTest < ActiveSupport::TestCase
 
     commands = [
       STANDARD_COMMANDS - [:get_user_info],
-      [:get_certificate],
+      [:get_certificate, :renew_certificate],
     ].flatten
 
     assert_same_items commands, c.allowed_commands

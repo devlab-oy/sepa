@@ -32,6 +32,7 @@ module Sepa
         [
           STANDARD_COMMANDS - [:get_user_info],
           :get_certificate,
+          :renew_certificate,
         ].flatten
       else
         []
