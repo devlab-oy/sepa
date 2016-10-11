@@ -27,6 +27,7 @@ module Testing
     :op_get_certificate,
     :op_get_service_certificates,
     :samlink_get_certificate,
+    :samlink_renew_certificate,
   ].each_with_object({}) do |i, a|
     a[i] = Sepa::Client.new("#{i.to_s.upcase}_PARAMS".constantize)
   end
