@@ -131,7 +131,7 @@ module Sepa
       # Sets nodes' contents for renew certificate request
       def set_renew_certificate_nodes
         case @bank
-        when :nordea, :op
+        when :nordea, :op, :samlink
           set_node "Service", "service" if @bank == :nordea
           set_node "Content", format_cert_request(@signing_csr)
         when :danske
