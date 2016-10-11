@@ -3,16 +3,16 @@ module Sepa
   class SamlinkResponse < Response
     # @see Response#response_code
     def response_code
-      super(namespace: SAMLINK_PKI)
+      [:get_certificate, :renew_certificate].include?(command) ? super(namespace: SAMLINK_PKI) : super
     end
 
     # @see Response#response_code
     def response_text
-      super(namespace: SAMLINK_PKI)
+      [:get_certificate, :renew_certificate].include?(command) ? super(namespace: SAMLINK_PKI) : super
     end
 
     def application_response
-      super(namespace: SAMLINK_PKI)
+      [:get_certificate, :renew_certificate].include?(command) ? super(namespace: SAMLINK_PKI) : super
     end
 
     def own_signing_certificate
