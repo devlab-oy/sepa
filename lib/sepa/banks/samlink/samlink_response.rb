@@ -10,5 +10,15 @@ module Sepa
     def response_text
       super(namespace: SAMLINK_PKI)
     end
+
+    def application_response
+      super(namespace: SAMLINK_PKI)
+    end
+
+    def own_signing_certificate
+      (node = Nokogiri::XML(application_response).at('xmlns|Certificate > xmlns|Certificate', xmlns: OP_XML_DATA)) &&
+        (content = node.content) &&
+        x509_certificate(decode(content)).to_s
+    end
   end
 end

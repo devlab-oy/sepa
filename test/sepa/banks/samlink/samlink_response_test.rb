@@ -6,25 +6,43 @@ class SamlinkResponseTest < ActiveSupport::TestCase
       response: File.read("#{SAMLINK_TEST_RESPONSE_PATH}/gc_error_30.xml"),
       command: :get_certificate,
     )
+
+    @rc = Sepa::SamlinkResponse.new(
+      response: File.read("#{SAMLINK_TEST_RESPONSE_PATH}/rc.xml"),
+      command: :renew_certificate,
+    )
   end
 
   test '#response_code' do
     assert_equal "30", @gc_error_30.response_code
+    assert_equal "00", @rc.response_code
   end
 
   test '#response_text' do
     assert_equal "Asiakkaan palvelusopimuksen tarkistuksessa virhe:A00", @gc_error_30.response_text
+    assert_equal "OK", @rc.response_text
   end
 
   test '#hashes_match' do
     assert @gc_error_30.hashes_match?
+    assert @rc.hashes_match?
   end
 
   test '#signature_is_valid?' do
     assert @gc_error_30.signature_is_valid?
+    assert @rc.signature_is_valid?
   end
 
   test '#certificate' do
     assert_equal OpenSSL::X509::Certificate, @gc_error_30.certificate.class
+    assert_equal OpenSSL::X509::Certificate, @rc.certificate.class
+  end
+
+  test '#application_response' do
+    refute_empty @rc.application_response
+  end
+
+  test '#own_signing_certificate' do
+    assert_nothing_raised { x509_certificate @rc.own_signing_certificate }
   end
 end

@@ -121,8 +121,8 @@ module Sepa
     # {#extract_application_response} to do the extraction.
     #
     # @return [String] The application response as a raw xml document
-    def application_response
-      @application_response ||= extract_application_response(BXD)
+    def application_response(namespace: BXD)
+      @application_response ||= extract_application_response(namespace)
     end
 
     # Returns the file references in a download file list response
@@ -208,7 +208,7 @@ module Sepa
     # @return [String] if the response code can be found
     # @return [nil] if the response code cannot be found
     def response_code(namespace: BXD, node_name: 'ResponseCode')
-      (node = doc.at("xmlns|#{node_name}", xmlns: namespace)) && node.content
+      (node = doc.at("xmlns|#{node_name}", xmlns: namespace)) && node.content && node.content.rjust(2, '0')
     end
 
     # Returns the response text of the response
