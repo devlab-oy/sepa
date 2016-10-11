@@ -20,5 +20,9 @@ module Sepa
         (content = node.content) &&
         x509_certificate(decode(content)).to_s
     end
+
+    def certificate_is_trusted?
+      verify_certificate_against_root_certificate(certificate, SAMLINK_ROOT_CERTIFICATE)
+    end
   end
 end

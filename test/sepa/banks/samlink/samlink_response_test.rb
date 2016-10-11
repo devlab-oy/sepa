@@ -39,10 +39,16 @@ class SamlinkResponseTest < ActiveSupport::TestCase
   end
 
   test '#application_response' do
+    refute_empty @gc_error_30.application_response
     refute_empty @rc.application_response
   end
 
   test '#own_signing_certificate' do
+    assert_nil @gc_error_30.own_signing_certificate
     assert_nothing_raised { x509_certificate @rc.own_signing_certificate }
+  end
+
+  test '#certificate_is_trusted?' do
+    assert @rc.certificate_is_trusted?
   end
 end
