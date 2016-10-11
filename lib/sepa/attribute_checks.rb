@@ -188,6 +188,7 @@ module Sepa
 
     # Checks that {Client#status} is included in {Client::STATUSES}.
     def check_status
+      return if bank == :samlink && command != :download_file_list
       return unless [:download_file_list, :download_file].include? command
       return if status && Client::STATUSES.include?(status)
 
