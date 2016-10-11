@@ -87,7 +87,7 @@ module Sepa
       # Sets nodes' values for download file request
       def set_download_file_nodes
         add_node_after('FileReferences', 'TargetId', content: @target_id) if @bank == :nordea
-        set_node("Status", @status)
+        add_node_after('Timestamp', 'Status', content: @status) if @status.present?
         add_node_to_root 'FileType', content: @file_type if @file_type.present?
         set_node("FileReference", @file_reference)
       end
@@ -116,7 +116,7 @@ module Sepa
       # Sets nodes' contents for download file list request
       def set_download_file_list_nodes
         add_node_after('Environment', 'TargetId', content: @target_id) if @bank == :nordea
-        set_node("Status", @status)
+        add_node_after('Timestamp', 'Status', content: @status) if @status.present?
         add_node_to_root 'FileType', content: @file_type if @file_type.present?
       end
 

@@ -596,7 +596,6 @@ Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
     file_type:               'TO',
     own_signing_certificate: own_signing_certificate,
     signing_private_key:     signing_private_key,
-    status:                  'ALL',
     target_id:               '11111111A1',
   }
 end
