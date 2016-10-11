@@ -25,7 +25,7 @@ class SamlinkResponseTest < ActiveSupport::TestCase
   end
 
   test '#response_text' do
-    assert_equal "Asiakkaan palvelusopimuksen tarkistuksessa virhe:A00", @gc_error_30.response_text
+    assert_equal "Asiakkaan palvelusopimuksen tarkistuksessa virhe:CIQ", @gc_error_30.response_text
     assert_equal "OK", @rc.response_text
     assert_equal "OK", @dfl.response_text
   end
@@ -61,6 +61,7 @@ class SamlinkResponseTest < ActiveSupport::TestCase
   end
 
   test '#certificate_is_trusted?' do
+    assert @gc_error_30.certificate_is_trusted?
     assert @rc.certificate_is_trusted?
     assert @dfl.certificate_is_trusted?
   end
