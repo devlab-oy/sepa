@@ -3,6 +3,7 @@ module Sepa
   # specific stuff.
   class DanskeResponse < Response
     CERTIFICATE_COMMANDS = [:get_bank_certificate, :create_certificate, :renew_certificate].freeze
+
     validate :valid_get_bank_certificate_response
     validate :can_be_decrypted_with_given_key
 
