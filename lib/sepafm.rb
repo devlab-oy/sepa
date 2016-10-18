@@ -77,9 +77,11 @@ op_root_certificate_string = File.read("#{CERTIFICATE_PATH}op_root_certificate.p
 OP_ROOT_CERTIFICATE = OpenSSL::X509::Certificate.new op_root_certificate_string
 
 samlink_root_certificate_string = File.read("#{CERTIFICATE_PATH}samlink_root_certificate.pem")
+samlink_certificate_string      = File.read("#{CERTIFICATE_PATH}samlink_certificate.pem")
 
-# Samlink's root certificate as an OpenSSL::X509::Certificate
+# Samlink's certificates as OpenSSL::X509::Certificate
 SAMLINK_ROOT_CERTIFICATE = OpenSSL::X509::Certificate.new samlink_root_certificate_string
+SAMLINK_CERTIFICATE      = OpenSSL::X509::Certificate.new samlink_certificate_string
 
 # @!endgroup
 

@@ -5,16 +5,19 @@ class SamlinkResponseTest < ActiveSupport::TestCase
     @gc_error_30 = Sepa::SamlinkResponse.new(
       response: File.read("#{SAMLINK_TEST_RESPONSE_PATH}/gc_error_30.xml"),
       command: :get_certificate,
+      environment: :production,
     )
 
     @rc = Sepa::SamlinkResponse.new(
       response: File.read("#{SAMLINK_TEST_RESPONSE_PATH}/rc.xml"),
       command: :renew_certificate,
+      environment: :test,
     )
 
     @dfl = Sepa::SamlinkResponse.new(
       response: File.read("#{SAMLINK_TEST_RESPONSE_PATH}/dfl.xml"),
       command: :download_file_list,
+      environment: :test,
     )
   end
 
@@ -25,7 +28,7 @@ class SamlinkResponseTest < ActiveSupport::TestCase
   end
 
   test '#response_text' do
-    assert_equal "Asiakkaan palvelusopimuksen tarkistuksessa virhe:CIQ", @gc_error_30.response_text
+    assert_equal "Asiakkaan palvelusopimuksen tarkistuksessa virhe:A00", @gc_error_30.response_text
     assert_equal "OK", @rc.response_text
     assert_equal "OK", @dfl.response_text
   end
