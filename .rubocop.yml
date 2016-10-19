@@ -5,7 +5,7 @@ Metrics/AbcSize:
   Max: 37
 
 Metrics/ClassLength:
-  Max: 348
+  Max: 350
 
 Metrics/CyclomaticComplexity:
   Max: 8
@@ -17,7 +17,7 @@ Metrics/MethodLength:
   Max: 69
 
 Metrics/ModuleLength:
-  Max: 146
+  Max: 150
 
 Style/Documentation:
   Exclude:
@@ -25,11 +25,13 @@ Style/Documentation:
     - 'test/**/*'
 
 Style/IndentationConsistency:
-  SupportedStyles: rails
+  EnforcedStyle: rails
 
 Style/StringLiterals:
-  SupportedStyles: single_quotes, double_quotes
-  ConsistentQuotesInMultiline: true
+  Enabled: false
 
 Style/TrailingCommaInLiteral:
-  SupportedStyles: comma
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: comma

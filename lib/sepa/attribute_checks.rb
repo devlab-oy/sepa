@@ -13,7 +13,7 @@ module Sepa
         [
           STANDARD_COMMANDS,
           :get_certificate,
-          :renew_certificate
+          :renew_certificate,
         ].flatten
       when :danske
         [
@@ -27,6 +27,12 @@ module Sepa
           STANDARD_COMMANDS - [:get_user_info],
           :get_certificate,
           :get_service_certificates,
+        ].flatten
+      when :samlink
+        [
+          STANDARD_COMMANDS - [:get_user_info],
+          :get_certificate,
+          :renew_certificate,
         ].flatten
       else
         []
@@ -53,11 +59,9 @@ module Sepa
         errors.add(:signing_private_key, "Invalid signing private key")
       end
 
-      begin
-        x509_certificate own_signing_certificate
-      rescue
-        errors.add(:own_signing_certificate, "Invalid signing certificate")
-      end
+      x509_certificate own_signing_certificate
+    rescue
+      errors.add(:own_signing_certificate, "Invalid signing certificate")
     end
 
     # Checks that signing certificate signing request can be initialized properly.
@@ -82,8 +86,7 @@ module Sepa
       if file_type.present?
         valid = file_type.size < 35
       else
-        return if bank == :op && %i(download_file
-                                  download_file_list).include?(command)
+        return if bank == :op && %i(download_file download_file_list).include?(command)
 
         valid = !(%i(
           download_file
@@ -97,17 +100,21 @@ module Sepa
 
     # Checks that {Client#target_id} is valid.
     def check_target_id
-      return if %i(
-          create_certificate
-          get_bank_certificate
-          get_certificate
-          renew_certificate
-          get_user_info
-        ).include?(command) ||
-        %i(
-          danske
-          op
-        ).include?(bank)
+      exclude_commands = [
+        :create_certificate,
+        :get_bank_certificate,
+        :get_certificate,
+        :get_user_info,
+        :renew_certificate,
+      ]
+
+      exclude_banks = [
+        :danske,
+        :op,
+        :samlink,
+      ]
+
+      return if exclude_commands.include?(command) || exclude_banks.include?(bank)
 
       check_presence_and_length(:target_id, 80, TARGET_ID_ERROR_MESSAGE)
     end
@@ -122,7 +129,7 @@ module Sepa
       check &&= send(attribute)
       check &&= send(attribute).respond_to? :size
       check &&= send(attribute).size < length
-      check &&= send(attribute).size > 0
+      check &&= !send(attribute).empty?
 
       errors.add(attribute, error_message) unless check
     end
@@ -135,7 +142,7 @@ module Sepa
       check = true
       check &&= content
       check &&= content.respond_to? :length
-      check &&= content.length > 0
+      check &&= !content.empty?
 
       errors.add(:content, CONTENT_ERROR_MESSAGE) unless check
     end
@@ -151,10 +158,9 @@ module Sepa
     # {Client#command} is `:get_bank_certificate`.
     def check_environment
       return if command == :get_bank_certificate
+      return if Client::ENVIRONMENTS.include?(environment)
 
-      unless Client::ENVIRONMENTS.include? environment
-        errors.add(:environment, ENVIRONMENT_ERROR_MESSAGE)
-      end
+      errors.add(:environment, ENVIRONMENT_ERROR_MESSAGE)
     end
 
     # Checks that {Client#customer_id} is valid
@@ -182,11 +188,11 @@ module Sepa
 
     # Checks that {Client#status} is included in {Client::STATUSES}.
     def check_status
+      return if bank == :samlink && command != :download_file_list
       return unless [:download_file_list, :download_file].include? command
+      return if status && Client::STATUSES.include?(status)
 
-      unless status && Client::STATUSES.include?(status)
-        errors.add :status, STATUS_ERROR_MESSAGE
-      end
+      errors.add :status, STATUS_ERROR_MESSAGE
     end
 
     # Checks presence and length of {Client#file_reference} if {Client#command} is `:download_file`
@@ -208,6 +214,5 @@ module Sepa
     rescue
       errors.add :encryption_private_key, ENCRYPTION_PRIVATE_KEY_ERROR_MESSAGE
     end
-
   end
 end

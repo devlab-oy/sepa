@@ -12,4 +12,4 @@ task :console do
   sh "bundle exec irb -I lib -r sepafm.rb"
 end
 
-task :default => :test
+task default: :test

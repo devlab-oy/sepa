@@ -1,3 +1,4 @@
+# Client for testing the gem against banks' test environments
 module Testing
   require          "base64"
   require          "sepafm"
@@ -12,6 +13,9 @@ module Testing
     :op_download_file,
     :op_download_file_list,
     :op_upload_file,
+    :samlink_download_file_list,
+    :samlink_upload_file,
+    :samlink_download_file,
   ].each_with_object({}) do |i, a|
     a[i] = Sepa::Client.new("#{i.to_s.upcase}_PARAMS".constantize)
   end
@@ -24,6 +28,8 @@ module Testing
     :nordea_renew_certificate,
     :op_get_certificate,
     :op_get_service_certificates,
+    :samlink_get_certificate,
+    :samlink_renew_certificate,
   ].each_with_object({}) do |i, a|
     a[i] = Sepa::Client.new("#{i.to_s.upcase}_PARAMS".constantize)
   end

@@ -1,5 +1,4 @@
 module Sepa
-
   # Builds a soap message with given parameters. This class is extended with proper bank module
   # depending on bank.
   class SoapBuilder
@@ -100,13 +99,9 @@ module Sepa
       # @return [String] the base64 encoded string
       # @todo remove this method and use {Utilities#calculate_digest}
       def calculate_digest(doc, node)
-        sha1 = OpenSSL::Digest::SHA1.new
-        node = doc.at_css(node)
-
-        canon_node = node.canonicalize(
-          mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
-          inclusive_namespaces = nil, with_comments = false
-        )
+        sha1       = OpenSSL::Digest::SHA1.new
+        node       = doc.at_css(node)
+        canon_node = canonicalize_exclusively(node)
 
         encode(sha1.digest(canon_node)).gsub(/\s+/, "")
       end
@@ -120,15 +115,11 @@ module Sepa
       # @return [String] the base64 encoded signature
       # @todo refactor to use canonicalization from utilities
       def calculate_signature(doc, node)
-        sha1 = OpenSSL::Digest::SHA1.new
-        node = doc.at_css(node)
+        sha1                   = OpenSSL::Digest::SHA1.new
+        node                   = doc.at_css(node)
+        canon_signed_info_node = canonicalize_exclusively(node)
+        signature              = @signing_private_key.sign(sha1, canon_signed_info_node)
 
-        canon_signed_info_node = node.canonicalize(
-          mode = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0,
-          inclusive_namespaces = nil, with_comments = false
-        )
-
-        signature = @signing_private_key.sign(sha1, canon_signed_info_node)
         encode(signature).gsub(/\s+/, "")
       end
 
@@ -226,6 +217,5 @@ module Sepa
       def set_application_request
         set_node @template, 'bxd|ApplicationRequest', @application_request.to_base64
       end
-
   end
 end

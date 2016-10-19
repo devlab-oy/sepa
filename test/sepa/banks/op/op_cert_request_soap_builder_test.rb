@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class OpCertRequestSoapBuilderTest < ActiveSupport::TestCase
-
   def setup
     @params  = op_get_certificate_params
     @request = Sepa::SoapBuilder.new(@params)

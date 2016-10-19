@@ -1,4 +1,4 @@
-PAYLOAD = "#{ROOT_PATH}/test_client/data/payload.xml"
+PAYLOAD = "#{ROOT_PATH}/test_client/data/payload.xml".freeze
 
 NORDEA_GET_CERTIFICATE_PARAMS = {
   pin:         '1234567890',
@@ -6,9 +6,8 @@ NORDEA_GET_CERTIFICATE_PARAMS = {
   command:     :get_certificate,
   customer_id: '11111111',
   environment: 'test',
-  signing_csr: NORDEA_CSR
-}
-
+  signing_csr: NORDEA_CSR,
+}.freeze
 
 NORDEA_UPLOAD_FILE_PARAMS = {
   bank:                    :nordea,
@@ -19,7 +18,7 @@ NORDEA_UPLOAD_FILE_PARAMS = {
   target_id:               '11111111A1',
   file_type:               'NDCORPAYS',
   content:                 PAYLOAD,
-}
+}.freeze
 
 NORDEA_DOWNLOAD_FILE_PARAMS = {
   bank:                    :nordea,
@@ -30,8 +29,8 @@ NORDEA_DOWNLOAD_FILE_PARAMS = {
   file_type:               'TITO',
   file_reference:          "11111111A12006030319503000000010",
   target_id:               '11111111A1',
-  status:                  'NEW'
-}
+  status:                  'NEW',
+}.freeze
 
 NORDEA_DOWNLOAD_FILE_LIST_PARAMS = {
   bank:                    :nordea,
@@ -41,8 +40,8 @@ NORDEA_DOWNLOAD_FILE_LIST_PARAMS = {
   customer_id:             '11111111',
   target_id:               '11111111A1',
   status:                  'NEW',
-  file_type:               'NDCORPAYL'
-}
+  file_type:               'NDCORPAYL',
+}.freeze
 
 NORDEA_GET_USER_INFO_PARAMS = {
   bank:                    :nordea,
@@ -50,15 +49,15 @@ NORDEA_GET_USER_INFO_PARAMS = {
   own_signing_certificate: NORDEA_CERT,
   signing_private_key:     NORDEA_PRIVATE_KEY,
   customer_id:             '11111111',
-  environment:             'TEST'
-}
+  environment:             'TEST',
+}.freeze
 
 DANSKE_GET_BANK_CERT_PARAMS = {
   environment: 'test',
   bank:        :danske,
   command:     :get_bank_certificate,
   customer_id: '',
-}
+}.freeze
 
 DANSKE_CREATE_CERT_PARAMS = {
   bank:                        :danske,
@@ -68,15 +67,15 @@ DANSKE_CREATE_CERT_PARAMS = {
   environment:                 'test',
   encryption_csr:              DANSKE_ENC_CERT_REQUEST,
   signing_csr:                 DANSKE_SIGNING_CERT_REQUEST,
-  pin:                         '1234'
-}
+  pin:                         '1234',
+}.freeze
 
 OP_GET_SERVICE_CERTIFICATES_PARAMS = {
   bank:        :op,
   command:     :get_service_certificates,
   customer_id: '',
   environment: 'test',
-}
+}.freeze
 
 OP_UPLOAD_FILE_PARAMS = {
   bank:                    :op,
@@ -87,7 +86,7 @@ OP_UPLOAD_FILE_PARAMS = {
   file_type:               'pain.001.001.02',
   own_signing_certificate: OP_CERT,
   signing_private_key:     OP_PRIVATE_KEY,
-}
+}.freeze
 
 OP_DOWNLOAD_FILE_PARAMS = {
   bank:                    :op,
@@ -97,7 +96,7 @@ OP_DOWNLOAD_FILE_PARAMS = {
   file_reference:          '',
   own_signing_certificate: OP_CERT,
   signing_private_key:     OP_PRIVATE_KEY,
-}
+}.freeze
 
 OP_DOWNLOAD_FILE_LIST_PARAMS = {
   bank:                    :op,
@@ -106,5 +105,5 @@ OP_DOWNLOAD_FILE_LIST_PARAMS = {
   environment:             'test',
   own_signing_certificate: OP_CERT,
   signing_private_key:     OP_PRIVATE_KEY,
-  file_type:               'pain.002.001.02'
-}
+  file_type:               'pain.002.001.02',
+}.freeze

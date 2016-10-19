@@ -77,7 +77,7 @@ Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
     language: 'FI',
     file_type: 'TITO',
     content: encode("haisuli"),
-    file_reference: "11111111A12006030329501800000014"
+    file_reference: "11111111A12006030329501800000014",
   }
 end
 
@@ -154,7 +154,7 @@ jo2ekdSDdw8qxKyxj1piv8oYzMd4fCjCpL+WDZtq7mdLErVZ92gH
     customer_id: '11111111',
     environment: 'test',
     signing_csr: signing_csr,
-    pin: '1234567890'
+    pin: '1234567890',
   }
 end
 
@@ -245,16 +245,16 @@ GuNaWLWOhkOqCtAdNkSGeq/ZKbjYHolGo5FBQqdJnuz0r3I5nfLUNAHXNg==
     customer_id: '1000010583',
     environment: 'test',
     signing_csr: signing_csr,
-    pin:         '2251401483958635'
+    pin:         '2251401483958635',
   }
 end
 
 def danske_get_bank_cert_params
   {
-      bank: :danske,
-      command: :get_bank_certificate,
-      bank_root_cert_serial: '1111110002',
-      customer_id: '360817',
+    bank: :danske,
+    command: :get_bank_certificate,
+    bank_root_cert_serial: '1111110002',
+    customer_id: '360817',
   }
 end
 
@@ -435,5 +435,167 @@ CsajqZag/Aoxv/Y=
     bank_encryption_certificate: bank_encryption_certificate,
     signing_private_key: signing_private_key,
     encryption_private_key: encryption_private_key,
+  }
+end
+
+def samlink_get_certificate_params
+  {
+    bank: :samlink,
+    command: :get_certificate,
+    environment: :production,
+    customer_id: 1,
+    pin: 1,
+    signing_csr: "-----BEGIN CERTIFICATE REQUEST-----
+MIICmjCCAYICAQAwVTELMAkGA1UEBhMCRkkxETAPBgNVBAQTCDEyMzQ1Njc4MRAw
+DgYDVQQDEwdURVNUIE9ZMSEwHwYDVQQKExhBaW5laXN0b3BhbHZlbHV0LVNhbWxp
+bmswggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCt3PwhmsjYB4duHs0Q
+CG0yGqesHooIwwtD4AU05G6VsSSQJJkd5L0FiU7HGUo6TPGefXEbWB/ZkY44qC6+
+Elx68M0yG7LJVzpZlff2s1JOBiUw9pJtiZOkmNepToki5kUy7nnpF7xl6yK+EXCs
+dmHrKTFoDZ+PTkKDbA3BQ5SK/J5LlfXLq4V8C32Eg+7lIfFm/2o94UEXUIXqJKWv
+hMrx9PTB6epw9wS86yfvaCiL5Kp5A5Z1uLAHqr3nqgSHBrKagxDHPeyEjHBdgdBw
+VCAwsdrtd93h8mrnyh4rToNdqm/3D42VcVZ9STnByXTnMDNdn78Z3F/Oxf+wuo2C
+mEJdAgMBAAGgADANBgkqhkiG9w0BAQUFAAOCAQEAAXnqgjiMeGxhSQpz3W8BaylZ
+gkwDeB/MQxz3IJe4j0wCVLAphf6/ub8ocvgpV/IZgM9miMuo9RuhxTAcibyrlB03
+6h3GHMZFZThGNTXx4yQWPXk2znNgWRnGF/Pt5DScLPfwMDwbEQktNgXQb95yt5vA
+FjUzP5EiwK8JW2yoludqpYYJ3VEtzNjki3BM8Ud8W/7moMq0408u63g/mVTOtmaZ
+VAyoklxOeq7ItHW2Pmm8HlCeH6VNaFBaT+7CHivO7vtRNJsjb7yrPMrnRNJ8u45X
+iJCne0qYwkRCagdluvtG6Pr9zk9LS/d+kgt6b2NAQ2fQpocRgMLlDyS89qEQog==
+-----END CERTIFICATE REQUEST-----",
+  }
+end
+
+def samlink_renew_certificate_params
+  signing_csr = "-----BEGIN CERTIFICATE REQUEST-----
+MIICmjCCAYICAQAwVTELMAkGA1UEBhMCRkkxETAPBgNVBAQTCDEyMzQ1Njc4MRAw
+DgYDVQQDEwdURVNUIE9ZMSEwHwYDVQQKExhBaW5laXN0b3BhbHZlbHV0LVNhbWxp
+bmswggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCt3PwhmsjYB4duHs0Q
+CG0yGqesHooIwwtD4AU05G6VsSSQJJkd5L0FiU7HGUo6TPGefXEbWB/ZkY44qC6+
+Elx68M0yG7LJVzpZlff2s1JOBiUw9pJtiZOkmNepToki5kUy7nnpF7xl6yK+EXCs
+dmHrKTFoDZ+PTkKDbA3BQ5SK/J5LlfXLq4V8C32Eg+7lIfFm/2o94UEXUIXqJKWv
+hMrx9PTB6epw9wS86yfvaCiL5Kp5A5Z1uLAHqr3nqgSHBrKagxDHPeyEjHBdgdBw
+VCAwsdrtd93h8mrnyh4rToNdqm/3D42VcVZ9STnByXTnMDNdn78Z3F/Oxf+wuo2C
+mEJdAgMBAAGgADANBgkqhkiG9w0BAQUFAAOCAQEAAXnqgjiMeGxhSQpz3W8BaylZ
+gkwDeB/MQxz3IJe4j0wCVLAphf6/ub8ocvgpV/IZgM9miMuo9RuhxTAcibyrlB03
+6h3GHMZFZThGNTXx4yQWPXk2znNgWRnGF/Pt5DScLPfwMDwbEQktNgXQb95yt5vA
+FjUzP5EiwK8JW2yoludqpYYJ3VEtzNjki3BM8Ud8W/7moMq0408u63g/mVTOtmaZ
+VAyoklxOeq7ItHW2Pmm8HlCeH6VNaFBaT+7CHivO7vtRNJsjb7yrPMrnRNJ8u45X
+iJCne0qYwkRCagdluvtG6Pr9zk9LS/d+kgt6b2NAQ2fQpocRgMLlDyS89qEQog==
+-----END CERTIFICATE REQUEST-----"
+
+  own_signing_certificate = "-----BEGIN CERTIFICATE-----
+MIIDwTCCAqmgAwIBAgIEAX1JuTANBgkqhkiG9w0BAQUFADBkMQswCQYDVQQGEwJT
+RTEeMBwGA1UEChMVTm9yZGVhIEJhbmsgQUIgKHB1YmwpMR8wHQYDVQQDExZOb3Jk
+ZWEgQ29ycG9yYXRlIENBIDAxMRQwEgYDVQQFEws1MTY0MDYtMDEyMDAeFw0xMzA1
+MDIxMjI2MzRaFw0xNTA1MDIxMjI2MzRaMEQxCzAJBgNVBAYTAkZJMSAwHgYDVQQD
+DBdOb3JkZWEgRGVtbyBDZXJ0aWZpY2F0ZTETMBEGA1UEBRMKNTc4MDg2MDIzODCB
+nzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAwtFEfAtbJuGzQwwRumZkvYh2BjGY
+VsAMUeiKtOne3bZSeisfCq+TXqL1gI9LofyeAQ9I/sDm6tL80yrD5iaSUqVm6A73
+9MsmpW/iyZcVf7ms8xAN51ESUgN6akwZCU9pH62ngJDj2gUsktY0fpsoVsARdrvO
+Fk0fTSUXKWd6LbcCAwEAAaOCAR0wggEZMAkGA1UdEwQCMAAwEQYDVR0OBAoECEBw
+2cj7+XMAMBMGA1UdIAQMMAowCAYGKoVwRwEDMBMGA1UdIwQMMAqACEALddbbzwun
+MDcGCCsGAQUFBwEBBCswKTAnBggrBgEFBQcwAYYbaHR0cDovL29jc3Aubm9yZGVh
+LnNlL0NDQTAxMA4GA1UdDwEB/wQEAwIFoDCBhQYDVR0fBH4wfDB6oHigdoZ0bGRh
+cCUzQS8vbGRhcC5uYi5zZS9jbiUzRE5vcmRlYStDb3Jwb3JhdGUrQ0ErMDElMkNv
+JTNETm9yZGVhK0JhbmsrQUIrJTI4cHVibCUyOSUyQ2MlM0RTRSUzRmNlcnRpZmlj
+YXRlcmV2b2NhdGlvbmxpc3QwDQYJKoZIhvcNAQEFBQADggEBACLUPB1Gmq6286/s
+ROADo7N+w3eViGJ2fuOTLMy4R0UHOznKZNsuk4zAbS2KycbZsE5py4L8o+IYoaS8
+8YHtEeckr2oqHnPpz/0Eg7wItj8Ad+AFWJqzbn6Hu/LQhlnl5JEzXzl3eZj9oiiJ
+1q/2CGXvFomY7S4tgpWRmYULtCK6jode0NhgNnAgOI9uy76pSS16aDoiQWUJqQgV
+ydowAnqS9h9aQ6gedwbOdtkWmwKMDVXU6aRz9Gvk+JeYJhtpuP3OPNGbbC5L7NVd
+no+B6AtwxmG3ozd+mPcMeVuz6kKLAmQyIiBSrRNa5OrTkq/CUzxO9WUgTnm/Sri7
+zReR6mU=
+-----END CERTIFICATE-----"
+
+  signing_private_key = "-----BEGIN RSA PRIVATE KEY-----
+MIIEpQIBAAKCAQEArdz8IZrI2AeHbh7NEAhtMhqnrB6KCMMLQ+AFNORulbEkkCSZ
+HeS9BYlOxxlKOkzxnn1xG1gf2ZGOOKguvhJcevDNMhuyyVc6WZX39rNSTgYlMPaS
+bYmTpJjXqU6JIuZFMu556Re8ZesivhFwrHZh6ykxaA2fj05Cg2wNwUOUivyeS5X1
+y6uFfAt9hIPu5SHxZv9qPeFBF1CF6iSlr4TK8fT0wenqcPcEvOsn72goi+SqeQOW
+dbiwB6q956oEhwaymoMQxz3shIxwXYHQcFQgMLHa7Xfd4fJq58oeK06DXapv9w+N
+lXFWfUk5wcl05zAzXZ+/GdxfzsX/sLqNgphCXQIDAQABAoIBAEPTpSz69IWKkmP8
+ciViFC9qxKTaGSGH7boiCAX1Y8rUG558GJvX44Hoaio0DIgoAk7BQ0HWpD49kY06
+11lhUmDH1lVJBvuTIvlWDzFYDbDQpuuuFbvT4xxgYCn1sHxD9xUCgd7UWrQsAhbC
+OQGfAV47aMHeJrRCZKJeohMWaTm65GjZ3vXHMiz39NG1NmBpSq2TX+095MEjuy3/
+snIPw4VqwphdeyZ9K8TKo8drdViPKVf1LdiQt66TAFszBTJuXeqmQtJbFjVLQRg3
+jEcGg+oHaLXvWunW0pyZwSGHcwmszVEt1w100hElz5cwLHZpsTQzIksqdYIU4Zyh
+0mD3hqECgYEA5HGfH62ipl3oQO+4xDf/RHmEgirgwheD9D7iFulAGIgFrjHGKEjC
+TMPAMspbIOP8mKXrhGnLbwCjZZNtcHnRg/SsPD1mhoPNhEEoLYDxwH9E/Rq3AM7s
+wFU1ZNy5vXzoefciQM4c/8m/QS6t/SnfRtMtwPkUssHD3qTDso66YuUCgYEAwtXn
++qhudoVwgiTt2b7pZAj3CqHysDZaxOXRE7VQfH4T7Dmv/nmgr2wztpLPXN2UpJ9k
+ZA4LOu06hY4q5D2N7uKtAvjdjP1G1Wgho6uZVdMs78sAsocLWV+pYhd5bAp5GNrW
+awjgDbUh2XHL9W+Ix6Jh/LQFsv45sZuimLgmkhkCgYEA2i9zLYxnpsJWS38qV66s
+DjiJyNEvLfHLxAIzanKJF2UDF+bOPjeP7EWiUmBXPUjDPwBpu2RYOsK/TQrMIfsX
+kxKjVj3GqH9GUSTyPNPFEnf76koTs5/vG5vGjXkLpeGhIKxbeM3jgKKuGpF8+Cl/
+6WNVddPwYvMSIpn3l5keh8kCgYEAsXMy8hd/bBECtHW/74ayeLq1jYiMSbNnnlcV
+wlZr9Ma7jHXJ9gJ+t+bbfphdpl3laL4HKB2mWsf/ee5O4EuzvnPTUZap6iQv5GQP
+50p9wC4yij+g5fia/I5k7gMlQqKTQnDlwtx1e+aR6sJ7GZG4yOH7TrYDTs++aiWu
+xFtMPdkCgYEA3tR2oaNqQttIdf8+GNFz2VmicnZ4XsQwGkGI4Jp0ExBJFxxl/tRa
+30/Akp/bJLNDoqTRwP/lbsP/PKVS4Al+OXrG5MWhzdw3Jchnu1YtP0l2qBcLoBNb
+bcK50Hen2W6AP2YgVgJqXYpdOglWjEOytaZcsRDVRDhPIFAty3dRizw=
+-----END RSA PRIVATE KEY-----"
+
+  {
+    bank: :samlink,
+    command: :renew_certificate,
+    customer_id: '12345678',
+    environment: 'test',
+    signing_csr: signing_csr,
+    own_signing_certificate: own_signing_certificate,
+    signing_private_key: signing_private_key,
+  }
+end
+
+def samlink_generic_params
+  own_signing_certificate = "-----BEGIN CERTIFICATE-----
+MIIDwTCCAqmgAwIBAgIEAX1JuTANBgkqhkiG9w0BAQUFADBkMQswCQYDVQQGEwJT
+RTEeMBwGA1UEChMVTm9yZGVhIEJhbmsgQUIgKHB1YmwpMR8wHQYDVQQDExZOb3Jk
+ZWEgQ29ycG9yYXRlIENBIDAxMRQwEgYDVQQFEws1MTY0MDYtMDEyMDAeFw0xMzA1
+MDIxMjI2MzRaFw0xNTA1MDIxMjI2MzRaMEQxCzAJBgNVBAYTAkZJMSAwHgYDVQQD
+DBdOb3JkZWEgRGVtbyBDZXJ0aWZpY2F0ZTETMBEGA1UEBRMKNTc4MDg2MDIzODCB
+nzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAwtFEfAtbJuGzQwwRumZkvYh2BjGY
+VsAMUeiKtOne3bZSeisfCq+TXqL1gI9LofyeAQ9I/sDm6tL80yrD5iaSUqVm6A73
+9MsmpW/iyZcVf7ms8xAN51ESUgN6akwZCU9pH62ngJDj2gUsktY0fpsoVsARdrvO
+Fk0fTSUXKWd6LbcCAwEAAaOCAR0wggEZMAkGA1UdEwQCMAAwEQYDVR0OBAoECEBw
+2cj7+XMAMBMGA1UdIAQMMAowCAYGKoVwRwEDMBMGA1UdIwQMMAqACEALddbbzwun
+MDcGCCsGAQUFBwEBBCswKTAnBggrBgEFBQcwAYYbaHR0cDovL29jc3Aubm9yZGVh
+LnNlL0NDQTAxMA4GA1UdDwEB/wQEAwIFoDCBhQYDVR0fBH4wfDB6oHigdoZ0bGRh
+cCUzQS8vbGRhcC5uYi5zZS9jbiUzRE5vcmRlYStDb3Jwb3JhdGUrQ0ErMDElMkNv
+JTNETm9yZGVhK0JhbmsrQUIrJTI4cHVibCUyOSUyQ2MlM0RTRSUzRmNlcnRpZmlj
+YXRlcmV2b2NhdGlvbmxpc3QwDQYJKoZIhvcNAQEFBQADggEBACLUPB1Gmq6286/s
+ROADo7N+w3eViGJ2fuOTLMy4R0UHOznKZNsuk4zAbS2KycbZsE5py4L8o+IYoaS8
+8YHtEeckr2oqHnPpz/0Eg7wItj8Ad+AFWJqzbn6Hu/LQhlnl5JEzXzl3eZj9oiiJ
+1q/2CGXvFomY7S4tgpWRmYULtCK6jode0NhgNnAgOI9uy76pSS16aDoiQWUJqQgV
+ydowAnqS9h9aQ6gedwbOdtkWmwKMDVXU6aRz9Gvk+JeYJhtpuP3OPNGbbC5L7NVd
+no+B6AtwxmG3ozd+mPcMeVuz6kKLAmQyIiBSrRNa5OrTkq/CUzxO9WUgTnm/Sri7
+zReR6mU=
+-----END CERTIFICATE-----"
+  signing_private_key = "-----BEGIN PRIVATE KEY-----
+MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAMLRRHwLWybhs0MM
+EbpmZL2IdgYxmFbADFHoirTp3t22UnorHwqvk16i9YCPS6H8ngEPSP7A5urS/NMq
+w+YmklKlZugO9/TLJqVv4smXFX+5rPMQDedRElIDempMGQlPaR+tp4CQ49oFLJLW
+NH6bKFbAEXa7zhZNH00lFylnei23AgMBAAECgYEAqt912/7x4jaQTrxlSELLFVp9
+eo1BesVTiPwXvPpsGbbyvGjZ/ztkXNs9zZbh1aCGzZMkiR2U7F5GlsiprlIif4cF
+6Xz7rCjaAs7iDRt9PjhjVuqNGR2I+VIIlbQ9XWFJ3lJFW3v7TIZ8JbLnn0XOFz+Z
+BBSSGTK1zTNh4TBQtjECQQDe5M3uu9m4RwSw9R6GaDw/IFQZgr0oWSv0WIjRwvwW
+nFnSX2lbkNAjulP0daGsmn7vxIpqZxPxwcrU4wFqTF5dAkEA38DnbCm3YfogzwLH
+Nre2hBmGqjWarhtxqtRarrkgnmOd8W0Z1Hb1dSHrliUSVSrINbK5ZdEV15Rpu7VD
+OePzIwJAPMslS+8alANyyR0iJUC65fDYX1jkZOPldDDNqIDJJxWf/hwd7WaTDpuc
+mHmZDi3ZX2Y45oqUywSzYNtFoIuR1QJAZYUZuyqmSK77SdGB36K1DfSi9AFEQDC1
+fwPAbTwTv6mFFPAiYxLiRZXxVPtW+QtjMXH4ymh2V4y/+GnCqbZyLwJBAJQSDAME
+Sn4Uz7Zjk3UrBIbMYEv0u2mcCypwsb0nGE5/gzDPjGE9cxWW+rXARIs+sNQVClnh
+45nhdfYxOjgYff0=
+-----END PRIVATE KEY-----"
+
+  {
+    bank:                    :samlink,
+    command:                 :download_file,
+    content:                 encode('kissa'),
+    customer_id:             '1111111111',
+    environment:             'production',
+    file_reference:          '11111111A12006030329501800000014',
+    file_type:               'TO',
+    own_signing_certificate: own_signing_certificate,
+    signing_private_key:     signing_private_key,
+    target_id:               '11111111A1',
   }
 end

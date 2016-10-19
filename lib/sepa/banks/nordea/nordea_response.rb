@@ -1,5 +1,4 @@
 module Sepa
-
   # Handles Nordea specific response logic. Mainly certificate specific stuff.
   class NordeaResponse < Response
     include Utilities
@@ -20,30 +19,18 @@ module Sepa
       cert.to_s
     end
 
-    # Returns the response code in the response. Overrides {Response#response_code} if {#command} is
-    # `:get_certificate`, because the namespace is different with that command.
-    #
-    # @return [String] response code if it is found
-    # @return [nil] if response code cannot be found
     # @see Response#response_code
     def response_code
       return super unless [:get_certificate, :renew_certificate].include? command
 
-      node = doc.at('xmlns|ResponseCode', xmlns: NORDEA_PKI)
-      node.content if node
+      super(namespace: NORDEA_PKI)
     end
 
-    # Returns the response text in the response. Overrides {Response#response_text} if {#command} is
-    # `:get_certificate`, because the namespace is different with that command.
-    #
-    # @return [String] response text if it is found
-    # @return [nil] if response text cannot be found
     # @see Response#response_text
     def response_text
       return super unless [:get_certificate, :renew_certificate].include? command
 
-      node = doc.at('xmlns|ResponseText', xmlns: NORDEA_PKI)
-      node.content if node
+      super(namespace: NORDEA_PKI)
     end
 
     # Checks whether the certificate embedded in the response soap has been signed with Nordea's
@@ -55,6 +42,5 @@ module Sepa
     def certificate_is_trusted?
       verify_certificate_against_root_certificate(certificate, NORDEA_ROOT_CERTIFICATE)
     end
-
   end
 end

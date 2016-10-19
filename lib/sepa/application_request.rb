@@ -74,7 +74,7 @@ module Sepa
       # @example Example input and output
       #   :get_user_info --> GetUserInfo
       def pretty_command
-        @command.to_s.split(/[\W_]/).map {|c| c.capitalize}.join
+        @command.to_s.split(/[\W_]/).map(&:capitalize).join
       end
 
       # Determines which content setting method to call depending on {#command}
@@ -86,8 +86,8 @@ module Sepa
 
       # Sets nodes' values for download file request
       def set_download_file_nodes
-        add_target_id_after 'FileReferences'
-        set_node("Status", @status)
+        add_node_after('FileReferences', 'TargetId', content: @target_id) if @bank == :nordea
+        add_node_after('Timestamp', 'Status', content: @status) if @status.present?
         add_node_to_root 'FileType', content: @file_type if @file_type.present?
         set_node("FileReference", @file_reference)
       end
@@ -110,20 +110,20 @@ module Sepa
       def set_upload_file_nodes
         set_node_b("Content", @content)
         set_node("FileType", @file_type)
-        add_target_id_after 'Environment'
+        add_node_after('Environment', 'TargetId', content: @target_id) if @bank == :nordea
       end
 
       # Sets nodes' contents for download file list request
       def set_download_file_list_nodes
-        add_target_id_after 'Environment'
-        set_node("Status", @status)
+        add_node_after('Environment', 'TargetId', content: @target_id) if @bank == :nordea
+        add_node_after('Timestamp', 'Status', content: @status) if @status.present?
         add_node_to_root 'FileType', content: @file_type if @file_type.present?
       end
 
       # Sets nodes' contents for Nordea's and OP's get certificate request
       def set_get_certificate_nodes
         set_node "Service", "MATU" if @bank == :op
-        set_node "TransferKey", @pin if @bank == :op
+        set_node "TransferKey", @pin if [:op, :samlink].include?(@bank)
         set_node "HMAC", hmac(@pin, csr_to_binary(@signing_csr)) if @bank == :nordea
         set_node "Content", format_cert_request(@signing_csr)
       end
@@ -131,7 +131,7 @@ module Sepa
       # Sets nodes' contents for renew certificate request
       def set_renew_certificate_nodes
         case @bank
-        when :nordea, :op
+        when :nordea, :op, :samlink
           set_node "Service", "service" if @bank == :nordea
           set_node "Content", format_cert_request(@signing_csr)
         when :danske
@@ -255,16 +255,10 @@ module Sepa
         add_value_to_signature('X509Certificate', format_cert(@own_signing_certificate))
       end
 
-      # Adds target id to the application request after a specific node because the schema defines a
-      # sequence. Target id is only added if {#bank} is `:nordea`
-      #
-      # @param node [String] the name of the node after which the target id node will be added
-      def add_target_id_after(node)
-        return unless @bank == :nordea
-
-        target_id = Nokogiri::XML::Node.new 'TargetId', @application_request
-        target_id.content = @target_id
-        @application_request.at(node).add_next_sibling target_id
+      def add_node_after(node, new_node, content:)
+        new_node = Nokogiri::XML::Node.new(new_node, @application_request)
+        new_node.content = content
+        @application_request.at(node).add_next_sibling(new_node)
       end
 
       def canonicalization_mode

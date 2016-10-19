@@ -59,7 +59,7 @@ class OpCertApplicationRequestTest < ActiveSupport::TestCase
   end
 
   test "hmac is not set" do
-    refute @xml.at_css("HMAC"), "HMAC should not be set, but is #{@xml.at_css("HMAC")}"
+    refute @xml.at_css("HMAC"), "HMAC should not be set, but is #{@xml.at_css('HMAC')}"
   end
 
   test "validates against schema" do

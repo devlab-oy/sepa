@@ -2,6 +2,8 @@ module Sepa
   # Handles Danske Bank specific {Response} functionality. Mainly decryption and certificate
   # specific stuff.
   class DanskeResponse < Response
+    CERTIFICATE_COMMANDS = [:get_bank_certificate, :create_certificate, :renew_certificate].freeze
+
     validate :valid_get_bank_certificate_response
     validate :can_be_decrypted_with_given_key
 
@@ -84,41 +86,23 @@ module Sepa
     # @return [OpenSSL::X509::Certificate]
     # @raise [OpenSSL::X509::CertificateError] if certificate cannot be processed
     def certificate
-      return super unless [:get_bank_certificate, :create_certificate, :renew_certificate].include? @command
+      return super unless CERTIFICATE_COMMANDS.include? @command
 
       @certificate ||= extract_cert(doc, 'X509Certificate', DSIG)
     end
 
-    # Extract response code from the response. Overrides super method when {#command} is
-    # `:get_bank_certificate`, `:create_certificate` or `:renew_certificate` because response code node is named
-    # differently in those responses.
-    #
-    # @return [String] if response code is found
-    # @return [nil] if response code cannot be found
     # @see Response#response_code
     def response_code
-      return super unless [:get_bank_certificate, :create_certificate, :renew_certificate].include? @command
+      return super unless CERTIFICATE_COMMANDS.include? @command
 
-      node = doc.at('xmlns|ReturnCode', xmlns: DANSKE_PKI)
-      node = doc.at('xmlns|ReturnCode', xmlns: DANSKE_PKIF) unless node
-
-      node.content if node
+      super(namespace: DANSKE_PKI, node_name: 'ReturnCode') || super(namespace: DANSKE_PKIF, node_name: 'ReturnCode')
     end
 
-    # Extract response text from the response. Overrides super method when {#command} is
-    # `:get_bank_certificate`, `:create_certificate` or `:renew_certificate` because response text node is named
-    # differently in those responses.
-    #
-    # @return [String] if response text is found
-    # @return [nil] if response text cannot be found
     # @see Response#response_text
     def response_text
-      return super unless [:get_bank_certificate, :create_certificate, :renew_certificate].include? @command
+      return super unless CERTIFICATE_COMMANDS.include? @command
 
-      node = doc.at('xmlns|ReturnText', xmlns: DANSKE_PKI)
-      node = doc.at('xmlns|ReturnText', xmlns: DANSKE_PKIF) unless node
-
-      node.content if node
+      super(namespace: DANSKE_PKI, node_name: 'ReturnText') || super(namespace: DANSKE_PKIF, node_name: 'ReturnText')
     end
 
     # Checks whether certificate embedded in the response has been signed with the bank's root
@@ -144,7 +128,7 @@ module Sepa
       # @return [Nokogiri::XML::Node] node with signature removed from its document since signature
       #   has to be removed for canonicalization and hash calculation
       def find_node_by_uri(uri)
-        return super unless [:get_bank_certificate, :create_certificate, :renew_certificate].include? @command
+        return super unless CERTIFICATE_COMMANDS.include? @command
 
         doc_without_signature = doc.dup
         doc_without_signature.at('xmlns|Signature', xmlns: DSIG).remove
@@ -203,7 +187,7 @@ module Sepa
       # Validates that the encrypted key in the response can be decrypted with the private key given
       # to the response in the parameters. Response is invalid if this cannot be done.
       def can_be_decrypted_with_given_key
-        return if [:get_bank_certificate, :create_certificate, :renew_certificate].include? @command
+        return if CERTIFICATE_COMMANDS.include? @command
         return unless encrypted_application_response.css('CipherValue', 'xmlns' => XMLENC)[0]
         return if decrypt_embedded_key
 

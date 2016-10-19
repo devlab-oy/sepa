@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.license       = 'MIT'
   spec.authors       = ['Joni Kanerva', 'Mika Myllynen', 'Tommi Järvinen']
   spec.email         = ['joni@devlab.fi']
-  spec.files         = `git ls-files`.split($/)
+  spec.files         = `git ls-files`.split($INPUT_RECORD_SEPARATOR)
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'nokogiri',    '~> 1.6'
   spec.add_dependency 'savon',       '~> 2.11'
 
-  spec.add_development_dependency 'bundler',                   '~> 1.12'
+  spec.add_development_dependency 'bundler',                   '~> 1.13'
   spec.add_development_dependency 'codeclimate-test-reporter', '~> 0.6'
   spec.add_development_dependency 'dotenv',                    '~> 2.1'
   spec.add_development_dependency 'minitest',                  '~> 5.9'

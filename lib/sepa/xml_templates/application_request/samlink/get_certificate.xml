@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CertApplicationRequest xmlns="http://op.fi/mlp/xmldata/">
+  <CustomerId/>
+  <Timestamp/>
+  <Environment/>
+  <SoftwareId/>
+  <Command/>
+  <Compression>false</Compression>
+  <Service/>
+  <Content/>
+  <TransferKey/>
+</CertApplicationRequest>

@@ -1,14 +1,13 @@
 require 'test_helper'
 
 class DanskeGetBankCertTest < ActiveSupport::TestCase
-
   def setup
     @get_bank_cert_params = {
       bank: :danske,
       command: :get_bank_certificate,
       bank_root_cert_serial: '1111110002',
       customer_id: '360817',
-      request_id: SecureRandom.hex(5)
+      request_id: SecureRandom.hex(5),
     }
 
     @doc = Sepa::SoapBuilder.new(@get_bank_cert_params)
@@ -33,12 +32,12 @@ class DanskeGetBankCertTest < ActiveSupport::TestCase
 
   def test_sender_id_is_properly_set
     assert_equal @get_bank_cert_params[:customer_id],
-      @doc.at('SenderId', 'xmlns' => @pkif).content
+                 @doc.at('SenderId', 'xmlns' => @pkif).content
   end
 
   def test_customer_id_is_properly_set
     assert_equal @get_bank_cert_params[:customer_id],
-      @doc.at('CustomerId', 'xmlns' => @pkif).content
+                 @doc.at('CustomerId', 'xmlns' => @pkif).content
   end
 
   def test_header_request_id_is_properly_set
@@ -62,7 +61,7 @@ class DanskeGetBankCertTest < ActiveSupport::TestCase
 
   def test_bank_root_cert_serial_is_correctly_set
     assert_equal @get_bank_cert_params[:bank_root_cert_serial],
-      @doc.at('BankRootCertificateSerialNo', 'xmlns' => @elem).content
+                 @doc.at('BankRootCertificateSerialNo', 'xmlns' => @elem).content
   end
 
   def test_request_timestamp_is_set_correctly

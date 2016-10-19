@@ -65,7 +65,7 @@ module Sepa
         encrypted_data = iv + encrypted_data
         encrypted_data = encode encrypted_data
 
-        return encrypted_data, key
+        [encrypted_data, key]
       end
 
       # Builds the xml structure for the encrypted application request that can be base64 encoded

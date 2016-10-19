@@ -162,11 +162,27 @@ module Sepa
     # @see #signing_csr The format is the same as in signing csr
     attr_accessor :encryption_csr
 
+    # Options to be passed directly to the underlying savon client. Format is as follows:
+    # {
+    #    globals: {
+    #      ssl_verify_mode: :none,
+    #      ...,
+    #    },
+    #    locals: {
+    #      xml: "<envelope></envelope>",
+    #      ...,
+    #    },
+    # }
+    #
+    # @return [Hash]
+    attr_accessor :savon_options
+
     # The list of banks that are currently supported by this gem
     BANKS = %i(
       danske
       nordea
       op
+      samlink
     ).freeze
 
     # Languages that are currently supported by the gem
@@ -204,9 +220,13 @@ module Sepa
     # @param hash [Hash] All the attributes of the client can be given to the construcor in a hash
     def initialize(hash = {})
       attributes(hash)
-      self.environment ||= :production
-      self.language    ||= 'EN'
-      self.status      ||= 'NEW'
+      self.environment   ||= :production
+      self.language      ||= 'EN'
+      self.status        ||= 'NEW'
+      self.savon_options ||= {
+        globals: {},
+        locals: {},
+      }
     end
 
     def bank=(value)
@@ -249,12 +269,11 @@ module Sepa
     def send_request
       raise ArgumentError, errors.messages unless valid?
 
-      soap = SoapBuilder.new(create_hash).to_xml
-      client = Savon.client(wsdl: wsdl)
+      client = Savon.client(savon_globals)
 
       begin
         error = nil
-        response = client.call(soap_command, xml: soap)
+        response = client.call(soap_command, savon_locals)
         response &&= response.to_xml
       rescue Savon::Error => e
         response = nil
@@ -318,7 +337,7 @@ module Sepa
           command:     command,
           environment: environment,
           error:       error,
-          response:    response
+          response:    response,
         }
         if encryption_private_key && !encryption_private_key.empty?
           options[:encryption_private_key] = rsa_key(encryption_private_key)
@@ -328,11 +347,19 @@ module Sepa
       end
 
       def soap_command
-        if @command == :renew_certificate && [:nordea, :op].include?(@bank)
+        if @command == :renew_certificate && [:nordea, :op, :samlink].include?(@bank)
           :get_certificate
         else
           @command
         end
+      end
+
+      def savon_globals
+        { wsdl: wsdl }.merge(savon_options[:globals] || {})
+      end
+
+      def savon_locals
+        { xml: SoapBuilder.new(create_hash).to_xml }.merge(savon_options[:locals] || {})
       end
   end
 end
