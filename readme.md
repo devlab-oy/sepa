@@ -12,6 +12,7 @@ Currently we have support for SEPA Web Services for
 * Nordea
 * Danske Bank
 * OP
+* Banks supported by [Samlink](http://www.samlink.fi/ohjelmistopalvelut/)
 
 ## Installation
 
