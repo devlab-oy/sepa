@@ -96,6 +96,8 @@ You have to get your bank to sign your signing/encryption certificate(s). For th
 * Your signing certificate signing request
 * Your encryption certificate signing request (Danske Only)
 
+### Generating CSR
+
 You can generate your certificate signing requests with `openssl`
 
 ```bash
@@ -103,7 +105,10 @@ openssl req -out encryption.csr -new -newkey rsa:2048 -nodes -keyout encryption.
 openssl req -out signing.csr -new -newkey rsa:2048 -nodes -keyout signing.key
 ```
 
-*(For Nordea the key is 1024 bits)*
+ * for Nordea the key is 1024 bits
+ * for OP the CSR must be created using the following two parameters (leave all other blank):
+  * `C=FI`
+  * `CN=1234567890` (your 10-digit customer id)
 
 Enter your information and you should have four files
 
@@ -125,9 +130,14 @@ params = {
   command: :get_certificate,
   customer_id: '11111111',
   environment: 'test',
-  signing_csr: "...your signing.csr content..."
+  signing_csr: "-----BEGIN CERTIFICATE REQUEST-----
+...your signing.csr content...
+...line length should be 64 digits...
+-----END CERTIFICATE REQUEST-----"
 }
 ```
+
+For OP, pin consists of 16 digits.
 
 Initialize a new instance of the client and pass the params hash
 
