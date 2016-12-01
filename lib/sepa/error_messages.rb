@@ -25,7 +25,7 @@ module Sepa
 
     # Error message which is shown when {Client#pin} validation fails
     PIN_ERROR_MESSAGE =
-      'Pin needs to be present for this command and cannot be more than 10 characters'.freeze
+      'Pin needs to be present for this command and cannot be more than 20 characters'.freeze
 
     # Error message which is shown when {Client#bank_encryption_certificate} validation fails
     ENCRYPTION_CERT_ERROR_MESSAGE = 'Invalid encryption certificate'.freeze
