@@ -30,8 +30,7 @@ module Sepa
     # @return [String] the application request as an xml document
     # @todo This method is obviously doing too much
     def to_xml
-      set_common_nodes
-      set_nodes_contents
+      process_body
       process_signature
       @application_request.to_xml
     end
@@ -50,7 +49,17 @@ module Sepa
       Nokogiri::XML to_xml
     end
 
+    def canonalized_request
+      process_body
+      @application_request.canonicalize canonicalization_mode
+    end
+
     private
+
+      def process_body
+        set_common_nodes
+        set_nodes_contents
+      end
 
       # Sets node to value
       #
@@ -208,7 +217,7 @@ module Sepa
       # @return [String] the base64 encoded digest of the {#application_request}
       def calculate_digest
         sha1 = OpenSSL::Digest::SHA1.new
-        encode(sha1.digest(@application_request.canonicalize(canonicalization_mode)))
+        encode(sha1.digest(canonalized_request))
       end
 
       # Adds value to signature node

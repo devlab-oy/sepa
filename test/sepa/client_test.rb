@@ -425,4 +425,18 @@ class ClientTest < ActiveSupport::TestCase
     refute client.valid?
     refute_empty client.errors.messages
   end
+
+  test 'danske empty file upload' do
+    params = danske_generic_params
+    params[:file_type] = ''
+
+    client = Sepa::Client.new params
+    ar = client.soap_builder.application_request
+
+    assert_match %r{<FileType><\/FileType>}, ar.canonalized_request
+    refute_match %r{<FileType\/>}, ar.canonalized_request
+
+    refute_match %r{<FileType><\/FileType>}, ar.to_xml
+    assert_match %r{<FileType\/>}, ar.to_xml
+  end
 end

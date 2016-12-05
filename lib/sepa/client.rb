@@ -237,6 +237,10 @@ module Sepa
       end
     end
 
+    def soap_builder
+      SoapBuilder.new(create_hash)
+    end
+
     # Sends request to the bank specified in the attributes. First a new {SoapBuilder} class is
     # initialized with a hash of the parameters given to the client with the {#create_hash} method.
     # After this, a Savon client is initialized with a WSDL file got from {#wsdl}. After this, the
@@ -249,12 +253,11 @@ module Sepa
     def send_request
       raise ArgumentError, errors.messages unless valid?
 
-      soap = SoapBuilder.new(create_hash).to_xml
       client = Savon.client(wsdl: wsdl)
 
       begin
         error = nil
-        response = client.call(soap_command, xml: soap)
+        response = client.call(soap_command, xml: soap_builder.to_xml)
         response &&= response.to_xml
       rescue Savon::Error => e
         response = nil
