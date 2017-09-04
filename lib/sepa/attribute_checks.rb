@@ -27,6 +27,7 @@ module Sepa
           STANDARD_COMMANDS - [:get_user_info],
           :get_certificate,
           :get_service_certificates,
+          :renew_certificate
         ].flatten
       when :samlink
         [
