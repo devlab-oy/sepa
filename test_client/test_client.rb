@@ -28,6 +28,7 @@ module Testing
     :nordea_renew_certificate,
     :op_get_certificate,
     :op_get_service_certificates,
+    :op_renew_certificate,
     :samlink_get_certificate,
     :samlink_renew_certificate,
   ].each_with_object({}) do |i, a|
