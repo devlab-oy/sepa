@@ -26,14 +26,14 @@ module Sepa
 
     # @see Response#response_code
     def response_code
-      return super unless [:get_certificate, :get_service_certificates].include? command
+      return super unless [:get_certificate, :get_service_certificates, :renew_certificate].include? command
 
       super(namespace: OP_PKI)
     end
 
     # @see Response#response_text
     def response_text
-      return super unless [:get_certificate, :get_service_certificates].include? command
+      return super unless [:get_certificate, :get_service_certificates, :renew_certificate].include? command
 
       super(namespace: OP_PKI)
     end
