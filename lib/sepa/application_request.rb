@@ -177,7 +177,7 @@ module Sepa
         set_node('Environment', @environment.to_s.upcase)
         set_node("CustomerId", @customer_id)
         set_node("Timestamp", iso_time)
-        set_node("SoftwareId", "Sepa Transfer Library version #{VERSION}")
+        set_node("SoftwareId", "Sepa Transfer Library #{VERSION}")
         set_node("Command", pretty_command) unless @command == :renew_certificate
       end
 

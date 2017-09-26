@@ -105,7 +105,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
       "//bxd:UserAgent", 'bxd' => 'http://model.bxd.fi'
     ).first
 
-    assert_equal user_agent_node.content, "Sepa Transfer Library version " + Sepa::VERSION
+    assert_equal user_agent_node.content, "Sepa Transfer Library " + Sepa::VERSION
   end
 
   def test_receiver_is_is_set_correctly

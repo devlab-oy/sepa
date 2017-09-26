@@ -91,7 +91,7 @@ class DanskeGenericSoapBuilderTest < ActiveSupport::TestCase
   def test_user_agent_is_set_correctly
     user_agent_node = @doc.at("//bxd:UserAgent", 'bxd' => 'http://model.bxd.fi')
 
-    assert_equal user_agent_node.content, "Sepa Transfer Library version " + Sepa::VERSION
+    assert_equal user_agent_node.content, "Sepa Transfer Library " + Sepa::VERSION
   end
 
   def test_receiver_is_is_set_correctly

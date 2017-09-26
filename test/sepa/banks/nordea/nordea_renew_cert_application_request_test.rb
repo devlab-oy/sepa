@@ -31,7 +31,7 @@ class NordeaRenewCertApplicationRequestTest < ActiveSupport::TestCase
   end
 
   test "software id is set correctly" do
-    assert_equal "Sepa Transfer Library version #{Sepa::VERSION}", @doc.at_css("SoftwareId").content
+    assert_equal "Sepa Transfer Library #{Sepa::VERSION}", @doc.at_css("SoftwareId").content
   end
 
   test "service is set correctly" do
