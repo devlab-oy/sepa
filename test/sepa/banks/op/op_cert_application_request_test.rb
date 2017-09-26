@@ -43,7 +43,7 @@ class OpCertApplicationRequestTest < ActiveSupport::TestCase
   end
 
   test "software id is set correctly" do
-    assert_equal @xml.at_css("SoftwareId").content, "Sepa Transfer Library version #{Sepa::VERSION}"
+    assert_equal @xml.at_css("SoftwareId").content, "Sepa Transfer Library #{Sepa::VERSION}"
   end
 
   test "service is set correctly" do

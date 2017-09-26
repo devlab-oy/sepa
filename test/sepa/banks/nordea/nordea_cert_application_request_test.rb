@@ -47,7 +47,7 @@ class NordeaCertApplicationRequestTest < ActiveSupport::TestCase
   end
 
   test 'should have software id set' do
-    assert_equal @xml.at_css("SoftwareId").content, "Sepa Transfer Library version #{Sepa::VERSION}"
+    assert_equal @xml.at_css("SoftwareId").content, "Sepa Transfer Library #{Sepa::VERSION}"
   end
 
   test 'should have service set' do

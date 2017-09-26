@@ -94,7 +94,7 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
   end
 
   def test_should_have_software_id_set_with_all_commands
-    string = "Sepa Transfer Library version #{Sepa::VERSION}"
+    string = "Sepa Transfer Library #{Sepa::VERSION}"
 
     assert_equal @doc_file.at_css("SoftwareId").content, string
     assert_equal @doc_get.at_css("SoftwareId").content, string
