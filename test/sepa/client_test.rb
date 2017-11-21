@@ -41,6 +41,7 @@ class ClientTest < ActiveSupport::TestCase
       %i(
         get_certificate
         get_service_certificates
+        renew_certificate
       )
 
     assert_same_items commands, c.allowed_commands

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Client for testing the gem against banks' test environments
 module Testing
   require          "base64"
@@ -5,31 +7,32 @@ module Testing
   require_relative "data/certs"
   require_relative "data/params"
 
-  content_clients = [
-    :nordea_download_file,
-    :nordea_download_file_list,
-    :nordea_get_user_info,
-    :nordea_upload_file,
-    :op_download_file,
-    :op_download_file_list,
-    :op_upload_file,
-    :samlink_download_file_list,
-    :samlink_upload_file,
-    :samlink_download_file,
+  content_clients = %i[
+    nordea_download_file
+    nordea_download_file_list
+    nordea_get_user_info
+    nordea_upload_file
+    op_download_file
+    op_download_file_list
+    op_upload_file
+    samlink_download_file_list
+    samlink_upload_file
+    samlink_download_file
   ].each_with_object({}) do |i, a|
     a[i] = Sepa::Client.new("#{i.to_s.upcase}_PARAMS".constantize)
   end
 
-  certificate_clients = [
-    :danske_create_cert,
-    :danske_get_bank_cert,
-    :danske_renew_cert,
-    :nordea_get_certificate,
-    :nordea_renew_certificate,
-    :op_get_certificate,
-    :op_get_service_certificates,
-    :samlink_get_certificate,
-    :samlink_renew_certificate,
+  certificate_clients = %i[
+    danske_create_cert
+    danske_get_bank_cert
+    danske_renew_cert
+    nordea_get_certificate
+    nordea_renew_certificate
+    op_get_certificate
+    op_get_service_certificates
+    op_renew_certificate
+    samlink_get_certificate
+    samlink_renew_certificate
   ].each_with_object({}) do |i, a|
     a[i] = Sepa::Client.new("#{i.to_s.upcase}_PARAMS".constantize)
   end

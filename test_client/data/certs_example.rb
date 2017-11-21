@@ -1,9 +1,13 @@
-NORDEA_CSR                  = ''.freeze
-NORDEA_CERT                 = ''.freeze
-NORDEA_PRIVATE_KEY          = ''.freeze
-DANSKE_BANK_ENC_CERT        = ''.freeze
-DANSKE_SIGNING_CERT_REQUEST = ''.freeze
-DANSKE_ENC_CERT_REQUEST     = ''.freeze
-OP_CSR                      = ''.freeze
-OP_PRIVATE_KEY              = ''.freeze
-OP_CERT                     = ''.freeze
+# frozen_string_literal: true
+
+NORDEA_CSR                  = ''
+NORDEA_RENEW_CSR            = ''
+NORDEA_CERT                 = ''
+NORDEA_PRIVATE_KEY          = ''
+DANSKE_BANK_ENC_CERT        = ''
+DANSKE_SIGNING_CERT_REQUEST = ''
+DANSKE_ENC_CERT_REQUEST     = ''
+OP_CSR                      = ''
+OP_RENEW_CSR                = ''
+OP_PRIVATE_KEY              = ''
+OP_CERT                     = ''
