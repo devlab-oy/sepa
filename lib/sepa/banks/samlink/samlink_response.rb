@@ -24,11 +24,9 @@ module Sepa
     def certificate_is_trusted?
       case environment
       when :production
-        # Samlink doesn't provide a CA certificate for production environment and that's why we check that the
-        #   certificate provided is equal to the known trusted certificate.
-        certificate.to_s == SAMLINK_CERTIFICATE.to_s
-      when :test
         verify_certificate_against_root_certificate(certificate, SAMLINK_ROOT_CERTIFICATE)
+      when :test
+        verify_certificate_against_root_certificate(certificate, SAMLINK_TEST_CERTIFICATE)
       end
     end
   end
