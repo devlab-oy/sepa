@@ -5,6 +5,7 @@ Rake::TestTask.new do |t|
   t.libs << 'test'
   t.test_files = FileList['test/sepa/**/*_test.rb']
   t.verbose = true
+  t.warning = false
 end
 
 desc "Open an irb session preloaded with this library"
