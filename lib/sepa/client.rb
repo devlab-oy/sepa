@@ -11,12 +11,12 @@ module Sepa
     # The bank that is used in this client. One of {BANKS}.
     #
     # @return [Symbol]
-    attr_accessor :bank
+    attr_reader :bank
 
     # The command that is used with this client. One of {AttributeChecks#allowed_commands}.
     #
     # @return [Symbol]
-    attr_accessor :command
+    attr_reader :command
 
     # The payload in base64 encoded form. Used with upload file command.
     #
@@ -43,7 +43,7 @@ module Sepa
     # The environment to be used. One of {ENVIRONMENTS}.
     #
     # @return [Symbol]
-    attr_accessor :environment
+    attr_reader :environment
 
     # File reference number used in download_file requests.
     #
