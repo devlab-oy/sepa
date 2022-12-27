@@ -21,11 +21,11 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
     @uf_doc = xml_doc @dfl
 
     options = {
-      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_tito.xml"),
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_vkeur.xml"),
       command: :download_file,
     }
-    @df_tito = Sepa::NordeaResponse.new(options).application_response
-    @df_tito_doc = xml_doc @df_tito
+    @df_vkeur = Sepa::NordeaResponse.new(options).application_response
+    @df_vkeur_doc = xml_doc @df_vkeur
 
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/gui.xml"),
@@ -36,7 +36,7 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
 
     @dfl_ar = Sepa::ApplicationResponse.new(@dfl, :nordea)
     @uf_ar = Sepa::ApplicationResponse.new(@uf, :nordea)
-    @df_ar = Sepa::ApplicationResponse.new(@df_tito, :nordea)
+    @df_ar = Sepa::ApplicationResponse.new(@df_vkeur, :nordea)
     @gui_ar = Sepa::ApplicationResponse.new(@gui, :nordea)
   end
 
@@ -88,14 +88,14 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   end
 
   def test_invalid_df_hash_check_should_not_verify
-    digest_value_node = @df_tito_doc.at_css(
+    digest_value_node = @df_vkeur_doc.at_css(
       'xmlns|DigestValue',
       'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
     )
 
     digest_value_node.content = digest_value_node.content[4..-1]
 
-    refute Sepa::ApplicationResponse.new(@df_tito_doc.to_s, :nordea).hashes_match?
+    refute Sepa::ApplicationResponse.new(@df_vkeur_doc.to_s, :nordea).hashes_match?
   end
 
   def test_invalid_gui_hash_check_should_not_verify
@@ -148,14 +148,14 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   end
 
   def test_corrupted_signature_in_df_should_fail_signature_verification
-    signature_node = @df_tito_doc.at_css(
+    signature_node = @df_vkeur_doc.at_css(
       'xmlns|SignatureValue',
       'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
     )
 
     signature_node.content = 'a' + signature_node.content[1..-1]
 
-    refute Sepa::ApplicationResponse.new(@df_tito_doc.to_s, :nordea).signature_is_valid?
+    refute Sepa::ApplicationResponse.new(@df_vkeur_doc.to_s, :nordea).signature_is_valid?
   end
 
   def test_corrupted_signature_in_gui_should_fail_signature_verification
@@ -196,7 +196,7 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
   end
 
   def test_should_raise_error_if_certificate_corrupted_in_df
-    cert_node = @df_tito_doc.at_css(
+    cert_node = @df_vkeur_doc.at_css(
       'xmlns|X509Certificate',
       'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
     )
@@ -204,7 +204,7 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
     cert_node.content = "n5iw#{cert_node.content}"
 
     assert_raises(OpenSSL::X509::CertificateError) do
-      Sepa::ApplicationResponse.new(@df_tito_doc.to_s, :nordea).certificate
+      Sepa::ApplicationResponse.new(@df_vkeur_doc.to_s, :nordea).certificate
     end
   end
 
