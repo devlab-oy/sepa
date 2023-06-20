@@ -177,6 +177,11 @@ module Sepa
     # @return [Hash]
     attr_accessor :savon_options
 
+    # The sent SOAP. This is useful for debugging purposes.
+    #
+    # @return [SoapBuilder]
+    attr_reader :soap
+
     # The list of banks that are currently supported by this gem
     BANKS = %i(
       danske
@@ -359,7 +364,9 @@ module Sepa
       end
 
       def savon_locals
-        { xml: SoapBuilder.new(create_hash).to_xml }.merge(savon_options[:locals] || {})
+        @soap = SoapBuilder.new(create_hash).to_xml
+
+        { xml: @soap }.merge(savon_options[:locals] || {})
       end
   end
 end
