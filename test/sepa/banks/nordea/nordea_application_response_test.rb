@@ -14,6 +14,13 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
     @dfl_doc = xml_doc @dfl
 
     options = {
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/dfl_sha256.xml"),
+      command: :download_file_list,
+    }
+    @dfl_sha256 = Sepa::NordeaResponse.new(options).application_response
+    @dfl_sha256_doc = xml_doc @dfl_sha256
+
+    options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/uf.xml"),
       command: :upload_file,
     }
@@ -28,16 +35,33 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
     @df_vkeur_doc = xml_doc @df_vkeur
 
     options = {
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_vkeur_sha256.xml"),
+      command: :download_file,
+    }
+    @df_vkeur_sha256 = Sepa::NordeaResponse.new(options).application_response
+    @df_vkeur_sha256_doc = xml_doc @df_vkeur_sha256
+
+    options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/gui.xml"),
       command: :get_user_info,
     }
     @gui = Sepa::NordeaResponse.new(options).application_response
     @gui_doc = xml_doc @gui
 
+    options = {
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/gui_sha256.xml"),
+      command: :get_user_info,
+    }
+    @gui_sha256 = Sepa::NordeaResponse.new(options).application_response
+    @gui_sha256_doc = xml_doc @gui_sha256
+
     @dfl_ar = Sepa::ApplicationResponse.new(@dfl, :nordea)
+    @dfl_sha256_ar = Sepa::ApplicationResponse.new(@dfl_sha256, :nordea)
     @uf_ar = Sepa::ApplicationResponse.new(@uf, :nordea)
     @df_ar = Sepa::ApplicationResponse.new(@df_vkeur, :nordea)
+    @df_sha256_ar = Sepa::ApplicationResponse.new(@df_vkeur_sha256, :nordea)
     @gui_ar = Sepa::ApplicationResponse.new(@gui, :nordea)
+    @gui_sha256_ar = Sepa::ApplicationResponse.new(@gui_sha256, :nordea)
   end
 
   def test_templates_valid
@@ -59,6 +83,7 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
 
   def test_proper_dfl_hash_check_should_verify
     assert @dfl_ar.hashes_match?
+    assert @dfl_sha256_ar.hashes_match?
   end
 
   def test_proper_uf_hash_check_should_verify
@@ -67,10 +92,12 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
 
   def test_proper_df_hash_check_should_verify
     assert @df_ar.hashes_match?
+    assert @df_sha256_ar.hashes_match?
   end
 
   def test_proper_gui_hash_check_should_verify
     assert @gui_ar.hashes_match?
+    assert @gui_sha256_ar.hashes_match?
   end
 
   def test_invalid_dfl_hash_check_should_not_verify
@@ -78,6 +105,11 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
     customer_id_node.content = customer_id_node.content[0..-2]
 
     refute Sepa::ApplicationResponse.new(@dfl_doc.to_s, :nordea).hashes_match?
+
+    customer_id_node = @dfl_sha256_doc.at_css('c2b|CustomerId')
+    customer_id_node.content = customer_id_node.content[0..-2]
+
+    refute Sepa::ApplicationResponse.new(@dfl_sha256_doc.to_s, :nordea).hashes_match?
   end
 
   def test_invalid_uf_hash_check_should_not_verify
@@ -96,6 +128,15 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
     digest_value_node.content = digest_value_node.content[4..-1]
 
     refute Sepa::ApplicationResponse.new(@df_vkeur_doc.to_s, :nordea).hashes_match?
+
+    digest_value_node = @df_vkeur_sha256_doc.at_css(
+      'xmlns|DigestValue',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
+    )
+
+    digest_value_node.content = digest_value_node.content[4..-1]
+
+    refute Sepa::ApplicationResponse.new(@df_vkeur_sha256_doc.to_s, :nordea).hashes_match?
   end
 
   def test_invalid_gui_hash_check_should_not_verify
@@ -107,10 +148,20 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
     digest_value_node.content = '1234' + digest_value_node.content
 
     refute Sepa::ApplicationResponse.new(@gui_doc.to_s, :nordea).hashes_match?
+
+    digest_value_node = @gui_sha256_doc.at_css(
+      'xmlns|DigestValue',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
+    )
+
+    digest_value_node.content = '1234' + digest_value_node.content
+
+    refute Sepa::ApplicationResponse.new(@gui_sha256_doc.to_s, :nordea).hashes_match?
   end
 
   def test_proper_dfl_signature_should_verify
     assert @dfl_ar.signature_is_valid?
+    assert @dfl_sha256_ar.signature_is_valid?
   end
 
   def test_proper_uf_signature_should_verify
@@ -119,10 +170,12 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
 
   def test_proper_df_signature_should_verify
     assert @df_ar.signature_is_valid?
+    assert @df_sha256_ar.signature_is_valid?
   end
 
   def test_proper_gui_signature_should_verify
     assert @gui_ar.signature_is_valid?
+    assert @gui_sha256_ar.signature_is_valid?
   end
 
   def test_corrupted_signature_in_dfl_should_fail_signature_verification
@@ -134,6 +187,15 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
     signature_node.content = signature_node.content[4..-1]
 
     refute Sepa::ApplicationResponse.new(@dfl_doc.to_s, :nordea).signature_is_valid?
+
+    signature_node = @dfl_sha256_doc.at_css(
+      'xmlns|SignatureValue',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
+    )
+
+    signature_node.content = signature_node.content[4..-1]
+
+    refute Sepa::ApplicationResponse.new(@dfl_sha256_doc.to_s, :nordea).signature_is_valid?
   end
 
   def test_corrupted_signature_in_uf_should_fail_signature_verification
@@ -156,6 +218,15 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
     signature_node.content = 'a' + signature_node.content[1..-1]
 
     refute Sepa::ApplicationResponse.new(@df_vkeur_doc.to_s, :nordea).signature_is_valid?
+
+    signature_node = @df_vkeur_sha256_doc.at_css(
+      'xmlns|SignatureValue',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
+    )
+
+    signature_node.content = 'a' + signature_node.content[1..-1]
+
+    refute Sepa::ApplicationResponse.new(@df_vkeur_sha256_doc.to_s, :nordea).signature_is_valid?
   end
 
   def test_corrupted_signature_in_gui_should_fail_signature_verification
@@ -167,6 +238,15 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
     signature_node.content = 'zombi' + signature_node.content[1..-1]
 
     refute Sepa::ApplicationResponse.new(@gui_doc.to_s, :nordea).signature_is_valid?
+
+    signature_node = @gui_sha256_doc.at_css(
+      'xmlns|SignatureValue',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
+    )
+
+    signature_node.content = 'zombi' + signature_node.content[1..-1]
+
+    refute Sepa::ApplicationResponse.new(@gui_sha256_doc.to_s, :nordea).signature_is_valid?
   end
 
   def test_should_raise_error_if_certificate_corrupted_in_dfl
@@ -179,6 +259,17 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
 
     assert_raises(OpenSSL::X509::CertificateError) do
       Sepa::ApplicationResponse.new(@dfl_doc.to_s, :nordea).certificate
+    end
+
+    cert_node = @dfl_sha256_doc.at_css(
+      'xmlns|X509Certificate',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
+    )
+
+    cert_node.content = cert_node.content[0..-5]
+
+    assert_raises(OpenSSL::X509::CertificateError) do
+      Sepa::ApplicationResponse.new(@dfl_sha256_doc.to_s, :nordea).certificate
     end
   end
 
@@ -206,6 +297,17 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
     assert_raises(OpenSSL::X509::CertificateError) do
       Sepa::ApplicationResponse.new(@df_vkeur_doc.to_s, :nordea).certificate
     end
+
+    cert_node = @df_vkeur_sha256_doc.at_css(
+      'xmlns|X509Certificate',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
+    )
+
+    cert_node.content = "n5iw#{cert_node.content}"
+
+    assert_raises(OpenSSL::X509::CertificateError) do
+      Sepa::ApplicationResponse.new(@df_vkeur_sha256_doc.to_s, :nordea).certificate
+    end
   end
 
   def test_should_raise_error_if_certificate_corrupted_in_gui
@@ -219,13 +321,27 @@ class NordeaApplicationResponseTest < ActiveSupport::TestCase
     assert_raises(OpenSSL::X509::CertificateError) do
       Sepa::ApplicationResponse.new(@gui_doc.to_s, :nordea).certificate
     end
+
+    cert_node = @gui_sha256_doc.at_css(
+      'xmlns|X509Certificate',
+      'xmlns' => 'http://www.w3.org/2000/09/xmldsig#',
+    )
+
+    cert_node.content = encode 'voivoi'
+
+    assert_raises(OpenSSL::X509::CertificateError) do
+      Sepa::ApplicationResponse.new(@gui_sha256_doc.to_s, :nordea).certificate
+    end
   end
 
   test 'certificate is trusted with correct root certificate' do
     assert @dfl_ar.certificate_is_trusted?
+    assert @dfl_sha256_ar.certificate_is_trusted?
     assert @uf_ar.certificate_is_trusted?
     assert @df_ar.certificate_is_trusted?
+    assert @df_sha256_ar.certificate_is_trusted?
     assert @gui_ar.certificate_is_trusted?
+    assert @gui_sha256_ar.certificate_is_trusted?
   end
 
   # TODO: Implement test

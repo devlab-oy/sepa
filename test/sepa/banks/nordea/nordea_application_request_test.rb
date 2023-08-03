@@ -193,8 +193,8 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
     ).remove
 
     # Calculate digest
-    sha1 = OpenSSL::Digest::SHA1.new
-    actual_digest = encode(sha1.digest(@doc_file.canonicalize))
+    digest = OpenSSL::Digest::SHA256.new
+    actual_digest = encode(digest.digest(@doc_file.canonicalize))
 
     # And then make sure the two are equal
     assert_equal calculated_digest.strip, actual_digest.strip
@@ -214,11 +214,11 @@ class NordeaApplicationRequestTest < ActiveSupport::TestCase
     keys_path = File.expand_path('../keys', __FILE__)
     private_key = rsa_key(File.read("#{keys_path}/nordea.key"))
 
-    sha1 = OpenSSL::Digest::SHA1.new
-    actual_signature = encode(private_key.sign(sha1, signed_info_node.canonicalize))
+    digest = OpenSSL::Digest::SHA256.new
+    actual_signature = encode(private_key.sign(digest, signed_info_node.canonicalize))
 
     # And then of course assert the two are equal
-    assert_equal calculated_signature, actual_signature
+    assert_equal calculated_signature, actual_signature.gsub(/\s+/, "")
   end
 
   def test_certificate_is_added_correctly

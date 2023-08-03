@@ -1,16 +1,8 @@
-require 'codeclimate-test-reporter'
+require 'simplecov'
 require 'minitest/autorun'
-require 'dotenv'
-Dotenv.load
+require 'byebug'
 
-if ENV['CODECLIMATE_REPO_TOKEN']
-  SimpleCov.formatters = [
-    SimpleCov::Formatter::HTMLFormatter,
-    CodeClimate::TestReporter::Formatter,
-  ]
-else
-  SimpleCov.formatter = SimpleCov::Formatter::HTMLFormatter
-end
+SimpleCov.formatter = SimpleCov::Formatter::HTMLFormatter
 
 SimpleCov.start do
   add_filter "/test/"

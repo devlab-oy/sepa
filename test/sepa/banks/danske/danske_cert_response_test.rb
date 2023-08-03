@@ -80,7 +80,7 @@ class DanskeCertResponseTest < ActiveSupport::TestCase
   end
 
   test 'hashes shouldnt match when data is corrupted' do
-    assert_output(/These digests failed to verify: {"#response"=>"2vCYl3h7ksRgk7IyV2axgpXxTWM="}/) do
+    assert_output(/These digests failed to verify: {"#response"=>{:digest=>"2vCYl3h7ksRgk7IyV2axgpXxTWM=", :digest_method=>:sha1}}/) do
       refute @create_certificate_corrupted_response.hashes_match?(verbose: true)
     end
   end

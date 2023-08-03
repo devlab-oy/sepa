@@ -28,6 +28,6 @@ class DanskeRenewCertApplicationRequestTest < ActiveSupport::TestCase
 
     calculated_signature = @doc.at("dsig|SignatureValue", dsig: 'http://www.w3.org/2000/09/xmldsig#').content
 
-    assert_equal actual_signature, calculated_signature
+    assert_equal actual_signature.gsub(/\s+/, ""), calculated_signature
   end
 end

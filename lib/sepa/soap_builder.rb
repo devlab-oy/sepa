@@ -29,11 +29,11 @@ module Sepa
       @status                      = params[:status]
       @target_id                   = params[:target_id]
 
-      @application_request         = ApplicationRequest.new params
+      find_correct_bank_extension
+
+      @application_request         = ApplicationRequest.new(params.merge(digest_method: digest_method))
       @header_template             = load_header_template
       @template                    = load_body_template SOAP_TEMPLATE_PATH
-
-      find_correct_bank_extension
     end
 
     # Returns the soap as raw xml
@@ -91,38 +91,6 @@ module Sepa
         @template
       end
 
-      # Calculates digest hash for the given node in the given document. The node is canonicalized
-      # exclusively before digest calculation.
-      #
-      # @param doc [Nokogiri::XML] Document that contains the node
-      # @param node [String] The name of the node
-      # @return [String] the base64 encoded string
-      # @todo remove this method and use {Utilities#calculate_digest}
-      def calculate_digest(doc, node)
-        sha1       = OpenSSL::Digest::SHA1.new
-        node       = doc.at_css(node)
-        canon_node = canonicalize_exclusively(node)
-
-        encode(sha1.digest(canon_node)).gsub(/\s+/, "")
-      end
-
-      # Calculates signature for the given node in the given document. Uses the signing private key
-      # given to SoapBuilder for the signing. The node is canonicalized exclusively before signature
-      # calculation.
-      #
-      # @param doc [Nokogiri::XML] Document that contains the node
-      # @param node [String] Name of the node to calculate signature from
-      # @return [String] the base64 encoded signature
-      # @todo refactor to use canonicalization from utilities
-      def calculate_signature(doc, node)
-        sha1                   = OpenSSL::Digest::SHA1.new
-        node                   = doc.at_css(node)
-        canon_signed_info_node = canonicalize_exclusively(node)
-        signature              = @signing_private_key.sign(sha1, canon_signed_info_node)
-
-        encode(signature).gsub(/\s+/, "")
-      end
-
       # Loads soap header template to be later populated
       #
       # @return [Nokogiri::XML] the header as Nokogiri document
@@ -172,17 +140,25 @@ module Sepa
 
         timestamp_id = set_node_id(@header_template, OASIS_UTILITY, 'Timestamp', 0)
 
-        timestamp_digest = calculate_digest(@header_template, 'wsu|Timestamp')
+        @header_template.css('dsig|DigestMethod').each do |node|
+          node['Algorithm'] = digest_method == :sha256 ? 'http://www.w3.org/2001/04/xmlenc#sha256' : 'http://www.w3.org/2000/09/xmldsig#sha1'
+        end
+
+        timestamp_digest = calculate_digest(@header_template.at_css('wsu|Timestamp'), digest_method: digest_method)
         dsig = "dsig|Reference[URI='##{timestamp_id}'] dsig|DigestValue"
         set_node(@header_template, dsig, timestamp_digest)
 
         body_id = set_node_id(@template, ENVELOPE, 'Body', 1)
 
-        body_digest = calculate_digest(@template, 'env|Body')
+        body_digest = calculate_digest(@template.at_css('env|Body'), digest_method: digest_method)
         dsig = "dsig|Reference[URI='##{body_id}'] dsig|DigestValue"
         set_node(@header_template, dsig, body_digest)
 
-        signature = calculate_signature(@header_template, 'dsig|SignedInfo')
+        @header_template.css('dsig|SignatureMethod').each do |node|
+          node['Algorithm'] = digest_method == :sha256 ? 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256' : 'http://www.w3.org/2000/09/xmldsig#rsa-sha1'
+        end
+
+        signature = calculate_signature(@header_template.at_css('dsig|SignedInfo'), digest_method: digest_method)
         set_node(@header_template, 'dsig|SignatureValue', signature)
 
         formatted_cert = format_cert(@own_signing_certificate)
@@ -216,6 +192,10 @@ module Sepa
 
       def set_application_request
         set_node @template, 'bxd|ApplicationRequest', @application_request.to_base64
+      end
+
+      def digest_method
+        :sha1
       end
   end
 end

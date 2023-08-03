@@ -201,16 +201,6 @@ module Sepa
         set_node(node.name, content) if content
       end
 
-      # Calculates the digest of {#application_request}
-      #
-      # @todo Use the digest calculation method in {Utilities} instead of implementing the
-      #   functionality again here.
-      # @return [String] the base64 encoded digest of the {#application_request}
-      def calculate_digest
-        sha1 = OpenSSL::Digest::SHA1.new
-        encode(sha1.digest(@application_request.canonicalize(canonicalization_mode)))
-      end
-
       # Adds value to signature node
       #
       # @param node [String] name of the signature node
@@ -220,19 +210,6 @@ module Sepa
         dsig = 'http://www.w3.org/2000/09/xmldsig#'
         sig = @application_request.at_css("dsig|#{node}", 'dsig' => dsig)
         sig.content = value
-      end
-
-      # Calculates the application request's signature value. Uses {#signing_private_key} for the
-      # calculation.
-      #
-      # @return [String] the base64 encoded signature
-      # @todo Move to {Utilities}
-      def calculate_signature
-        sha1 = OpenSSL::Digest::SHA1.new
-        dsig = 'http://www.w3.org/2000/09/xmldsig#'
-        node = @application_request.at_css("dsig|SignedInfo", 'dsig' => dsig)
-        signature = @signing_private_key.sign(sha1, node.canonicalize(canonicalization_mode))
-        encode signature
       end
 
       # Removes signature from the application request, calculates the application request's digest,
@@ -247,11 +224,19 @@ module Sepa
           get_service_certificates
         ).include? @command
 
+        if @digest_method == :sha256
+          digest_method_element = @application_request.at_css("dsig|DigestMethod", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
+          digest_method_element['Algorithm'] = 'http://www.w3.org/2001/04/xmlenc#sha256'
+
+          signature_method_element = @application_request.at_css("dsig|SignatureMethod", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
+          signature_method_element['Algorithm'] = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
+        end
+
         signature_node = remove_node('Signature', 'http://www.w3.org/2000/09/xmldsig#')
-        digest = calculate_digest
+        digest = calculate_digest(@application_request, digest_method: @digest_method, canonicalization_mode: canonicalization_mode)
         add_node_to_root(signature_node)
         add_value_to_signature('DigestValue', digest)
-        add_value_to_signature('SignatureValue', calculate_signature)
+        add_value_to_signature('SignatureValue', calculate_signature(@application_request.at_css("dsig|SignedInfo", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#'), digest_method: @digest_method, canonicalization_mode: canonicalization_mode))
         add_value_to_signature('X509Certificate', format_cert(@own_signing_certificate))
       end
 

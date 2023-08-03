@@ -38,9 +38,19 @@ module Sepa
 
       digest_value = are.at('xmlns|DigestValue', xmlns: DSIG).content.strip
 
+      digest_method_raw = are.at('xmlns|DigestMethod', xmlns: DSIG)&.[]('Algorithm')
+
+      digest_method =
+        case digest_method_raw
+        when 'http://www.w3.org/2001/04/xmlenc#sha256'
+          :sha256
+        else
+          :sha1
+        end
+
       are.at('xmlns|Signature', xmlns: DSIG).remove
 
-      actual_digest = calculate_digest(are)
+      actual_digest = calculate_digest(are, digest_method: digest_method)
 
       return true if digest_value == actual_digest
 

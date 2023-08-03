@@ -228,7 +228,7 @@
 	</wsdl:binding>
 	<wsdl:service name="CorporateFileService">
 		<wsdl:port binding="tns:CorporateFileServiceHttpBinding" name="CorporateFileServiceHttpPort">
-			<wsdlsoap:address location="https://filetransfer.nordea.com/services/CorporateFileService"/>
+			<wsdlsoap:address location="https://filetransfer.nordea.com/services/CorporateFileService/sha2"/>
 		</wsdl:port>
 	</wsdl:service>
 </wsdl:definitions>

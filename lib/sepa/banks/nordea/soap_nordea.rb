@@ -10,5 +10,9 @@ module Sepa
       def cert_ns
         NORDEA_PKI
       end
+
+      def digest_method
+        :sha256
+      end
   end
 end

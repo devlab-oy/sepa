@@ -181,7 +181,7 @@
 	</wsdl:binding>
 	<wsdl:service name="CertificateService">
 		<wsdl:port binding="tns:CertificateServiceHttpBinding" name="CertificateServiceHttpPort">
-			<soap:address location="https://filetransfer.nordea.com/services/CertificateService"/>
+			<soap:address location="https://filetransfer.nordea.com/services/CertificateService/sha2"/>
 		</wsdl:port>
 	</wsdl:service>
 </wsdl:definitions>

@@ -1,9 +1,4 @@
-# Devlab / SEPA
-
-[![Code Climate](https://codeclimate.com/repos/577f932c113b7263ba004849/badges/3728d42150003eafa174/gpa.svg)](https://codeclimate.com/repos/577f932c113b7263ba004849/feed)
-[![Test Coverage](https://codeclimate.com/repos/577f932c113b7263ba004849/badges/3728d42150003eafa174/coverage.svg)](https://codeclimate.com/repos/577f932c113b7263ba004849/coverage)
-[![Build Status](https://semaphoreci.com/api/v1/devlab/sepa/branches/master/badge.svg)](https://semaphoreci.com/devlab/sepa)
-[![Gem Version](https://badge.fury.io/rb/sepafm.svg)](http://badge.fury.io/rb/sepafm)
+# Ahkio / SEPA
 
 This project aims to create an open source implementation of SEPA Financial Messages using Web Services. Project implementation is done in Ruby.
 

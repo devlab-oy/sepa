@@ -11,6 +11,12 @@ class NordeaResponseTest < ActiveSupport::TestCase
     @dfl = Sepa::NordeaResponse.new options
 
     options = {
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/dfl_sha256.xml"),
+      command: :download_file_list,
+    }
+    @dfl_sha256 = Sepa::NordeaResponse.new options
+
+    options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/uf.xml"),
       command: :upload_file,
     }
@@ -23,10 +29,22 @@ class NordeaResponseTest < ActiveSupport::TestCase
     @df_vkeur = Sepa::NordeaResponse.new options
 
     options = {
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/df_vkeur_sha256.xml"),
+      command: :download_file,
+    }
+    @df_vkeur_sha256 = Sepa::NordeaResponse.new options
+
+    options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/gui.xml"),
       command: :get_user_info,
     }
     @gui = Sepa::NordeaResponse.new options
+
+    options = {
+      response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/gui_sha256.xml"),
+      command: :get_user_info,
+    }
+    @gui_sha256 = Sepa::NordeaResponse.new options
 
     options = {
       response: File.read("#{NORDEA_TEST_RESPONSE_PATH}/gc.xml"),
@@ -67,10 +85,13 @@ class NordeaResponseTest < ActiveSupport::TestCase
 
   test 'valid responses are valid' do
     assert @dfl.valid?, @dfl.errors.messages
+    assert @dfl_sha256.valid?, @dfl_sha256.errors.messages
     # TODO: Can't get upload file to return a valid response in test environment. Maybe fix later.
     # assert @uf.valid?, @uf.errors.messages
     assert @df_vkeur.valid?, @df_vkeur.errors.messages
+    assert @df_vkeur_sha256.valid?, @df_vkeur_sha256.errors.messages
     assert @gui.valid?, @gui.errors.messages
+    assert @gui_sha256.valid?, @gui_sha256.errors.messages
     # TODO: Can't get get certificate to return a valid response in test environment. Maybe fix later.
     # assert @gc.valid?, @gc.errors.messages
     assert @rc.valid?, @rc.errors.messages
@@ -88,25 +109,16 @@ class NordeaResponseTest < ActiveSupport::TestCase
 
   test 'hashes match with correct responses' do
     assert @df_vkeur.hashes_match?
+    assert @df_vkeur_sha256.hashes_match?
     assert @dfl.hashes_match?
+    assert @dfl_sha256.hashes_match?
     assert @response_with_code_24
     assert @gc.hashes_match?
     assert @rc.hashes_match?
     assert @gui.hashes_match?
+    assert @gui_sha256.hashes_match?
     assert @not_ok_response_code_response.hashes_match?
     assert @uf.hashes_match?
-  end
-
-  test 'response is valid if hashes match and otherwise valid' do
-    assert @df_vkeur.valid?
-    assert @dfl.valid?
-    assert @response_with_code_24
-    # TODO: Can't get get certificate to return a valid response in test environment. Maybe fix later.
-    # assert @gc.valid?
-    assert @rc.valid?
-    assert @gui.valid?
-    # TODO: Can't get upload file to return a valid response in test environment. Maybe fix later.
-    # assert @uf.valid?
   end
 
   test 'hashes dont match with incorrect responses' do
@@ -129,11 +141,14 @@ class NordeaResponseTest < ActiveSupport::TestCase
 
   test 'signature verifies with correct responses' do
     assert @df_vkeur.signature_is_valid?
+    assert @df_vkeur_sha256.signature_is_valid?
     assert @dfl.signature_is_valid?
+    assert @dfl_sha256.signature_is_valid?
     assert @response_with_code_24.signature_is_valid?
     assert @gc.signature_is_valid?
     assert @rc.signature_is_valid?
     assert @gui.signature_is_valid?
+    assert @gui_sha256.signature_is_valid?
     assert @not_ok_response_code_response.signature_is_valid?
     assert @uf.signature_is_valid?
   end
@@ -149,14 +164,17 @@ class NordeaResponseTest < ActiveSupport::TestCase
 
   test 'content can be extracted' do
     refute_nil @df_vkeur.content
+    refute_nil @df_vkeur_sha256.content
   end
 
   test 'content can be extracted from download file list response' do
     refute_nil @dfl.content
+    refute_nil @dfl_sha256.content
   end
 
   test 'file references can be extracted from download file list response' do
     assert_equal 1, @dfl.file_references.length
+    assert_equal 1, @dfl_sha256.file_references.length
   end
 
   test 'upload file list command returns a response' do
@@ -167,6 +185,7 @@ class NordeaResponseTest < ActiveSupport::TestCase
     skip "Test environment doesn't return content"
 
     refute_nil @gui.content
+    refute_nil @gui_sha256.content
   end
 
   test 'certificate can be extracted from get certificate response' do

@@ -5,13 +5,44 @@ module Sepa
     # exclusively.
     #
     # @param node [Nokogiri::Node] the node which the digest is calculated from
+    # @param digest_method [Symbol] the digest method to use, defaults to :sha1
+    # @param canonicalization_mode [Integer] the canonicalization mode to use, defaults to Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0
     # @return [String] the calculated digest
-    def calculate_digest(node)
-      sha1 = OpenSSL::Digest::SHA1.new
+    def calculate_digest(node, digest_method: :sha1, canonicalization_mode: Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0)
+      digest =
+        case digest_method
+        when :sha256
+          OpenSSL::Digest::SHA256.new
+        else
+          OpenSSL::Digest::SHA1.new
+        end
 
-      canon_node = canonicalize_exclusively(node)
+      canon_node = node.canonicalize(canonicalization_mode)
 
-      encode(sha1.digest(canon_node)).gsub(/\s+/, "")
+      encode(digest.digest(canon_node)).gsub(/\s+/, "")
+    end
+
+    # Calculates signature for the given node.
+    # Uses the signing private key given to SoapBuilder for the signing.
+    # The node is canonicalized before signature calculation.
+    #
+    # @param node [Nokogiri::XML::Node] Name of the node to calculate signature from
+    # @param digest_method [Symbol] the digest method to use, defaults to :sha1
+    # @param canonicalization_mode [Integer] the canonicalization mode to use, defaults to Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0
+    # @return [String] the base64 encoded signature
+    def calculate_signature(node, digest_method: :sha1, canonicalization_mode: Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0)
+      digest =
+        case digest_method
+        when :sha256
+          OpenSSL::Digest::SHA256.new
+        else
+          OpenSSL::Digest::SHA1.new
+        end
+
+      canon_signed_info_node = node.canonicalize(canonicalization_mode)
+      signature = @signing_private_key.sign(digest, canon_signed_info_node)
+
+      encode(signature).gsub(/\s+/, "")
     end
 
     # Takes a certificate, adds begin and end certificate texts and splits it into multiple lines so
@@ -297,8 +328,18 @@ module Sepa
       signature = doc.at('xmlns|SignatureValue', xmlns: DSIG).content
       signature = decode(signature)
 
+      signature_method = doc.at('xmlns|SignatureMethod', xmlns: DSIG)&.[]('Algorithm')
+
+      digest =
+        case signature_method
+        when 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
+          OpenSSL::Digest::SHA256.new
+        else
+          OpenSSL::Digest::SHA1.new
+        end
+
       # Return true or false
-      certificate.public_key.verify(OpenSSL::Digest::SHA1.new, signature, node)
+      certificate.public_key.verify(digest, signature, node)
     end
 
     # Verifies that a certificate has been signed by the private key of a root certificate
