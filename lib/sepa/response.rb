@@ -232,8 +232,17 @@ module Sepa
         reference_nodes.each do |node|
           uri = node.attr('URI')
           digest_value = node.at('xmlns|DigestValue', xmlns: DSIG).content
+          digest_method_raw = node.at('xmlns|DigestMethod', xmlns: DSIG)&.[]('Algorithm')
 
-          references[uri] = digest_value
+          digest_method =
+            case digest_method_raw
+            when 'http://www.w3.org/2001/04/xmlenc#sha256'
+              :sha256
+            else
+              :sha1
+            end
+
+          references[uri] = { digest: digest_value, digest_method: digest_method }
         end
 
         references
@@ -247,11 +256,11 @@ module Sepa
       def find_nodes_to_verify(references)
         nodes = {}
 
-        references.each do |uri, _digest_value|
+        references.each do |uri, digest|
           uri = uri.sub(/^#/, '')
           node = find_node_by_uri(uri)
 
-          nodes[uri] = calculate_digest(node)
+          nodes[uri] = calculate_digest(node, digest_method: digest[:digest_method])
         end
 
         nodes
