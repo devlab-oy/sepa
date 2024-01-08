@@ -206,9 +206,14 @@ module Sepa
       # @todo Use the digest calculation method in {Utilities} instead of implementing the
       #   functionality again here.
       # @return [String] the base64 encoded digest of the {#application_request}
-      def calculate_digest
-        sha1 = OpenSSL::Digest::SHA1.new
-        encode(sha1.digest(@application_request.canonicalize(canonicalization_mode)))
+      def calculate_digest(digest_method: :sha1)
+        case digest_method
+          when :sha256
+            sha = OpenSSL::Digest::SHA256.new
+          else
+            sha = OpenSSL::Digest::SHA1.new
+        end
+        encode(sha.digest(@application_request.canonicalize(canonicalization_mode)))
       end
 
       # Adds value to signature node
@@ -227,11 +232,16 @@ module Sepa
       #
       # @return [String] the base64 encoded signature
       # @todo Move to {Utilities}
-      def calculate_signature
-        sha1 = OpenSSL::Digest::SHA1.new
+      def calculate_signature(digest_method: :sha1)
+        case digest_method
+          when :sha256
+            sha = OpenSSL::Digest::SHA256.new
+          else
+            sha = OpenSSL::Digest::SHA1.new
+        end
         dsig = 'http://www.w3.org/2000/09/xmldsig#'
         node = @application_request.at_css("dsig|SignedInfo", 'dsig' => dsig)
-        signature = @signing_private_key.sign(sha1, node.canonicalize(canonicalization_mode))
+        signature = @signing_private_key.sign(sha, node.canonicalize(canonicalization_mode))
         encode signature
       end
 
@@ -247,11 +257,19 @@ module Sepa
           get_service_certificates
         ).include? @command
 
+        if bank_digest_method == :sha256
+          digest_method_element = @application_request.at_css("dsig|DigestMethod", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
+          digest_method_element['Algorithm'] = 'http://www.w3.org/2001/04/xmlenc#sha256'
+
+          signature_method_element = @application_request.at_css("dsig|SignatureMethod", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
+          signature_method_element['Algorithm'] = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
+        end
+
         signature_node = remove_node('Signature', 'http://www.w3.org/2000/09/xmldsig#')
-        digest = calculate_digest
+        digest = calculate_digest(digest_method: bank_digest_method)
         add_node_to_root(signature_node)
         add_value_to_signature('DigestValue', digest)
-        add_value_to_signature('SignatureValue', calculate_signature)
+        add_value_to_signature('SignatureValue', calculate_signature(digest_method: bank_digest_method))
         add_value_to_signature('X509Certificate', format_cert(@own_signing_certificate))
       end
 
@@ -265,6 +283,12 @@ module Sepa
         return Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0 if @bank == :danske && @command == :renew_certificate
 
         Nokogiri::XML::XML_C14N_1_0
+      end
+      
+      def bank_digest_method
+        return :sha256 if @bank == :nordea
+
+        return :sha1
       end
   end
 end
