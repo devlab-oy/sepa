@@ -98,12 +98,17 @@ module Sepa
       # @param node [String] The name of the node
       # @return [String] the base64 encoded string
       # @todo remove this method and use {Utilities#calculate_digest}
-      def calculate_digest(doc, node)
-        sha1       = OpenSSL::Digest::SHA1.new
+      def calculate_digest(doc, node, digest_method: :sha1)
+        case digest_method
+          when :sha256
+            sha = OpenSSL::Digest::SHA256.new
+          else
+            sha = OpenSSL::Digest::SHA1.new
+        end
         node       = doc.at_css(node)
         canon_node = canonicalize_exclusively(node)
 
-        encode(sha1.digest(canon_node)).gsub(/\s+/, "")
+        encode(sha.digest(canon_node)).gsub(/\s+/, "")
       end
 
       # Calculates signature for the given node in the given document. Uses the signing private key
@@ -114,11 +119,16 @@ module Sepa
       # @param node [String] Name of the node to calculate signature from
       # @return [String] the base64 encoded signature
       # @todo refactor to use canonicalization from utilities
-      def calculate_signature(doc, node)
-        sha1                   = OpenSSL::Digest::SHA1.new
+      def calculate_signature(doc, node, digest_method: sha1)
+        case digest_method
+          when :sha256
+            sha = OpenSSL::Digest::SHA256.new
+          else
+            sha = OpenSSL::Digest::SHA1.new
+        end
         node                   = doc.at_css(node)
         canon_signed_info_node = canonicalize_exclusively(node)
-        signature              = @signing_private_key.sign(sha1, canon_signed_info_node)
+        signature              = @signing_private_key.sign(sha, canon_signed_info_node)
 
         encode(signature).gsub(/\s+/, "")
       end
@@ -172,17 +182,17 @@ module Sepa
 
         timestamp_id = set_node_id(@header_template, OASIS_UTILITY, 'Timestamp', 0)
 
-        timestamp_digest = calculate_digest(@header_template, 'wsu|Timestamp')
+        timestamp_digest = calculate_digest(@header_template, 'wsu|Timestamp', digest_method: bank_digest_method)
         dsig = "dsig|Reference[URI='##{timestamp_id}'] dsig|DigestValue"
         set_node(@header_template, dsig, timestamp_digest)
 
         body_id = set_node_id(@template, ENVELOPE, 'Body', 1)
 
-        body_digest = calculate_digest(@template, 'env|Body')
+        body_digest = calculate_digest(@template, 'env|Body', digest_method: bank_digest_method)
         dsig = "dsig|Reference[URI='##{body_id}'] dsig|DigestValue"
         set_node(@header_template, dsig, body_digest)
 
-        signature = calculate_signature(@header_template, 'dsig|SignedInfo')
+        signature = calculate_signature(@header_template, 'dsig|SignedInfo', digest_method: bank_digest_method)
         set_node(@header_template, 'dsig|SignatureValue', signature)
 
         formatted_cert = format_cert(@own_signing_certificate)
@@ -216,6 +226,12 @@ module Sepa
 
       def set_application_request
         set_node @template, 'bxd|ApplicationRequest', @application_request.to_base64
+      end
+      
+      def bank_digest_method
+        return :sha256 if @bank == :nordea
+
+        return :sha1
       end
   end
 end
