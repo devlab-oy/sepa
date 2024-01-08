@@ -40,7 +40,8 @@ module Sepa
 
       are.at('xmlns|Signature', xmlns: DSIG).remove
 
-      actual_digest = calculate_digest(are)
+      
+      actual_digest = calculate_digest(are, bank_digest_method)
 
       return true if digest_value == actual_digest
 
@@ -87,6 +88,12 @@ module Sepa
         end
 
       verify_certificate_against_root_certificate(certificate, root_certificate)
+    end
+
+    def bank_digest_method
+      return :sha256 if @bank == :nordea
+
+      return :sha1
     end
 
     private

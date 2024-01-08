@@ -6,12 +6,17 @@ module Sepa
     #
     # @param node [Nokogiri::Node] the node which the digest is calculated from
     # @return [String] the calculated digest
-    def calculate_digest(node)
-      sha1 = OpenSSL::Digest::SHA1.new
-
+    def calculate_digest(node, digest_method: :sha1)
+      case digest_method
+        when :sha256
+          sha = OpenSSL::Digest::SHA256.new
+        else
+          sha = OpenSSL::Digest::SHA1.new
+      end
+      
       canon_node = canonicalize_exclusively(node)
 
-      encode(sha1.digest(canon_node)).gsub(/\s+/, "")
+      encode(sha.digest(canon_node)).gsub(/\s+/, "")
     end
 
     # Takes a certificate, adds begin and end certificate texts and splits it into multiple lines so
