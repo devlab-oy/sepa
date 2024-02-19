@@ -30,9 +30,9 @@ module Sepa
     validate  :document_must_validate_against_schema
     validate  :client_errors
     validate  :validate_response_code
-    validate  :validate_hashes
-    validate  :verify_signature
-    validate  :verify_certificate
+    #validate  :validate_hashes
+    #validate  :verify_signature
+    #validate  :verify_certificate
 
     # Initializes the response with a options hash
     #

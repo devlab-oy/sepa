@@ -11,6 +11,7 @@ class NordeaGenericSoapBuilderTest < ActiveSupport::TestCase
 
     @soap_request = Sepa::SoapBuilder.new(@nordea_generic_params)
     @doc = Nokogiri::XML(@soap_request.to_xml)
+    print @doc
   end
 
   def test_should_get_error_if_command_missing

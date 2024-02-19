@@ -209,8 +209,10 @@ module Sepa
       def calculate_digest(digest_method: :sha1)
         case digest_method
           when :sha256
+            print "DOING 256 FOR DIGEST IN AR"
             sha = OpenSSL::Digest::SHA256.new
           else
+            print "DOING 1 FOR DIGEST IN AR"
             sha = OpenSSL::Digest::SHA1.new
         end
         encode(sha.digest(@application_request.canonicalize(canonicalization_mode)))
@@ -235,8 +237,10 @@ module Sepa
       def calculate_signature(digest_method: :sha1)
         case digest_method
           when :sha256
+            print "DOING 256 FOR SIG IN AR"
             sha = OpenSSL::Digest::SHA256.new
           else
+            print "DOING 1 FOR SIG IN AR"
             sha = OpenSSL::Digest::SHA1.new
         end
         dsig = 'http://www.w3.org/2000/09/xmldsig#'

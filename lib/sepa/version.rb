@@ -3,7 +3,7 @@ module Sepa
   MAJOR = 1
   MINOR = 1
   TINY  = 14
-  PRE   = nil
+  PRE   = 4
 
   VERSION = [MAJOR, MINOR, TINY, PRE].compact.join('.')
 end
