@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions targetNamespace="http://bxd.fi/CertificateService" xmlns:tns="http://bxd.fi/CertificateService" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<wsdl:types>
+		<xsd:schema targetNamespace="http://bxd.fi/CertificateService" elementFormDefault="qualified" attributeFormDefault="qualified">
+
+
+			<xsd:simpleType name="SoftwareId">
+				<xsd:restriction base="xsd:string">
+					<xsd:minLength value="1"/>
+					<xsd:maxLength value="80"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+
+			<xsd:simpleType name="ResponseText">
+				<xsd:restriction base="xsd:string">
+					<xsd:minLength value="1"/>
+					<xsd:maxLength value="80"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+
+
+			<xsd:simpleType name="ResponseCode">
+				<xsd:restriction base="xsd:string">
+					<xsd:minLength value="1"/>
+					<xsd:maxLength value="16"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+
+			<xsd:simpleType name="CustomerId">
+				<xsd:restriction base="xsd:string">
+					<xsd:minLength value="1"/>
+					<xsd:maxLength value="16"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+
+			<xsd:complexType name="CertificateRequestHeader">
+				<xsd:sequence>
+					<xsd:element name="SenderId" type="xsd:string" nillable="false"/>
+					<xsd:element name="RequestId" type="xsd:string" nillable="false"/>
+					<xsd:element name="Timestamp" type="xsd:dateTime" nillable="false"/>
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:complexType name="CertificateResponseHeader">
+				<xsd:sequence>
+					<xsd:element name="SenderId" type="xsd:string" nillable="false"/>
+					<xsd:element name="RequestId" type="xsd:string" nillable="false"/>
+					<xsd:element name="Timestamp" type="xsd:dateTime" nillable="false"/>
+					<xsd:element name="ResponseCode" type="tns:ResponseCode" nillable="true"/>
+					<xsd:element name="ResponseText" type="tns:ResponseText" nillable="true"/>
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:complexType name="GetCertificateRequest">
+				<xsd:sequence>
+					<xsd:element name="RequestHeader" type="tns:CertificateRequestHeader" nillable="false"/>
+					<xsd:element name="ApplicationRequest" type="xsd:base64Binary" nillable="false"/>
+			</xsd:sequence>
+			</xsd:complexType>
+			<xsd:complexType name="GetCertificateResponse">
+				<xsd:sequence>
+					<xsd:element name="ResponseHeader" type="tns:CertificateResponseHeader" nillable="false"/>
+					<xsd:element name="ApplicationResponse" type="xsd:base64Binary"/>
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:complexType name="GetServiceCertificatesRequest">
+				<xsd:sequence>
+					<xsd:element name="RequestHeader" type="tns:CertificateRequestHeader" nillable="false"/>
+					<xsd:element name="ApplicationRequest" type="xsd:base64Binary" nillable="false"/>
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:complexType name="GetServiceCertificatesResponse">
+				<xsd:sequence>
+					<xsd:element name="ResponseHeader" type="tns:CertificateResponseHeader" nillable="false"/>
+					<xsd:element name="ApplicationResponse" type="xsd:base64Binary" nillable="false"/>
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:complexType name="RevokeCertificateRequest">
+				<xsd:sequence>
+					<xsd:element name="RequestHeader" type="tns:CertificateRequestHeader" nillable="false"/>
+					<xsd:element name="ApplicationRequest" type="xsd:base64Binary" nillable="false"/>
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:complexType name="RevokeCertificateResponse">
+				<xsd:sequence>
+					<xsd:element name="ResponseHeader" type="tns:CertificateResponseHeader" nillable="false"/>
+					<xsd:element name="ApplicationResponse" type="xsd:base64Binary" nillable="false"/>
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:complexType name="CertificateServiceFaultDetail">
+				<xsd:sequence>
+					<xsd:element minOccurs="0" maxOccurs="1" name="category" type="xsd:string"/>
+					<xsd:element minOccurs="0" maxOccurs="1" name="code" type="xsd:string"/>
+				</xsd:sequence>
+			</xsd:complexType>
+		</xsd:schema>
+		<xsd:schema targetNamespace="http://bxd.fi/CertificateService" elementFormDefault="qualified" attributeFormDefault="qualified">
+			<xsd:element name="getCertificatein" type="tns:GetCertificateRequest"/>
+			<xsd:element name="getCertificateout" type="tns:GetCertificateResponse"/>
+			<xsd:element name="getServiceCertificatesin" type="tns:GetServiceCertificatesRequest"/>
+			<xsd:element name="getServiceCertificatesout" type="tns:GetServiceCertificatesResponse"/>
+			<xsd:element name="revokeCertificatein" type="tns:RevokeCertificateRequest"/>
+			<xsd:element name="revokeCertificateout" type="tns:RevokeCertificateResponse"/>
+			<xsd:element name="certificateServiceFaultElement" type="tns:CertificateServiceFaultDetail"/>
+		</xsd:schema>
+	</wsdl:types>
+	<wsdl:message name="certificateServiceFault">
+		<wsdl:part name="certificateServiceFault" element="tns:certificateServiceFaultElement"/>
+	</wsdl:message>
+	<wsdl:message name="getCertificateRequest">
+		<wsdl:part element="tns:getCertificatein" name="getCertificatein"/>
+	</wsdl:message>
+	<wsdl:message name="getCertificateResponse">
+		<wsdl:part element="tns:getCertificateout" name="getCertificateout"/>
+	</wsdl:message>
+	<wsdl:message name="getServiceCertificatesRequest">
+		<wsdl:part element="tns:getServiceCertificatesin" name="getServiceCertificatesin"/>
+	</wsdl:message>
+	<wsdl:message name="getServiceCertificatesResponse">
+		<wsdl:part element="tns:getServiceCertificatesout" name="getServiceCertificatesout"/>
+	</wsdl:message>
+	<wsdl:message name="revokeCertificateRequest">
+		<wsdl:part element="tns:revokeCertificatein" name="revokeCertificatein"/>
+	</wsdl:message>
+	<wsdl:message name="revokeCertificateResponse">
+		<wsdl:part element="tns:revokeCertificateout" name="revokeCertificateout"/>
+	</wsdl:message>
+	<wsdl:portType name="CertificateServicePortType">
+		<wsdl:operation name="getCertificate">
+			<wsdl:input message="tns:getCertificateRequest" name="getCertificateRequest"/>
+			<wsdl:output message="tns:getCertificateResponse" name="getCertificateResponse"/>
+			<wsdl:fault message="tns:certificateServiceFault" name="certificateServiceFault"/>
+		</wsdl:operation>
+		<wsdl:operation name="getServiceCertificates">
+			<wsdl:input message="tns:getServiceCertificatesRequest" name="getServiceCertificatesRequest"/>
+			<wsdl:output message="tns:getServiceCertificatesResponse" name="getServiceCertificatesResponse"/>
+			<wsdl:fault message="tns:certificateServiceFault" name="certificateServiceFault"/>
+		</wsdl:operation>
+		<wsdl:operation name="revokeCertificate">
+			<wsdl:input message="tns:revokeCertificateRequest" name="revokeCertificateRequest"/>
+			<wsdl:output message="tns:revokeCertificateResponse" name="revokeCertificateResponse"/>
+			<wsdl:fault message="tns:certificateServiceFault" name="certificateServiceFault"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="CertificateServiceHttpBinding" type="tns:CertificateServicePortType">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="getCertificate">
+			<soap:operation soapAction=""/>
+			<wsdl:input name="getCertificateRequest">
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output name="getCertificateResponse">
+				<soap:body use="literal"/>
+			</wsdl:output>
+			<wsdl:fault name="certificateServiceFault">
+				<soap:fault use="literal" name="certificateServiceFault"/>
+			</wsdl:fault>
+		</wsdl:operation>
+		<wsdl:operation name="getServiceCertificates">
+			<soap:operation soapAction=""/>
+			<wsdl:input name="getServiceCertificatesRequest">
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output name="getServiceCertificatesResponse">
+				<soap:body use="literal"/>
+			</wsdl:output>
+			<wsdl:fault name="certificateServiceFault">
+				<soap:fault use="literal" name="certificateServiceFault"/>
+			</wsdl:fault>
+		</wsdl:operation>
+		<wsdl:operation name="revokeCertificate">
+			<soap:operation soapAction=""/>
+			<wsdl:input name="revokeCertificateRequest">
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output name="revokeCertificateResponse">
+				<soap:body use="literal"/>
+			</wsdl:output>
+			<wsdl:fault name="certificateServiceFault">
+				<soap:fault use="literal" name="certificateServiceFault"/>
+			</wsdl:fault>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="CertificateService">
+		<wsdl:port binding="tns:CertificateServiceHttpBinding" name="CertificateServiceHttpPort">
+			<soap:address location="https://filetransfer.nordea.com/services/CertificateService/sha2"/>
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>
