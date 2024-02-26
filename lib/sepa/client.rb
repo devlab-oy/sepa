@@ -268,8 +268,8 @@ module Sepa
     # @return [Response]
     def send_request
       raise ArgumentError, errors.messages unless valid?
-      print savon_globals
-      print savon_locals
+      #print savon_globals
+      #print savon_locals
 
       client = Savon.client(savon_globals)
 

@@ -101,10 +101,10 @@ module Sepa
       def calculate_digest(doc, node, digest_method: :sha1)
         case digest_method
           when :sha256
-            print "DOING 256 FOR DIGES IN BUILDERT"
+            #print "DOING 256 FOR DIGES IN BUILDERT"
             sha = OpenSSL::Digest::SHA256.new
           else
-            print "DOING 1 FOR DIGEST IN BUILDER"
+            #print "DOING 1 FOR DIGEST IN BUILDER"
             sha = OpenSSL::Digest::SHA1.new
         end
         node       = doc.at_css(node)
@@ -124,10 +124,10 @@ module Sepa
       def calculate_signature(doc, node, digest_method: sha1)
         case digest_method
           when :sha256
-            print "DOING 256 FOR SIG IN BUILDER"
+            #print "DOING 256 FOR SIG IN BUILDER"
             sha = OpenSSL::Digest::SHA256.new
           else
-            print "DOING 1 FOR SIG IN BUILDER"
+            #print "DOING 1 FOR SIG IN BUILDER"
             sha = OpenSSL::Digest::SHA1.new
         end
         node                   = doc.at_css(node)
@@ -229,7 +229,7 @@ module Sepa
       end
 
       def set_application_request
-        print @application_request.to_xml
+        #print @application_request.to_xml
         set_node @template, 'bxd|ApplicationRequest', @application_request.to_base64
       end
       
