@@ -165,6 +165,8 @@ response.own_signing_certificate
 
 ### Downloading Danske Bank Certificates
 
+For Danske, `customer_id` consists of 6 characters (`digit` + `letter` + `4 digits`) and `pin` contains 4 alphanumeric characters.
+
 **Bank's certificates**
 
 Define parameters hash for client
@@ -172,10 +174,10 @@ Define parameters hash for client
 ```ruby
 params = {
   bank: :danske,
-  target_id: 'DABAFIHH',
   command: :get_bank_certificate,
   customer_id: '360817',
-  environment: 'test'
+  environment: 'test',
+  pin: '1234'
 }
 ```
 
@@ -194,20 +196,20 @@ response = client.send_request
 Make sure the response is valid
 
 ```ruby
-response.valid?
+puts response.valid?
 ```
 
 Get the certificates from the response and save them in a safe place
 
 ```ruby
 # Bank's encryption certificate
-response.bank_encryption_certificate
+puts response.bank_encryption_certificate
 
 # Bank's signing certificate
-response.bank_signing_certificate
+puts response.bank_signing_certificate
 
 # Bank's root certificate
-response.bank_root_certificate
+puts response.bank_root_certificate
 ```
 
 **Own certificates**
@@ -220,7 +222,7 @@ params = {
   bank_encryption_certificate: '...banks encryption certificate content from above...',
   command: :create_certificate,
   customer_id: '360817',
-  environment: 'production',
+  environment: 'test',
   encryption_csr: '...your encryption.csr content ...',
   signing_csr: '...your signing.csr content...',
   pin: '1234'
@@ -242,20 +244,20 @@ response = client.send_request
 Make sure the response is valid
 
 ```ruby
-response.valid?
+puts response.valid?
 ```
 
 Get the certificates from the response and save them in a safe place
 
 ```ruby
 # Own encryption certificate
-response.own_encryption_certificate
+puts response.own_encryption_certificate
 
 # Own signing certificate
-response.own_signing_certificate
+puts response.own_signing_certificate
 
 # CA Certificate used for signing own certificates
-response.ca_certificate
+puts response.ca_certificate
 ```
 
 ## Client Parameters
