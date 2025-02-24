@@ -224,7 +224,7 @@ module Sepa
       self.language      ||= 'EN'
       self.status        ||= 'NEW'
       self.savon_options ||= {
-        globals: {ssl_version: :TLSv1_2},
+        globals: {ssl_version: :TLSv1_2, ssl_verify_mode: :none},
         locals: {},
       }
     end
