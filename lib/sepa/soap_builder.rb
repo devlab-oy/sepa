@@ -234,9 +234,7 @@ module Sepa
       end
       
       def bank_digest_method
-        return :sha256 if @bank == :nordea
-
-        return :sha1
+        return :sha256
       end
   end
 end
