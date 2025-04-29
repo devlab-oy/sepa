@@ -29,7 +29,9 @@ module Sepa
       @status                      = params[:status]
       @target_id                   = params[:target_id]
 
-      @application_request         = ApplicationRequest.new params
+      @application_request = ApplicationRequest.new(params)
+      adjust_algorithms_for_bank(@application_request.to_nokogiri)
+
       @header_template             = load_header_template
       @template                    = load_body_template SOAP_TEMPLATE_PATH
 
@@ -141,8 +143,16 @@ module Sepa
       #
       # @return [Nokogiri::XML] the header as Nokogiri document
       def load_header_template
-        path = File.open("#{SOAP_TEMPLATE_PATH}/header.xml")
-        Nokogiri::XML(path)
+        doc = Nokogiri::XML(File.read("#{SOAP_TEMPLATE_PATH}/header.xml"))
+        adjust_algorithms_for_bank(doc)
+        doc
+      end
+
+      def build_application_request(action)
+        path = "#{APP_REQ_TEMPLATE_PATH}/#{action}.xml"
+        doc  = Nokogiri::XML(File.read(path))
+        adjust_algorithms_for_bank(doc)
+        doc
       end
 
       # Sets value to a node's content in the given document
@@ -234,7 +244,24 @@ module Sepa
       end
       
       def bank_digest_method
-        return :sha256
+        return :sha1   if @bank == :samlink   # Samlink = SHA-1
+        :sha256                               # everyone else
+      end
+
+      SHA1_SIG  = 'http://www.w3.org/2000/09/xmldsig#rsa-sha1'
+      SHA1_DIG  = 'http://www.w3.org/2000/09/xmldsig#sha1'
+      SHA256_SIG = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
+      SHA256_DIG = 'http://www.w3.org/2001/04/xmlenc#sha256'
+      
+      def adjust_algorithms_for_bank(doc)
+        if @bank == :samlink
+          # templates are SHA-256, flip them back to SHA-1
+          doc.xpath('//dsig:SignatureMethod[@Algorithm=$a]', nil, a: SHA256_SIG)
+             .each { |n| n['Algorithm'] = SHA1_SIG }
+      
+          doc.xpath('//dsig:DigestMethod[@Algorithm=$a]',   nil, a: SHA256_DIG)
+             .each { |n| n['Algorithm'] = SHA1_DIG }
+        end
       end
   end
 end
