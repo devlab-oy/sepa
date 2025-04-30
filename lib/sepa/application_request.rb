@@ -206,7 +206,7 @@ module Sepa
       # @todo Use the digest calculation method in {Utilities} instead of implementing the
       #   functionality again here.
       # @return [String] the base64 encoded digest of the {#application_request}
-      def calculate_digest(digest_method: :sha1)
+      def calculate_digest(digest_method: bank_digest_method)
         case digest_method
           when :sha256
             #print "DOING 256 FOR DIGEST IN AR"
@@ -234,7 +234,7 @@ module Sepa
       #
       # @return [String] the base64 encoded signature
       # @todo Move to {Utilities}
-      def calculate_signature(digest_method: :sha1)
+      def calculate_signature(digest_method: bank_digest_method)
         case digest_method
           when :sha256
             #print "DOING 256 FOR SIG IN AR"
