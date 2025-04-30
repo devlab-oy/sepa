@@ -293,8 +293,10 @@ module Sepa
 
       # Handles errors that have been passed from client
       def client_errors
-        client_error = error.to_s
-        errors.add(:base, client_error) unless client_error.empty?
+        return if response_code == '00'            # treat blank as success
+        return unless error_doc.at('//Fault')
+      
+        errors.add(:base, response_code: response_code, response_text: response_text)
       end
 
       # Find node by it's reference URI in soap header
