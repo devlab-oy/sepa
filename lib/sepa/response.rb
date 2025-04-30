@@ -208,7 +208,12 @@ module Sepa
     # @return [String] if the response code can be found
     # @return [nil] if the response code cannot be found
     def response_code(namespace: BXD, node_name: 'ResponseCode')
-      (node = doc.at("xmlns|#{node_name}", xmlns: namespace)) && node.content && node.content.rjust(2, '0')
+      node = doc.at("xmlns|#{node_name}", xmlns: namespace)
+      return nil unless node
+    
+      code = node.content.to_s.strip
+      code = '00' if code.empty?         # ← add this line
+      code.rjust(2, '0')
     end
 
     # Returns the response text of the response
