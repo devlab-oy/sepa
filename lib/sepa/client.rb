@@ -275,6 +275,10 @@ module Sepa
 
       begin
         error = nil
+
+        xml = savon_locals[:xml]
+        File.write("#{Dir.home}/request.xml", xml, perm: 0o600) if ENV['SEPA_DUMP']
+    
         response = client.call(soap_command, savon_locals)
         response &&= response.to_xml
       rescue Savon::Error => e
