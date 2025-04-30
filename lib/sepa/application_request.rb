@@ -290,9 +290,8 @@ module Sepa
       end
       
       def bank_digest_method
-        return :sha256 if @bank == :nordea
-
-        return :sha1
+        return :sha1   if @bank == :samlink   # Samlink still on SHA-1
+        :sha256                               # everyone else (Nordea, OP, Danske…)
       end
   end
 end
