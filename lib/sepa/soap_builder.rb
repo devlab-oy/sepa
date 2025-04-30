@@ -248,20 +248,23 @@ module Sepa
         :sha256                               # everyone else
       end
 
-      SHA1_SIG  = 'http://www.w3.org/2000/09/xmldsig#rsa-sha1'
-      SHA1_DIG  = 'http://www.w3.org/2000/09/xmldsig#sha1'
+      SHA1_SIG   = 'http://www.w3.org/2000/09/xmldsig#rsa-sha1'
+      SHA1_DIG   = 'http://www.w3.org/2000/09/xmldsig#sha1'
       SHA256_SIG = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
       SHA256_DIG = 'http://www.w3.org/2001/04/xmlenc#sha256'
       
-      def adjust_algorithms_for_bank(doc)
-        if @bank == :samlink
-          # templates are SHA-256, flip them back to SHA-1
-          doc.xpath('//dsig:SignatureMethod[@Algorithm=$a]', nil, a: SHA256_SIG)
-             .each { |n| n['Algorithm'] = SHA1_SIG }
+      DSIG_NS = { 'dsig' => 'http://www.w3.org/2000/09/xmldsig#' }.freeze
       
-          doc.xpath('//dsig:DigestMethod[@Algorithm=$a]',   nil, a: SHA256_DIG)
-             .each { |n| n['Algorithm'] = SHA1_DIG }
-        end
+      def adjust_algorithms_for_bank(doc)
+        return unless @bank == :samlink          # only Samlink needs SHA-1
+      
+        # SignatureMethod: change rsa-sha256 → rsa-sha1
+        doc.xpath('//dsig:SignatureMethod[@Algorithm=$a]', DSIG_NS, a: SHA256_SIG)
+           .each { |n| n['Algorithm'] = SHA1_SIG }
+      
+        # DigestMethod: change sha256 → sha1
+        doc.xpath('//dsig:DigestMethod[@Algorithm=$a]',    DSIG_NS, a: SHA256_DIG)
+           .each { |n| n['Algorithm'] = SHA1_DIG }
       end
   end
 end
