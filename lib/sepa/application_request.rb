@@ -5,6 +5,9 @@ module Sepa
   class ApplicationRequest
     include Utilities
 
+    # namespace map for dsig XPath/CSS look-ups
+    DSIG_NS = { 'dsig' => 'http://www.w3.org/2000/09/xmldsig#' }.freeze
+    
     # Initializes the {ApplicationRequest} with a params hash. The application request is usually
     # initialized by the {SoapBuilder}. The xml template of the application request is also loaded
     # here.
@@ -258,9 +261,9 @@ module Sepa
         get_certificate get_service_certificates).include? @command
 
         if bank_digest_method == :sha256
-          @application_request.at_css('dsig|DigestMethod')['Algorithm'] =
+          @application_request.xpath('//dsig:DigestMethod', DSIG_NS).first['Algorithm'] =
             'http://www.w3.org/2001/04/xmlenc#sha256'
-          @application_request.at_css('dsig|SignatureMethod')['Algorithm'] =
+          @application_request.xpath('//dsig:SignatureMethod', DSIG_NS).first['Algorithm'] =
             'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
         end
 
