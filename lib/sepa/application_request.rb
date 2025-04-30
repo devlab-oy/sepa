@@ -254,26 +254,22 @@ module Sepa
       # {#own_signing_certificate} to the signature node.
       def process_signature
         # No signature for Certificate Requests
-        return if %i(
-          create_certificate
-          get_bank_certificate
-          get_certificate
-          get_service_certificates
-        ).include? @command
+        return if %i(create_certificate get_bank_certificate
+        get_certificate get_service_certificates).include? @command
 
         if bank_digest_method == :sha256
-          digest_method_element = @application_request.at_css("dsig|DigestMethod", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
-          digest_method_element['Algorithm'] = 'http://www.w3.org/2001/04/xmlenc#sha256'
-
-          signature_method_element = @application_request.at_css("dsig|SignatureMethod", 'dsig' => 'http://www.w3.org/2000/09/xmldsig#')
-          signature_method_element['Algorithm'] = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
+          @application_request.at_css('dsig|DigestMethod')['Algorithm'] =
+            'http://www.w3.org/2001/04/xmlenc#sha256'
+          @application_request.at_css('dsig|SignatureMethod')['Algorithm'] =
+            'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
         end
 
         signature_node = remove_node('Signature', 'http://www.w3.org/2000/09/xmldsig#')
         digest = calculate_digest(digest_method: bank_digest_method)
         add_node_to_root(signature_node)
-        add_value_to_signature('DigestValue', digest)
-        add_value_to_signature('SignatureValue', calculate_signature(digest_method: bank_digest_method))
+        add_value_to_signature('DigestValue',  digest)
+        add_value_to_signature('SignatureValue',
+                               calculate_signature(digest_method: bank_digest_method))
         add_value_to_signature('X509Certificate', format_cert(@own_signing_certificate))
       end
 
