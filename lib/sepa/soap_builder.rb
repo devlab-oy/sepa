@@ -29,7 +29,7 @@ module Sepa
       @status                      = params[:status]
       @target_id                   = params[:target_id]
 
-      @application_request = ApplicationRequest.new(params)
+      @application_request = ApplicationRequest.new(params.merge(bank: @bank))
       adjust_algorithms_for_bank(@application_request.to_nokogiri)
 
       @header_template             = load_header_template
