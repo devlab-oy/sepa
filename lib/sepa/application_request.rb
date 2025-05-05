@@ -261,12 +261,14 @@ module Sepa
         get_certificate get_service_certificates).include? @command
 
         if bank_digest_method == :sha256
-          @application_request.xpath('//dsig:DigestMethod', DSIG_NS).first['Algorithm'] =
-            'http://www.w3.org/2001/04/xmlenc#sha256'
-          @application_request.xpath('//dsig:SignatureMethod', DSIG_NS).first['Algorithm'] =
-            'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
+          if (d = @application_request.at_css('dsig|DigestMethod', DSIG_NS))
+            d['Algorithm'] = SHA256_DIG
+          end
+          if (s = @application_request.at_css('dsig|SignatureMethod', DSIG_NS))
+            s['Algorithm'] = SHA256_SIG
+          end
         end
-
+        
         signature_node = remove_node('Signature', 'http://www.w3.org/2000/09/xmldsig#')
         digest = calculate_digest(digest_method: bank_digest_method)
         add_node_to_root(signature_node)

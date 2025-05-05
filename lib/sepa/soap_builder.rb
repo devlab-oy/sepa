@@ -30,7 +30,8 @@ module Sepa
       @target_id                   = params[:target_id]
 
       @application_request = ApplicationRequest.new(params.merge(bank: @bank))
-      doc = @application_request.instance_variable_get(:@doc)
+      doc = @application_request.instance_variable_get(:@application_request)
+
       adjust_algorithms_for_bank(doc)
 
       @header_template             = load_header_template
