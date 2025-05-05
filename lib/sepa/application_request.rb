@@ -7,6 +7,10 @@ module Sepa
 
     # namespace map for dsig XPath/CSS look-ups
     DSIG_NS = { 'dsig' => 'http://www.w3.org/2000/09/xmldsig#' }.freeze
+    SHA1_SIG   = 'http://www.w3.org/2000/09/xmldsig#rsa-sha1'.freeze
+    SHA1_DIG   = 'http://www.w3.org/2000/09/xmldsig#sha1'.freeze
+    SHA256_SIG = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'.freeze
+    SHA256_DIG = 'http://www.w3.org/2001/04/xmlenc#sha256'.freeze
     
     # Initializes the {ApplicationRequest} with a params hash. The application request is usually
     # initialized by the {SoapBuilder}. The xml template of the application request is also loaded
