@@ -228,7 +228,7 @@
 	</wsdl:binding>
 	<wsdl:service name="CorporateFileService">
 		<wsdl:port binding="tns:CorporateFileServiceHttpBinding" name="CorporateFileServiceHttpPort">
-			<wsdlsoap:address location="https://wsk.op.fi/services/CorporateFileService"/>
+			<wsdlsoap:address location="https://wsk.op.fi/services/CorporateFileServiceV2"/>
 		</wsdl:port>
 	</wsdl:service>
 </wsdl:definitions>
