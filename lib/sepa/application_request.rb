@@ -115,8 +115,9 @@ module Sepa
 
       # Sets nodes' contents for upload file request
       def set_upload_file_nodes
-        set_node_b("Content", @content)
-        set_node("FileType", @file_type)
+        cleaned_type = @file_type.to_s.delete(' ')
+        set_node_b 'Content',  @content
+        set_node   'FileType', cleaned_type
         add_node_after('Environment', 'TargetId', content: @target_id) if @bank == :nordea
       end
 
